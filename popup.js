@@ -34,7 +34,7 @@
 
     function createRow(windowId, tabCount, data) {
         const $row = document.importNode($rowTemplate, true);
-        $row.dataset.id = windowId;
+        $row._id = windowId;
         $row.querySelector('.windowName').innerText = data.name || data.defaultName;
         $row.querySelector('.tabCount').innerText = tabCount;
         return $row;
@@ -55,8 +55,7 @@
     async function onClickRow(e) {
         const $row = e.target.closest('tr');
         if ($row) {
-            const id = parseInt($row.dataset.id);
-            await browser.windows.update(id, { focused: true });
+            await browser.windows.update($row._id, { focused: true });
         }
     }
 
