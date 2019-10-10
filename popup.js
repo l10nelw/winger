@@ -3,19 +3,26 @@
     const BgP = await browser.runtime.getBackgroundPage();
     const $windowList = document.getElementById('windowList');
     const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-    main();    
+    main();
     
     async function main() {
-        let allWindows = await browser.windows.getAll(BgP.POPULATE_TABS);
+        const allWindows = await browser.windows.getAll(BgP.POPULATE_TABS);
         let currentWindowId;
         allWindows.sort(sortLastFocusedDescending);
+
+        // Find current window and create rows for all other windows
         for (const window of allWindows) {
+            const windowId = window.id;
             if (window.focused) {
-                currentWindowId = window.id;
+                currentWindowId = windowId;
             } else {
-                $windowList.appendChild(createRow(window));
+                const tabCount = window.tabs.length;
+                const data = BgP.WindowsData[windowId];
+                const $row = createRow(windowId, tabCount, data);
+                $windowList.appendChild($row);
             }
         }
+        
         initWindowNamePanel(currentWindowId);
         $windowList.onclick = onClickRow;
     }
@@ -25,11 +32,8 @@
                BgP.WindowsData[windowA.id].lastFocused;
     }
 
-    function createRow(window) {
+    function createRow(windowId, tabCount, data) {
         const $row = document.importNode($rowTemplate, true);
-        const windowId = window.id;
-        const tabCount = window.tabs.length;
-        const data = BgP.WindowsData[windowId];
         $row.dataset.id = windowId;
         $row.querySelector('.windowName').innerText = data.name || data.defaultName;
         $row.querySelector('.tabCount').innerText = tabCount;
