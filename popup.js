@@ -14,7 +14,7 @@
             if (window.focused) {
                 currentWindowId = window.id;
             } else {
-                $windowList.appendChild(createRow(window));
+                addRow(window);
             }
         }
         initWindowNamePanel(currentWindowId);
@@ -27,7 +27,7 @@
                BgP.WindowsData[windowA.id].lastFocused;
     }
 
-    function createRow(window) {
+    function addRow(window) {
         const $row = document.importNode($rowTemplate, true);
         const windowId = window.id;
         const tabCount = window.tabs.length;
@@ -35,7 +35,7 @@
         $row._id = windowId;
         $row.querySelector('.windowName').innerText = data.name || data.defaultName;
         $row.querySelector('.tabCount').innerText = tabCount;
-        return $row;
+        $windowList.appendChild($row);
     }
 
     function initWindowNamePanel(id) {
