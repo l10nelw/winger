@@ -4,7 +4,7 @@
     const $windowList = document.getElementById('windowList');
     const $searchInput = document.getElementById('searchInput');
     const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-    main();    
+    main();
     
     async function main() {
         let allWindows = await browser.windows.getAll(BgP.POPULATE_TABS);
@@ -19,7 +19,7 @@
         }
         initWindowNamePanel(currentWindowId);
         $windowList.addEventListener('click', onClickRow);
-        $searchInput.addEventListener('keyup', searchWindowNames);
+        $searchInput.addEventListener('keyup', onSearchInput);
     }
 
     function sortLastFocusedDescending(windowA, windowB) {
@@ -50,24 +50,43 @@
         // };
     }
 
-    async function onClickRow(e) {
+    function onClickRow(e) {
         const $row = e.target.closest('tr');
         if ($row) {
-            await browser.windows.update($row._id, { focused: true });
+            focusWindow($row._id);
         }
     }
 
-    function searchWindowNames() {
+    function onSearchInput(e) {
         const string = $searchInput.value;
-        for (const $row of $windowList.children) {
-            const data = BgP.WindowsData[$row._id];
-            const isMatch = data.name.includes(string) || data.defaultName.includes(string);
-            console.log(string, isMatch);
-            $row.hidden = !isMatch;
+        const $firstMatch = searchWindowNames(string);
+        if (e.key == 'Enter') {
+            focusWindow($firstMatch._id);
         }
     }
 
+    function searchWindowNames(string) {
+        let $firstMatch;
+        if (string) {
+            for (const $row of $windowList.children) {
+                const data = BgP.WindowsData[$row._id];
+                const isMatch = data.name.includes(string) || data.defaultName.includes(string);
+                $row.hidden = !isMatch;
+                $firstMatch = $firstMatch || (isMatch ? $row : null); // if not already found, it's this row
+            }
+        } else {
+            for (const $row of $windowList.children) {
+                $row.hidden = false;
+            }
+            $firstMatch = $windowList.firstElementChild;
+        }
+        return $firstMatch;
+    }
 
+    async function focusWindow(id) {
+        await browser.windows.update(id, { focused: true });
+
+    }
     // function setWindowName(id, name) {
     //     browser.windows.update(id, {
     //         titlePreface: `${name} - `,
