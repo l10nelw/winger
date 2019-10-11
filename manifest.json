@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "WinMan",
-  "description": "Window Manager: name, switch and move tabs between windows",
+  "description": "Window Manager: name windows, switch windows and move tabs between windows",
   "version": "0.1.0",
   "icons": {
     "64": "icon.png"
