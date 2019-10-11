@@ -18,5 +18,13 @@
     "default_title": "WinMan",
     "default_popup": "popup.html",
     "browser_style": true
+  },
+  "commands": {
+    "_execute_browser_action": {
+      "description": "Open the popup panel",
+      "suggested_key": {
+        "default": "Ctrl+E"
+      }
+    }
   }
 }
