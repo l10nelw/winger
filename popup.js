@@ -2,6 +2,7 @@
 
     const BgP = await browser.runtime.getBackgroundPage();
     const $windowList = document.getElementById('windowList');
+    const $searchInput = document.getElementById('searchInput');
     const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
     main();    
     
@@ -17,7 +18,8 @@
             }
         }
         initWindowNamePanel(currentWindowId);
-        $windowList.onclick = onClickRow;
+        $windowList.addEventListener('click', onClickRow);
+        $searchInput.addEventListener('keyup', searchWindowNames);
     }
 
     function sortLastFocusedDescending(windowA, windowB) {
@@ -55,6 +57,15 @@
         }
     }
 
+    function searchWindowNames() {
+        const string = $searchInput.value;
+        for (const $row of $windowList.children) {
+            const data = BgP.WindowsData[$row._id];
+            const isMatch = data.name.includes(string) || data.defaultName.includes(string);
+            console.log(string, isMatch);
+            $row.hidden = !isMatch;
+        }
+    }
 
 
     // function setWindowName(id, name) {

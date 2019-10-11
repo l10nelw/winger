@@ -38,6 +38,7 @@ function addEntryToWindowsData(id) {
     WindowsData[id] = {};
     WindowsData[id].lastFocused = Date.now();
     WindowsData[id].defaultName = `Window ${++LastWindowNumber} / id ${id}`;
+    WindowsData[id].name = ``;
 }
 
 // Get tab count
