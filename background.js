@@ -40,14 +40,3 @@ function addEntryToWindowsData(id) {
     WindowsData[id].defaultName = `Window ${++LastWindowNumber} / id ${id}`;
     WindowsData[id].name = ``;
 }
-
-// Get tab count
-// ... of current window, when tabs are created/removed // ~window is focused~
-// - tabs.onCreated, tabs.onRemoved
-// - browser.windows.getLastFocused(POPULATE_TABS)
-// - browser.browserAction.setBadgeText({ windowId: id, text: badgeText })
-// ... of source and destination windows, when tabs are moved
-// - tabs.move(tabIds, { windowId: id, index: -1 })
-// - browser.windows.get(id, POPULATE_TABS)
-// - browser.browserAction.setBadgeText({ windowId: id, text: badgeText })
-

@@ -38,17 +38,6 @@
         $windowList.appendChild($row);
     }
 
-    function initWindowNamePanel(id) {
-        const $windowNameInput = document.getElementById('windowNameInput');
-        // const $windowNameBtn = document.getElementById('windowNameBtn');
-        const data = BgP.WindowsData[id];
-        $windowNameInput.value = data.name || data.defaultName;
-        $windowNameInput.onfocus = $windowNameInput.select;
-        // $windowNameBtn.onclick = () => {
-        //     setWindowName(id, $windowNameInput.value);
-        //     window.close();
-        // };
-    }
 
     function onClickRow(e) {
         const $row = e.target.closest('tr');
@@ -85,12 +74,6 @@
 
     async function focusWindow(id) {
         await browser.windows.update(id, { focused: true });
-
     }
-    // function setWindowName(id, name) {
-    //     browser.windows.update(id, {
-    //         titlePreface: `${name} - `,
-    //     });
-    // }
     
 })()
