@@ -42,7 +42,7 @@
     function onClickRow(e) {
         const $row = e.target.closest('tr');
         if ($row) {
-            focusWindow($row._id);
+            BgP.focusWindow($row._id);
         }
     }
 
@@ -50,7 +50,7 @@
         const string = $searchInput.value;
         const $firstMatch = searchWindowNames(string);
         if (e.key == 'Enter') {
-            focusWindow($firstMatch._id);
+            BgP.focusWindow($firstMatch._id);
         }
     }
 
@@ -72,8 +72,4 @@
         return $firstMatch;
     }
 
-    async function focusWindow(id) {
-        await browser.windows.update(id, { focused: true });
-    }
-    
 })()

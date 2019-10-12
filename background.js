@@ -40,3 +40,7 @@ function addEntryToWindowsData(id) {
     WindowsData[id].defaultName = `Window ${++LastWindowNumber} / id ${id}`;
     WindowsData[id].name = ``;
 }
+
+async function focusWindow(id) {
+    await browser.windows.update(id, { focused: true });
+}
