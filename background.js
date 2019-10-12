@@ -41,6 +41,6 @@ function addEntryToWindowsData(id) {
     WindowsData[id].name = ``;
 }
 
-async function focusWindow(id) {
-    await browser.windows.update(id, { focused: true });
+function focusWindow(id) {
+    browser.windows.update(id, { focused: true });
 }
