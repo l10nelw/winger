@@ -35,11 +35,10 @@
         const tabCount = window.tabs.length;
         const data = BgP.WindowsData[windowId];
         $row._id = windowId;
-        $row.querySelector('.windowName').innerText = data.name || data.defaultName;
-        $row.querySelector('.tabCount').innerText = tabCount;
+        $row.querySelector('.windowName').textContent = data.name || data.defaultName;
+        $row.querySelector('.badge').textContent = tabCount;
         $windowList.appendChild($row);
     }
-
 
     function onClickRow(e) {
         const $row = e.target.closest('tr');

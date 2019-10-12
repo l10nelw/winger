@@ -1,7 +1,22 @@
-td.windowName {
+
+/* Row parts */
+
+.tabAction {
+    padding: .5em 1.25em;
+}
+
+.windowName {
     width: 100%;
 }
 
-td.tabCount {
+.tabCount {
+    padding: .05em;
     text-align: end;
+}
+
+.badge {
+    background-color: #00f;
+    color: #fff;
+    padding: .2em .5em;
+    border-radius: 2px;
 }
