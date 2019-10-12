@@ -10,6 +10,8 @@
         let allWindows = await browser.windows.getAll(BgP.POPULATE_TABS);
         let currentWindowId;
         allWindows.sort(sortLastFocusedDescending);
+        
+        // Find current window and add rows for all other windows
         for (const window of allWindows) {
             if (window.focused) {
                 currentWindowId = window.id;
@@ -17,7 +19,7 @@
                 addRow(window);
             }
         }
-        initWindowNamePanel(currentWindowId);
+        
         $windowList.addEventListener('click', onClickRow);
         $searchInput.addEventListener('keyup', onSearchInput);
     }
