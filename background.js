@@ -44,3 +44,9 @@ function addEntryToWindowsData(id) {
 function focusWindow(id) {
     browser.windows.update(id, { focused: true });
 }
+
+async function moveSelectedTabs(windowId) {
+    const tabs = await browser.tabs.query({ currentWindow: true, highlighted: true });
+    const tabIds = tabs.map(tab => tab.id);
+    browser.tabs.move(tabIds, { windowId: windowId, index: -1 });
+}

@@ -1,8 +1,9 @@
 
 /* Row parts */
 
-.tabAction {
+.actionMoveTabs {
     padding: .5em 1.25em;
+    background-color: #ccc;
 }
 
 .windowName {

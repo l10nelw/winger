@@ -41,9 +41,16 @@
     }
 
     function onClickRow(e) {
-        const $row = e.target.closest('tr');
+        const $target = e.target;
+        const $row = $target.closest('tr');
         if ($row) {
-            BgP.focusWindow($row._id);
+            const id = $row._id;
+            if ($target.closest('.actionMoveTabs')) {
+                BgP.moveSelectedTabs(id);
+                window.close();
+            } else {
+                BgP.focusWindow(id);
+            }
         }
     }
 
