@@ -16,13 +16,17 @@ browser.windows.onFocusChanged.addListener(onWindowFocused);
 async function initWindowsData() {
     const allWindows = await browser.windows.getAll(POPULATE_TABS);
     for (const window of allWindows) {
-        addWindowsDataItem(window.id);
+        const id = window.id;
+        addWindowsDataItem(id);
+        setWindowBadge(id, window.tabs.length, '#fff', '#00f');
     }
 }
 
-function onWindowCreated(window) {
+async function onWindowCreated(window) {
     const id = window.id;
+    const tabs = await browser.tabs.query({ currentWindow: true });
     addWindowsDataItem(id);
+    setWindowBadge(id, tabs.length, '#fff', '#00f');
 }
 
 function onWindowRemoved(id) {
@@ -65,6 +69,13 @@ async function moveSelectedTabs(windowId, stayActive, staySelected) {
         }
     }
 }
+
+function setWindowBadge(id, value, textColor, backColor) {
+    browser.browserAction.setBadgeText({ windowId: id, text: `${value}` });
+    if (textColor) browser.browserAction.setBadgeTextColor({ windowId: id, color: textColor });
+    if (backColor) browser.browserAction.setBadgeBackgroundColor({ windowId: id, color: backColor });
+}
+
 
 var objectArray = {
 
