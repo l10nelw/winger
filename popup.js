@@ -1,3 +1,5 @@
+'use strict';
+
 (async () => {
 
     const BgP = await browser.runtime.getBackgroundPage();
