@@ -45,16 +45,7 @@
         const $target = e.target;
         const $row = $target.closest('tr');
         if ($row) {
-            const id = $row._id;
-            if (e[BgP.ModifierKey.sendTabs] || $target.closest('.actionMoveTabs')) {
-                BgP.moveSelectedTabs(id);
-                window.close();
-            } else if (e[BgP.ModifierKey.bringTabs]) {
-                await BgP.moveSelectedTabs(id, true, true);
-                BgP.focusWindow(id);
-            } else {
-                BgP.focusWindow(id);
-            }
+            browserOperation(e, $row._id, $target.closest('.actionMoveTabs'));
         }
     }
 
@@ -62,7 +53,23 @@
         const string = $searchInput.value;
         const $firstMatch = searchWindowNames(string);
         if (e.key == 'Enter') {
-            BgP.focusWindow($firstMatch._id);
+            browserOperation(e, $firstMatch._id);
+        }
+    }
+
+    async function browserOperation(e, windowId, otherSendTabCondition) {
+        if (e[BgP.ModifierKey.sendTabs] || otherSendTabCondition) {
+            BgP.moveSelectedTabs(windowId);
+            window.close();
+        }
+        else
+        if (e[BgP.ModifierKey.bringTabs]) {
+            await BgP.moveSelectedTabs(windowId, true, true);
+            BgP.focusWindow(windowId);
+        }
+        else
+        {
+            BgP.focusWindow(windowId);
         }
     }
 
