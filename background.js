@@ -11,6 +11,10 @@ initWindowsData();
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onRemoved.addListener(onWindowRemoved);
 browser.windows.onFocusChanged.addListener(onWindowFocused);
+browser.tabs.onCreated.addListener(onTabCreated);
+browser.tabs.onRemoved.addListener(onTabRemoved);
+browser.tabs.onDetached.addListener(onTabDetached);
+browser.tabs.onAttached.addListener(onTabAttached);
 
 
 async function initWindowsData() {
@@ -39,6 +43,27 @@ function onWindowFocused(windowId) {
     if (windowId > 0) {
         WindowsData[windowId].lastFocused = Date.now();
     }
+}
+
+function onTabCreated(tab) {
+    const windowId = tab.windowId;
+    setWindowBadge(windowId, ++WindowsData[windowId].tabCount);
+}
+
+function onTabRemoved(tabId, removeInfo) {
+    if (removeInfo.isWindowClosing) return;
+    const windowId = removeInfo.windowId;
+    setWindowBadge(windowId, --WindowsData[windowId].tabCount);
+}
+
+function onTabDetached(tabId, detachInfo) {
+    const windowId = detachInfo.oldWindowId;
+    setWindowBadge(windowId, --WindowsData[windowId].tabCount);
+}
+
+function onTabAttached(tabId, attachInfo) {
+    const windowId = attachInfo.newWindowId;
+    setWindowBadge(windowId, ++WindowsData[windowId].tabCount);
 }
 
 function addWindowsDataItem(windowId, tabCount) {
