@@ -2,25 +2,17 @@
 
     const BgP = await browser.runtime.getBackgroundPage();
     const $windowList = document.getElementById('windowList');
-    const $windowNameInput = document.getElementById('windowNameInput');
+    const $currentWindow = document.getElementById('currentWindow');
     const $searchInput = document.getElementById('searchInput');
     const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
     main();
     
     async function main() {
         let allWindows = await browser.windows.getAll(BgP.POPULATE_TABS);
-        let currentWindowId;
         allWindows.sort(sortLastFocusedDescending);
-        
-        // Find current window and add rows for all other windows
         for (const window of allWindows) {
-            if (window.focused) {
-                currentWindowId = window.id;
-            } else {
-                addRow(window);
-            }
+            window.focused ? setHeader(window) : addRow(window);
         }
-        $windowNameInput.value = BgP.WindowsData[currentWindowId].defaultName;
         $windowList.addEventListener('click', onClickRow);
         $searchInput.addEventListener('keyup', onSearchInput);
     }
@@ -30,14 +22,19 @@
                BgP.WindowsData[windowA.id].lastFocused;
     }
 
+    function setHeader(window) {
+        const data = BgP.WindowsData[window.id];
+        $currentWindow.querySelector('.windowName').textContent = data.name || data.defaultName;
+        $currentWindow.querySelector('.badge').textContent = window.tabs.length;
+    }
+
     function addRow(window) {
         const $row = document.importNode($rowTemplate, true);
         const windowId = window.id;
-        const tabCount = window.tabs.length;
         const data = BgP.WindowsData[windowId];
         $row._id = windowId;
         $row.querySelector('.windowName').textContent = data.name || data.defaultName;
-        $row.querySelector('.badge').textContent = tabCount;
+        $row.querySelector('.badge').textContent = window.tabs.length;
         $windowList.appendChild($row);
     }
 

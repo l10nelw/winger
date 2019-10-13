@@ -5,11 +5,12 @@
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
-    <section>
-      <input id="windowNameInput" type="text" autocomplete="off">
-      <button id="windowNameBtn" type="button">set</button>
-    </section>
-    <hr>
+    <header id="currentWindow">
+      <div class="windowName"></div>
+      <div class="tabCount"><span class="badge"></span></div>
+      <!-- <input id="windowNameInput" type="text" autocomplete="off">
+      <button id="windowNameBtn" type="button">set</button> -->
+    </header>
     <input id="searchInput" type="text" autofocus>
     <table>
       <tbody id="windowList">
