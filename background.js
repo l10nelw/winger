@@ -49,8 +49,28 @@ function focusWindow(id) {
     browser.windows.update(id, { focused: true });
 }
 
-async function moveSelectedTabs(windowId) {
-    const tabs = await browser.tabs.query({ currentWindow: true, highlighted: true });
-    const tabIds = tabs.map(tab => tab.id);
-    browser.tabs.move(tabIds, { windowId: windowId, index: -1 });
+async function moveSelectedTabs(windowId, stayActive, staySelected) {
+    const selectedTabs = await browser.tabs.query({ currentWindow: true, highlighted: true });
+    const selectedTabIds = selectedTabs.map(tab => tab.id);
+    await browser.tabs.move(selectedTabIds, { windowId: windowId, index: -1 });
+
+    if (stayActive) {
+        const activeTab = objectArray.firstWith(selectedTabs, 'active', true);
+        browser.tabs.update(activeTab.id, { active: true });
+    }
+    if (staySelected) {
+        for (const id of selectedTabIds) {
+            browser.tabs.update(id, { highlighted: true, active: false });
+        }
+    }
+}
+
+var objectArray = {
+
+    firstWith(objects, key, value) {
+        for (const object of objects) {
+            if (object[key] === value) return object;
+        }
+    },
+
 }

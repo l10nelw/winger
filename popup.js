@@ -50,7 +50,7 @@
                 BgP.moveSelectedTabs(id);
                 window.close();
             } else if (e[BgP.ModifierKey.bringTabs]) {
-                await BgP.moveSelectedTabs(id);
+                await BgP.moveSelectedTabs(id, true, true);
                 BgP.focusWindow(id);
             } else {
                 BgP.focusWindow(id);
