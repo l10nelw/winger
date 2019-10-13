@@ -7,10 +7,7 @@ var ModifierKey = {
     bringTabs: 'ctrlKey',
 };
 
-(async () => {
-    await initWindowsData();
-})();
-
+initWindowsData();
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onRemoved.addListener(onWindowRemoved);
 browser.windows.onFocusChanged.addListener(onWindowFocused);
@@ -19,17 +16,17 @@ browser.windows.onFocusChanged.addListener(onWindowFocused);
 async function initWindowsData() {
     const allWindows = await browser.windows.getAll(POPULATE_TABS);
     for (const window of allWindows) {
-        addEntryToWindowsData(window.id);
+        addWindowsDataItem(window.id);
     }
 }
 
 function onWindowCreated(window) {
     const id = window.id;
-    addEntryToWindowsData(id);
+    addWindowsDataItem(id);
 }
 
 function onWindowRemoved(id) {
-    delete WindowsData[id];
+    removeWindowsDataItem(id);
 }
 
 function onWindowFocused(id) {
@@ -38,11 +35,15 @@ function onWindowFocused(id) {
     }
 }
 
-function addEntryToWindowsData(id) {
+function addWindowsDataItem(id) {
     WindowsData[id] = {};
     WindowsData[id].lastFocused = Date.now();
     WindowsData[id].defaultName = `Window ${++LastWindowNumber} / id ${id}`;
     WindowsData[id].name = ``;
+}
+
+function removeWindowsDataItem(id) {
+    delete WindowsData[id];
 }
 
 function focusWindow(id) {
