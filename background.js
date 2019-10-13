@@ -1,4 +1,3 @@
-var POPULATE_TABS = { populate: true, windowTypes: ['normal'] };
 
 var WindowsData = {};
 var LastWindowNumber = 0;
@@ -18,7 +17,7 @@ browser.tabs.onAttached.addListener(onTabAttached);
 
 
 async function initWindowsData() {
-    const allWindows = await browser.windows.getAll(POPULATE_TABS);
+    const allWindows = await browser.windows.getAll({ populate: true, windowTypes: ['normal'] });
     for (const window of allWindows) {
         const windowId = window.id;
         const tabCount = window.tabs.length;
