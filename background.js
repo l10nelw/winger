@@ -16,42 +16,42 @@ browser.windows.onFocusChanged.addListener(onWindowFocused);
 async function initWindowsData() {
     const allWindows = await browser.windows.getAll(POPULATE_TABS);
     for (const window of allWindows) {
-        const id = window.id;
-        addWindowsDataItem(id);
-        setWindowBadge(id, window.tabs.length, '#fff', '#00f');
+        const windowId = window.id;
+        addWindowsDataItem(windowId);
+        setWindowBadge(windowId, window.tabs.length, '#fff', '#00f');
     }
 }
 
 async function onWindowCreated(window) {
-    const id = window.id;
+    const windowId = window.id;
     const tabs = await browser.tabs.query({ currentWindow: true });
-    addWindowsDataItem(id);
-    setWindowBadge(id, tabs.length, '#fff', '#00f');
+    addWindowsDataItem(windowId);
+    setWindowBadge(windowId, tabs.length, '#fff', '#00f');
 }
 
-function onWindowRemoved(id) {
-    removeWindowsDataItem(id);
+function onWindowRemoved(windowId) {
+    removeWindowsDataItem(windowId);
 }
 
-function onWindowFocused(id) {
-    if (id > 0) {
-        WindowsData[id].lastFocused = Date.now();
+function onWindowFocused(windowId) {
+    if (windowId > 0) {
+        WindowsData[windowId].lastFocused = Date.now();
     }
 }
 
-function addWindowsDataItem(id) {
-    WindowsData[id] = {};
-    WindowsData[id].lastFocused = Date.now();
-    WindowsData[id].defaultName = `Window ${++LastWindowNumber} / id ${id}`;
-    WindowsData[id].name = ``;
+function addWindowsDataItem(windowId) {
+    WindowsData[windowId] = {};
+    WindowsData[windowId].lastFocused = Date.now();
+    WindowsData[windowId].defaultName = `Window ${++LastWindowNumber} / id ${windowId}`;
+    WindowsData[windowId].name = ``;
 }
 
-function removeWindowsDataItem(id) {
-    delete WindowsData[id];
+function removeWindowsDataItem(windowId) {
+    delete WindowsData[windowId];
 }
 
-function focusWindow(id) {
-    browser.windows.update(id, { focused: true });
+function focusWindow(windowId) {
+    browser.windows.update(windowId, { focused: true });
 }
 
 async function moveSelectedTabs(windowId, stayActive, staySelected) {
@@ -64,16 +64,16 @@ async function moveSelectedTabs(windowId, stayActive, staySelected) {
         browser.tabs.update(activeTab.id, { active: true });
     }
     if (staySelected) {
-        for (const id of selectedTabIds) {
-            browser.tabs.update(id, { highlighted: true, active: false });
+        for (const tabId of selectedTabIds) {
+            browser.tabs.update(tabId, { highlighted: true, active: false });
         }
     }
 }
 
-function setWindowBadge(id, value, textColor, backColor) {
-    browser.browserAction.setBadgeText({ windowId: id, text: `${value}` });
-    if (textColor) browser.browserAction.setBadgeTextColor({ windowId: id, color: textColor });
-    if (backColor) browser.browserAction.setBadgeBackgroundColor({ windowId: id, color: backColor });
+function setWindowBadge(windowId, value, textColor, backColor) {
+    browser.browserAction.setBadgeText({ windowId: windowId, text: `${value}` });
+    if (textColor) browser.browserAction.setBadgeTextColor({ windowId: windowId, color: textColor });
+    if (backColor) browser.browserAction.setBadgeBackgroundColor({ windowId: windowId, color: backColor });
 }
 
 
