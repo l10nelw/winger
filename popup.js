@@ -46,9 +46,12 @@
         const $row = $target.closest('tr');
         if ($row) {
             const id = $row._id;
-            if ($target.closest('.actionMoveTabs')) {
+            if (e[BgP.ModifierKey.sendTabs] || $target.closest('.actionMoveTabs')) {
                 BgP.moveSelectedTabs(id);
                 window.close();
+            } else if (e[BgP.ModifierKey.bringTabs]) {
+                await BgP.moveSelectedTabs(id);
+                BgP.focusWindow(id);
             } else {
                 BgP.focusWindow(id);
             }

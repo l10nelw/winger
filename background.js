@@ -2,6 +2,10 @@ var POPULATE_TABS = { populate: true, windowTypes: ['normal'] };
 
 var WindowsData = {};
 var LastWindowNumber = 0;
+var ModifierKey = {
+    sendTabs: 'shiftKey',
+    bringTabs: 'ctrlKey',
+};
 
 (async () => {
     await initWindowsData();
