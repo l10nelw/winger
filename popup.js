@@ -2,6 +2,7 @@
 
     const BgP = await browser.runtime.getBackgroundPage();
     const $windowList = document.getElementById('windowList');
+    const $windowNameInput = document.getElementById('windowNameInput');
     const $searchInput = document.getElementById('searchInput');
     const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
     main();
@@ -19,7 +20,7 @@
                 addRow(window);
             }
         }
-        
+        $windowNameInput.value = BgP.WindowsData[currentWindowId].defaultName;
         $windowList.addEventListener('click', onClickRow);
         $searchInput.addEventListener('keyup', onSearchInput);
     }
