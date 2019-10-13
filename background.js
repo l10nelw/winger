@@ -17,16 +17,18 @@ async function initWindowsData() {
     const allWindows = await browser.windows.getAll(POPULATE_TABS);
     for (const window of allWindows) {
         const windowId = window.id;
-        addWindowsDataItem(windowId);
-        setWindowBadge(windowId, window.tabs.length, '#fff', '#00f');
+        const tabCount = window.tabs.length;
+        addWindowsDataItem(windowId, tabCount);
+        setWindowBadge(windowId, tabCount, '#fff', '#00f');
     }
 }
 
 async function onWindowCreated(window) {
     const windowId = window.id;
     const tabs = await browser.tabs.query({ currentWindow: true });
-    addWindowsDataItem(windowId);
-    setWindowBadge(windowId, tabs.length, '#fff', '#00f');
+    const tabCount = tabs.length;
+    addWindowsDataItem(windowId, tabCount);
+    setWindowBadge(windowId, tabCount, '#fff', '#00f');
 }
 
 function onWindowRemoved(windowId) {
@@ -39,11 +41,13 @@ function onWindowFocused(windowId) {
     }
 }
 
-function addWindowsDataItem(windowId) {
-    WindowsData[windowId] = {};
-    WindowsData[windowId].lastFocused = Date.now();
-    WindowsData[windowId].defaultName = `Window ${++LastWindowNumber} / id ${windowId}`;
-    WindowsData[windowId].name = ``;
+function addWindowsDataItem(windowId, tabCount) {
+    WindowsData[windowId] = {
+        tabCount: tabCount,
+        lastFocused: Date.now(),
+        defaultName: `Window ${++LastWindowNumber} / id ${windowId}`,
+        name: ``,
+    };
 }
 
 function removeWindowsDataItem(windowId) {
