@@ -101,8 +101,8 @@ async function moveSelectedTabs(windowId, stayActive, staySelected) {
     }
 }
 
-function setWindowBadge(windowId, value, textColor, backColor) {
-    browser.browserAction.setBadgeText({ windowId: windowId, text: `${value}` });
+function setWindowBadge(windowId, content, textColor, backColor) {
+    if (content) browser.browserAction.setBadgeText({ windowId: windowId, text: `${content}` });
     if (textColor) browser.browserAction.setBadgeTextColor({ windowId: windowId, color: textColor });
     if (backColor) browser.browserAction.setBadgeBackgroundColor({ windowId: windowId, color: backColor });
 }
