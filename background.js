@@ -40,14 +40,16 @@ function onWindowRemoved(windowId) {
 }
 
 function onWindowFocused(windowId) {
-    if (windowId > 0) {
+    if (windowId in WindowsData) {
         WindowsData[windowId].lastFocused = Date.now();
     }
 }
 
 function onTabCreated(tab) {
     const windowId = tab.windowId;
-    setWindowBadge(windowId, ++WindowsData[windowId].tabCount);
+    if (windowId in WindowsData) {
+        setWindowBadge(windowId, ++WindowsData[windowId].tabCount);
+    }
 }
 
 function onTabRemoved(tabId, removeInfo) {
