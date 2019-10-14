@@ -23,7 +23,7 @@ async function initWindowsData() {
         const windowId = window.id;
         const tabCount = window.tabs.length;
         addWindowsDataItem(windowId, tabCount);
-        setWindowBadge(windowId, tabCount, '#fff', '#00f');
+        updateWindowBadge(windowId);
     }
 }
 
@@ -32,7 +32,7 @@ async function onWindowCreated(window) {
     const tabs = await browser.tabs.query({ windowId });
     const tabCount = tabs.length;
     addWindowsDataItem(windowId, tabCount);
-    setWindowBadge(windowId, tabCount, '#fff', '#00f');
+    updateWindowBadge(windowId);
 }
 
 function onWindowRemoved(windowId) {
@@ -48,24 +48,28 @@ function onWindowFocused(windowId) {
 function onTabCreated(tab) {
     const windowId = tab.windowId;
     if (windowId in WindowsData) {
-        setWindowBadge(windowId, ++WindowsData[windowId].tabCount);
+        WindowsData[windowId].tabCount++;
+        updateWindowBadge(windowId);
     }
 }
 
 function onTabRemoved(tabId, removeInfo) {
     if (removeInfo.isWindowClosing) return;
     const windowId = removeInfo.windowId;
-    setWindowBadge(windowId, --WindowsData[windowId].tabCount);
+    WindowsData[windowId].tabCount--;
+    updateWindowBadge(windowId);
 }
 
 function onTabDetached(tabId, detachInfo) {
     const windowId = detachInfo.oldWindowId;
-    setWindowBadge(windowId, --WindowsData[windowId].tabCount);
+    WindowsData[windowId].tabCount--;
+    updateWindowBadge(windowId);
 }
 
 function onTabAttached(tabId, attachInfo) {
     const windowId = attachInfo.newWindowId;
-    setWindowBadge(windowId, ++WindowsData[windowId].tabCount);
+    WindowsData[windowId].tabCount++;
+    updateWindowBadge(windowId);
 }
 
 function addWindowsDataItem(windowId, tabCount) {
@@ -74,6 +78,8 @@ function addWindowsDataItem(windowId, tabCount) {
         lastFocused: Date.now(),
         defaultName: `Window ${++LastWindowNumber} / id ${windowId}`,
         name: ``,
+        textColor: '#fff',
+        backColor: '#00f',
     };
 }
 
@@ -101,10 +107,11 @@ async function moveSelectedTabs(windowId, stayActive, staySelected) {
     }
 }
 
-function setWindowBadge(windowId, content, textColor, backColor) {
-    if (content) browser.browserAction.setBadgeText({ windowId, text: `${content}` });
-    if (textColor) browser.browserAction.setBadgeTextColor({ windowId, color: textColor });
-    if (backColor) browser.browserAction.setBadgeBackgroundColor({ windowId, color: backColor });
+function updateWindowBadge(windowId) {
+    const data = WindowsData[windowId];
+    browser.browserAction.setBadgeText({ windowId, text: `${data.tabCount}` });
+    browser.browserAction.setBadgeTextColor({ windowId, color: data.textColor });
+    browser.browserAction.setBadgeBackgroundColor({ windowId, color: data.backColor });
 }
 
 
