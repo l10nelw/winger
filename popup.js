@@ -20,12 +20,12 @@
     }
 
     function sortLastFocusedDescending(windowA, windowB) {
-        return BgP.WindowsData[windowB.id].lastFocused -
-               BgP.WindowsData[windowA.id].lastFocused;
+        return BgP.Metadata[windowB.id].lastFocused -
+               BgP.Metadata[windowA.id].lastFocused;
     }
 
     function setHeader(window) {
-        const data = BgP.WindowsData[window.id];
+        const data = BgP.Metadata[window.id];
         $currentWindow.querySelector('.windowName').textContent = data.name || data.defaultName;
         $currentWindow.querySelector('.badge').textContent = window.tabs.length;
     }
@@ -33,7 +33,7 @@
     function addRow(window) {
         const $row = document.importNode($rowTemplate, true);
         const windowId = window.id;
-        const data = BgP.WindowsData[windowId];
+        const data = BgP.Metadata[windowId];
         $row._id = windowId;
         $row.querySelector('.windowName').textContent = data.name || data.defaultName;
         $row.querySelector('.badge').textContent = window.tabs.length;
@@ -76,7 +76,7 @@
         let $firstMatch;
         if (string) {
             for (const $row of $windowList.children) {
-                const data = BgP.WindowsData[$row._id];
+                const data = BgP.Metadata[$row._id];
                 const isMatch = data.name.includes(string) || data.defaultName.includes(string);
                 $row.hidden = !isMatch;
                 $firstMatch = $firstMatch || (isMatch ? $row : null); // if not already found, it's this row

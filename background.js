@@ -1,13 +1,13 @@
 'use strict';
+// bg.metadata.js: Metadata
 
-var WindowsData = {};
-var LastWindowNumber = 0;
 var ModifierKey = {
     sendTabs: 'shiftKey',
     bringTabs: 'ctrlKey',
 };
 
-initWindowsData();
+Metadata.populate(updateWindowBadge);
+
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onRemoved.addListener(onWindowRemoved);
 browser.windows.onFocusChanged.addListener(onWindowFocused);
@@ -17,38 +17,25 @@ browser.tabs.onDetached.addListener(onTabDetached);
 browser.tabs.onAttached.addListener(onTabAttached);
 
 
-async function initWindowsData() {
-    const allWindows = await browser.windows.getAll({ populate: true, windowTypes: ['normal'] });
-    for (const window of allWindows) {
-        const windowId = window.id;
-        const tabCount = window.tabs.length;
-        addWindowsDataItem(windowId, tabCount);
-        updateWindowBadge(windowId);
-    }
-}
-
 async function onWindowCreated(window) {
-    const windowId = window.id;
-    const tabs = await browser.tabs.query({ windowId });
-    const tabCount = tabs.length;
-    addWindowsDataItem(windowId, tabCount);
-    updateWindowBadge(windowId);
+    await Metadata.add(window);
+    updateWindowBadge(window.id);
 }
 
 function onWindowRemoved(windowId) {
-    removeWindowsDataItem(windowId);
+    Metadata.remove(windowId);
 }
 
 function onWindowFocused(windowId) {
-    if (windowId in WindowsData) {
-        WindowsData[windowId].lastFocused = Date.now();
+    if (windowId in Metadata) {
+        Metadata[windowId].lastFocused = Date.now();
     }
 }
 
 function onTabCreated(tab) {
     const windowId = tab.windowId;
-    if (windowId in WindowsData) {
-        WindowsData[windowId].tabCount++;
+    if (windowId in Metadata) {
+        Metadata[windowId].tabCount++;
         updateWindowBadge(windowId);
     }
 }
@@ -56,35 +43,20 @@ function onTabCreated(tab) {
 function onTabRemoved(tabId, removeInfo) {
     if (removeInfo.isWindowClosing) return;
     const windowId = removeInfo.windowId;
-    WindowsData[windowId].tabCount--;
+    Metadata[windowId].tabCount--;
     updateWindowBadge(windowId);
 }
 
 function onTabDetached(tabId, detachInfo) {
     const windowId = detachInfo.oldWindowId;
-    WindowsData[windowId].tabCount--;
+    Metadata[windowId].tabCount--;
     updateWindowBadge(windowId);
 }
 
 function onTabAttached(tabId, attachInfo) {
     const windowId = attachInfo.newWindowId;
-    WindowsData[windowId].tabCount++;
+    Metadata[windowId].tabCount++;
     updateWindowBadge(windowId);
-}
-
-function addWindowsDataItem(windowId, tabCount) {
-    WindowsData[windowId] = {
-        tabCount,
-        lastFocused: Date.now(),
-        defaultName: `Window ${++LastWindowNumber} / id ${windowId}`,
-        name: ``,
-        textColor: '#fff',
-        backColor: '#00f',
-    };
-}
-
-function removeWindowsDataItem(windowId) {
-    delete WindowsData[windowId];
 }
 
 function focusWindow(windowId) {
@@ -108,7 +80,7 @@ async function moveSelectedTabs(windowId, stayActive, staySelected) {
 }
 
 function updateWindowBadge(windowId) {
-    const data = WindowsData[windowId];
+    const data = Metadata[windowId];
     browser.browserAction.setBadgeText({ windowId, text: `${data.tabCount}` });
     browser.browserAction.setBadgeTextColor({ windowId, color: data.textColor });
     browser.browserAction.setBadgeBackgroundColor({ windowId, color: data.backColor });
