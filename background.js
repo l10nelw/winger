@@ -29,7 +29,7 @@ async function initWindowsData() {
 
 async function onWindowCreated(window) {
     const windowId = window.id;
-    const tabs = await browser.tabs.query({ currentWindow: true });
+    const tabs = await browser.tabs.query({ windowId });
     const tabCount = tabs.length;
     addWindowsDataItem(windowId, tabCount);
     setWindowBadge(windowId, tabCount, '#fff', '#00f');
@@ -70,7 +70,7 @@ function onTabAttached(tabId, attachInfo) {
 
 function addWindowsDataItem(windowId, tabCount) {
     WindowsData[windowId] = {
-        tabCount: tabCount,
+        tabCount,
         lastFocused: Date.now(),
         defaultName: `Window ${++LastWindowNumber} / id ${windowId}`,
         name: ``,
@@ -88,7 +88,7 @@ function focusWindow(windowId) {
 async function moveSelectedTabs(windowId, stayActive, staySelected) {
     const selectedTabs = await browser.tabs.query({ currentWindow: true, highlighted: true });
     const selectedTabIds = selectedTabs.map(tab => tab.id);
-    await browser.tabs.move(selectedTabIds, { windowId: windowId, index: -1 });
+    await browser.tabs.move(selectedTabIds, { windowId, index: -1 });
 
     if (stayActive) {
         const activeTab = objectArray.firstWith(selectedTabs, 'active', true);
@@ -102,9 +102,9 @@ async function moveSelectedTabs(windowId, stayActive, staySelected) {
 }
 
 function setWindowBadge(windowId, content, textColor, backColor) {
-    if (content) browser.browserAction.setBadgeText({ windowId: windowId, text: `${content}` });
-    if (textColor) browser.browserAction.setBadgeTextColor({ windowId: windowId, color: textColor });
-    if (backColor) browser.browserAction.setBadgeBackgroundColor({ windowId: windowId, color: backColor });
+    if (content) browser.browserAction.setBadgeText({ windowId, text: `${content}` });
+    if (textColor) browser.browserAction.setBadgeTextColor({ windowId, color: textColor });
+    if (backColor) browser.browserAction.setBadgeBackgroundColor({ windowId, color: backColor });
 }
 
 
