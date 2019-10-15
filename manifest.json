@@ -8,7 +8,9 @@
   },
   "background": {
     "scripts": [
+      "bg.util.js",
       "bg.metadata.js",
+      "bg.browserop.js",
       "background.js"
     ]
   },
