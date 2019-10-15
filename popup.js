@@ -40,21 +40,21 @@
         $windowList.appendChild($row);
     }
 
-    function onClickRow(e) {
-        const $target = e.target;
+    function onClickRow(event) {
+        const $target = event.target;
         const $row = $target.closest('tr');
         if ($row) {
             window.close();
-            BgP.BrowserOp.respond(e, $row._id, $target.closest('.actionMoveTabs'));
+            BgP.BrowserOp.respond(event, $row._id, $target.closest('.actionSendTabs'));
         }
     }
 
-    function onSearchInput(e) {
+    function onSearchInput(event) {
         const string = $searchInput.value;
         const $firstMatch = searchWindowNames(string);
-        if (e.key == 'Enter') {
+        if (event.key == 'Enter') {
             window.close();
-            BgP.BrowserOp.respond(e, $firstMatch._id);
+            BgP.BrowserOp.respond(event, $firstMatch._id);
         }
     }
 
