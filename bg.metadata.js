@@ -1,8 +1,8 @@
 'use strict';
 
 /*
-Apart from these declared properties and methods, the Metadata object will also contain properties
-representing windows, in the form of windowId (key): data object (value).
+Apart from these declared properties and methods, the Metadata object will also contain
+properties representing windows, in the form of windowId (key): data object (value).
 */
 
 var Metadata = {
@@ -35,32 +35,35 @@ var Metadata = {
     },
 
     items() {
-        let windows = [];
+        let allData = [];
         for (const prop in this) {
             if (isNaN(prop)) continue;
-            let window = this[prop];
-            window.id = prop;
-            windows.push(window);
+            let data = this[prop];
+            data.id = prop;
+            allData.push(data);
         }
-        return windows;
+        return allData;
     },
 
     async checkSanity() {
         const allWindows = await browser.windows.getAll({ populate: true, windowTypes: ['normal'] });
-        const dataItems = this.items();
+        const allData = this.items();
 
         const windowCount = allWindows.length;
-        const dataWindowCount = dataItems.length;
+        const dataWindowCount = allData.length;
 
         console.log({ windowCount, dataWindowCount });
         
-        if (windowCount !== dataWindowCount) console.error(`Window count mismatch`);
+        if (windowCount !== dataWindowCount) {
+            console.error(`Window count mismatch`);
+            return;
+        }
 
         const sortById = (a, b) => a.id - b.id;
         const tabCounts = allWindows.sort(sortById).map(window => window.tabs.length);
-        const dataTabCounts = dataItems.sort(sortById).map(data => data.tabCount);
+        const dataTabCounts = allData.sort(sortById).map(data => data.tabCount);
         
-        const objZip = (a, b) => a.map((x, i) => ({ tabCount: x, dataTabCount: b[i] }));
+        const objZip = (a, b) => a.map((x, i) => ({ 'tabCount': x, 'dataTabCount': b[i] }));
         console.table(objZip(tabCounts, dataTabCounts));
         
         for (let i = windowCount; i--;) {
