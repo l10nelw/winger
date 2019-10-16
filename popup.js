@@ -10,7 +10,7 @@
     main();
     
     async function main() {
-        let allWindows = await browser.windows.getAll({ populate: true, windowTypes: ['normal'] });
+        // let allWindows = await browser.windows.getAll({ populate: true });
         allWindows.sort(sortLastFocusedDescending);
         for (const window of allWindows) {
             window.focused ? setHeader(window) : addRow(window);

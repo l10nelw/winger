@@ -27,7 +27,7 @@ var Metadata = {
     },
 
     async populate(callback) {
-        const allWindows = await browser.windows.getAll({ populate: true, windowTypes: ['normal'] });
+        const allWindows = await browser.windows.getAll({ populate: true });
         for (const window of allWindows) {
             await this.add(window);
             callback(window.id);
@@ -46,7 +46,7 @@ var Metadata = {
     },
 
     async checkSanity() {
-        const allWindows = await browser.windows.getAll({ populate: true, windowTypes: ['normal'] });
+        const allWindows = await browser.windows.getAll({ populate: true });
         const allData = this.items();
 
         const windowCount = allWindows.length;
