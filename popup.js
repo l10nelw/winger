@@ -11,18 +11,12 @@
     
     async function main() {
         const currentWindowId = BgP.Metadata.focused;
-        let metaWindows = BgP.Metadata.items();
-        metaWindows.sort(sortLastFocusedDescending);
+        let metaWindows = BgP.Metadata.items('lastFocused');
         for (const metaWindow of metaWindows) {
             metaWindow.id == currentWindowId ? setHeader(metaWindow) : addRow(metaWindow);
         }
         $windowList.addEventListener('click', onClickRow);
         $searchInput.addEventListener('keyup', onSearchInput);
-    }
-
-    function sortLastFocusedDescending(windowA, windowB) {
-        return BgP.Metadata[windowB.id].lastFocused -
-               BgP.Metadata[windowA.id].lastFocused;
     }
 
     function setHeader(metaWindow) {

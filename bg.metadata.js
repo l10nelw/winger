@@ -37,11 +37,14 @@ var Metadata = {
         }
     },
 
-    items() {
+    items(sortMethod) {
         let allData = [];
         for (const prop in this) {
             if (isNaN(prop)) continue;
             allData.push(this[prop]);
+        }
+        if (sortMethod == 'lastFocused') {
+            allData.sort((a, b) => b.lastFocused - a.lastFocused);
         }
         return allData;
     },
