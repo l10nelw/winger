@@ -25,17 +25,15 @@
     }
 
     function setHeader(window) {
-        const data = BgP.Metadata[window.id];
-        $currentWindow.querySelector('.windowName').textContent = data.name || data.defaultName;
+        $currentWindow.querySelector('.windowName').textContent = BgP.Metadata.getName(window.id);
         $currentWindow.querySelector('.badge').textContent = window.tabs.length;
     }
 
     function addRow(window) {
         const $row = document.importNode($rowTemplate, true);
         const windowId = window.id;
-        const data = BgP.Metadata[windowId];
         $row._id = windowId;
-        $row.querySelector('.windowName').textContent = data.name || data.defaultName;
+        $row.querySelector('.windowName').textContent = BgP.Metadata.getName(windowId);
         $row.querySelector('.badge').textContent = window.tabs.length;
         $windowList.appendChild($row);
     }

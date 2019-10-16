@@ -17,7 +17,7 @@ var Metadata = {
         this[windowId] = {
             tabCount,
             lastFocused: Date.now(),
-            name: ``,
+            givenName: ``,
             defaultName: `Window ${++this.lastWindowNumber} / id ${windowId}`,
             textColor: '#fff',
             backColor: '#00f',
@@ -45,6 +45,15 @@ var Metadata = {
             allData.push(data);
         }
         return allData;
+    },
+
+    getName(windowIdOrObject) {
+        const data = (windowIdOrObject instanceof Object) ? windowIdOrObject : this[windowIdOrObject];
+        return data.givenName || data.defaultName;
+    },
+
+    setName(windowId, name) {
+        this[windowId].givenName = name;
     },
 
     async checkSanity() {
