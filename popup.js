@@ -59,18 +59,19 @@
     }
 
     function searchWindowNames(string) {
+        const $rows = $windowList.rows;
         let $firstMatch;
         if (string) {
-            for (const $row of $windowList.children) {
+            for (const $row of $rows) {
                 const isMatch = $row._name.includes(string);
                 $row.hidden = !isMatch;
                 $firstMatch = $firstMatch || (isMatch ? $row : null); // if not already found, it's this row
             }
         } else {
-            for (const $row of $windowList.children) {
+            for (const $row of $rows) {
                 $row.hidden = false;
             }
-            $firstMatch = $windowList.firstElementChild;
+            $firstMatch = $rows[0];
         }
         return $firstMatch;
     }
