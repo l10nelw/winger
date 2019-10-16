@@ -11,9 +11,9 @@ var Metadata = {
 
     lastWindowNumber: 0,
     
-    async add(window) {
-        const windowId = window.id;
-        const tabCount = window.tabs ? window.tabs.length : (await browser.tabs.query({ windowId })).length;
+    async add(windowObject) {
+        const windowId = windowObject.id;
+        const tabCount = windowObject.tabs ? windowObject.tabs.length : (await browser.tabs.query({ windowId })).length;
         this[windowId] = {
             tabCount,
             lastFocused: Date.now(),
@@ -30,9 +30,9 @@ var Metadata = {
 
     async populate(callback) {
         const allWindows = await browser.windows.getAll({ populate: true });
-        for (const window of allWindows) {
-            await this.add(window);
-            callback(window.id);
+        for (const windowObject of allWindows) {
+            await this.add(windowObject);
+            callback(windowObject.id);
         }
     },
 
