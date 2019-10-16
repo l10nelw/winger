@@ -21,6 +21,7 @@ var Metadata = {
             defaultName: `Window ${++this.lastWindowNumber} / id ${windowId}`,
             textColor: '#fff',
             backColor: '#00f',
+            id: windowId,
         };
     },
 
@@ -40,9 +41,7 @@ var Metadata = {
         let allData = [];
         for (const prop in this) {
             if (isNaN(prop)) continue;
-            let data = this[prop];
-            data.id = prop;
-            allData.push(data);
+            allData.push(this[prop]);
         }
         return allData;
     },
