@@ -24,6 +24,7 @@ function onWindowRemoved(windowId) {
 function onWindowFocused(windowId) {
     if (windowId in Metadata) {
         Metadata[windowId].lastFocused = Date.now();
+        Metadata.focused = windowId;
     }
 }
 
