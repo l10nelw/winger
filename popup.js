@@ -10,10 +10,11 @@
     main();
     
     async function main() {
-        // let allWindows = await browser.windows.getAll({ populate: true });
-        allWindows.sort(sortLastFocusedDescending);
-        for (const window of allWindows) {
-            window.focused ? setHeader(window) : addRow(window);
+        const currentWindowId = BgP.Metadata.focused;
+        let metaWindows = BgP.Metadata.items();
+        metaWindows.sort(sortLastFocusedDescending);
+        for (const metaWindow of metaWindows) {
+            metaWindow.id == currentWindowId ? setHeader(metaWindow) : addRow(metaWindow);
         }
         $windowList.addEventListener('click', onClickRow);
         $searchInput.addEventListener('keyup', onSearchInput);
@@ -24,19 +25,19 @@
                BgP.Metadata[windowA.id].lastFocused;
     }
 
-    function setHeader(window) {
-        $currentWindow.querySelector('.windowName').textContent = BgP.Metadata.getName(window.id);
-        $currentWindow.querySelector('.badge').textContent = window.tabs.length;
+    function setHeader(metaWindow) {
+        $currentWindow.querySelector('.windowName').textContent = BgP.Metadata.getName(metaWindow);
+        $currentWindow.querySelector('.badge').textContent = metaWindow.tabCount;
     }
 
-    function addRow(window) {
+    function addRow(metaWindow) {
         const $row = document.importNode($rowTemplate, true);
-        const windowId = window.id;
+        const windowId = metaWindow.id;
         const name = BgP.Metadata.getName(windowId);
         $row._id = windowId;
         $row._name = name;
         $row.querySelector('.windowName').textContent = name;
-        $row.querySelector('.badge').textContent = window.tabs.length;
+        $row.querySelector('.badge').textContent = BgP.Metadata[windowId].tabCount;
         $windowList.appendChild($row);
     }
 
@@ -58,6 +59,7 @@
         }
     }
 
+    // Hides rows whose names do not contain string. Returns first matching row or null
     function searchWindowNames(string) {
         const $rows = $windowList.rows;
         let $firstMatch;
