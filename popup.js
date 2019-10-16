@@ -62,8 +62,7 @@
         let $firstMatch;
         if (string) {
             for (const $row of $windowList.children) {
-                const data = BgP.Metadata[$row._id];
-                const isMatch = data.name.includes(string) || data.defaultName.includes(string);
+                const isMatch = $row.querySelector('.windowName').textContent.includes(string);
                 $row.hidden = !isMatch;
                 $firstMatch = $firstMatch || (isMatch ? $row : null); // if not already found, it's this row
             }
