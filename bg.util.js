@@ -2,9 +2,9 @@
 
 var ObjectArray = {
 
-    firstWith(objects, key, value) {
+    find(objects, prop, value) {
         for (const object of objects) {
-            if (key in object && object[key] === value) return object;
+            if (prop in object && object[prop] === value) return object;
         }
     },
 

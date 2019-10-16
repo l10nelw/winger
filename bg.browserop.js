@@ -25,7 +25,7 @@ var BrowserOp = {
         await browser.tabs.move(selectedTabIds, { windowId, index: -1 });
 
         if (stayActive) {
-            const activeTab = ObjectArray.firstWith(selectedTabs, 'active', true);
+            const activeTab = ObjectArray.find(selectedTabs, 'active', true);
             browser.tabs.update(activeTab.id, { active: true });
         }
         if (staySelected) {
