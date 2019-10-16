@@ -32,8 +32,10 @@
     function addRow(window) {
         const $row = document.importNode($rowTemplate, true);
         const windowId = window.id;
+        const name = BgP.Metadata.getName(windowId);
         $row._id = windowId;
-        $row.querySelector('.windowName').textContent = BgP.Metadata.getName(windowId);
+        $row._name = name;
+        $row.querySelector('.windowName').textContent = name;
         $row.querySelector('.badge').textContent = window.tabs.length;
         $windowList.appendChild($row);
     }
@@ -60,7 +62,7 @@
         let $firstMatch;
         if (string) {
             for (const $row of $windowList.children) {
-                const isMatch = $row.querySelector('.windowName').textContent.includes(string);
+                const isMatch = $row._name.includes(string);
                 $row.hidden = !isMatch;
                 $firstMatch = $firstMatch || (isMatch ? $row : null); // if not already found, it's this row
             }
