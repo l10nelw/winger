@@ -20,14 +20,14 @@
     }
 
     function setHeader(metaWindow) {
-        $currentWindow.querySelector('.windowName').textContent = BgP.Metadata.getName(metaWindow);
+        $currentWindow.querySelector('.windowName').textContent = getName(metaWindow);
         $currentWindow.querySelector('.badge').textContent = metaWindow.tabCount;
     }
 
     function addRow(metaWindow) {
         const $row = document.importNode($rowTemplate, true);
         const windowId = metaWindow.id;
-        const name = BgP.Metadata.getName(windowId);
+        const name = getName(metaWindow);
         $row._id = windowId;
         $row._name = name;
         $row.querySelector('.windowName').textContent = name;
@@ -51,6 +51,10 @@
             window.close();
             BgP.BrowserOp.respond(event, $firstMatch._id);
         }
+    }
+
+    function getName(metaWindow) {
+        return metaWindow.givenName || metaWindow.defaultName;
     }
 
     // Hides rows whose names do not contain string. Returns first matching row or null
