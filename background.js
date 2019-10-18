@@ -64,6 +64,10 @@ function onPortConnected(port) {
                 metaWindows: Metadata.items(message.sortMethod),
             });
         }
+        else
+        if (message.browserOp) {
+            BrowserOp[message.browserOp](...message.args);
+        }
     })
 }
 

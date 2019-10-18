@@ -38,17 +38,15 @@
         const $target = event.target;
         const $row = $target.closest('tr');
         if ($row) {
-            window.close();
-            BgP.BrowserOp.respond(event, $row._id, $target.closest('.actionSendTabs'));
+            respondWithBrowserOp(event, $row._id, $target.closest('.actionSendTabs'));
         }
     }
 
     function onSearchInput(event) {
         const string = $searchInput.value;
         const $firstMatch = searchWindowNames(string);
-        if (event.key == 'Enter') {
-            window.close();
-            BgP.BrowserOp.respond(event, $firstMatch._id);
+        if (event.key == 'Enter' && $firstMatch) {
+            respondWithBrowserOp(event, $firstMatch._id);
         }
     }
 
@@ -73,6 +71,19 @@
             $firstMatch = $rows[0];
         }
         return $firstMatch;
+    }
+
+    function respondWithBrowserOp(event, windowId, forceSendTabs) {
+        const modifierKeys = {
+            altKey: event.altKey,
+            ctrlKey: event.ctrlKey,
+            shiftKey: event.shiftKey, 
+        };
+        port.postMessage({
+            browserOp: 'respond',
+            args: [modifierKeys, windowId, !!forceSendTabs],
+        });
+        window.close();
     }
 
 })()

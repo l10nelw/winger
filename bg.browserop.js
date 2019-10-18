@@ -34,8 +34,8 @@ var BrowserOp = {
         }
     },
 
-    async respond(event, windowId, otherSendTabCondition) {
-        if (event[this.modifierKey.sendTabs] || otherSendTabCondition) {
+    async respond(event, windowId, forceSendTabs) {
+        if (event[this.modifierKey.sendTabs] || forceSendTabs) {
             this.moveSelectedTabs(windowId);
         }
         else
