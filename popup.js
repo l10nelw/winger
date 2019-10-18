@@ -7,17 +7,17 @@
     const $currentWindow = document.getElementById('currentWindow');
     const $searchInput = document.getElementById('searchInput');
     const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-    main();
-    
-    async function main() {
-        const currentWindowId = BgP.Metadata.focused;
-        let metaWindows = BgP.Metadata.items('lastFocused');
-        for (const metaWindow of metaWindows) {
-            metaWindow.id == currentWindowId ? setHeader(metaWindow) : addRow(metaWindow);
+
+    const port = browser.runtime.connect({ name: 'popup' });
+    port.postMessage({ requestMetadata: true, sortMethod: 'lastFocused' });
+    port.onMessage.addListener(message => {
+        const focusedWindowId = message.focusedWindowId;
+        for (const metaWindow of message.metaWindows) {
+            metaWindow.id == focusedWindowId ? setHeader(metaWindow) : addRow(metaWindow);
         }
-        $windowList.addEventListener('click', onClickRow);
-        $searchInput.addEventListener('keyup', onSearchInput);
-    }
+    });
+    $windowList.addEventListener('click', onClickRow);
+    $searchInput.addEventListener('keyup', onSearchInput);
 
     function setHeader(metaWindow) {
         $currentWindow.querySelector('.windowName').textContent = getName(metaWindow);

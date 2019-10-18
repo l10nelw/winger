@@ -10,6 +10,7 @@ browser.tabs.onCreated.addListener(onTabCreated);
 browser.tabs.onRemoved.addListener(onTabRemoved);
 browser.tabs.onDetached.addListener(onTabDetached);
 browser.tabs.onAttached.addListener(onTabAttached);
+browser.runtime.onConnect.addListener(onPortConnected);
 
 
 async function onWindowCreated(window) {
@@ -24,7 +25,7 @@ function onWindowRemoved(windowId) {
 function onWindowFocused(windowId) {
     if (windowId in Metadata) {
         Metadata[windowId].lastFocused = Date.now();
-        Metadata.focused = windowId;
+        Metadata.focusedWindowId = windowId;
     }
 }
 
@@ -54,3 +55,15 @@ function onTabAttached(tabId, attachInfo) {
     Metadata[windowId].tabCount++;
     BrowserOp.updateWindowBadge(windowId);
 }
+
+function onPortConnected(port) {
+    port.onMessage.addListener(message => {
+        if (message.requestMetadata) {
+            port.postMessage({
+                focusedWindowId: Metadata.focusedWindowId,
+                metaWindows: Metadata.items(message.sortMethod),
+            });
+        }
+    })
+}
+

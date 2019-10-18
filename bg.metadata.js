@@ -7,7 +7,7 @@ properties representing windows, in the form of windowId (key): data object (val
 
 var Metadata = {
 
-    focused: 0,
+    focusedWindowId: 0,
 
     lastWindowNumber: 0,
     
