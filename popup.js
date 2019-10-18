@@ -26,12 +26,11 @@
 
     function addRow(metaWindow) {
         const $row = document.importNode($rowTemplate, true);
-        const windowId = metaWindow.id;
         const name = getName(metaWindow);
-        $row._id = windowId;
+        $row._id = metaWindow.id;
         $row._name = name;
         $row.querySelector('.windowName').textContent = name;
-        $row.querySelector('.badge').textContent = BgP.Metadata[windowId].tabCount;
+        $row.querySelector('.badge').textContent = metaWindow.tabCount;
         $windowList.appendChild($row);
     }
 
