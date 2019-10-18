@@ -2,10 +2,9 @@
 
 (async () => {
 
-    const BgP = await browser.runtime.getBackgroundPage();
-    const $windowList = document.getElementById('windowList');
     const $currentWindow = document.getElementById('currentWindow');
     const $searchInput = document.getElementById('searchInput');
+    const $windowList = document.getElementById('windowList');
     const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 
     const port = browser.runtime.connect({ name: 'popup' });
