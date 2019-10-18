@@ -3,15 +3,23 @@
 var BrowserOp = {
 
     modifierKey: {
-        sendTabs: 'shiftKey',
-        bringTabs: 'ctrlKey',
+        sendTabs: 'shiftKey', // moveSelectedTabs
+        bringTabs: 'ctrlKey', // moveSelectedTabs + focusWindow
     },
 
-    updateWindowBadge(windowId) {
-        const data = Metadata[windowId];
-        browser.browserAction.setBadgeText({ windowId, text: `${data.tabCount}` });
-        browser.browserAction.setBadgeTextColor({ windowId, color: data.textColor });
-        browser.browserAction.setBadgeBackgroundColor({ windowId, color: data.backColor });
+    async respond(event, windowId, forceSendTabs) {
+        if (event[this.modifierKey.bringTabs]) {
+            await this.moveSelectedTabs(windowId, true, true);
+            this.focusWindow(windowId);
+        }
+        else
+        if (event[this.modifierKey.sendTabs] || forceSendTabs) {
+            this.moveSelectedTabs(windowId);
+        }
+        else
+        {
+            this.focusWindow(windowId);
+        }
     },
 
     focusWindow(windowId) {
@@ -34,19 +42,11 @@ var BrowserOp = {
         }
     },
 
-    async respond(event, windowId, forceSendTabs) {
-        if (event[this.modifierKey.bringTabs]) {
-            await this.moveSelectedTabs(windowId, true, true);
-            this.focusWindow(windowId);
-        }
-        else
-        if (event[this.modifierKey.sendTabs] || forceSendTabs) {
-            this.moveSelectedTabs(windowId);
-        }
-        else
-        {
-            this.focusWindow(windowId);
-        }
+    updateWindowBadge(windowId) {
+        const data = Metadata[windowId];
+        browser.browserAction.setBadgeText({ windowId, text: `${data.tabCount}` });
+        browser.browserAction.setBadgeTextColor({ windowId, color: data.textColor });
+        browser.browserAction.setBadgeBackgroundColor({ windowId, color: data.backColor });
     },
 
 }
