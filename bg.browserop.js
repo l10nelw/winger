@@ -35,13 +35,13 @@ var BrowserOp = {
     },
 
     async respond(event, windowId, forceSendTabs) {
-        if (event[this.modifierKey.sendTabs] || forceSendTabs) {
-            this.moveSelectedTabs(windowId);
-        }
-        else
         if (event[this.modifierKey.bringTabs]) {
             await this.moveSelectedTabs(windowId, true, true);
             this.focusWindow(windowId);
+        }
+        else
+        if (event[this.modifierKey.sendTabs] || forceSendTabs) {
+            this.moveSelectedTabs(windowId);
         }
         else
         {
