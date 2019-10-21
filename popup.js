@@ -70,7 +70,7 @@ function searchWindowNames(string) {
     return $firstMatch;
 }
 
-function respondWithBrowserOp(event, windowId, forceSendTabs) {
+function respondWithBrowserOp(event, windowId, sendTabsByDefault) {
     const modifierKeys = {
         altKey: event.altKey,
         ctrlKey: event.ctrlKey,
@@ -78,7 +78,7 @@ function respondWithBrowserOp(event, windowId, forceSendTabs) {
     };
     port.postMessage({
         browserOp: 'respond',
-        args: [modifierKeys, windowId, !!forceSendTabs],
+        args: [modifierKeys, windowId, !!sendTabsByDefault],
     });
     window.close();
 }

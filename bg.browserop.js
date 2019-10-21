@@ -7,13 +7,13 @@ var BrowserOp = {
         bringTabs: 'ctrlKey', // moveSelectedTabs + focusWindow
     },
 
-    async respond(event, windowId, forceSendTabs) {
+    async respond(event, windowId, sendTabsByDefault) {
         if (event[this.modifierKey.bringTabs]) {
             await this.moveSelectedTabs(windowId, true, true);
             this.focusWindow(windowId);
         }
         else
-        if (event[this.modifierKey.sendTabs] || forceSendTabs) {
+        if (event[this.modifierKey.sendTabs] || sendTabsByDefault) {
             this.moveSelectedTabs(windowId);
         }
         else
