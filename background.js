@@ -57,14 +57,13 @@ function onTabAttached(tabId, attachInfo) {
 }
 
 function onPortConnected(port) {
+    if (port.name == 'popup') {
+        port.postMessage({
+            focusedWindowId: Metadata.focusedWindowId,
+            metaWindows: Metadata.items(),
+        });
+    }
     port.onMessage.addListener(message => {
-        if (message.requestMetadata) {
-            port.postMessage({
-                focusedWindowId: Metadata.focusedWindowId,
-                metaWindows: Metadata.items(),
-            });
-        }
-        else
         if (message.browserOp) {
             BrowserOp[message.browserOp](...message.args);
         }

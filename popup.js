@@ -6,7 +6,6 @@ const $windowList = document.getElementById('windowList');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 
 const port = browser.runtime.connect({ name: 'popup' });
-port.postMessage({ requestMetadata: true });
 port.onMessage.addListener(message => {
     const focusedWindowId = message.focusedWindowId;
     for (const metaWindow of message.metaWindows) {
