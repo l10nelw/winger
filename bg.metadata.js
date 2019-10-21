@@ -10,7 +10,9 @@ var Metadata = {
     focusedWindowId: 0,
 
     lastWindowNumber: 0,
-    
+
+    sortLastFocused: true,
+
     async add(windowObject) {
         const windowId = windowObject.id;
         const tabCount = windowObject.tabs ? windowObject.tabs.length : (await browser.tabs.query({ windowId })).length;
@@ -37,13 +39,13 @@ var Metadata = {
         }
     },
 
-    items(sortMethod) {
+    items() {
         let allData = [];
         for (const prop in this) {
             if (isNaN(prop)) continue;
             allData.push(this[prop]);
         }
-        if (sortMethod == 'lastFocused') {
+        if (this.sortLastFocused) {
             allData.sort((a, b) => b.lastFocused - a.lastFocused);
         }
         return allData;

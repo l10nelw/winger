@@ -61,7 +61,7 @@ function onPortConnected(port) {
         if (message.requestMetadata) {
             port.postMessage({
                 focusedWindowId: Metadata.focusedWindowId,
-                metaWindows: Metadata.items(message.sortMethod),
+                metaWindows: Metadata.items(),
             });
         }
         else
