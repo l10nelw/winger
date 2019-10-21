@@ -2,18 +2,18 @@
 
 var BrowserOp = {
 
-    modifierKey: {
-        sendTabs: 'shiftKey', // moveSelectedTabs
-        bringTabs: 'ctrlKey', // moveSelectedTabs + focusWindow
+    modifier: {
+        sendTab: 'Shift', // moveSelectedTabs
+        bringTab: 'Ctrl', // moveSelectedTabs + focusWindow
     },
 
-    async respond(event, windowId, sendTabsByDefault) {
-        if (event[this.modifierKey.bringTabs]) {
+    async respond(windowId, modifiers, sendTabsByDefault) {
+        if (modifiers.includes(this.modifier.bringTab)) {
             await this.moveSelectedTabs(windowId, true, true);
             this.focusWindow(windowId);
         }
         else
-        if (event[this.modifierKey.sendTabs] || sendTabsByDefault) {
+        if (modifiers.includes(this.modifier.sendTab) || sendTabsByDefault) {
             this.moveSelectedTabs(windowId);
         }
         else

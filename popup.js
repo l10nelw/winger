@@ -70,14 +70,13 @@ function searchWindowNames(string) {
 }
 
 function respondWithBrowserOp(event, windowId, sendTabsByDefault) {
-    const modifierKeys = {
-        altKey: event.altKey,
-        ctrlKey: event.ctrlKey,
-        shiftKey: event.shiftKey, 
-    };
+    let modifiers = [];
+    if (event.altKey) modifiers.push('Alt');
+    if (event.ctrlKey) modifiers.push('Ctrl');
+    if (event.shiftKey) modifiers.push('Shift');
     port.postMessage({
         browserOp: 'respond',
-        args: [modifierKeys, windowId, !!sendTabsByDefault],
+        args: [windowId, modifiers, !!sendTabsByDefault],
     });
     window.close();
 }
