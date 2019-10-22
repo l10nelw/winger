@@ -51,8 +51,8 @@ var Metadata = {
         return allData;
     },
 
-    getName(windowIdOrObject) {
-        const data = (windowIdOrObject instanceof Object) ? windowIdOrObject : this[windowIdOrObject];
+    getName(windowId) {
+        const data = this[windowId];
         return data.givenName || data.defaultName;
     },
 

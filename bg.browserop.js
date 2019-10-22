@@ -3,18 +3,18 @@
 var BrowserOp = {
 
     modifier: {
-        sendTab: 'Shift', // moveSelectedTabs
-        bringTab: 'Ctrl', // moveSelectedTabs + focusWindow
+        sendTab: 'Shift', // moveTabs
+        bringTab: 'Ctrl', // moveTabs + focusWindow
     },
 
-    async respond(windowId, modifiers, sendTabsByDefault) {
+    async respond(windowId, modifiers, sendTabsByDefault, tabObjects) {
         if (modifiers.includes(this.modifier.bringTab)) {
-            await this.moveSelectedTabs(windowId, true, true);
+            await this.moveTabs(tabObjects, windowId, true, true);
             this.focusWindow(windowId);
         }
         else
         if (modifiers.includes(this.modifier.sendTab) || sendTabsByDefault) {
-            this.moveSelectedTabs(windowId);
+            this.moveTabs(tabObjects, windowId);
         }
         else
         {
@@ -26,20 +26,23 @@ var BrowserOp = {
         browser.windows.update(windowId, { focused: true });
     },
 
-    async moveSelectedTabs(windowId, stayActive, staySelected) {
-        const selectedTabs = await browser.tabs.query({ currentWindow: true, highlighted: true });
-        const selectedTabIds = selectedTabs.map(tab => tab.id);
-        await browser.tabs.move(selectedTabIds, { windowId, index: -1 });
-
+    async moveTabs(tabObjects, windowId, stayActive, staySelected) {
+        tabObjects = tabObjects && tabObjects.length ? tabObjects : await this.getSelectedTabs();
+        const tabIds = tabObjects.map(tab => tab.id);
+        await browser.tabs.move(tabIds, { windowId, index: -1 });
         if (stayActive) {
-            const activeTab = selectedTabs.find(tab => tab.active);
-            browser.tabs.update(activeTab.id, { active: true });
+            const activeTab = tabObjects.find(tab => tab.active);
+            if (activeTab) browser.tabs.update(activeTab.id, { active: true });
         }
         if (staySelected) {
-            for (const tabId of selectedTabIds) {
+            for (const tabId of tabIds) {
                 browser.tabs.update(tabId, { highlighted: true, active: false });
             }
         }
+    },
+
+    async getSelectedTabs() {
+        return await browser.tabs.query({ currentWindow: true, highlighted: true });
     },
 
     updateWindowBadge(windowId) {
