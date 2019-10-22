@@ -31,11 +31,14 @@ var Metadata = {
         delete this[windowId];
     },
 
-    async populate(callback) {
+    async init(callbacks) {
         const allWindows = await browser.windows.getAll({ populate: true });
         for (const windowObject of allWindows) {
             await this.add(windowObject);
-            callback(windowObject.id);
+            const windowId = windowObject.id;
+            for (const callback of callbacks) {
+                callback(windowId);
+            }
         }
     },
 

@@ -6,6 +6,9 @@
   "icons": {
     "64": "icon.png"
   },
+  "permissions": [
+    "contextMenus"
+  ],
   "background": {
     "scripts": [
       "bg.metadata.js",

@@ -2,7 +2,8 @@
 // bg.metadata.js: Metadata
 // bg.browserop.js: BrowserOp
 
-Metadata.populate(BrowserOp.updateWindowBadge);
+Metadata.init([BrowserOp.updateWindowBadge, BrowserOp.menu.create]);
+
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onRemoved.addListener(onWindowRemoved);
 browser.windows.onFocusChanged.addListener(onWindowFocused);
@@ -10,21 +11,29 @@ browser.tabs.onCreated.addListener(onTabCreated);
 browser.tabs.onRemoved.addListener(onTabRemoved);
 browser.tabs.onDetached.addListener(onTabDetached);
 browser.tabs.onAttached.addListener(onTabAttached);
+
 browser.runtime.onConnect.addListener(onPortConnected);
 
+browser.contextMenus.onClicked.addListener(onMenuClicked);
 
-async function onWindowCreated(window) {
-    await Metadata.add(window);
-    BrowserOp.updateWindowBadge(window.id);
+
+async function onWindowCreated(windowObject) {
+    await Metadata.add(windowObject);
+    const windowId = windowObject.id;
+    BrowserOp.updateWindowBadge(windowId);
+    BrowserOp.menu.create(windowId);
 }
 
 function onWindowRemoved(windowId) {
     Metadata.remove(windowId);
+    BrowserOp.menu.remove(windowId);
 }
 
 function onWindowFocused(windowId) {
     if (!(windowId in Metadata)) return;
     Metadata[windowId].lastFocused = Date.now();
+    BrowserOp.menu.show(Metadata.focusedWindowId);
+    BrowserOp.menu.hide(windowId);
     Metadata.focusedWindowId = windowId;
 }
 
@@ -69,3 +78,17 @@ function onPortConnected(port) {
     })
 }
 
+
+async function onMenuClicked(info, tabObject) {
+    let tabObjects = await BrowserOp.getSelectedTabs();
+    if (tabObjects.length == 1) {
+        // Only active tab, treat as not selected => Just send target tab
+        tabObjects = [tabObject];
+    } else {
+        // Multiple tabs selected => Send selected tabs, active tab and target tab
+        // API should ignore duplicates
+        tabObjects.push(tabObject);
+    }
+    const windowId = parseInt(info.menuItemId);
+    BrowserOp.respond(windowId, info.modifiers, true, tabObjects);
+}

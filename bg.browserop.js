@@ -52,4 +52,15 @@ var BrowserOp = {
         browser.browserAction.setBadgeBackgroundColor({ windowId, color: data.backColor });
     },
 
+    menu: {
+        create: windowId => browser.contextMenus.create({
+            id: `${windowId}`,
+            title: `Send tab to ${Metadata.getName(windowId)}`,
+            contexts: ['tab'],
+        }),
+        remove: windowId => browser.contextMenus.remove(`${windowId}`),
+        hide: windowId => browser.contextMenus.update(`${windowId}`, { visible: false }),
+        show: windowId => browser.contextMenus.update(`${windowId}`, { visible: true }),
+    },
+
 }
