@@ -60,30 +60,4 @@ var Metadata = {
         this[windowId].givenName = name;
     },
 
-    async checkSanity() {
-        const allWindows = await browser.windows.getAll({ populate: true });
-        const allData = this.items();
-
-        const windowCount = allWindows.length;
-        const dataWindowCount = allData.length;
-
-        console.log({ windowCount, dataWindowCount });
-        
-        if (windowCount !== dataWindowCount) {
-            console.error(`Window count mismatch`);
-            return;
-        }
-
-        const sortById = (a, b) => a.id - b.id;
-        const tabCounts = allWindows.sort(sortById).map(window => window.tabs.length);
-        const dataTabCounts = allData.sort(sortById).map(data => data.tabCount);
-        
-        const objZip = (a, b) => a.map((x, i) => ({ 'tabCount': x, 'dataTabCount': b[i] }));
-        console.table(objZip(tabCounts, dataTabCounts));
-        
-        for (let i = windowCount; i--;) {
-            if (tabCounts[i] !== dataTabCounts[i]) console.error(`Tab count mismatch at [${i}]`);
-        }
-    },
-
 }
