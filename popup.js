@@ -1,6 +1,6 @@
 'use strict';
 
-const $currentWindow = document.getElementById('currentWindow');
+const $currentWindowRow = document.getElementById('currentWindow');
 const $searchInput = document.getElementById('searchInput');
 const $windowList = document.getElementById('windowList');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
@@ -9,25 +9,26 @@ const port = browser.runtime.connect({ name: 'popup' });
 port.onMessage.addListener(message => {
     const focusedWindowId = message.focusedWindowId;
     for (const metaWindow of message.metaWindows) {
-        metaWindow.id == focusedWindowId ? setHeader(metaWindow) : addRow(metaWindow);
+        metaWindow.id == focusedWindowId ? populateRow($currentWindowRow, metaWindow) : addRow(metaWindow);
     }
 });
 $windowList.addEventListener('click', onClickRow);
 $searchInput.addEventListener('keyup', onSearchInput);
 
-function setHeader(metaWindow) {
-    $currentWindow.querySelector('.windowName').textContent = getName(metaWindow);
-    $currentWindow.querySelector('.badge').textContent = metaWindow.tabCount;
-}
 
 function addRow(metaWindow) {
     const $row = document.importNode($rowTemplate, true);
-    const name = getName(metaWindow);
+    populateRow($row, metaWindow);
+    $windowList.appendChild($row);
+}
+
+function populateRow($row, metaWindow) {
+    const name = metaWindow.givenName || metaWindow.defaultName;
     $row._id = metaWindow.id;
     $row._name = name;
-    $row.querySelector('.windowName').textContent = name;
+    $row._isNamed = !!metaWindow.givenName;
+    $row.querySelector('input').value = name;
     $row.querySelector('.badge').textContent = metaWindow.tabCount;
-    $windowList.appendChild($row);
 }
 
 function onClickRow(event) {
@@ -44,10 +45,6 @@ function onSearchInput(event) {
     if (event.key == 'Enter' && $firstMatch) {
         respondWithBrowserOp(event, $firstMatch._id);
     }
-}
-
-function getName(metaWindow) {
-    return metaWindow.givenName || metaWindow.defaultName;
 }
 
 // Hides rows whose names do not contain string. Returns first matching row or null

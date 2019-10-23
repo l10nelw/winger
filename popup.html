@@ -5,19 +5,28 @@
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
-    <header id="currentWindow">
-      <div class="windowName"></div>
-      <div class="tabCount"><span class="badge"></span></div>
-      <!-- <input id="windowNameInput" type="text" autocomplete="off">
-      <button id="windowNameBtn" type="button">set</button> -->
-    </header>
+    <table id="currentWindow">
+      <tr>
+        <td class="windowName">
+          <input readonly autocomplete="off">
+        </td>
+        <td class="tabCount">
+          <span class="badge"></span>
+        </td>
+        <td class="windowAction"></td>
+      </tr>
+    </table>
     <input id="searchInput" type="text" autofocus>
     <table id="windowList"></table>
     <template id="rowTemplate">
       <tr>
         <td class="actionSendTabs">></td>
-        <td class="windowName"></td>
-        <td class="tabCount"><span class="badge"></span></td>
+        <td class="windowName">
+          <input readonly autocomplete="off">
+        </td>
+        <td class="tabCount">
+          <span class="badge"></span>
+        </td>
         <td class="windowAction"></td>
       </tr>
     </template>

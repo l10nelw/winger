@@ -1,8 +1,4 @@
 
-#currentWindow {
-    display: flex;
-}
-
 .actionSendTabs {
     padding: .5em 1.25em;
     background-color: #ccc;
