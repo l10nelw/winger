@@ -2,7 +2,7 @@
 
 var Metadata = {
 
-    focusedWindowId: 0,
+    focusedWindowId: null,
 
     lastWindowNumber: 0,
 
@@ -33,6 +33,7 @@ var Metadata = {
         for (const windowObject of allWindows) {
             await this.add(windowObject);
             const windowId = windowObject.id;
+            if (windowObject.focused) this.focusedWindowId = windowId;
             for (const callback of callbacks) callback(windowId);
         }
     },
