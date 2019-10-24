@@ -44,21 +44,21 @@ function onTabCreated(tab) {
     BrowserOp.updateWindowBadge(windowId);
 }
 
-function onTabRemoved(tabId, removeInfo) {
-    if (removeInfo.isWindowClosing) return;
-    const windowId = removeInfo.windowId;
+function onTabRemoved(tabId, info) {
+    if (info.isWindowClosing) return;
+    const windowId = info.windowId;
     Metadata.windows[windowId].tabCount--;
     BrowserOp.updateWindowBadge(windowId);
 }
 
-function onTabDetached(tabId, detachInfo) {
-    const windowId = detachInfo.oldWindowId;
+function onTabDetached(tabId, info) {
+    const windowId = info.oldWindowId;
     Metadata.windows[windowId].tabCount--;
     BrowserOp.updateWindowBadge(windowId);
 }
 
-function onTabAttached(tabId, attachInfo) {
-    const windowId = attachInfo.newWindowId;
+function onTabAttached(tabId, info) {
+    const windowId = info.newWindowId;
     Metadata.windows[windowId].tabCount++;
     BrowserOp.updateWindowBadge(windowId);
 }
