@@ -27,7 +27,9 @@ var BrowserOp = {
     },
 
     async moveTabs(tabObjects, windowId, stayActive, staySelected) {
-        tabObjects = tabObjects && tabObjects.length ? tabObjects : await this.getSelectedTabs();
+        if (!tabObjects || !tabObjects.length) {
+            tabObjects = await this.getSelectedTabs();
+        }
         const tabIds = tabObjects.map(tab => tab.id);
         await browser.tabs.move(tabIds, { windowId, index: -1 });
         if (stayActive) {
