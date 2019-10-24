@@ -30,8 +30,8 @@ function onWindowRemoved(windowId) {
 }
 
 function onWindowFocused(windowId) {
-    if (!(windowId in Metadata)) return;
-    Metadata[windowId].lastFocused = Date.now();
+    if (!(windowId in Metadata.windows)) return;
+    Metadata.windows[windowId].lastFocused = Date.now();
     BrowserOp.menu.show(Metadata.focusedWindowId);
     BrowserOp.menu.hide(windowId);
     Metadata.focusedWindowId = windowId;
@@ -39,27 +39,27 @@ function onWindowFocused(windowId) {
 
 function onTabCreated(tab) {
     const windowId = tab.windowId;
-    if (!(windowId in Metadata)) return;
-    Metadata[windowId].tabCount++;
+    if (!(windowId in Metadata.windows)) return;
+    Metadata.windows[windowId].tabCount++;
     BrowserOp.updateWindowBadge(windowId);
 }
 
 function onTabRemoved(tabId, removeInfo) {
     if (removeInfo.isWindowClosing) return;
     const windowId = removeInfo.windowId;
-    Metadata[windowId].tabCount--;
+    Metadata.windows[windowId].tabCount--;
     BrowserOp.updateWindowBadge(windowId);
 }
 
 function onTabDetached(tabId, detachInfo) {
     const windowId = detachInfo.oldWindowId;
-    Metadata[windowId].tabCount--;
+    Metadata.windows[windowId].tabCount--;
     BrowserOp.updateWindowBadge(windowId);
 }
 
 function onTabAttached(tabId, attachInfo) {
     const windowId = attachInfo.newWindowId;
-    Metadata[windowId].tabCount++;
+    Metadata.windows[windowId].tabCount++;
     BrowserOp.updateWindowBadge(windowId);
 }
 
@@ -68,7 +68,7 @@ function onPortConnected(port) {
     if (port.name == 'popup') {
         port.postMessage({
             focusedWindowId: Metadata.focusedWindowId,
-            metaWindows: Metadata.items(),
+            metaWindowsMap: Metadata.windows,
         });
     }
     port.onMessage.addListener(message => {

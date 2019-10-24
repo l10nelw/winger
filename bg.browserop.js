@@ -46,7 +46,7 @@ var BrowserOp = {
     },
 
     updateWindowBadge(windowId) {
-        const data = Metadata[windowId];
+        const data = Metadata.windows[windowId];
         browser.browserAction.setBadgeText({ windowId, text: `${data.tabCount}` });
         browser.browserAction.setBadgeTextColor({ windowId, color: data.textColor });
         browser.browserAction.setBadgeBackgroundColor({ windowId, color: data.backColor });

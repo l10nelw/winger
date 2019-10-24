@@ -4,11 +4,13 @@ const $currentWindowRow = document.getElementById('currentWindow');
 const $searchInput = document.getElementById('searchInput');
 const $windowList = document.getElementById('windowList');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
+let metaWindowsMap = {};
 
 const port = browser.runtime.connect({ name: 'popup' });
 port.onMessage.addListener(message => {
+    metaWindowsMap = message.metaWindowsMap;
     const focusedWindowId = message.focusedWindowId;
-    for (const metaWindow of message.metaWindows) {
+    for (const metaWindow of Object.values(metaWindowsMap)) {
         metaWindow.id == focusedWindowId ? populateRow($currentWindowRow, metaWindow) : addRow(metaWindow);
     }
 });

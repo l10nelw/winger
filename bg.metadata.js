@@ -1,34 +1,31 @@
 'use strict';
 
-/*
-Apart from these declared properties and methods, the Metadata object will also contain
-properties representing windows, in the form of windowId (key): data object (value).
-*/
-
 var Metadata = {
 
     focusedWindowId: 0,
 
     lastWindowNumber: 0,
 
-    sortLastFocused: true,
+    windows: {},
 
     async add(windowObject) {
         const windowId = windowObject.id;
         const tabCount = windowObject.tabs ? windowObject.tabs.length : (await browser.tabs.query({ windowId })).length;
-        this[windowId] = {
+        const number = ++this.lastWindowNumber;
+        this.windows[windowId] = {
+            id: windowId,
             tabCount,
+            number,
             lastFocused: Date.now(),
+            defaultName: `Window ${number} / id ${windowId}`,
             givenName: ``,
-            defaultName: `Window ${++this.lastWindowNumber} / id ${windowId}`,
             textColor: '#fff',
             backColor: '#00f',
-            id: windowId,
         };
     },
 
     remove(windowId) {
-        delete this[windowId];
+        delete this.windows[windowId];
     },
 
     async init(callbacks) {
@@ -36,31 +33,18 @@ var Metadata = {
         for (const windowObject of allWindows) {
             await this.add(windowObject);
             const windowId = windowObject.id;
-            for (const callback of callbacks) {
-                callback(windowId);
-            }
+            for (const callback of callbacks) callback(windowId);
         }
-    },
-
-    items() {
-        let allData = [];
-        for (const prop in this) {
-            if (isNaN(prop)) continue;
-            allData.push(this[prop]);
-        }
-        if (this.sortLastFocused) {
-            allData.sort((a, b) => b.lastFocused - a.lastFocused);
-        }
-        return allData;
     },
 
     getName(windowId) {
-        const data = this[windowId];
+        const data = this.windows[windowId];
         return data.givenName || data.defaultName;
     },
 
     setName(windowId, name) {
-        this[windowId].givenName = name;
+        this.windows[windowId].givenName = name;
+    },
     },
 
 }
