@@ -45,6 +45,25 @@ var Metadata = {
     setName(windowId, name) {
         this.windows[windowId].givenName = name;
     },
+
+    sortBy: '',
+    sortedIds: null,
+
+    _sortMethod: {
+        lastFocused: (a, b) => b.lastFocused - a.lastFocused,
+        alphabetical: (a, b) => this.getName(a) - this.getName(b),
+        age: (a, b) => a.number - b.number,
+        lastFocusedReversed: (a, b) => a.lastFocused - b.lastFocused,
+        alphabeticalReversed: (a, b) => this.getName(b) - this.getName(a),
+        ageReversed: (a, b) => b.number - a.number,
+    },
+
+    sort(sortBy) {
+        let windowObjects = Object.values(this.windows);
+        windowObjects.sort(this._sortMethod[sortBy]);
+        this.sortedIds = windowObjects.map(object => object.id);
+        this.sortBy = sortBy;
+        return this.sortedIds;
     },
 
 }

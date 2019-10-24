@@ -66,9 +66,12 @@ function onTabAttached(tabId, attachInfo) {
 
 function onPortConnected(port) {
     if (port.name == 'popup') {
+        Metadata.sort('lastFocused');
         port.postMessage({
-            focusedWindowId: Metadata.focusedWindowId,
             metaWindowsMap: Metadata.windows,
+            focusedWindowId: Metadata.focusedWindowId,
+            sortedIds: Metadata.sortedIds,
+            sortBy: Metadata.sortBy,
         });
     }
     port.onMessage.addListener(message => {
