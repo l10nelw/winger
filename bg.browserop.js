@@ -3,7 +3,7 @@
 var BrowserOp = {
 
     modifier: {
-        sendTab: 'Shift', // moveTabs
+        sendTab: 'Alt', // moveTabs
         bringTab: 'Ctrl', // moveTabs + focusWindow
     },
 
