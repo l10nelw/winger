@@ -11,16 +11,23 @@ var Metadata = {
     async add(windowObject) {
         const windowId = windowObject.id;
         const tabCount = windowObject.tabs ? windowObject.tabs.length : (await browser.tabs.query({ windowId })).length;
-        const number = ++this.lastWindowNumber;
+
+        // Generate unique defaultName
+        let number, defaultName;
+        do {
+            number = ++this.lastWindowNumber;
+            defaultName = `Window ${number} / id ${windowId}`;
+        } while (this.isInvalidName(windowId, defaultName));
+        
         this.windows[windowId] = {
             id: windowId,
             tabCount,
             number,
-            lastFocused: Date.now(),
-            defaultName: `Window ${number} / id ${windowId}`,
-            givenName: ``,
+            defaultName,
+            givenName: '',
             textColor: '#fff',
             backColor: '#00f',
+            lastFocused: Date.now(),
         };
     },
 
@@ -39,12 +46,34 @@ var Metadata = {
     },
 
     getName(windowId) {
-        const data = this.windows[windowId];
-        return data.givenName || data.defaultName;
+        const windowObject = this.windows[windowId];
+        return windowObject.givenName || windowObject.defaultName;
     },
 
-    setName(windowId, name) {
-        this.windows[windowId].givenName = name;
+    // Validate and set givenName for target window. Blank clears givenName.
+    // Returns 0 if successful, otherwise returns output of isInvalidName().
+    setName(windowId, name = '') {
+        name = name.trim();
+        const invalid = name ? this.isInvalidName(windowId, name) : 0;
+        if (!invalid) this.windows[windowId].givenName = name;
+        return invalid;
+    },
+
+    // Validate name for target window. Valid if unique, or equals target's defaultName (because why not).
+    // Uniqueness is checked against all existing given and default names.
+    // Returns 0 if valid, otherwise returns -1 or id of conflicting window.
+    isInvalidName(windowId, name) {
+        if (name.startsWith('/')) return -1;
+        for (const id in this.windows) {
+            const windowObject = this.windows[id];
+            const isNotTarget = id != windowId;
+            const sameAsGiven = windowObject.givenName == name;
+            const sameAsDefault = windowObject.defaultName == name;
+            if (sameAsGiven || (sameAsDefault && isNotTarget)) {
+                return windowObject.id;
+            }
+        }
+        return 0;
     },
 
     sortBy: '',
