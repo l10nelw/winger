@@ -96,9 +96,13 @@ var Metadata = {
     },
 
     _sortMethod: {
-        lastFocused: (a, b) => b.lastFocused - a.lastFocused,
-        alphabetical: (a, b) => this.getName(a) - this.getName(b),
         age: (a, b) => a.number - b.number,
+        lastFocused: (a, b) => b.lastFocused - a.lastFocused,
+        alphabetical: (a, b) => {
+            if (a.displayName > b.displayName) return 1;
+            if (a.displayName < b.displayName) return -1;
+            return 0;
+        },
     },
 
 }
