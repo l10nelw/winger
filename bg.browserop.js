@@ -57,7 +57,7 @@ var BrowserOp = {
     menu: {
         create: windowId => browser.contextMenus.create({
             id: `${windowId}`,
-            title: `Send tab to ${Metadata.getName(windowId)}`,
+            title: `Send tab to ${Metadata.windows[windowId].displayName}`,
             contexts: ['tab'],
         }),
         remove: windowId => browser.contextMenus.remove(`${windowId}`),

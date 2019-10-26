@@ -25,6 +25,7 @@ var Metadata = {
             number,
             defaultName,
             givenName: '',
+            displayName: defaultName,
             textColor: '#fff',
             backColor: '#00f',
             lastFocused: Date.now(),
@@ -47,18 +48,18 @@ var Metadata = {
         }
     },
 
-    getName(windowId) {
-        const windowObject = this.windows[windowId];
-        return windowObject.givenName || windowObject.defaultName;
-    },
-
-    // Validate and set givenName for target window. Blank clears givenName.
+    // Validate and assign givenName for target window. Blank clears givenName.
+    // Automatically sets displayName.
     // Returns 0 if successful, otherwise returns output of isInvalidName().
     setName(windowId, name = '') {
         name = name.trim();
-        const invalid = name ? this.isInvalidName(windowId, name) : 0;
-        if (!invalid) this.windows[windowId].givenName = name;
-        return invalid;
+        const metaWindow = this.windows[windowId];
+        const status = name ? this.isInvalidName(windowId, name) : 0;
+        if (status == 0) {
+            metaWindow.givenName = name;
+            metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
+        }
+        return status;
     },
 
     // Validate name for target window. Valid if unique, or equals target's defaultName (because why not).

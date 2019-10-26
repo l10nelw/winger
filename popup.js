@@ -27,7 +27,7 @@ function addRow(metaWindow) {
 }
 
 function populateRow($row, metaWindow) {
-    const name = metaWindow.givenName || metaWindow.defaultName;
+    const name = metaWindow.displayName;
     $row._id = metaWindow.id;
     $row._name = name;
     $row._isNamed = !!metaWindow.givenName;
