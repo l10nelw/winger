@@ -68,12 +68,12 @@ var Metadata = {
     isInvalidName(windowId, name) {
         if (name.startsWith('/')) return -1;
         for (const id in this.windows) {
-            const windowObject = this.windows[id];
+            const metaWindow = this.windows[id];
             const isNotTarget = id != windowId;
-            const sameAsGiven = windowObject.givenName == name;
-            const sameAsDefault = windowObject.defaultName == name;
+            const sameAsGiven = metaWindow.givenName == name;
+            const sameAsDefault = metaWindow.defaultName == name;
             if (sameAsGiven || (sameAsDefault && isNotTarget)) {
-                return windowObject.id;
+                return metaWindow.id;
             }
         }
         return 0;
@@ -87,9 +87,9 @@ var Metadata = {
     // If cached sortedIds of same sortMethod is available, skip sort and return sortedIds.
     sort(sortBy = this.sortBy) {
         if (!this.sortedIds || sortBy != this.sortBy) {
-            let windowObjects = Object.values(this.windows);
-            windowObjects.sort(this._sortMethod[sortBy]);
-            this.sortedIds = windowObjects.map(object => object.id);
+            let metaWindows = Object.values(this.windows);
+            metaWindows.sort(this._sortMethod[sortBy]);
+            this.sortedIds = metaWindows.map(object => object.id);
             this.sortBy = sortBy;
         }
         return this.sortedIds;
