@@ -11,9 +11,7 @@ browser.tabs.onCreated.addListener(onTabCreated);
 browser.tabs.onRemoved.addListener(onTabRemoved);
 browser.tabs.onDetached.addListener(onTabDetached);
 browser.tabs.onAttached.addListener(onTabAttached);
-
 browser.runtime.onConnect.addListener(onPortConnected);
-
 browser.contextMenus.onClicked.addListener(onMenuClicked);
 
 
@@ -72,6 +70,7 @@ function onPortConnected(port) {
             focusedWindowId: Metadata.focusedWindowId,
             sortedIds: Metadata.sortedIds,
             sortBy: Metadata.sortBy,
+            sortReverse: Metadata.sortReverse,
         });
     }
     port.onMessage.addListener(message => {

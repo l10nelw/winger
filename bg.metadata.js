@@ -79,7 +79,8 @@ var Metadata = {
     },
 
     sortedIds: null, // Sort cache. Nulled on every init and add/remove window
-    sortBy: 'lastFocused', // User's last sort preference
+    sortBy: 'lastFocused',
+    sortReverse: false,
 
     // Sort windows by sortMethod, cache and return sortedIds.
     // If cached sortedIds of same sortMethod is available, skip sort and return sortedIds.
@@ -97,9 +98,6 @@ var Metadata = {
         lastFocused: (a, b) => b.lastFocused - a.lastFocused,
         alphabetical: (a, b) => this.getName(a) - this.getName(b),
         age: (a, b) => a.number - b.number,
-        lastFocusedReversed: (a, b) => a.lastFocused - b.lastFocused,
-        alphabeticalReversed: (a, b) => this.getName(b) - this.getName(a),
-        ageReversed: (a, b) => b.number - a.number,
     },
 
 }
