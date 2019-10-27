@@ -38,20 +38,20 @@ function onClickRow(event) {
     const $target = event.target;
     const $row = $target.closest('tr');
     if ($row) {
-        respondWithBrowserOp(event, $row._id, $target.closest('.actionSendTabs'));
+        respondWithBrowserOp(event, $row._id, !!$target.closest('.actionSendTabs'));
     }
 }
 
 function onSearchInput(event) {
     const string = $searchInput.value;
-    const $firstMatch = searchWindowNames(string);
+    const $firstMatch = filterWindowNames(string);
     if (event.key == 'Enter' && $firstMatch) {
         respondWithBrowserOp(event, $firstMatch._id);
     }
 }
 
-// Hides rows whose names do not contain string. Returns first matching row or null
-function searchWindowNames(string) {
+// Hide rows whose names do not contain string. Returns first matching row or null.
+function filterWindowNames(string) {
     const $rows = $windowList.rows;
     let $firstMatch;
     if (string) {
@@ -70,13 +70,20 @@ function searchWindowNames(string) {
 }
 
 function respondWithBrowserOp(event, windowId, sendTabsByDefault) {
-    let modifiers = [];
-    if (event.altKey) modifiers.push('Alt');
-    if (event.ctrlKey) modifiers.push('Ctrl');
-    if (event.shiftKey) modifiers.push('Shift');
     port.postMessage({
         browserOp: 'respond',
-        args: [windowId, modifiers, !!sendTabsByDefault],
+        args: [windowId, eventModifiers(event), sendTabsByDefault],
     });
     window.close();
+}
+
+function eventModifiers(event) {
+    let modifiers = [];
+    for (const prop in event) {
+        if (prop.endsWith('Key') && event[prop]) {
+            let modifier = prop[0].toUpperCase() + prop.slice(1, -3);
+            modifiers.push(modifier);
+        }
+    }
+    return modifiers;
 }
