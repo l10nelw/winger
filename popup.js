@@ -3,6 +3,7 @@
 const $currentWindowRow = document.getElementById('currentWindow');
 const $searchInput = document.getElementById('searchInput');
 const $windowList = document.getElementById('windowList');
+const $editMode = document.getElementById('editMode');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 let metaWindowsMap = {};
 
@@ -35,6 +36,7 @@ function populateRow($row, metaWindow) {
 }
 
 function onClickRow(event) {
+    if ($editMode.checked) return;
     const $target = event.target;
     const $row = $target.closest('tr');
     if ($row) {
@@ -45,6 +47,7 @@ function onClickRow(event) {
 function onSearchInput(event) {
     const string = $searchInput.value;
     const $firstMatch = filterWindowNames(string);
+    if ($editMode.checked) return;
     if (event.key == 'Enter' && $firstMatch) {
         respondWithBrowserOp(event, $firstMatch._id);
     }
