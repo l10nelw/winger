@@ -27,12 +27,11 @@ function addRow(metaWindow) {
 }
 
 function populateRow($row, metaWindow) {
-    const name = metaWindow.displayName;
+    $row.$input = $row.querySelector('input');
+    $row.$badge = $row.querySelector('.badge');
+    $row.$input.value = metaWindow.displayName;
+    $row.$badge.textContent = metaWindow.tabCount;
     $row._id = metaWindow.id;
-    $row._name = name;
-    $row._isNamed = !!metaWindow.givenName;
-    $row.querySelector('input').value = name;
-    $row.querySelector('.badge').textContent = metaWindow.tabCount;
 }
 
 function onClickRow(event) {
@@ -57,7 +56,7 @@ function searchWindowNames(string) {
     let $firstMatch;
     if (string) {
         for (const $row of $rows) {
-            const isMatch = $row._name.includes(string);
+            const isMatch = $row.$input.value.includes(string);
             $row.hidden = !isMatch;
             $firstMatch = $firstMatch || (isMatch ? $row : null); // if not already found, it's this row
         }
