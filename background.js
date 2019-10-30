@@ -62,25 +62,6 @@ function onTabAttached(tabId, info) {
 }
 
 
-function onPortConnected(port) {
-    if (port.name == 'popup') {
-        Metadata.sort();
-        port.postMessage({
-            metaWindowsMap: Metadata.windows,
-            focusedWindowId: Metadata.focusedWindowId,
-            sortedIds: Metadata.sortedIds,
-            sortBy: Metadata.sortBy,
-            sortReverse: Metadata.sortReverse,
-        });
-    }
-    port.onMessage.addListener(message => {
-        if (message.browserOp) {
-            BrowserOp[message.browserOp](...message.args);
-        }
-    })
-}
-
-
 async function onMenuClicked(info, tabObject) {
     let tabObjects = await BrowserOp.getSelectedTabs();
     if (tabObjects.length == 1) {
@@ -93,4 +74,38 @@ async function onMenuClicked(info, tabObject) {
     }
     const windowId = parseInt(info.menuItemId);
     BrowserOp.respond(windowId, info.modifiers, true, tabObjects);
+}
+
+
+function onPortConnected(port) {
+    if (port.name == 'popup') {
+        port.postMessage({
+            response: 'popup open',
+            metaWindows: Metadata.windows,
+            focusedWindowId: Metadata.focusedWindowId,
+            sortedIds: Metadata.sortedIds(),
+        });
+    }
+    port.onMessage.addListener(handleMessage);
+}
+
+async function handleMessage(message) {
+    if (message.command) {
+        callViaMessage(message);
+    } else
+    if (message.request) {
+        port.postMessage({
+            response: message.request,
+            result: await callViaMessage(message),
+        });
+    }
+}
+
+async function callViaMessage(message) {
+    const args = message.args;
+    if (args) {
+        return await window[message.module][message.prop](...args);
+    } else {
+        return window[message.module][message.prop];
+    }
 }

@@ -5,21 +5,27 @@ const $searchInput = document.getElementById('searchInput');
 const $windowList = document.getElementById('windowList');
 const $editMode = document.getElementById('editMode');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-let metaWindowsMap = {};
+
+let metaWindows;
 
 const port = browser.runtime.connect({ name: 'popup' });
-port.onMessage.addListener(message => {
-    metaWindowsMap = message.metaWindowsMap;
-    const focusedWindowId = message.focusedWindowId;
-    const sortedIds = message.sortedIds;
-    for (const windowId of sortedIds) {
-        const metaWindow = metaWindowsMap[windowId];
-        windowId == focusedWindowId ? populateRow($currentWindowRow, metaWindow) : addRow(metaWindow);
-    }
-});
+port.onMessage.addListener(handleMessage);
 $windowList.addEventListener('click', onClickRow);
 $searchInput.addEventListener('keyup', onSearchInput);
 
+function handleMessage(message) {
+    switch (message.response) {
+        case 'popup open': {
+            metaWindows = message.metaWindows;
+            const focusedWindowId = message.focusedWindowId;
+            const sortedIds = message.sortedIds;
+            for (const windowId of sortedIds) {
+                const metaWindow = metaWindows[windowId];
+                windowId == focusedWindowId ? populateRow($currentWindowRow, metaWindow) : addRow(metaWindow);
+            }
+        }
+    }
+}
 
 function addRow(metaWindow) {
     const $row = document.importNode($rowTemplate, true);
@@ -74,7 +80,9 @@ function filterWindowNames(string) {
 
 function respondWithBrowserOp(event, windowId, sendTabsByDefault) {
     port.postMessage({
-        browserOp: 'respond',
+        command: true,
+        module: 'BrowserOp',
+        prop: 'respond',
         args: [windowId, eventModifiers(event), sendTabsByDefault],
     });
     window.close();
