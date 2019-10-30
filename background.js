@@ -65,11 +65,10 @@ function onTabAttached(tabId, info) {
 async function onMenuClicked(info, tabObject) {
     let tabObjects = await BrowserOp.getSelectedTabs();
     if (tabObjects.length == 1) {
-        // Only active tab, treat as not selected => Just send target tab
+        // No multiple tabs selected: Just send target tab.
         tabObjects = [tabObject];
     } else {
-        // Multiple tabs selected => Send selected tabs, active tab and target tab
-        // API should ignore duplicates
+        // Multiple tabs selected: Send selected tabs, active tab and target tab. (API should ignore duplicates)
         tabObjects.push(tabObject);
     }
     const windowId = parseInt(info.menuItemId);
