@@ -62,11 +62,14 @@ var Metadata = {
         return status;
     },
 
-    // Validate name for target window. Valid if unique, or equals target's defaultName (because why not).
+    // Validate name for target window.
+    // Valid if unique and has no disallowed characters, or equals target's defaultName (because why not).
     // Uniqueness is checked against all existing given and default names.
     // Returns 0 if valid, otherwise returns -1 or id of conflicting window.
     isInvalidName(windowId, name) {
-        if (name.startsWith('/')) return -1;
+        if (name.startsWith('/') || /['"]/.test(name)) {
+            return -1;
+        }
         for (const id in this.windows) {
             const metaWindow = this.windows[id];
             const isNotTarget = id != windowId;
