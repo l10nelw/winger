@@ -19,3 +19,7 @@
     padding: .2em .5em;
     border-radius: 2px;
 }
+
+.inputError {
+    color: red;
+}

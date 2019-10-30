@@ -3,10 +3,11 @@
 const $currentWindowRow = document.getElementById('currentWindow');
 const $searchInput = document.getElementById('searchInput');
 const $windowList = document.getElementById('windowList');
-const $editMode = document.getElementById('editMode');
+const $editModeToggle = document.getElementById('editMode');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 
 let metaWindows;
+let $inputs = [];
 
 const port = browser.runtime.connect({ name: 'popup' });
 port.onMessage.addListener(handleMessage);
@@ -24,6 +25,15 @@ function handleMessage(message) {
                 windowId == focusedWindowId ? populateRow($currentWindowRow, metaWindow) : addRow(metaWindow);
             }
         }
+        break;
+        case 'editMode setName': {
+            const status = message.result;
+            if (status > 0) {
+                const $input = $inputs.find($input => $input._id == status);
+                EditMode.showError($input)
+            }
+        }
+        break;
     }
 }
 
@@ -34,15 +44,18 @@ function addRow(metaWindow) {
 }
 
 function populateRow($row, metaWindow) {
-    $row.$input = $row.querySelector('input');
-    $row.$badge = $row.querySelector('.badge');
-    $row.$input.value = metaWindow.displayName;
-    $row.$badge.textContent = metaWindow.tabCount;
-    $row._id = metaWindow.id;
+    const $input = $row.querySelector('input');
+    const $badge = $row.querySelector('.badge');
+    $input.value = metaWindow.displayName;
+    $badge.textContent = metaWindow.tabCount;
+    $row._id = $input._id = metaWindow.id;
+    $row.$input = $input;
+    $row.$badge = $badge;
+    $inputs.push($input);
 }
 
 function onClickRow(event) {
-    if ($editMode.checked) return;
+    if ($editModeToggle.checked) return;
     const $target = event.target;
     const $row = $target.closest('tr');
     if ($row) {
@@ -53,7 +66,7 @@ function onClickRow(event) {
 function onSearchInput(event) {
     const string = $searchInput.value;
     const $firstMatch = filterWindowNames(string);
-    if ($editMode.checked) return;
+    if ($editModeToggle.checked) return;
     if (event.key == 'Enter' && $firstMatch) {
         respondWithBrowserOp(event, $firstMatch._id);
     }
@@ -98,3 +111,58 @@ function eventModifiers(event) {
     }
     return modifiers;
 }
+
+
+var EditMode = {
+
+    toggle() {
+        const editMode = $editModeToggle.checked;
+        for (const $input of $inputs) {
+            $input.readOnly = !editMode;
+        }
+        if (editMode) {
+            document.body.addEventListener('change', EditMode.onInputChange);
+        }
+        // document.body[editMode ? 'addEventListener' : 'removeEventListener']('change', this.onInputChange);
+    },
+
+    onInputChange(event) {
+        const $target = event.target;
+        if ($target.type != 'text') return;
+        const name = $target.value;
+        $target.value = name.trim();
+
+        EditMode.resetErrors();
+        const $duplicate = EditMode.duplicatedName(name, $target);
+        if ($duplicate) {
+            EditMode.showError($target);
+            EditMode.showError($duplicate);
+        } else {
+            port.postMessage({
+                request: 'editMode setName',
+                module: 'Metadata',
+                prop: 'setName',
+                args: [$target._id, name],
+            });
+        }
+
+    },
+
+    duplicatedName(name, $exclude) {
+        const $input = $inputs.find($input => $input !== $exclude && $input.value == name);
+        return $input || 0;
+    },
+
+    showError($input) {
+        $input.classList.add('inputError');
+    },
+
+    resetErrors() {
+        for (const $input of $inputs) {
+            $input.classList.remove('inputError');
+        }
+    },
+
+
+}
+$editModeToggle.addEventListener('change', EditMode.toggle);
