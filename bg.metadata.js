@@ -11,6 +11,7 @@ var Metadata = {
     async add(windowObject) {
         const windowId = windowObject.id;
         const tabCount = windowObject.tabs ? windowObject.tabs.length : (await browser.tabs.query({ windowId })).length;
+        const now = Date.now();
 
         // Generate unique defaultName
         let number, defaultName;
@@ -18,7 +19,7 @@ var Metadata = {
             number = ++this.lastWindowNumber;
             defaultName = `Window ${number} / id ${windowId}`;
         } while (this.isInvalidName(windowId, defaultName));
-        
+
         this.windows[windowId] = {
             id: windowId,
             tabCount,
@@ -28,7 +29,8 @@ var Metadata = {
             displayName: defaultName,
             textColor: '#fff',
             backColor: '#00f',
-            lastFocused: Date.now(),
+            created: now,
+            lastFocused: now,
         };
     },
 
@@ -86,7 +88,7 @@ var Metadata = {
     },
 
     _sortMethod: {
-        age: (a, b) => a.number - b.number,
+        age: (a, b) => a.created - b.created,
         lastFocused: (a, b) => b.lastFocused - a.lastFocused,
         alphabetical: (a, b) => {
             if (a.displayName > b.displayName) return 1;
