@@ -30,12 +30,10 @@ var Metadata = {
             backColor: '#00f',
             lastFocused: Date.now(),
         };
-        this.sortedIds = null;
     },
 
     remove(windowId) {
         delete this.windows[windowId];
-        this.sortedIds = null;
     },
 
     async init(callbacks) {
@@ -79,20 +77,12 @@ var Metadata = {
         return 0;
     },
 
-    sortedIds: null, // Sort cache. Nulled on every init and add/remove window
-    sortBy: 'lastFocused',
-    sortReverse: false,
-
-    // Sort windows by sortMethod, cache and return sortedIds.
-    // If cached sortedIds of same sortMethod is available, skip sort and return sortedIds.
-    sort(sortBy = this.sortBy) {
-        if (!this.sortedIds || sortBy != this.sortBy) {
-            let metaWindows = Object.values(this.windows);
-            metaWindows.sort(this._sortMethod[sortBy]);
-            this.sortedIds = metaWindows.map(object => object.id);
-            this.sortBy = sortBy;
-        }
-        return this.sortedIds;
+    // Sort windows by sortMethod, return windowIds.
+    sortedIds(sortBy = 'lastFocused') {
+        let metaWindows = Object.values(this.windows);
+        metaWindows.sort(this._sortMethod[sortBy]);
+        const windowIds = metaWindows.map(object => object.id);
+        return windowIds;
     },
 
     _sortMethod: {
