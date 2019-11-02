@@ -86,25 +86,26 @@ function onPortConnected(port) {
         });
     }
     port.onMessage.addListener(handleMessage);
-}
 
-async function handleMessage(message) {
-    if (message.command) {
-        callViaMessage(message);
-    } else
-    if (message.request) {
-        port.postMessage({
-            response: message.request,
-            result: await callViaMessage(message),
-        });
+    async function handleMessage(message) {
+        if (message.command) {
+            callViaMessage(message);
+        } else
+        if (message.request) {
+            port.postMessage({
+                response: message.request,
+                context: message.context,
+                result: await callViaMessage(message),
+            });
+        }
     }
-}
 
-async function callViaMessage(message) {
-    const args = message.args;
-    if (args) {
-        return await window[message.module][message.prop](...args);
-    } else {
-        return window[message.module][message.prop];
+    async function callViaMessage(message) {
+        const args = message.args;
+        if (args) {
+            return await window[message.module][message.prop](...args);
+        } else {
+            return window[message.module][message.prop];
+        }
     }
 }
