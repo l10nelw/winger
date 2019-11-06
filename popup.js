@@ -1,7 +1,7 @@
 'use strict';
 
 const $currentWindowRow = document.getElementById('currentWindow');
-const $searchInput = document.getElementById('searchInput');
+const $commandInput = document.getElementById('commandInput');
 const $windowList = document.getElementById('windowList');
 const $editModeToggle = document.getElementById('editMode');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
@@ -12,7 +12,7 @@ let $inputs = [];
 const port = browser.runtime.connect({ name: 'popup' });
 port.onMessage.addListener(handleMessage);
 $windowList.addEventListener('click', onClickRow);
-$searchInput.addEventListener('keyup', onSearchInput);
+$commandInput.addEventListener('keyup', onCommandInput);
 
 function handleMessage(message) {
     switch (message.response) {
@@ -59,12 +59,12 @@ function onClickRow(event) {
     const $target = event.target;
     const $row = $target.closest('tr');
     if ($row) {
-        respondWithBrowserOp(event, $row._id, !!$target.closest('.actionSendTabs'));
+        respondWithBrowserOp(event, $row._id, !!$target.closest('.sendTabAction'));
     }
 }
 
-function onSearchInput(event) {
-    const string = $searchInput.value;
+function onCommandInput(event) {
+    const string = $commandInput.value;
     const $firstMatch = filterWindowNames(string);
     if ($editModeToggle.checked) return;
     if (event.key == 'Enter' && $firstMatch) {

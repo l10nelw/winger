@@ -7,8 +7,8 @@
   <body>
     <table id="currentWindow">
       <tr>
-        <td class="windowName">
-          <input readonly autocomplete="off">
+        <td class="windowNameColumn">
+          <input class="windowNameInput current" readonly autocomplete="off">
         </td>
         <td class="tabCount">
           <span class="badge"></span>
@@ -16,16 +16,16 @@
         <td class="windowAction"></td>
       </tr>
     </table>
-    <input id="searchInput" type="text" autofocus>
+    <input id="commandInput" type="text" autofocus>
     <table id="windowList"></table>
     <footer>
       <label><input type="checkbox" id="editMode"> Edit mode</label>
     </footer>
     <template id="rowTemplate">
       <tr>
-        <td class="actionSendTabs">></td>
-        <td class="windowName">
-          <input readonly autocomplete="off">
+        <td class="sendTabAction">></td>
+        <td class="windowNameColumn">
+          <input class="windowNameInput other" readonly autocomplete="off">
         </td>
         <td class="tabCount">
           <span class="badge"></span>
