@@ -1,18 +1,17 @@
-'use strict';
+import * as EditMode from './editmode.js';
 
 const $currentWindowRow = document.getElementById('currentWindow');
 const $commandInput = document.getElementById('commandInput');
 const $windowList = document.getElementById('windowList');
-const $editModeToggle = document.getElementById('editMode');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 
 let metaWindows;
-let $inputs = [];
 
 const port = browser.runtime.connect({ name: 'popup' });
 port.onMessage.addListener(handleMessage);
 $windowList.addEventListener('click', onClickRow);
 $commandInput.addEventListener('keyup', onCommandInput);
+EditMode.init(port);
 
 function handleMessage(message) {
     switch (message.response) {
@@ -26,14 +25,9 @@ function handleMessage(message) {
             }
         }
         break;
-        case 'editMode setName': {
-            const status = message.result;
-            if (status > 0) {
-                const $input = $inputs.find($input => $input._id == status);
-                EditMode.showError($input)
-            }
+        default: {
+            EditMode.handleMessage(message);
         }
-        break;
     }
 }
 
@@ -51,11 +45,10 @@ function populateRow($row, metaWindow) {
     $row._id = $input._id = metaWindow.id;
     $row.$input = $input;
     $row.$badge = $badge;
-    $inputs.push($input);
 }
 
 function onClickRow(event) {
-    if ($editModeToggle.checked) return;
+    if (EditMode.active) return;
     const $target = event.target;
     const $row = $target.closest('tr');
     if ($row) {
@@ -66,7 +59,7 @@ function onClickRow(event) {
 function onCommandInput(event) {
     const string = $commandInput.value;
     const $firstMatch = filterWindowNames(string);
-    if ($editModeToggle.checked) return;
+    if (EditMode.active) return;
     if (event.key == 'Enter' && $firstMatch) {
         respondWithBrowserOp(event, $firstMatch._id);
     }
@@ -111,58 +104,3 @@ function eventModifiers(event) {
     }
     return modifiers;
 }
-
-
-var EditMode = {
-
-    toggle() {
-        const editMode = $editModeToggle.checked;
-        for (const $input of $inputs) {
-            $input.readOnly = !editMode;
-        }
-        if (editMode) {
-            document.body.addEventListener('change', EditMode.onInputChange);
-        }
-        // document.body[editMode ? 'addEventListener' : 'removeEventListener']('change', this.onInputChange);
-    },
-
-    onInputChange(event) {
-        const $target = event.target;
-        if ($target.type != 'text') return;
-        const name = $target.value;
-        $target.value = name.trim();
-
-        EditMode.resetErrors();
-        const $duplicate = EditMode.duplicatedName(name, $target);
-        if ($duplicate) {
-            EditMode.showError($target);
-            EditMode.showError($duplicate);
-        } else {
-            port.postMessage({
-                request: 'editMode setName',
-                module: 'Metadata',
-                prop: 'setName',
-                args: [$target._id, name],
-            });
-        }
-
-    },
-
-    duplicatedName(name, $exclude) {
-        const $input = $inputs.find($input => $input !== $exclude && $input.value == name);
-        return $input || 0;
-    },
-
-    showError($input) {
-        $input.classList.add('inputError');
-    },
-
-    resetErrors() {
-        for (const $input of $inputs) {
-            $input.classList.remove('inputError');
-        }
-    },
-
-
-}
-$editModeToggle.addEventListener('change', EditMode.toggle);

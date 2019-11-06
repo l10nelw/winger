@@ -94,8 +94,8 @@ function onPortConnected(port) {
         if (message.request) {
             port.postMessage({
                 response: message.request,
-                context: message.context,
                 result: await callViaMessage(message),
+                windowId: message.windowId,
             });
         }
     }
