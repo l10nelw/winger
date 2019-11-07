@@ -1,48 +1,67 @@
 export let active = false;
+const $toggler = document.getElementById('editMode');
 let Port;
-let $toggler;
 let $nameInputs;
+let $commandInput;
+let namesToSave = {};
 
-export function init(port) {
+export function init(port, $ci) {
     Port = port;
-    $toggler = document.getElementById('editMode');
+    $commandInput = $ci;
     $toggler.addEventListener('change', toggle);
 }
 
 export function handleMessage(message) {
     switch (message.response) {
-        case 'editMode isInvalidName': {
+        case 'EditMode.validateName': {
             const status = message.result;
             const windowId = message.windowId;
-            if (status) {
-                const $offender = $nameInputs.find($input => $input._id === windowId);
-                showError($offender);
-            }
+            const $input = $nameInputs.find($i => $i._id == windowId);
+            status ? showError($input) : markNameToSave(windowId, $input.value);
         }
     }
 }
 
 function toggle() {
     active = $toggler.checked;
-    if (active) $nameInputs = [...document.querySelectorAll('.windowNameInput')];
-    $nameInputs.forEach($input => $input.readOnly = !active);
-    document.body[active ? 'addEventListener' : 'removeEventListener']('change', onInputChange);
+    if (active) {
+        $nameInputs = [...document.querySelectorAll('.windowNameInput')];
+        document.body.addEventListener('change', onInputChange);
+        $nameInputs[0].select();
+    } else {
+        document.body.removeEventListener('change', onInputChange);
+        saveNames();
+    }
+    $nameInputs.forEach($i => $i.readOnly = !active);
+    $commandInput.disabled = active;
+    $commandInput.placeholder = active ? `Edit mode: Enter to save, Esc to cancel` : ``;
+    document.body.classList.toggle('editMode', active);
 }
 
 function onInputChange(event) {
-    const $target = event.target;
-    if (!$target.classList.contains('windowNameInput')) return;
+    const $input = event.target;
+    if (!$input.classList.contains('windowNameInput')) return;
 
-    const name = $target.value;
-    $target.value = name.trim();
+    const name = $input.value;
+    $input.value = name.trim();
     resetErrors();
+    validateName($input);
+}
 
-    if (duplicatedName($target)) {
-        inputError($target);
+function validateName($input) {
+    const windowId = $input._id;
+    const name = $input.value;
+    if (!name) {
+        // blank is valid
+        markNameToSave(windowId, '');
+    } else if (nameIsDuplicate($input)) {
+        // duplicate names entered in edit mode
+        showError($input);
     } else {
-        const windowId = $target._id;
+        // find duplicate names existing in metadata
+        // check for invalid chars
         Port.postMessage({
-            request: 'editMode isInvalidName',
+            request: 'EditMode.validateName',
             windowId,
             module: 'Metadata',
             prop: 'isInvalidName',
@@ -51,15 +70,30 @@ function onInputChange(event) {
     }
 }
 
-function duplicatedName($target) {
-    const name = $target.value;
-    return $nameInputs.find($input => $input !== $target && $input.value === name);
+function nameIsDuplicate($input) {
+    const name = $input.value;
+    return name && $nameInputs.find($i => $i !== $input && $i.value === name);
 }
 
-function inputError($input) {
+function showError($input) {
     $input.classList.add('inputError');
+    $toggler.disabled = true;
 }
 
 function resetErrors() {
-    $nameInputs.forEach($input => $input.classList.remove('inputError'));
+    $nameInputs.forEach($i => $i.classList.remove('inputError'));
+    $toggler.disabled = false;
+}
+
+function markNameToSave(windowId, name) {
+    namesToSave[windowId] = name;
+}
+
+function saveNames() {
+    Port.postMessage({
+        command: true,
+        module: 'Metadata',
+        prop: 'saveNames',
+        args: [namesToSave, true],
+    });
 }

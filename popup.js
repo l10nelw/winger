@@ -11,7 +11,7 @@ const port = browser.runtime.connect({ name: 'popup' });
 port.onMessage.addListener(handleMessage);
 $windowList.addEventListener('click', onClickRow);
 $commandInput.addEventListener('keyup', onCommandInput);
-EditMode.init(port);
+EditMode.init(port, $commandInput);
 
 function handleMessage(message) {
     switch (message.response) {
@@ -40,7 +40,8 @@ function addRow(metaWindow) {
 function populateRow($row, metaWindow) {
     const $input = $row.querySelector('input');
     const $badge = $row.querySelector('.badge');
-    $input.value = metaWindow.displayName;
+    $input.value = metaWindow.givenName;
+    $input.placeholder = metaWindow.defaultName;
     $badge.textContent = metaWindow.tabCount;
     $row._id = $input._id = metaWindow.id;
     $row.$input = $input;

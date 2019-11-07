@@ -48,13 +48,20 @@ var Metadata = {
         }
     },
 
-    // Validate and assign givenName for target window. Blank clears givenName.
+    saveNames(names, validated) {
+        for (const windowId in names) {
+            this.setName(windowId, names[windowId], validated);
+        }
+    },
+
+    // Assign givenName for target window. Blank clears givenName.
+    // Validates name first, unless validated=true (do so with care).
     // Automatically sets displayName.
     // Returns 0 if successful, otherwise returns output of isInvalidName().
-    setName(windowId, name = '') {
+    setName(windowId, name = '', validated) {
         name = name.trim();
         const metaWindow = this.windows[windowId];
-        const status = name ? this.isInvalidName(windowId, name) : 0;
+        const status = (!validated && name) ? this.isInvalidName(windowId, name) : 0;
         if (status == 0) {
             metaWindow.givenName = name;
             metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
