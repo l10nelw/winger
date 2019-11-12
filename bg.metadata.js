@@ -38,6 +38,10 @@ var Metadata = {
         delete this.windows[windowId];
     },
 
+    has(windowId) {
+        return windowId in this.windows;
+    },
+
     async init(callbacks) {
         const allWindows = await browser.windows.getAll({ populate: true });
         for (const windowObject of allWindows) {
