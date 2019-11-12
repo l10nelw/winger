@@ -7,17 +7,13 @@ var BrowserOp = {
         bringTab: 'Ctrl', // moveTabs + focusWindow
     },
 
-    async respond(windowId, modifiers, sendTabsByDefault, tabObjects) {
+    respond(windowId, modifiers, sendTabsByDefault, tabObjects) {
         if (modifiers.includes(this.modifier.bringTab)) {
-            await this.moveTabs(tabObjects, windowId, true, true);
             this.focusWindow(windowId);
-        }
-        else
-        if (modifiers.includes(this.modifier.sendTab) || sendTabsByDefault) {
+            this.moveTabs(tabObjects, windowId, true, true);
+        } else if (modifiers.includes(this.modifier.sendTab) || sendTabsByDefault) {
             this.moveTabs(tabObjects, windowId);
-        }
-        else
-        {
+        } else {
             this.focusWindow(windowId);
         }
     },
