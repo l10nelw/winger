@@ -10,11 +10,7 @@
     "contextMenus"
   ],
   "background": {
-    "scripts": [
-      "bg.metadata.js",
-      "bg.browserop.js",
-      "background.js"
-    ]
+    "page": "background.html"
   },
   "browser_action": {
     "default_icon": {

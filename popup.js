@@ -53,7 +53,7 @@ function onClickRow(event) {
     const $target = event.target;
     const $row = $target.closest('tr');
     if ($row) {
-        respondWithBrowserOp(event, $row._id, !!$target.closest('.sendTabAction'));
+        goalAction(event, $row._id, !!$target.closest('.sendTabAction'));
     }
 }
 
@@ -62,7 +62,7 @@ function onCommandInput(event) {
     const $firstMatch = filterWindowNames(string);
     if (EditMode.active) return;
     if (event.key == 'Enter' && $firstMatch) {
-        respondWithBrowserOp(event, $firstMatch._id);
+        goalAction(event, $firstMatch._id);
     }
 }
 
@@ -85,11 +85,11 @@ function filterWindowNames(string) {
     return $firstMatch;
 }
 
-function respondWithBrowserOp(event, windowId, sendTabsByDefault) {
+function goalAction(event, windowId, sendTabsByDefault) {
     port.postMessage({
         command: true,
         module: 'BrowserOp',
-        prop: 'respond',
+        prop: 'goalAction',
         args: [windowId, eventModifiers(event), sendTabsByDefault],
     });
     window.close();

@@ -1,6 +1,5 @@
-'use strict';
-// bg.metadata.js: Metadata
-// bg.browserop.js: BrowserOp
+import * as Metadata from './metadata.js';
+import * as BrowserOp from './browser.js';
 
 Metadata.init([BrowserOp.updateWindowBadge, BrowserOp.menu.create]);
 
@@ -11,7 +10,9 @@ browser.tabs.onCreated.addListener(onTabCreated);
 browser.tabs.onRemoved.addListener(onTabRemoved);
 browser.tabs.onDetached.addListener(onTabDetached);
 browser.tabs.onAttached.addListener(onTabAttached);
+
 browser.runtime.onConnect.addListener(onPortConnected);
+
 browser.contextMenus.onClicked.addListener(onMenuClicked);
 
 
@@ -32,7 +33,7 @@ function onWindowFocused(windowId) {
     Metadata.windows[windowId].lastFocused = Date.now();
     BrowserOp.menu.show(Metadata.focusedWindowId);
     BrowserOp.menu.hide(windowId);
-    Metadata.focusedWindowId = windowId;
+    Metadata.setFocused(windowId);
 }
 
 function onTabCreated(tabObject) {
@@ -68,11 +69,12 @@ async function onMenuClicked(info, tabObject) {
     let tabObjects = await BrowserOp.getSelectedTabs();
     tabObjects.push(tabObject);
     const windowId = parseInt(info.menuItemId);
-    BrowserOp.respond(windowId, info.modifiers, true, tabObjects);
+    BrowserOp.goalAction(windowId, info.modifiers, true, tabObjects);
 }
 
 
 function onPortConnected(port) {
+
     if (port.name == 'popup') {
         port.postMessage({
             response: 'popup open',
@@ -81,6 +83,7 @@ function onPortConnected(port) {
             sortedIds: Metadata.sortedIds(),
         });
     }
+
     port.onMessage.addListener(handleMessage);
 
     async function handleMessage(message) {
@@ -97,11 +100,13 @@ function onPortConnected(port) {
     }
 
     async function callViaMessage(message) {
+        const modules = { Metadata, BrowserOp };
         const args = message.args;
         if (args) {
-            return await window[message.module][message.prop](...args);
+            return await modules[message.module][message.prop](...args);
         } else {
-            return window[message.module][message.prop];
+            return modules[message.module][message.prop];
         }
     }
+
 }
