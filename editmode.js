@@ -29,12 +29,12 @@ function handleMessage(message) {
 function toggle() {
     active = $toggler.checked;
     if (active) {
-        $nameInputs = [...document.querySelectorAll('.windowNameInput')];
-        document.body.addEventListener('change', onInputChange);
+        $nameInputs = Array.from(document.querySelectorAll('.windowNameInput'));
         $nameInputs[0].select();
+        document.body.addEventListener('focusout', onInput);
     } else {
-        document.body.removeEventListener('change', onInputChange);
         saveNames();
+        document.body.removeEventListener('focusout', onInput);
     }
     $nameInputs.forEach($i => $i.readOnly = !active);
     $commandInput.disabled = active;
@@ -42,7 +42,7 @@ function toggle() {
     document.body.classList.toggle('editMode', active);
 }
 
-function onInputChange(event) {
+function onInput(event) {
     const $input = event.target;
     if (!$input.classList.contains('windowNameInput')) return;
 
