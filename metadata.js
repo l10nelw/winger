@@ -51,7 +51,7 @@ export async function init(callbacks) {
     }
 }
 
-export function saveNames(names, validated) {
+export function saveNewNames(names, validated) {
     for (const windowId in names) {
         setName(windowId, names[windowId], validated);
     }

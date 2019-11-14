@@ -3,7 +3,7 @@ const $toggler = document.getElementById('editMode');
 const $commandInput = document.getElementById('commandInput');
 let Port;
 let $nameInputs;
-let namesToSave = {};
+let newNames = {};
 
 export function init(port) {
     Port = port;
@@ -20,7 +20,7 @@ function handleMessage(message) {
             if (status) {
                 showError($input);
             } else {
-                markNameToSave(windowId, $input.value);
+                markNewName($input);
             }
         }
     }
@@ -30,10 +30,11 @@ function toggle() {
     active = $toggler.checked;
     if (active) {
         $nameInputs = Array.from(document.querySelectorAll('.windowNameInput'));
+        $nameInputs.forEach($i => $i._original = $i.value);
         $nameInputs[0].select();
         document.body.addEventListener('focusout', onInput);
     } else {
-        saveNames();
+        saveNewNames();
         document.body.removeEventListener('focusout', onInput);
     }
     $nameInputs.forEach($i => $i.readOnly = !active);
@@ -57,9 +58,9 @@ function onInput(event) {
 
 function validateName($input) {
     const name = $input.value;
-    const windowId = $input._id;
     if (name) {
         // Check if this name has invalid chars or is a duplicate of any names in metadata
+        const windowId = $input._id;
         Port.postMessage({
             request: 'EditMode.validateName',
             windowId,
@@ -69,7 +70,7 @@ function validateName($input) {
         });
     } else {
         // Blank: clear this window's givenName
-        markNameToSave(windowId, '');
+        markNewName($input);
     }
 }
 
@@ -98,15 +99,18 @@ function resetErrors() {
     $toggler.disabled = false;
 }
 
-function markNameToSave(windowId, name) {
-    namesToSave[windowId] = name;
+function markNewName($input) {
+    const name = $input.value;
+    if (name !== $input._original) {
+        newNames[$input._id] = name;
+    }
 }
 
-function saveNames() {
+function saveNewNames() {
     Port.postMessage({
         command: true,
         module: 'Metadata',
-        prop: 'saveNames',
-        args: [namesToSave, true],
+        prop: 'saveNewNames',
+        args: [newNames, true],
     });
 }
