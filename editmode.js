@@ -49,17 +49,21 @@ function onInput(event) {
 
     const name = $input.value;
     $input.value = name.trim();
-    resetErrors();
 
+    // Catch the duplicates, validate the rest
     const $dupes = findDuplicates();
+    const $others = $nameInputs.filter($i => !$dupes.includes($i));
     $dupes.forEach(showError);
-    validateName($input);
+    $others.forEach(validateName);
 }
 
 function validateName($input) {
     const name = $input.value;
-    if (name) {
-        // Check if this name has invalid chars or is a duplicate of any names in metadata
+    if (name === $input._original) {
+        // Not new name
+        resetError($input);
+    } else if (name) {
+        // Check if name has invalid chars or is a duplicate of any names in metadata
         const windowId = $input._id;
         Port.postMessage({
             request: 'EditMode.validateName',
@@ -69,7 +73,7 @@ function validateName($input) {
             args: [windowId, name],
         });
     } else {
-        // Blank: clear this window's givenName
+        // Blank is valid
         markNewName($input);
     }
 }
@@ -94,16 +98,14 @@ function showError($input) {
     $toggler.disabled = true;
 }
 
-function resetErrors() {
-    $nameInputs.forEach($i => $i.classList.remove('inputError'));
-    $toggler.disabled = false;
+function resetError($input) {
+    $input.classList.remove('inputError');
+    $toggler.disabled = !!document.querySelector('.inputError');
 }
 
 function markNewName($input) {
-    const name = $input.value;
-    if (name !== $input._original) {
-        newNames[$input._id] = name;
-    }
+    resetError($input);
+    newNames[$input._id] = $input.value;
 }
 
 function saveNewNames() {
