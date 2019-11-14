@@ -1,5 +1,7 @@
 import * as Metadata from './metadata.js';
 import * as BrowserOp from './browser.js';
+window.Metadata = Metadata;
+window.BrowserOp = BrowserOp;
 
 Metadata.init([BrowserOp.updateWindowBadge, BrowserOp.menu.create]);
 
@@ -100,12 +102,11 @@ function onPortConnected(port) {
     }
 
     async function callViaMessage(message) {
-        const modules = { Metadata, BrowserOp };
         const args = message.args;
         if (args) {
-            return await modules[message.module][message.prop](...args);
+            return await window[message.module][message.prop](...args);
         } else {
-            return modules[message.module][message.prop];
+            return window[message.module][message.prop];
         }
     }
 
