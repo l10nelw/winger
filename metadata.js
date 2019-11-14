@@ -1,6 +1,7 @@
 export let windows = {};
 export let focusedWindowId = null;
 let lastWindowNumber = 0;
+const invalidNameRegex = /^\/|['"]/;
 
 export async function add(windowObject) {
     const windowId = windowObject.id;
@@ -64,7 +65,7 @@ function setName(windowId, name = '', validated) {
     name = name.trim();
     const metaWindow = windows[windowId];
     const status = (!validated && name) ? isInvalidName(windowId, name) : 0;
-    if (status == 0) {
+    if (status === 0) {
         metaWindow.givenName = name;
         metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
     }
@@ -76,14 +77,12 @@ function setName(windowId, name = '', validated) {
 // Uniqueness is checked against all existing given and default names.
 // Returns 0 if valid, otherwise returns -1 or id of conflicting window.
 export function isInvalidName(windowId, name) {
-    if (name.startsWith('/') || /['"]/.test(name)) {
-        return -1;
-    }
+    if (invalidNameRegex.test(name)) return -1;
     for (const id in windows) {
         const metaWindow = windows[id];
         const isNotTarget = id != windowId;
-        const sameAsGiven = metaWindow.givenName == name;
-        const sameAsDefault = metaWindow.defaultName == name;
+        const sameAsGiven = metaWindow.givenName === name;
+        const sameAsDefault = metaWindow.defaultName === name;
         if (sameAsGiven || (sameAsDefault && isNotTarget)) {
             return metaWindow.id;
         }
