@@ -7,16 +7,21 @@ let namesToSave = {};
 
 export function init(port) {
     Port = port;
+    Port.onMessage.addListener(handleMessage);
     $toggler.addEventListener('change', toggle);
 }
 
-export function handleMessage(message) {
+function handleMessage(message) {
     switch (message.response) {
         case 'EditMode.validateName': {
             const status = message.result;
             const windowId = message.windowId;
             const $input = $nameInputs.find($i => $i._id == windowId);
-            status ? showError($input) : markNameToSave(windowId, $input.value);
+            if (status) {
+                showError($input);
+            } else {
+                markNameToSave(windowId, $input.value);
+            }
         }
     }
 }

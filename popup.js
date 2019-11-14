@@ -25,10 +25,6 @@ function handleMessage(message) {
                 windowId == focusedWindowId ? populateRow($currentWindowRow, metaWindow) : addRow(metaWindow);
             }
         }
-        break;
-        default: {
-            EditMode.handleMessage(message);
-        }
     }
 }
 
