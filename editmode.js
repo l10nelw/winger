@@ -17,11 +17,7 @@ function handleMessage(message) {
             const status = message.result;
             const windowId = message.windowId;
             const $input = $nameInputs.find($i => $i._id == windowId);
-            if (status) {
-                showError($input);
-            } else {
-                markNewName($input);
-            }
+            status ? showError($input) : markNewName($input);
         }
     }
 }
@@ -32,10 +28,10 @@ function toggle() {
         $nameInputs = Array.from(document.querySelectorAll('.windowNameInput'));
         $nameInputs.forEach($i => $i._original = $i.value);
         $nameInputs[0].select();
-        document.body.addEventListener('focusout', onInput);
+        document.body.addEventListener('focusout', onNameInput);
     } else {
         saveNewNames();
-        document.body.removeEventListener('focusout', onInput);
+        document.body.removeEventListener('focusout', onNameInput);
     }
     $nameInputs.forEach($i => $i.readOnly = !active);
     $commandInput.disabled = active;
@@ -43,7 +39,7 @@ function toggle() {
     document.body.classList.toggle('editMode', active);
 }
 
-function onInput(event) {
+function onNameInput(event) {
     const $input = event.target;
     if (!$input.classList.contains('windowNameInput')) return;
 
@@ -55,6 +51,21 @@ function onInput(event) {
     const $others = $nameInputs.filter($i => !$dupes.includes($i));
     $dupes.forEach(showError);
     $others.forEach(validateName);
+}
+
+function findDuplicates() {
+    const $filledInputs = $nameInputs.filter($i => $i.value);
+    let $dupes = new Set();
+    for (const $input of $filledInputs) {
+        const name = $input.value;
+        for (const $compare of $filledInputs) {
+            if ($compare.value === name && $compare !== $input) {
+                $dupes.add($input);
+                $dupes.add($compare);
+            }
+        }
+    }
+    return Array.from($dupes);
 }
 
 function validateName($input) {
@@ -78,31 +89,6 @@ function validateName($input) {
     }
 }
 
-function findDuplicates() {
-    const $filledInputs = $nameInputs.filter($i => $i.value);
-    let $dupes = new Set();
-    for (const $input of $filledInputs) {
-        const name = $input.value;
-        for (const $compare of $filledInputs) {
-            if ($compare.value === name && $compare !== $input) {
-                $dupes.add($input);
-                $dupes.add($compare);
-            }
-        }
-    }
-    return Array.from($dupes);
-}
-
-function showError($input) {
-    $input.classList.add('inputError');
-    $toggler.disabled = true;
-}
-
-function resetError($input) {
-    $input.classList.remove('inputError');
-    $toggler.disabled = !!document.querySelector('.inputError');
-}
-
 function markNewName($input) {
     resetError($input);
     newNames[$input._id] = $input.value;
@@ -115,4 +101,14 @@ function saveNewNames() {
         prop: 'saveNewNames',
         args: [newNames, true],
     });
+}
+
+function showError($input) {
+    $input.classList.add('inputError');
+    $toggler.disabled = true;
+}
+
+function resetError($input) {
+    $input.classList.remove('inputError');
+    $toggler.disabled = !!document.querySelector('.inputError');
 }
