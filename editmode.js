@@ -49,21 +49,17 @@ function onInput(event) {
     const name = $input.value;
     $input.value = name.trim();
     resetErrors();
+
+    const $dupes = findDuplicates();
+    $dupes.forEach(showError);
     validateName($input);
 }
 
 function validateName($input) {
-    const windowId = $input._id;
     const name = $input.value;
-    if (!name) {
-        // blank is valid
-        markNameToSave(windowId, '');
-    } else if (nameIsDuplicate($input)) {
-        // duplicate names entered in edit mode
-        showError($input);
-    } else {
-        // find duplicate names existing in metadata
-        // check for invalid chars
+    const windowId = $input._id;
+    if (name) {
+        // Check if this name has invalid chars or is a duplicate of any names in metadata
         Port.postMessage({
             request: 'EditMode.validateName',
             windowId,
@@ -71,12 +67,25 @@ function validateName($input) {
             prop: 'isInvalidName',
             args: [windowId, name],
         });
+    } else {
+        // Blank: clear this window's givenName
+        markNameToSave(windowId, '');
     }
 }
 
-function nameIsDuplicate($input) {
-    const name = $input.value;
-    return name && $nameInputs.find($i => $i !== $input && $i.value === name);
+function findDuplicates() {
+    const $filledInputs = $nameInputs.filter($i => $i.value);
+    let $dupes = new Set();
+    for (const $input of $filledInputs) {
+        const name = $input.value;
+        for (const $compare of $filledInputs) {
+            if ($compare.value === name && $compare !== $input) {
+                $dupes.add($input);
+                $dupes.add($compare);
+            }
+        }
+    }
+    return Array.from($dupes);
 }
 
 function showError($input) {
