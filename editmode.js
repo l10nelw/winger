@@ -1,13 +1,12 @@
 export let active = false;
 const $toggler = document.getElementById('editMode');
+const $commandInput = document.getElementById('commandInput');
 let Port;
 let $nameInputs;
-let $commandInput;
 let namesToSave = {};
 
-export function init(port, $ci) {
+export function init(port) {
     Port = port;
-    $commandInput = $ci;
     $toggler.addEventListener('change', toggle);
 }
 

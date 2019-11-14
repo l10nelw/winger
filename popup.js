@@ -1,17 +1,18 @@
 import * as EditMode from './editmode.js';
 
+let metaWindows;
+
+const Port = browser.runtime.connect({ name: 'popup' });
+Port.onMessage.addListener(handleMessage);
+EditMode.init(Port);
+
 const $currentWindowRow = document.getElementById('currentWindow');
 const $commandInput = document.getElementById('commandInput');
 const $windowList = document.getElementById('windowList');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 
-let metaWindows;
-
-const port = browser.runtime.connect({ name: 'popup' });
-port.onMessage.addListener(handleMessage);
 $windowList.addEventListener('click', onClickRow);
 $commandInput.addEventListener('keyup', onCommandInput);
-EditMode.init(port, $commandInput);
 
 function handleMessage(message) {
     switch (message.response) {
@@ -86,16 +87,16 @@ function filterWindowNames(string) {
 }
 
 function goalAction(event, windowId, sendTabsByDefault) {
-    port.postMessage({
+    Port.postMessage({
         command: true,
         module: 'BrowserOp',
         prop: 'goalAction',
-        args: [windowId, eventModifiers(event), sendTabsByDefault],
+        args: [windowId, getModifiers(event), sendTabsByDefault],
     });
     window.close();
 }
 
-function eventModifiers(event) {
+function getModifiers(event) {
     let modifiers = [];
     for (const prop in event) {
         if (prop.endsWith('Key') && event[prop]) {
