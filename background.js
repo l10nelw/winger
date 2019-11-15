@@ -67,7 +67,7 @@ function onTabAttached(tabId, info) {
 
 
 async function onMenuClicked(info, tabObject) {
-    // If multiple tabs selected: Send selected tabs, active tab and target tab.
+    // If multiple tabs selected: Send selected tabs, active tab and target tab. Else send target tab.
     let tabObjects = await BrowserOp.getSelectedTabs();
     tabObjects.push(tabObject);
     const windowId = parseInt(info.menuItemId);
@@ -79,7 +79,7 @@ function onPortConnected(port) {
 
     if (port.name == 'popup') {
         port.postMessage({
-            response: 'popup open',
+            response: 'popup connect',
             metaWindows: Metadata.windows,
             focusedWindowId: Metadata.focusedWindowId,
             sortedIds: Metadata.sortedIds(),
