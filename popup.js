@@ -16,20 +16,18 @@ $commandInput.addEventListener('keyup', onCommandInput);
 
 function handleMessage(message) {
     switch (message.response) {
-        case 'popup connect': onPopupConnected(message);
-    }
-}
-
-function onPopupConnected(message) {
-    metaWindows = message.metaWindows;
-    const focusedWindowId = message.focusedWindowId;
-    const sortedIds = message.sortedIds;
-    for (const windowId of sortedIds) {
-        const metaWindow = metaWindows[windowId];
-        if (windowId == focusedWindowId) {
-            populateRow($currentWindowRow, metaWindow);
-        } else {
-            addRow(metaWindow);
+        case 'popup open': {
+            metaWindows = message.metaWindows;
+            const focusedWindowId = message.focusedWindowId;
+            const sortedIds = message.sortedIds;
+            for (const windowId of sortedIds) {
+                const metaWindow = metaWindows[windowId];
+                if (windowId == focusedWindowId) {
+                    populateRow($currentWindowRow, metaWindow)
+                } else {
+                    addRow(metaWindow);
+                }
+            }
         }
     }
 }

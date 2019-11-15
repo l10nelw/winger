@@ -79,7 +79,7 @@ function onPortConnected(port) {
 
     if (port.name == 'popup') {
         port.postMessage({
-            response: 'popup connect',
+            response: 'popup open',
             metaWindows: Metadata.windows,
             focusedWindowId: Metadata.focusedWindowId,
             sortedIds: Metadata.sortedIds(),
