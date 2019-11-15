@@ -68,12 +68,12 @@ function onCommandInput(event) {
 }
 
 // Hide rows whose names do not contain string. Returns first matching row or null.
-function filterWindowNames(string) {
+function filterWindowNames(str) {
     const $rows = $windowList.rows;
     let $firstMatch;
-    if (string) {
+    if (str) {
         for (const $row of $rows) {
-            const isMatch = $row.$input.value.includes(string);
+            const isMatch = metaWindows[$row._id].displayName.includes(str);
             $row.hidden = !isMatch;
             $firstMatch = $firstMatch || (isMatch ? $row : null); // if not already found, it's this row
         }
