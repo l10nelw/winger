@@ -1,6 +1,6 @@
 export let active = false;
 const $toggler = document.getElementById('editMode');
-const $commandInput = document.getElementById('commandInput');
+const $omnibar = document.getElementById('omnibar');
 let Port;
 let $nameInputs;
 let newNames = {};
@@ -34,8 +34,8 @@ function toggle() {
         document.body.removeEventListener('focusout', onNameInput);
     }
     $nameInputs.forEach($i => $i.readOnly = !active);
-    $commandInput.disabled = active;
-    $commandInput.placeholder = active ? `Edit mode: Enter to save, Esc to cancel` : ``;
+    $omnibar.disabled = active;
+    $omnibar.placeholder = active ? `Edit mode: Enter to save, Esc to cancel` : ``;
     document.body.classList.toggle('editMode', active);
 }
 
