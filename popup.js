@@ -12,7 +12,7 @@ const $windowList = document.getElementById('windowList');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 
 $windowList.addEventListener('click', onClickRow);
-$commandInput.addEventListener('keyup', onCommandInput);
+document.addEventListener('keyup', handleKeyPress);
 
 function handleMessage(message) {
     switch (message.response) {
@@ -55,6 +55,13 @@ function onClickRow(event) {
     const $row = $target.closest('tr');
     if ($row) {
         goalAction(event, $row._id, !!$target.closest('.sendTabAction'));
+    }
+}
+
+function handleKeyPress(event) {
+    const $target = event.target;
+    if ($target == $omnibar) {
+        onOmnibarInput(event);
     }
 }
 
