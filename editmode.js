@@ -1,26 +1,11 @@
 export let active = false;
 const $toggler = document.getElementById('editMode');
 const $commandInput = document.getElementById('commandInput');
-let Port;
 let $nameInputs;
 let newNames = {};
 
-export function init(port) {
-    Port = port;
-    Port.onMessage.addListener(handleMessage);
-    $toggler.addEventListener('change', toggle);
-}
+$toggler.addEventListener('change', toggle);
 
-function handleMessage(message) {
-    switch (message.response) {
-        case 'EditMode.validateName': {
-            const status = message.result;
-            const windowId = message.windowId;
-            const $input = $nameInputs.find($i => $i._id == windowId);
-            status ? showError($input) : markNewName($input);
-        }
-    }
-}
 
 function toggle() {
     active = $toggler.checked;
@@ -76,12 +61,14 @@ function validateName($input) {
     } else if (name) {
         // Check if name has invalid chars or is a duplicate of any names in metadata
         const windowId = $input._id;
-        Port.postMessage({
-            request: 'EditMode.validateName',
-            windowId,
+        browser.runtime.sendMessage({
             module: 'Metadata',
             prop: 'isInvalidName',
             args: [windowId, name],
+        })
+        .then(status => {
+            const $input = $nameInputs.find($i => $i._id == windowId);
+            status ? showError($input) : markNewName($input);
         });
     } else {
         // Blank is valid
@@ -95,8 +82,7 @@ function markNewName($input) {
 }
 
 function saveNewNames() {
-    Port.postMessage({
-        command: true,
+    browser.runtime.sendMessage({
         module: 'Metadata',
         prop: 'saveNewNames',
         args: [newNames, true],

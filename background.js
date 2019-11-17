@@ -13,7 +13,7 @@ browser.tabs.onRemoved.addListener(onTabRemoved);
 browser.tabs.onDetached.addListener(onTabDetached);
 browser.tabs.onAttached.addListener(onTabAttached);
 
-browser.runtime.onConnect.addListener(onPortConnected);
+browser.runtime.onMessage.addListener(handleRequest);
 
 browser.contextMenus.onClicked.addListener(onMenuClicked);
 
@@ -75,39 +75,24 @@ async function onMenuClicked(info, tabObject) {
 }
 
 
-function onPortConnected(port) {
-
-    if (port.name == 'popup') {
-        port.postMessage({
-            response: 'popup open',
+function handleRequest(request) {
+    if (request.popup) {
+        return Promise.resolve({
             metaWindows: Metadata.windows,
             focusedWindowId: Metadata.focusedWindowId,
             sortedIds: Metadata.sortedIds(),
         });
     }
-
-    port.onMessage.addListener(handleMessage);
-
-    async function handleMessage(message) {
-        if (message.command) {
-            callViaMessage(message);
-        } else
-        if (message.request) {
-            port.postMessage({
-                response: message.request,
-                result: await callViaMessage(message),
-                windowId: message.windowId,
-            });
-        }
+    if (request.module) {
+        return callViaMessage(request);
     }
+}
 
-    async function callViaMessage(message) {
-        const args = message.args;
-        if (args) {
-            return await window[message.module][message.prop](...args);
-        } else {
-            return window[message.module][message.prop];
-        }
+async function callViaMessage(request) {
+    const args = request.args;
+    if (args) {
+        return window[request.module][request.prop](...args);
+    } else {
+        return window[request.module][request.prop];
     }
-
 }

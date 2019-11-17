@@ -1,33 +1,26 @@
 import * as EditMode from './editmode.js';
 
-let metaWindows;
-
-const Port = browser.runtime.connect({ name: 'popup' });
-Port.onMessage.addListener(handleMessage);
-EditMode.init(Port);
-
 const $currentWindowRow = document.getElementById('currentWindow');
 const $commandInput = document.getElementById('commandInput');
 const $windowList = document.getElementById('windowList');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
+let metaWindows;
 
+browser.runtime.sendMessage({ popup: true }).then(init);
 $windowList.addEventListener('click', onClickRow);
 $commandInput.addEventListener('keyup', onCommandInput);
 
-function handleMessage(message) {
-    switch (message.response) {
-        case 'popup open': {
-            metaWindows = message.metaWindows;
-            const focusedWindowId = message.focusedWindowId;
-            const sortedIds = message.sortedIds;
-            for (const windowId of sortedIds) {
-                const metaWindow = metaWindows[windowId];
-                if (windowId == focusedWindowId) {
-                    populateRow($currentWindowRow, metaWindow)
-                } else {
-                    addRow(metaWindow);
-                }
-            }
+
+function init(response) {
+    metaWindows = response.metaWindows;
+    const focusedWindowId = response.focusedWindowId;
+    const sortedIds = response.sortedIds;
+    for (const windowId of sortedIds) {
+        const metaWindow = metaWindows[windowId];
+        if (windowId == focusedWindowId) {
+            populateRow($currentWindowRow, metaWindow)
+        } else {
+            addRow(metaWindow);
         }
     }
 }
@@ -87,8 +80,7 @@ function filterWindowNames(str) {
 }
 
 function goalAction(event, windowId, sendTabsByDefault) {
-    Port.postMessage({
-        command: true,
+    browser.runtime.sendMessage({
         module: 'BrowserOp',
         prop: 'goalAction',
         args: [windowId, getModifiers(event), sendTabsByDefault],
