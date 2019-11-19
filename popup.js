@@ -4,11 +4,11 @@ const $currentWindowRow = document.getElementById('currentWindow');
 const $omnibar = document.getElementById('omnibar');
 const $windowList = document.getElementById('windowList');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-let metaWindows;
+let metaWindows = {};
 
 browser.runtime.sendMessage({ popup: true }).then(init);
 $windowList.addEventListener('click', onClickRow);
-document.addEventListener('keyup', handleKeyPress);
+$omnibar.addEventListener('keyup', onOmnibarInput);
 
 
 function init(response) {
@@ -18,7 +18,7 @@ function init(response) {
     for (const windowId of sortedIds) {
         const metaWindow = metaWindows[windowId];
         if (windowId == focusedWindowId) {
-            populateRow($currentWindowRow, metaWindow)
+            populateRow($currentWindowRow, metaWindow);
         } else {
             addRow(metaWindow);
         }
@@ -38,8 +38,6 @@ function populateRow($row, metaWindow) {
     $input.placeholder = metaWindow.defaultName;
     $badge.textContent = metaWindow.tabCount;
     $row._id = $input._id = metaWindow.id;
-    $row.$input = $input;
-    $row.$badge = $badge;
 }
 
 function onClickRow(event) {
@@ -51,17 +49,9 @@ function onClickRow(event) {
     }
 }
 
-function handleKeyPress(event) {
-    const $target = event.target;
-    if ($target == $omnibar) {
-        onOmnibarInput(event);
-    }
-}
-
 function onOmnibarInput(event) {
-    const string = $omnibar.value;
-    const $firstMatchRow = filterRows(string);
-    if (EditMode.active) return;
+    const str = $omnibar.value;
+    const $firstMatchRow = filterRows(str);
     if (event.key == 'Enter' && $firstMatchRow) {
         goalAction(event, $firstMatchRow._id);
     }

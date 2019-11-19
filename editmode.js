@@ -9,19 +9,51 @@ $toggler.addEventListener('change', toggle);
 
 function toggle() {
     active = $toggler.checked;
+
+    $omnibar.disabled = active;
+    $omnibar.value = '';
     if (active) {
         $nameInputs = Array.from(document.querySelectorAll('.windowNameInput'));
         $nameInputs.forEach($i => $i._original = $i.value);
         $nameInputs[0].select();
-        document.body.addEventListener('focusout', onNameInput);
+        $omnibar.dispatchEvent(new Event('keyup')); // trigger window list reset
+        $omnibar.value = `Edit mode: Enter to save, Esc to cancel`;
     } else {
         saveNewNames();
-        document.body.removeEventListener('focusout', onNameInput);
     }
     $nameInputs.forEach($i => $i.readOnly = !active);
-    $omnibar.disabled = active;
-    $omnibar.placeholder = active ? `Edit mode: Enter to save, Esc to cancel` : ``;
     document.body.classList.toggle('editMode', active);
+
+    const eventListenerAction = active ? 'addEventListener' : 'removeEventListener';
+    document[eventListenerAction]('focusout', onNameInput);
+    document[eventListenerAction]('keyup', onKeystroke);
+}
+
+function onKeystroke(event) {
+    const $target = event.target;
+    switch (event.key) {
+        case 'ArrowDown': shiftSelectedName($target, 1); break;
+        case 'ArrowUp': shiftSelectedName($target, -1);
+    }
+}
+
+function shiftSelectedName($target, shiftBy) {
+    const lastIndex = $nameInputs.length - 1;
+    let thisIndex;
+    let newIndex;
+    if ($target.classList.contains('windowNameInput')) {
+        thisIndex = $nameInputs.indexOf($target);
+        if (thisIndex == -1) return;
+        newIndex = thisIndex + shiftBy;
+        if (newIndex < 0) {
+            newIndex = lastIndex;
+        } else if (newIndex > lastIndex) {
+            newIndex = 0;
+        }
+    } else {
+        newIndex = shiftBy < 0 ? lastIndex : 0;
+    }
+    $nameInputs[newIndex].select();
 }
 
 function onNameInput(event) {
