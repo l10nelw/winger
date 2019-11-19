@@ -1,14 +1,14 @@
 import * as EditMode from './editmode.js';
 
 const $currentWindowRow = document.getElementById('currentWindow');
-const $commandInput = document.getElementById('commandInput');
+const $omnibar = document.getElementById('omnibar');
 const $windowList = document.getElementById('windowList');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-let metaWindows;
+let metaWindows = {};
 
 browser.runtime.sendMessage({ popup: true }).then(init);
 $windowList.addEventListener('click', onClickRow);
-$commandInput.addEventListener('keyup', onCommandInput);
+$omnibar.addEventListener('keyup', onOmnibarInput);
 
 
 function init(response) {
@@ -18,7 +18,7 @@ function init(response) {
     for (const windowId of sortedIds) {
         const metaWindow = metaWindows[windowId];
         if (windowId == focusedWindowId) {
-            populateRow($currentWindowRow, metaWindow)
+            populateRow($currentWindowRow, metaWindow);
         } else {
             addRow(metaWindow);
         }
@@ -38,8 +38,6 @@ function populateRow($row, metaWindow) {
     $input.placeholder = metaWindow.defaultName;
     $badge.textContent = metaWindow.tabCount;
     $row._id = $input._id = metaWindow.id;
-    $row.$input = $input;
-    $row.$badge = $badge;
 }
 
 function onClickRow(event) {
@@ -51,32 +49,31 @@ function onClickRow(event) {
     }
 }
 
-function onCommandInput(event) {
-    const string = $commandInput.value;
-    const $firstMatch = filterWindowNames(string);
-    if (EditMode.active) return;
-    if (event.key == 'Enter' && $firstMatch) {
-        goalAction(event, $firstMatch._id);
+function onOmnibarInput(event) {
+    const str = $omnibar.value;
+    const $firstMatchRow = filterRows(str);
+    if (event.key == 'Enter' && $firstMatchRow) {
+        goalAction(event, $firstMatchRow._id);
     }
 }
 
 // Hide rows whose names do not contain string. Returns first matching row or null.
-function filterWindowNames(str) {
+function filterRows(str) {
     const $rows = $windowList.rows;
-    let $firstMatch;
+    let $firstMatchRow;
     if (str) {
         for (const $row of $rows) {
             const isMatch = metaWindows[$row._id].displayName.includes(str);
             $row.hidden = !isMatch;
-            $firstMatch = $firstMatch || (isMatch ? $row : null); // if not already found, it's this row
+            $firstMatchRow = $firstMatchRow || (isMatch ? $row : null); // if not already found, it's this row
         }
     } else {
         for (const $row of $rows) {
             $row.hidden = false;
         }
-        $firstMatch = $rows[0];
+        $firstMatchRow = $rows[0];
     }
-    return $firstMatch;
+    return $firstMatchRow;
 }
 
 function goalAction(event, windowId, sendTabsByDefault) {
