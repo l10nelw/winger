@@ -39,10 +39,9 @@ function onKeystroke(event) {
 
 function shiftSelectedName($target, shiftBy) {
     const lastIndex = $nameInputs.length - 1;
-    let thisIndex;
     let newIndex;
     if ($target.classList.contains('windowNameInput')) {
-        thisIndex = $nameInputs.indexOf($target);
+        const thisIndex = $nameInputs.indexOf($target);
         if (thisIndex == -1) return;
         newIndex = thisIndex + shiftBy;
         if (newIndex < 0) {
