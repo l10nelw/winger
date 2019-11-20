@@ -12,18 +12,17 @@ $toggler.addEventListener('change', toggle);
 function toggle() {
     active = $toggler.checked;
 
-    $omnibar.disabled = active;
-    $omnibar.value = '';
     if (active) {
         $nameInputs = Array.from(document.querySelectorAll('.windowNameInput'));
         $nameInputs.forEach($i => $i._original = $i.value);
         $nameInputs[0].select();
-        $omnibar.dispatchEvent(new Event('keyup')); // trigger window list reset
-        $omnibar.value = `Edit mode: Enter to save, Esc to cancel`;
+        Omnibar.filterRows('');
     } else {
         saveNewNames();
     }
     $nameInputs.forEach($i => $i.readOnly = !active);
+    $omnibar.disabled = active;
+    $omnibar.value = active ? `Edit mode: Enter to save, Esc to cancel` : ``;
     document.body.classList.toggle('editMode', active);
 
     const eventListenerAction = active ? 'addEventListener' : 'removeEventListener';
