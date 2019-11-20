@@ -1,14 +1,14 @@
+import './omnibar.js';
 import * as EditMode from './editmode.js';
 
-const $currentWindowRow = document.getElementById('currentWindow');
-const $omnibar = document.getElementById('omnibar');
-const $windowList = document.getElementById('windowList');
+window.metaWindows = {};
+window.goalAction = goalAction;
+window.$currentWindowRow = document.getElementById('currentWindow');
+window.$windowList = document.getElementById('windowList');
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-let metaWindows = {};
 
 browser.runtime.sendMessage({ popup: true }).then(init);
 $windowList.addEventListener('click', onClickRow);
-$omnibar.addEventListener('keyup', onOmnibarInput);
 
 
 function init(response) {
@@ -47,33 +47,6 @@ function onClickRow(event) {
     if ($row) {
         goalAction(event, $row._id, !!$target.closest('.sendTabAction'));
     }
-}
-
-function onOmnibarInput(event) {
-    const str = $omnibar.value;
-    const $firstMatchRow = filterRows(str);
-    if (event.key == 'Enter' && $firstMatchRow) {
-        goalAction(event, $firstMatchRow._id);
-    }
-}
-
-// Hide rows whose names do not contain string. Returns first matching row or null.
-function filterRows(str) {
-    const $rows = $windowList.rows;
-    let $firstMatchRow;
-    if (str) {
-        for (const $row of $rows) {
-            const isMatch = metaWindows[$row._id].displayName.includes(str);
-            $row.hidden = !isMatch;
-            $firstMatchRow = $firstMatchRow || (isMatch ? $row : null); // if not already found, it's this row
-        }
-    } else {
-        for (const $row of $rows) {
-            $row.hidden = false;
-        }
-        $firstMatchRow = $rows[0];
-    }
-    return $firstMatchRow;
 }
 
 function goalAction(event, windowId, sendTabsByDefault) {

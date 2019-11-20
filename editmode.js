@@ -1,6 +1,8 @@
+import * as Omnibar from './omnibar.js';
+
 export let active = false;
 const $toggler = document.getElementById('editMode');
-const $omnibar = document.getElementById('omnibar');
+const $omnibar = Omnibar.$omnibar;
 let $nameInputs;
 let newNames = {};
 
