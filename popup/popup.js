@@ -1,11 +1,12 @@
 import './omnibar.js';
 import * as EditMode from './editmode.js';
 
+const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
+const $windowList = document.getElementById('windowList');
+const $currentWindowRow = document.getElementById('currentWindow');
 window.metaWindows = {};
 window.goalAction = goalAction;
-window.$currentWindowRow = document.getElementById('currentWindow');
-window.$windowList = document.getElementById('windowList');
-const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
+window.$rows = $windowList.rows;
 
 browser.runtime.sendMessage({ popup: true }).then(init);
 $windowList.addEventListener('click', onClickRow);

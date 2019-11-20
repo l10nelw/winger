@@ -12,7 +12,7 @@ function onInput(event) {
 
 // Hide rows whose names do not contain string. Returns first matching row or null.
 export function filterRows(str) {
-    const $rows = window.$windowList.rows;
+    const $rows = window.$rows;
     let $firstMatchRow;
     if (str) {
         for (const $row of $rows) {
