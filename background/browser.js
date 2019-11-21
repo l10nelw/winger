@@ -1,26 +1,26 @@
 import * as Metadata from './metadata.js';
 
 const modifier = {
-    sendTab: 'Alt', // moveTabs
-    bringTab: 'Ctrl', // moveTabs + focusWindow
+    sendTab: 'Alt',
+    bringTab: 'Ctrl',
 }
 
-export function goalAction(windowId, modifiers, sendTabsByDefault, tabObjects) {
+export function goalAction(windowId, modifiers, doSendTabs, tabObjects) {
     if (modifiers.includes(modifier.bringTab)) {
-        focusWindow(windowId);
-        moveTabs(tabObjects, windowId, true, true);
-    } else if (modifiers.includes(modifier.sendTab) || sendTabsByDefault) {
-        moveTabs(tabObjects, windowId);
+        bringTabs(windowId, tabObjects);
+    } else if (doSendTabs || modifiers.includes(modifier.sendTab)) {
+        sendTabs(windowId, tabObjects);
     } else {
         focusWindow(windowId);
     }
 }
 
-function focusWindow(windowId) {
-    browser.windows.update(windowId, { focused: true });
+export function bringTabs(windowId, tabObjects) {
+    focusWindow(windowId);
+    sendTabs(windowId, tabObjects, true, true);
 }
 
-async function moveTabs(tabObjects, windowId, stayActive, staySelected) {
+export async function sendTabs(windowId, tabObjects, stayActive, staySelected) {
     if (!tabObjects || !tabObjects.length) {
         tabObjects = await getSelectedTabs();
     }
@@ -39,6 +39,10 @@ async function moveTabs(tabObjects, windowId, stayActive, staySelected) {
 
 export async function getSelectedTabs() {
     return await browser.tabs.query({ currentWindow: true, highlighted: true });
+}
+
+function focusWindow(windowId) {
+    browser.windows.update(windowId, { focused: true });
 }
 
 export function updateWindowBadge(windowId) {

@@ -48,11 +48,11 @@ function onClickRow(event) {
     }
 }
 
-export function goalAction(event, windowId, sendTabsByDefault) {
+export function goalAction(event, windowId, doSendTabs) {
     browser.runtime.sendMessage({
         module: 'BrowserOp',
         prop: 'goalAction',
-        args: [windowId, getModifiers(event), sendTabsByDefault],
+        args: [windowId, getModifiers(event), doSendTabs],
     });
     window.close();
 }
