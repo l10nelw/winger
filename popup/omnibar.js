@@ -7,6 +7,10 @@ const commands = {
         browser.tabs.create({ url: '/help/help.html' });
         window.close();
     },
+    edit() {
+        EditMode.$toggler.checked = true;
+        EditMode.onToggle();
+    },
 };
 
 $omnibar.value = '';

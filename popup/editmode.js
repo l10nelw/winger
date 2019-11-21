@@ -1,15 +1,15 @@
 import * as Omnibar from './omnibar.js';
 
 export let active = false;
-const $toggler = document.getElementById('editMode');
+export const $toggler = document.getElementById('editMode');
 const $omnibar = Omnibar.$omnibar;
 let $nameInputs;
 let newNames = {};
 
-$toggler.addEventListener('change', toggle);
+$toggler.addEventListener('change', onToggle);
 
 
-function toggle() {
+export function onToggle() {
     active = $toggler.checked;
 
     if (active) {
