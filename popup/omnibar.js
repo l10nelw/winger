@@ -1,3 +1,4 @@
+import * as Popup from './popup.js';
 import * as EditMode from './editmode.js';
 
 export const $omnibar = document.getElementById('omnibar');
@@ -33,7 +34,7 @@ function onInput(event) {
     } else {
         const $firstMatchRow = filterRows(str);
         if (enter && $firstMatchRow) {
-            window.goalAction(event, $firstMatchRow._id);
+            Popup.goalAction(event, $firstMatchRow._id);
         }
     }
 }
@@ -52,19 +53,18 @@ function completeCommand(str) {
 
 // Hide rows whose names do not contain str. Returns first matching row or null.
 export function filterRows(str) {
-    const $rows = window.$rows;
     let $firstMatchRow;
     if (str) {
-        for (const $row of $rows) {
-            const isMatch = window.metaWindows[$row._id].displayName.includes(str);
+        for (const $row of Popup.$rows) {
+            const isMatch = Popup.metaWindows[$row._id].displayName.includes(str);
             $row.hidden = !isMatch;
             $firstMatchRow = $firstMatchRow || (isMatch ? $row : null); // if not already found, it's this row
         }
     } else {
-        for (const $row of $rows) {
+        for (const $row of Popup.$rows) {
             $row.hidden = false;
         }
-        $firstMatchRow = $rows[0];
+        $firstMatchRow = Popup.$rows[0];
     }
     return $firstMatchRow;
 }

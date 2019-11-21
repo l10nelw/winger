@@ -1,12 +1,10 @@
-import './omnibar.js';
 import * as EditMode from './editmode.js';
 
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-const $windowList = document.getElementById('windowList');
 const $currentWindowRow = document.getElementById('currentWindow');
-window.metaWindows = {};
-window.goalAction = goalAction;
-window.$rows = $windowList.rows;
+const $windowList = document.getElementById('windowList');
+export const $rows = $windowList.rows;
+export let metaWindows = {};
 
 browser.runtime.sendMessage({ popup: true }).then(init);
 $windowList.addEventListener('click', onClickRow);
@@ -50,7 +48,7 @@ function onClickRow(event) {
     }
 }
 
-function goalAction(event, windowId, sendTabsByDefault) {
+export function goalAction(event, windowId, sendTabsByDefault) {
     browser.runtime.sendMessage({
         module: 'BrowserOp',
         prop: 'goalAction',
