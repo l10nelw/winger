@@ -12,6 +12,10 @@ const commands = {
         EditMode.$toggler.checked = true;
         EditMode.onToggle();
     },
+    sendtab() { tabAction('sendTabs') },
+    sendtabs() { tabAction('sendTabs') },
+    bringtab() { tabAction('bringTabs') },
+    bringtabs() { tabAction('bringTabs') },
 };
 
 $omnibar.value = '';
@@ -67,4 +71,12 @@ export function filterRows(str) {
         $firstMatchRow = Popup.$rows[0];
     }
     return $firstMatchRow;
+}
+
+function tabAction(prop) {
+    browser.runtime.sendMessage({
+        module: 'BrowserOp',
+        prop,
+        args: [Popup.$rows[0]._id],
+    });
 }
