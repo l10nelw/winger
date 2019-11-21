@@ -16,7 +16,7 @@ export function onToggle() {
         $nameInputs = Array.from(document.querySelectorAll('.windowNameInput'));
         $nameInputs.forEach($i => $i._original = $i.value);
         $nameInputs[0].select();
-        Omnibar.filterRows('');
+        Omnibar.showAllRows();
     } else {
         saveNewNames();
     }

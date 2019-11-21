@@ -56,7 +56,7 @@ function completeCommand(str) {
 }
 
 // Hide rows whose names do not contain str. Returns first matching row or null.
-export function filterRows(str) {
+function filterRows(str) {
     let $firstMatchRow;
     if (str) {
         for (const $row of Popup.$rows) {
@@ -65,12 +65,16 @@ export function filterRows(str) {
             $firstMatchRow = $firstMatchRow || (isMatch ? $row : null); // if not already found, it's this row
         }
     } else {
-        for (const $row of Popup.$rows) {
-            $row.hidden = false;
-        }
+        showAllRows();
         $firstMatchRow = Popup.$rows[0];
     }
     return $firstMatchRow;
+}
+
+export function showAllRows() {
+    for (const $row of Popup.$rows) {
+        $row.hidden = false;
+    }
 }
 
 function tabAction(prop) {
