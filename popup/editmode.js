@@ -40,7 +40,8 @@ function onKeystroke(event) {
     const $target = event.target;
     switch (event.key) {
         case 'ArrowDown': shiftSelectedName($target, 1); break;
-        case 'ArrowUp': shiftSelectedName($target, -1);
+        case 'ArrowUp': shiftSelectedName($target, -1); break;
+        case 'Enter': if (isNameInput($target)) active(false);
     }
 }
 
