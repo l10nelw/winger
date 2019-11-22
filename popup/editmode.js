@@ -19,6 +19,7 @@ export function onToggle() {
         Omnibar.showAllRows();
     } else {
         saveNewNames();
+        Omnibar.$omnibar.focus();
     }
     $nameInputs.forEach($i => $i.readOnly = !active);
     $omnibar.disabled = active;
