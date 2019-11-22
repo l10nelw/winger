@@ -42,7 +42,7 @@ function onKeystroke(event) {
 function shiftSelectedName($target, shiftBy) {
     const lastIndex = $nameInputs.length - 1;
     let newIndex;
-    if ($target.classList.contains('windowNameInput')) {
+    if (isNameInput($target)) {
         const thisIndex = $nameInputs.indexOf($target);
         if (thisIndex == -1) return;
         newIndex = thisIndex + shiftBy;
@@ -57,9 +57,9 @@ function shiftSelectedName($target, shiftBy) {
     $nameInputs[newIndex].select();
 }
 
-function onNameInput(event) {
+function onNameEntered(event) {
     const $input = event.target;
-    if (!$input.classList.contains('windowNameInput')) return;
+    if (!isNameInput($input)) return;
 
     const name = $input.value;
     $input.value = name.trim();
@@ -120,6 +120,10 @@ function saveNewNames() {
         prop: 'saveNewNames',
         args: [newNames, true],
     });
+}
+
+function isNameInput($input) {
+    return '_id' in $input;
 }
 
 function showError($input) {
