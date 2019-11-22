@@ -1,6 +1,6 @@
 import * as Omnibar from './omnibar.js';
 
-export let active = false;
+export let isActive = false;
 export const $toggler = document.getElementById('editMode');
 const $omnibar = Omnibar.$omnibar;
 let $nameInputs;
@@ -9,10 +9,17 @@ let newNames = {};
 $toggler.addEventListener('change', onToggle);
 
 
-export function onToggle() {
-    active = $toggler.checked;
+export function active(status) {
+    $toggler.checked = status;
+    onToggle();
+}
 
-    if (active) {
+function onToggle() {
+    isActive = $toggler.checked;
+
+    $omnibar.disabled = isActive;
+    $omnibar.value = isActive ? `Edit mode: Enter to save, Esc to cancel` : ``;
+    if (isActive) {
         $nameInputs = Array.from(document.querySelectorAll('.windowNameInput'));
         $nameInputs.forEach($i => $i._original = $i.value);
         $nameInputs[0].select();
@@ -21,13 +28,11 @@ export function onToggle() {
         saveNewNames();
         Omnibar.$omnibar.focus();
     }
-    $nameInputs.forEach($i => $i.readOnly = !active);
-    $omnibar.disabled = active;
-    $omnibar.value = active ? `Edit mode: Enter to save, Esc to cancel` : ``;
-    document.body.classList.toggle('editMode', active);
+    $nameInputs.forEach($i => $i.readOnly = !isActive);
+    document.body.classList.toggle('editMode', isActive);
 
-    const eventListenerAction = active ? 'addEventListener' : 'removeEventListener';
-    document[eventListenerAction]('focusout', onNameInput);
+    const eventListenerAction = isActive ? 'addEventListener' : 'removeEventListener';
+    document[eventListenerAction]('focusout', onNameEntered);
     document[eventListenerAction]('keyup', onKeystroke);
 }
 

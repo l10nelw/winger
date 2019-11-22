@@ -9,8 +9,7 @@ const commands = {
         window.close();
     },
     edit() {
-        EditMode.$toggler.checked = true;
-        EditMode.onToggle();
+        EditMode.active(true);
     },
     sendtab() { tabAction('sendTabs') },
     sendtabs() { tabAction('sendTabs') },

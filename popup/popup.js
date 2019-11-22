@@ -40,7 +40,7 @@ function populateRow($row, metaWindow) {
 }
 
 function onClickRow(event) {
-    if (EditMode.active) return;
+    if (EditMode.isActive) return;
     const $target = event.target;
     const $row = $target.closest('tr');
     if ($row) {
