@@ -1,7 +1,7 @@
 import * as BrowserOp from './browser.js';
 
 export let windows = {};
-export let focusedWindowId = null;
+export let focusedWindow = { id: null };
 const invalidCharsNameRegex = /^\/|['"]/;
 let lastWindowNumber = 0;
 
@@ -39,16 +39,12 @@ export function has(windowId) {
     return windowId in windows;
 }
 
-export function setFocused(windowId) {
-    focusedWindowId = windowId;
-}
-
 export async function init() {
     const allWindows = await browser.windows.getAll({ populate: true });
     for (const windowObject of allWindows) {
         add(windowObject);
         const windowId = windowObject.id;
-        if (windowObject.focused) focusedWindowId = windowId;
+        if (windowObject.focused) focusedWindow.id = windowId;
         BrowserOp.updateWindowBadge(windowId);
         BrowserOp.menu.create(windowId);
     }

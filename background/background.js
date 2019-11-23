@@ -32,9 +32,9 @@ function onWindowRemoved(windowId) {
 function onWindowFocused(windowId) {
     if (!Metadata.has(windowId)) return;
     Metadata.windows[windowId].lastFocused = Date.now();
-    BrowserOp.menu.show(Metadata.focusedWindowId);
+    BrowserOp.menu.show(Metadata.focusedWindow.id);
     BrowserOp.menu.hide(windowId);
-    Metadata.setFocused(windowId);
+    Metadata.focusedWindow.id = windowId;
 }
 
 function onTabCreated(tabObject) {
@@ -78,7 +78,7 @@ function handleRequest(request) {
     if (request.popup) {
         return Promise.resolve({
             metaWindows: Metadata.windows,
-            focusedWindowId: Metadata.focusedWindowId,
+            focusedWindowId: Metadata.focusedWindow.id,
             sortedIds: Metadata.sortedIds(),
         });
     }
