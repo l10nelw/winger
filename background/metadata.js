@@ -1,3 +1,5 @@
+import * as BrowserOp from './browser.js';
+
 export let windows = {};
 export let focusedWindowId = null;
 const invalidCharsNameRegex = /^\/|['"]/;
@@ -41,13 +43,14 @@ export function setFocused(windowId) {
     focusedWindowId = windowId;
 }
 
-export async function init(callbacks) {
+export async function init() {
     const allWindows = await browser.windows.getAll({ populate: true });
     for (const windowObject of allWindows) {
-        await add(windowObject);
+        add(windowObject);
         const windowId = windowObject.id;
         if (windowObject.focused) focusedWindowId = windowId;
-        for (const callback of callbacks) callback(windowId);
+        BrowserOp.updateWindowBadge(windowId);
+        BrowserOp.menu.create(windowId);
     }
 }
 

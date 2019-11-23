@@ -3,7 +3,7 @@ import * as BrowserOp from './browser.js';
 window.Metadata = Metadata;
 window.BrowserOp = BrowserOp;
 
-Metadata.init([BrowserOp.updateWindowBadge, BrowserOp.menu.create]);
+Metadata.init();
 
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onRemoved.addListener(onWindowRemoved);
