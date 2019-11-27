@@ -18,13 +18,14 @@ const keyResponse = {
         const error = await saveName($input);
         if (!error) shiftActiveRow(-1);
     },
-    async Tab($input, event) {
-        const error = await saveName($input);
-        if (error) event.preventDefault();
-    },
     async Enter($input) {
         const error = await saveName($input);
         if (!error) deactivate();
+    },
+    // Capturing Tab does not provide the correct target; instead the focusout handler will use this:
+    async _tab($input) {
+        const error = await saveName($input);
+        if (error) $input.select();
     },
 };
 
@@ -72,6 +73,7 @@ function activatePopup() {
     $omnibar.value = `Edit mode: Enter to save, Esc to cancel`;
     Omnibar.showAllRows();
     document.addEventListener('keyup', onKeystroke);
+    document.addEventListener('focusout', onFocusOut);
 }
 
 function deactivatePopup() {
@@ -79,6 +81,7 @@ function deactivatePopup() {
     $omnibar.value = '';
     $omnibar.focus();
     document.removeEventListener('keyup', onKeystroke);
+    document.removeEventListener('focusout', onFocusOut);
     $active = null;
 }
 
@@ -87,10 +90,15 @@ async function onKeystroke(event) {
     const key = event.key;
     if (!isNameInput($target)) return;
     if (key in keyResponse) {
-        await keyResponse[key]($target, event);
     } else {
+        await keyResponse[key]($target);
         toggleError($target, false);
     }
+}
+
+async function onFocusOut(event) {
+    const $target = event.target;
+    if (isNameInput($target)) keyResponse._tab($target);
 }
 
 async function saveName($input) {
