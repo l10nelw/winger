@@ -1,17 +1,22 @@
+/*
+Edit Mode is activated on 2 levels, popup (general) and row (specific).
+Popup activation governs state that is sustained while different rows change active status.
+*/
+
 import * as Popup from './popup.js';
 import * as Omnibar from './omnibar.js';
 
-export let $active = null; // Currently activated row; indicates if popup is in EditMode
+export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
 const $omnibar = Omnibar.$omnibar;
 
 const keyResponse = {
     async ArrowDown($input) {
         const error = await saveName($input);
-        if (!error) shiftActive(1);
+        if (!error) shiftActiveRow(1);
     },
     async ArrowUp($input) {
         const error = await saveName($input);
-        if (!error) shiftActive(-1);
+        if (!error) shiftActiveRow(-1);
     },
     async Tab($input, event) {
         const error = await saveName($input);
@@ -23,20 +28,18 @@ const keyResponse = {
     },
 };
 
-async function onKeystroke(event) {
-    const $target = event.target;
-    const key = event.key;
-    if (!isNameInput($target)) return;
-    if (key in keyResponse) {
-        await keyResponse[key]($target, event);
-    } else {
-        toggleError($target, false);
-    }
+export function activate($row = Popup.$currentWindowRow) {
+    // If popup already activated, just switch active rows, else activate popup and this row
+    $active ? deactivateActiveRow() : activatePopup();
+    activateRow($row);
 }
 
-export function activate($row = Popup.$currentWindowRow) {
-    // If popup already in EditMode, just switch active rows, else activate EditMode and this row.
-    $active ? deactivate(true) : activatePopup();
+function deactivate() {
+    deactivateActiveRow();
+    deactivatePopup();
+}
+
+function activateRow($row) {
     $active = $row;
     const $input = $row.$input;
     $input._original = $input.value;
@@ -45,13 +48,12 @@ export function activate($row = Popup.$currentWindowRow) {
     $row.classList.add('editMode');
 }
 
-export function deactivate(keepEditMode) {
+function deactivateActiveRow() {
     $active.$input.readOnly = true;
     $active.classList.remove('editMode');
-    if (!keepEditMode) deactivatePopup();
 }
 
-function shiftActive(shift_by) {
+function shiftActiveRow(shift_by) {
     const $rows = Popup.$allWindowRows;
     const last_index = $rows.length - 1;
     const this_index = $rows.indexOf($active);
@@ -78,6 +80,17 @@ function deactivatePopup() {
     $omnibar.focus();
     document.removeEventListener('keyup', onKeystroke);
     $active = null;
+}
+
+async function onKeystroke(event) {
+    const $target = event.target;
+    const key = event.key;
+    if (!isNameInput($target)) return;
+    if (key in keyResponse) {
+        await keyResponse[key]($target, event);
+    } else {
+        toggleError($target, false);
+    }
 }
 
 async function saveName($input) {
