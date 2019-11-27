@@ -13,23 +13,19 @@ function init(response) {
     const { metaWindows, focusedWindowId, sortedIds } = response;
     for (const windowId of sortedIds) {
         const metaWindow = metaWindows[windowId];
-        if (windowId == focusedWindowId) {
-            populateRow($currentWindowRow, metaWindow);
-        } else {
-            addRow(metaWindow);
-        }
+        windowId == focusedWindowId ? fillRow($currentWindowRow, metaWindow) : createRow(metaWindow);
     }
     $otherWindowRows = [...$windowList.rows];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
 }
 
-function addRow(metaWindow) {
+function createRow(metaWindow) {
     const $row = document.importNode($rowTemplate, true);
-    populateRow($row, metaWindow);
+    fillRow($row, metaWindow);
     $windowList.appendChild($row);
 }
 
-function populateRow($row, metaWindow) {
+function fillRow($row, metaWindow) {
     const $input = $row.querySelector('input');
     const $badge = $row.querySelector('.badge');
     const $editBtn = $row.querySelector('.editBtn');
