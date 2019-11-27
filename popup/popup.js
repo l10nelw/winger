@@ -46,7 +46,7 @@ function onClickRow(event) {
     const $target = event.target;
     const $row = $target.closest('tr');
     if ($row) {
-        goalAction(event, $row._id, !!$target.closest('.sendTabAction'));
+        goalAction(event, $row._id, !!$target.closest('.sendTabBtn'));
     }
 }
 
