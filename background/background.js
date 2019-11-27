@@ -1,6 +1,6 @@
 import * as Metadata from './metadata.js';
 import * as BrowserOp from './browser.js';
-const modules = { Metadata, BrowserOp };
+Object.assign(window, { Metadata, BrowserOp });
 
 Metadata.init();
 
@@ -83,15 +83,6 @@ function handleRequest(request) {
         });
     }
     if (request.module) {
-        return callViaMessage(request);
-    }
-}
-
-async function callViaMessage(request) {
-    const args = request.args;
-    if (args) {
-        return modules[request.module][request.prop](...args);
-    } else {
-        return modules[request.module][request.prop];
+        return Promise.resolve(window[request.module][request.prop](...request.args));
     }
 }
