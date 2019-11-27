@@ -90,8 +90,8 @@ async function onKeystroke(event) {
     const key = event.key;
     if (!isNameInput($target)) return;
     if (key in keyResponse) {
-    } else {
         await keyResponse[key]($target);
+    } else if ($target.value != $target._invalid) {
         toggleError($target, false);
     }
 }
@@ -121,4 +121,6 @@ function isNameInput($el) {
 
 function toggleError($input, error) {
     $input.classList.toggle('inputError', error);
+    $input._invalid = error ? $input.value : undefined;
+    if (error) $input.select();
 }
