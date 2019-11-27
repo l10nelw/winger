@@ -6,6 +6,7 @@ export const $currentWindowRow = document.querySelector('#currentWindow tr');
 export let $otherWindowRows, $allWindowRows;
 
 browser.runtime.sendMessage({ popup: true }).then(init);
+$windowList.addEventListener('click', onClickRow);
 
 
 function init(response) {
@@ -18,9 +19,8 @@ function init(response) {
             addRow(metaWindow);
         }
     }
-    $otherWindowRows = Array.from($windowList.rows);
-    $allWindowRows = [$currentWindowRow].concat($otherWindowRows);
-    $windowList.addEventListener('click', onClickRow);
+    $otherWindowRows = [...$windowList.rows];
+    $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
 }
 
 function addRow(metaWindow) {
