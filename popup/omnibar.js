@@ -9,7 +9,7 @@ const commands = {
         window.close();
     },
     edit() {
-        EditMode.active(true);
+        EditMode.activate();
     },
     sendtab() { tabAction('sendTabs') },
     sendtabs() { tabAction('sendTabs') },

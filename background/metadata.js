@@ -50,12 +50,6 @@ export async function init() {
     }
 }
 
-export function saveNewNames(names, validated) {
-    for (const windowId in names) {
-        setName(windowId, names[windowId], validated);
-    }
-}
-
 // Validate and then assign givenName for target window.
 // Automatically sets displayName.
 // Returns 0 if successful, otherwise returns output of isInvalidName().

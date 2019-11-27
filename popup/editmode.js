@@ -1,143 +1,103 @@
+import * as Popup from './popup.js';
 import * as Omnibar from './omnibar.js';
 
-export let isActive = false;
-export const $toggler = document.getElementById('editMode');
+export let $active = null; // Currently activated row; indicates if popup is in EditMode
 const $omnibar = Omnibar.$omnibar;
-let $nameInputs;
-let newNames = {};
 
-$toggler.addEventListener('change', onToggle);
+const keyResponse = {
+    async ArrowDown($input) {
+        const error = await saveName($input);
+        if (!error) shiftActive(1);
+    },
+    async ArrowUp($input) {
+        const error = await saveName($input);
+        if (!error) shiftActive(-1);
+    },
+    async Tab($input, event) {
+        const error = await saveName($input);
+        if (error) event.preventDefault();
+    },
+    async Enter($input) {
+        const error = await saveName($input);
+        if (!error) deactivate();
+    },
+};
 
-
-export function active(status) {
-    $toggler.checked = status;
-    onToggle();
-}
-
-function onToggle() {
-    isActive = $toggler.checked;
-
-    $omnibar.disabled = isActive;
-    $omnibar.value = isActive ? `Edit mode: Enter to save, Esc to cancel` : ``;
-    if (isActive) {
-        $nameInputs = Array.from(document.querySelectorAll('.windowNameInput'));
-        $nameInputs.forEach($i => $i._original = $i.value);
-        $nameInputs[0].select();
-        Omnibar.showAllRows();
-    } else {
-        saveNewNames();
-        Omnibar.$omnibar.focus();
-    }
-    $nameInputs.forEach($i => $i.readOnly = !isActive);
-    document.body.classList.toggle('editMode', isActive);
-
-    const eventListenerAction = isActive ? 'addEventListener' : 'removeEventListener';
-    document[eventListenerAction]('focusout', onNameEntered);
-    document[eventListenerAction]('keyup', onKeystroke);
-}
-
-function onKeystroke(event) {
+async function onKeystroke(event) {
     const $target = event.target;
-    switch (event.key) {
-        case 'ArrowDown': shiftSelectedName($target, 1); break;
-        case 'ArrowUp': shiftSelectedName($target, -1); break;
-        case 'Enter': if (isNameInput($target)) active(false);
-    }
-}
-
-function shiftSelectedName($target, shiftBy) {
-    const lastIndex = $nameInputs.length - 1;
-    let newIndex;
-    if (isNameInput($target)) {
-        const thisIndex = $nameInputs.indexOf($target);
-        if (thisIndex == -1) return;
-        newIndex = thisIndex + shiftBy;
-        if (newIndex < 0) {
-            newIndex = lastIndex;
-        } else if (newIndex > lastIndex) {
-            newIndex = 0;
-        }
+    const key = event.key;
+    if (!isNameInput($target)) return;
+    if (key in keyResponse) {
+        await keyResponse[key]($target, event);
     } else {
-        newIndex = shiftBy < 0 ? lastIndex : 0;
+        toggleError($target, false);
     }
-    $nameInputs[newIndex].select();
 }
 
-function onNameEntered(event) {
-    const $input = event.target;
-    if (!isNameInput($input)) return;
-
-    const name = $input.value;
-    $input.value = name.trim();
-
-    // Catch the duplicates, validate the rest
-    const $dupes = findDuplicates();
-    const $others = $nameInputs.filter($i => !$dupes.includes($i));
-    $dupes.forEach(showError);
-    $others.forEach(validateName);
+export function activate($row = Popup.$currentWindowRow) {
+    // If popup already in EditMode, just switch active rows, else activate EditMode and this row.
+    $active ? deactivate(true) : activatePopup();
+    $active = $row;
+    const $input = $row.$input;
+    $input._original = $input.value;
+    $input.readOnly = false;
+    $input.select();
+    $row.classList.add('editMode');
 }
 
-function findDuplicates() {
-    const $filledInputs = $nameInputs.filter($i => $i.value);
-    let $dupes = new Set();
-    for (const $input of $filledInputs) {
-        const name = $input.value;
-        for (const $compare of $filledInputs) {
-            if ($compare.value === name && $compare !== $input) {
-                $dupes.add($input);
-                $dupes.add($compare);
-            }
-        }
+export function deactivate(keepEditMode) {
+    $active.$input.readOnly = true;
+    $active.classList.remove('editMode');
+    if (!keepEditMode) deactivatePopup();
+}
+
+function shiftActive(shift_by) {
+    const $rows = Popup.$allWindowRows;
+    const last_index = $rows.length - 1;
+    const this_index = $rows.indexOf($active);
+    if (this_index === -1) return;
+    let new_index = this_index + shift_by;
+    if (new_index < 0) {
+        new_index = last_index;
+    } else if (new_index > last_index) {
+        new_index = 0;
     }
-    return Array.from($dupes);
+    activate($rows[new_index]);
 }
 
-function validateName($input) {
-    const name = $input.value;
-    if (name === $input._original) {
-        // Not new name
-        resetError($input);
-    } else if (name) {
-        // Check if name has invalid chars or is a duplicate of any names in metadata
-        const windowId = $input._id;
-        browser.runtime.sendMessage({
+function activatePopup() {
+    $omnibar.disabled = true;
+    $omnibar.value = `Edit mode: Enter to save, Esc to cancel`;
+    Omnibar.showAllRows();
+    document.addEventListener('keyup', onKeystroke);
+}
+
+function deactivatePopup() {
+    $omnibar.disabled = false;
+    $omnibar.value = '';
+    $omnibar.focus();
+    document.removeEventListener('keyup', onKeystroke);
+    $active = null;
+}
+
+async function saveName($input) {
+    const name = $input.value = $input.value.trim();
+    let error = 0;
+    if (name !== $input._original) {
+        error = await browser.runtime.sendMessage({
             module: 'Metadata',
-            prop: 'isInvalidName',
-            args: [windowId, name],
-        })
-        .then(status => {
-            const $input = $nameInputs.find($i => $i._id == windowId);
-            status ? showError($input) : markNewName($input);
+            prop: 'setName',
+            args: [$input._id, name],
         });
-    } else {
-        // Blank is valid
-        markNewName($input);
     }
+    toggleError($input, error);
+    return error;
 }
 
-function markNewName($input) {
-    resetError($input);
-    newNames[$input._id] = $input.value;
+function isNameInput($el) {
+    return $el.classList.contains('windowNameInput');
 }
 
-function saveNewNames() {
-    browser.runtime.sendMessage({
-        module: 'Metadata',
-        prop: 'saveNewNames',
-        args: [newNames, true],
-    });
-}
-
-function isNameInput($input) {
-    return '_id' in $input;
-}
-
-function showError($input) {
-    $input.classList.add('inputError');
-    $toggler.disabled = true;
-}
-
-function resetError($input) {
-    $input.classList.remove('inputError');
-    $toggler.disabled = !!document.querySelector('.inputError');
+function toggleError($input, error) {
+    $input.classList.toggle('inputError', error);
 }
