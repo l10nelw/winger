@@ -7,6 +7,7 @@ import * as Popup from './popup.js';
 import * as Omnibar from './omnibar.js';
 
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
+let $rows, last_index; // Constants for shiftActiveRow(), set in activatePopup()
 const $omnibar = Omnibar.$omnibar;
 
 const keyResponse = {
@@ -55,8 +56,6 @@ function deactivateActiveRow() {
 }
 
 function shiftActiveRow(shift_by) {
-    const $rows = Popup.$allWindowRows;
-    const last_index = $rows.length - 1;
     const this_index = $rows.indexOf($active);
     if (this_index === -1) return;
     let new_index = this_index + shift_by;
@@ -74,6 +73,8 @@ function activatePopup() {
     Omnibar.showAllRows();
     document.addEventListener('keyup', onKeystroke);
     document.addEventListener('focusout', onFocusOut);
+    $rows = Popup.$allWindowRows;
+    last_index = $rows.length - 1;
 }
 
 function deactivatePopup() {
