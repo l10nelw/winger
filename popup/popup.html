@@ -13,14 +13,13 @@
         <td class="tabCount">
           <span class="badge"></span>
         </td>
-        <td class="windowAction"></td>
+        <td class="windowAction">
+          <button type="button" class="editBtn">✏️</button>
+        </td>
       </tr>
     </table>
     <input id="omnibar" type="text" autofocus>
     <table id="windowList"></table>
-    <footer>
-      <label><input type="checkbox" id="editMode"> Edit mode</label>
-    </footer>
     <template id="rowTemplate">
       <tr>
         <td class="sendTabBtn">></td>
@@ -30,7 +29,9 @@
         <td class="tabCount">
           <span class="badge"></span>
         </td>
-        <td class="windowAction"></td>
+        <td class="windowAction">
+          <button type="button" class="editBtn">✏️</button>
+        </td>
       </tr>
     </template>
     <script src="popup.js" type="module"></script>

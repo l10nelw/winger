@@ -35,10 +35,17 @@ function addRow(metaWindow) {
 function populateRow($row, metaWindow) {
     const $input = $row.querySelector('input');
     const $badge = $row.querySelector('.badge');
+    const $editBtn = $row.querySelector('.editBtn');
+
     $input.value = metaWindow.givenName;
     $input.placeholder = metaWindow.defaultName;
     $badge.textContent = metaWindow.tabCount;
+
+    // Add references to id and related nodes
     $row._id = $input._id = metaWindow.id;
+    $input.$row = $editBtn.$row = $row;
+    $row.$input = $input;
+    $row.$editBtn = $editBtn;
 }
 
 function onClickRow(event) {
