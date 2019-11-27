@@ -1,3 +1,10 @@
+/*
+Naming notes:
+- A variable prefixed with '$' references a DOM node or a collection of DOM nodes.
+- Data created and used by this addon pertaining to a window are 'metadata' and an object collecting
+  them is a 'metawindow'. The metawindows live in Metadata.windows as the addon's source-of-truth.
+*/
+
 import * as Metadata from './metadata.js';
 import * as BrowserOp from './browser.js';
 Object.assign(window, { Metadata, BrowserOp });
