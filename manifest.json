@@ -7,7 +7,7 @@
     "64": "icon.png"
   },
   "permissions": [
-    "contextMenus"
+    "menus"
   ],
   "background": {
     "page": "background/background.html"

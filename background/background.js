@@ -3,6 +3,8 @@ Naming notes:
 - A variable prefixed with '$' references a DOM node or a collection of DOM nodes.
 - Data created and used by this addon pertaining to a window are 'metadata' and an object collecting
   them is a 'metawindow'. The metawindows live in Metadata.windows as the addon's source-of-truth.
+- Window objects returned by the WebExtensions API are named windowObject to avoid possible conflicts
+  with the global window object.
 */
 
 import * as Metadata from './metadata.js';
@@ -19,9 +21,9 @@ browser.tabs.onRemoved.addListener(onTabRemoved);
 browser.tabs.onDetached.addListener(onTabDetached);
 browser.tabs.onAttached.addListener(onTabAttached);
 
-browser.runtime.onMessage.addListener(handleRequest);
+browser.runtime.onMessage.addListener(onRequest);
 
-browser.contextMenus.onClicked.addListener(onMenuClicked);
+browser.menus.onClicked.addListener(onMenuClicked);
 
 
 async function onWindowCreated(windowObject) {
@@ -81,7 +83,7 @@ async function onMenuClicked(info, tabObject) {
 }
 
 
-function handleRequest(request) {
+function onRequest(request) {
     if (request.popup) {
         return Promise.resolve({
             metaWindows: Metadata.windows,
