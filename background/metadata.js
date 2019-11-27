@@ -19,11 +19,11 @@ export async function add(windowObject) {
 
     windows[windowId] = {
         id: windowId,
-        tabCount,
         number,
+        displayName: defaultName,
         defaultName,
         givenName: '',
-        displayName: defaultName,
+        tabCount,
         textColor: '#fff',
         backColor: '#00f',
         created: now,
@@ -50,43 +50,36 @@ export async function init() {
     }
 }
 
-export function saveNewNames(names, validated) {
-    for (const windowId in names) {
-        setName(windowId, names[windowId], validated);
-    }
-}
-
-// Assign givenName for target window. Blank clears givenName.
-// Validates name first, unless validated=true (do so with care).
+// Validate and then assign givenName for target window.
 // Automatically sets displayName.
 // Returns 0 if successful, otherwise returns output of isInvalidName().
-function setName(windowId, name = '', validated) {
-    name = name.trim();
+export function setName(windowId, name = '') {
     const metaWindow = windows[windowId];
-    const status = (!validated && name) ? isInvalidName(windowId, name) : 0;
-    if (status === 0) {
+    const error = isInvalidName(windowId, name);
+    if (!error) {
         metaWindow.givenName = name;
         metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
     }
-    return status;
+    return error;
 }
 
 // Validate name for target window.
-// Valid if unique and has no disallowed characters, or equals target's defaultName (because why not).
-// Uniqueness is checked against all existing given and default names.
+// Valid if blank, or unique and has no disallowed characters.
 // Returns 0 if valid, otherwise returns -1 or id of conflicting window.
-export function isInvalidName(windowId, name) {
+function isInvalidName(windowId, name) {
+    if (!name) return 0;
     if (invalidCharsNameRegex.test(name)) return -1;
-    return nameAlreadyExists(windowId, name);
+    return nameExists(windowId, name);
 }
 
-export function nameAlreadyExists(windowId, name) {
+// Check if name exists in other windows.
+// Note if name is same as target window's givenName or defaultName, there is no conflict.
+// Returns id of conflicting window, otherwise returns 0.
+function nameExists(windowId, name) {
     for (const id in windows) {
+        if (id == windowId) continue;
         const metaWindow = windows[id];
-        const isNotTarget = id != windowId;
-        const sameAsGiven = metaWindow.givenName === name;
-        const sameAsDefault = metaWindow.defaultName === name;
-        if (sameAsGiven || (sameAsDefault && isNotTarget)) {
+        if (metaWindow.givenName == name || metaWindow.defaultName == name) {
             return metaWindow.id;
         }
     }

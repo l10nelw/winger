@@ -1,6 +1,13 @@
+/*
+Naming notes:
+- A variable prefixed with '$' references a DOM node or a collection of DOM nodes.
+- Data created and used by this addon pertaining to a window are 'metadata' and an object collecting
+  them is a 'metawindow'. The metawindows live in Metadata.windows as the addon's source-of-truth.
+*/
+
 import * as Metadata from './metadata.js';
 import * as BrowserOp from './browser.js';
-const modules = { Metadata, BrowserOp };
+Object.assign(window, { Metadata, BrowserOp });
 
 Metadata.init();
 
@@ -83,15 +90,6 @@ function handleRequest(request) {
         });
     }
     if (request.module) {
-        return callViaMessage(request);
-    }
-}
-
-async function callViaMessage(request) {
-    const args = request.args;
-    if (args) {
-        return modules[request.module][request.prop](...args);
-    } else {
-        return modules[request.module][request.prop];
+        return Promise.resolve(window[request.module][request.prop](...request.args));
     }
 }

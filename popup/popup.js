@@ -1,13 +1,12 @@
 import * as EditMode from './editmode.js';
 
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-const $currentWindowRow = document.getElementById('currentWindow');
 const $windowList = document.getElementById('windowList');
-export const $rows = $windowList.rows;
+export const $currentWindowRow = document.querySelector('#currentWindow tr');
+export let $otherWindowRows, $allWindowRows;
 export let metaWindows = {};
 
 browser.runtime.sendMessage({ popup: true }).then(init);
-$windowList.addEventListener('click', onClickRow);
 
 
 function init(response) {
@@ -22,6 +21,9 @@ function init(response) {
             addRow(metaWindow);
         }
     }
+    $otherWindowRows = Array.from($windowList.rows);
+    $allWindowRows = [$currentWindowRow].concat($otherWindowRows);
+    $windowList.addEventListener('click', onClickRow);
 }
 
 function addRow(metaWindow) {
@@ -33,18 +35,25 @@ function addRow(metaWindow) {
 function populateRow($row, metaWindow) {
     const $input = $row.querySelector('input');
     const $badge = $row.querySelector('.badge');
+    const $editBtn = $row.querySelector('.editBtn');
+
     $input.value = metaWindow.givenName;
     $input.placeholder = metaWindow.defaultName;
     $badge.textContent = metaWindow.tabCount;
+
+    // Add references to id and related nodes
     $row._id = $input._id = metaWindow.id;
+    $input.$row = $editBtn.$row = $row;
+    $row.$input = $input;
+    $row.$editBtn = $editBtn;
 }
 
 function onClickRow(event) {
-    if (EditMode.isActive) return;
+    if (EditMode.$active) return;
     const $target = event.target;
     const $row = $target.closest('tr');
     if ($row) {
-        goalAction(event, $row._id, !!$target.closest('.sendTabAction'));
+        goalAction(event, $row._id, !!$target.closest('.sendTabBtn'));
     }
 }
 

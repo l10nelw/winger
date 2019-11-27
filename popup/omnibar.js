@@ -9,7 +9,7 @@ const commands = {
         window.close();
     },
     edit() {
-        EditMode.active(true);
+        EditMode.activate();
     },
     sendtab() { tabAction('sendTabs') },
     sendtabs() { tabAction('sendTabs') },
@@ -58,20 +58,20 @@ function completeCommand(str) {
 function filterRows(str) {
     let $firstMatchRow;
     if (str) {
-        for (const $row of Popup.$rows) {
+        for (const $row of Popup.$otherWindowRows) {
             const isMatch = Popup.metaWindows[$row._id].displayName.includes(str);
             $row.hidden = !isMatch;
             $firstMatchRow = $firstMatchRow || (isMatch ? $row : null); // if not already found, it's this row
         }
     } else {
         showAllRows();
-        $firstMatchRow = Popup.$rows[0];
+        $firstMatchRow = Popup.$otherWindowRows[0];
     }
     return $firstMatchRow;
 }
 
 export function showAllRows() {
-    for (const $row of Popup.$rows) {
+    for (const $row of Popup.$otherWindowRows) {
         $row.hidden = false;
     }
 }
@@ -80,6 +80,6 @@ function tabAction(prop) {
     browser.runtime.sendMessage({
         module: 'BrowserOp',
         prop,
-        args: [Popup.$rows[0]._id],
+        args: [Popup.$otherWindowRows[0]._id],
     });
 }
