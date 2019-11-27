@@ -50,6 +50,10 @@ export async function init() {
     }
 }
 
+export function getName(windowId) {
+    return windows[windowId].displayName;
+}
+
 // Validate and then assign givenName for target window.
 // Automatically sets displayName.
 // Returns 0 if successful, otherwise returns output of isInvalidName().
@@ -59,6 +63,7 @@ export function setName(windowId, name = '') {
     if (!error) {
         metaWindow.givenName = name;
         metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
+        BrowserOp.menu.rename(windowId);
     }
     return error;
 }

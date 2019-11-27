@@ -55,10 +55,11 @@ export function updateWindowBadge(windowId) {
 export const menu = {
     create: windowId => browser.menus.create({
         id: `${windowId}`,
-        title: `Send tab to ${Metadata.windows[windowId].displayName}`,
+        title: `Send tab to ${Metadata.getName(windowId)}`,
         contexts: ['tab'],
     }),
     remove: windowId => browser.menus.remove(`${windowId}`),
     hide: windowId => browser.menus.update(`${windowId}`, { visible: false }),
     show: windowId => browser.menus.update(`${windowId}`, { visible: true }),
+    rename: windowId => browser.menus.update(`${windowId}`, { title: `Send tab to ${Metadata.getName(windowId)}` }),
 }
