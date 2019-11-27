@@ -4,15 +4,12 @@ const $rowTemplate = document.getElementById('rowTemplate').content.firstElement
 const $windowList = document.getElementById('windowList');
 export const $currentWindowRow = document.querySelector('#currentWindow tr');
 export let $otherWindowRows, $allWindowRows;
-export let metaWindows = {};
 
 browser.runtime.sendMessage({ popup: true }).then(init);
 
 
 function init(response) {
-    metaWindows = response.metaWindows;
-    const focusedWindowId = response.focusedWindowId;
-    const sortedIds = response.sortedIds;
+    const { metaWindows, focusedWindowId, sortedIds } = response;
     for (const windowId of sortedIds) {
         const metaWindow = metaWindows[windowId];
         if (windowId == focusedWindowId) {

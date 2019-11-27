@@ -59,7 +59,8 @@ function filterRows(str) {
     let $firstMatchRow;
     if (str) {
         for (const $row of Popup.$otherWindowRows) {
-            const isMatch = Popup.metaWindows[$row._id].displayName.includes(str);
+            const $input = $row.$input;
+            const isMatch = ($input.value || $input.placeholder).includes(str);
             $row.hidden = !isMatch;
             $firstMatchRow = $firstMatchRow || (isMatch ? $row : null); // if not already found, it's this row
         }
