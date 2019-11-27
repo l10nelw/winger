@@ -1,13 +1,12 @@
 import * as EditMode from './editmode.js';
 
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-const $currentWindowRow = document.getElementById('currentWindow');
 const $windowList = document.getElementById('windowList');
-export const $rows = $windowList.rows;
+export const $currentWindowRow = document.querySelector('#currentWindow tr');
+export let $otherWindowRows, $allWindowRows;
 export let metaWindows = {};
 
 browser.runtime.sendMessage({ popup: true }).then(init);
-$windowList.addEventListener('click', onClickRow);
 
 
 function init(response) {
@@ -22,6 +21,9 @@ function init(response) {
             addRow(metaWindow);
         }
     }
+    $otherWindowRows = Array.from($windowList.rows);
+    $allWindowRows = [$currentWindowRow].concat($otherWindowRows);
+    $windowList.addEventListener('click', onClickRow);
 }
 
 function addRow(metaWindow) {
