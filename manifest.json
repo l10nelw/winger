@@ -7,8 +7,14 @@
     "64": "icon.png"
   },
   "permissions": [
-    "menus"
+    "menus",
+    "sessions"
   ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "winman@example.com"
+    }
+  },
   "background": {
     "page": "background/background.html"
   },

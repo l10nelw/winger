@@ -11,21 +11,29 @@ export async function add(windowObject) {
     const now = Date.now();
 
     // Generate unique defaultName
-    let number, defaultName;
+    let defaultName;
     do {
-        number = ++lastWindowNumber;
-        defaultName = `Window ${number} / id ${windowId}`;
+        defaultName = `Window ${++lastWindowNumber} / id ${windowId}`;
     } while (isInvalidName(windowId, defaultName));
+
+    // Fetch stored data
+    const [
+        givenName = '',
+        textColor = '#fff',
+        backColor = '#00f',
+    ] = await Promise.all(
+        ['givenName', 'textColor', 'backColor']
+        .map(key => browser.sessions.getWindowValue(windowId, key))
+    );
 
     windows[windowId] = {
         id: windowId,
-        number,
-        displayName: defaultName,
+        displayName: givenName || defaultName,
         defaultName,
-        givenName: '',
+        givenName,
+        textColor,
+        backColor,
         tabCount,
-        textColor: '#fff',
-        backColor: '#00f',
         created: now,
         lastFocused: now,
     };
@@ -42,7 +50,7 @@ export function has(windowId) {
 export async function init() {
     const allWindows = await browser.windows.getAll({ populate: true });
     for (const windowObject of allWindows) {
-        add(windowObject);
+        await add(windowObject);
         const windowId = windowObject.id;
         if (windowObject.focused) focusedWindow.id = windowId;
         BrowserOp.updateWindowBadge(windowId);
@@ -50,7 +58,7 @@ export async function init() {
     }
 }
 
-// Validate and then assign givenName for target window.
+// Validate and then store givenName for target window.
 // Automatically sets displayName.
 // Returns 0 if successful, otherwise returns output of isInvalidName().
 export function setName(windowId, name = '') {
@@ -60,6 +68,7 @@ export function setName(windowId, name = '') {
         metaWindow.givenName = name;
         metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
         BrowserOp.menu.rename(windowId);
+        browser.sessions.setWindowValue(windowId, 'givenName', name);
     }
     return error;
 }
