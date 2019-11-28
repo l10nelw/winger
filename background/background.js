@@ -11,8 +11,7 @@ import * as Metadata from './metadata.js';
 import * as BrowserOp from './browser.js';
 Object.assign(window, { Metadata, BrowserOp });
 
-Metadata.init();
-
+init();
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onRemoved.addListener(onWindowRemoved);
 browser.windows.onFocusChanged.addListener(onWindowFocused);
@@ -20,11 +19,17 @@ browser.tabs.onCreated.addListener(onTabCreated);
 browser.tabs.onRemoved.addListener(onTabRemoved);
 browser.tabs.onDetached.addListener(onTabDetached);
 browser.tabs.onAttached.addListener(onTabAttached);
-
 browser.runtime.onMessage.addListener(onRequest);
-
 browser.menus.onClicked.addListener(onMenuClicked);
 
+
+async function init() {
+    const allWindows = await browser.windows.getAll({ populate: true });
+    for (const windowObject of allWindows) {
+        await onWindowCreated(windowObject);
+        if (windowObject.focused) Metadata.focusedWindow.id = windowObject.id;
+    }
+}
 
 async function onWindowCreated(windowObject) {
     await Metadata.add(windowObject);
@@ -73,7 +78,6 @@ function onTabAttached(tabId, info) {
     BrowserOp.updateWindowBadge(windowId);
 }
 
-
 async function onMenuClicked(info, tabObject) {
     // If multiple tabs selected: Send selected tabs, active tab and target tab. Else send target tab.
     let tabObjects = await BrowserOp.getSelectedTabs();
@@ -81,7 +85,6 @@ async function onMenuClicked(info, tabObject) {
     const windowId = parseInt(info.menuItemId);
     BrowserOp.goalAction(windowId, info.modifiers, true, tabObjects);
 }
-
 
 function onRequest(request) {
     if (request.popup) {

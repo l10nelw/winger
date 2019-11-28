@@ -47,17 +47,6 @@ export function has(windowId) {
     return windowId in windows;
 }
 
-export async function init() {
-    const allWindows = await browser.windows.getAll({ populate: true });
-    for (const windowObject of allWindows) {
-        await add(windowObject);
-        const windowId = windowObject.id;
-        if (windowObject.focused) focusedWindow.id = windowId;
-        BrowserOp.updateWindowBadge(windowId);
-        BrowserOp.menu.create(windowId);
-    }
-}
-
 // Validate and then store givenName for target window.
 // Automatically sets displayName.
 // Returns 0 if successful, otherwise returns output of isInvalidName().
