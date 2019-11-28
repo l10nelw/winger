@@ -46,10 +46,10 @@ function focusWindow(windowId) {
 }
 
 export function updateWindowBadge(windowId) {
-    const data = Metadata.windows[windowId];
-    browser.browserAction.setBadgeText({ windowId, text: `${data.tabCount}` });
-    browser.browserAction.setBadgeTextColor({ windowId, color: data.textColor });
-    browser.browserAction.setBadgeBackgroundColor({ windowId, color: data.backColor });
+    const metaWindow = Metadata.windows[windowId];
+    browser.browserAction.setBadgeText({ windowId, text: `${metaWindow.tabCount}` });
+    browser.browserAction.setBadgeTextColor({ windowId, color: metaWindow.textColor });
+    browser.browserAction.setBadgeBackgroundColor({ windowId, color: metaWindow.backColor });
 }
 
 export const menu = {
