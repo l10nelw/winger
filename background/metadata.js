@@ -50,10 +50,6 @@ export async function init() {
     }
 }
 
-export function getName(windowId) {
-    return windows[windowId].displayName;
-}
-
 // Validate and then assign givenName for target window.
 // Automatically sets displayName.
 // Returns 0 if successful, otherwise returns output of isInvalidName().
