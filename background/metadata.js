@@ -47,7 +47,7 @@ export function has(windowId) {
     return windowId in windows;
 }
 
-// Validate and then store givenName for target window.
+// Validate and store givenName for target window.
 // Automatically sets displayName.
 // Returns 0 if successful, otherwise returns output of isInvalidName().
 export function setName(windowId, name = '') {
@@ -56,8 +56,9 @@ export function setName(windowId, name = '') {
     if (!error) {
         metaWindow.givenName = name;
         metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
-        BrowserOp.menu.rename(windowId);
         browser.sessions.setWindowValue(windowId, 'givenName', name);
+        BrowserOp.updateWindowTitle(windowId);
+        BrowserOp.menu.rename(windowId);
     }
     return error;
 }

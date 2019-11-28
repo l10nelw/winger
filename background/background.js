@@ -35,6 +35,7 @@ async function onWindowCreated(windowObject) {
     await Metadata.add(windowObject);
     const windowId = windowObject.id;
     BrowserOp.updateWindowBadge(windowId);
+    BrowserOp.updateWindowTitle(windowId);
     BrowserOp.menu.create(windowId);
 }
 

@@ -52,6 +52,10 @@ export function updateWindowBadge(windowId) {
     browser.browserAction.setBadgeBackgroundColor({ windowId, color: metaWindow.backColor });
 }
 
+export function updateWindowTitle(windowId) {
+    browser.windows.update(windowId, { titlePreface: `${Metadata.windows[windowId].displayName} - ` });
+}
+
 export const menu = {
     create: windowId => browser.menus.create({
         id: `${windowId}`,
