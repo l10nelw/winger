@@ -20,8 +20,7 @@ browser.tabs.onRemoved.addListener(onTabRemoved);
 browser.tabs.onDetached.addListener(onTabDetached);
 browser.tabs.onAttached.addListener(onTabAttached);
 browser.runtime.onMessage.addListener(onRequest);
-browser.menus.onClicked.addListener(onMenuClicked);
-
+browser.menus.onClicked.addListener(BrowserOp.menu.onClick);
 
 async function init() {
     const allWindows = await browser.windows.getAll({ populate: true });
@@ -77,14 +76,6 @@ function onTabAttached(tabId, info) {
     if (!Metadata.has(windowId)) return;
     Metadata.windows[windowId].tabCount++;
     BrowserOp.badge.update(windowId);
-}
-
-async function onMenuClicked(info, tabObject) {
-    // If multiple tabs selected: Send selected tabs, active tab and target tab. Else send target tab.
-    let tabObjects = await BrowserOp.getSelectedTabs();
-    tabObjects.push(tabObject);
-    const windowId = parseInt(info.menuItemId);
-    BrowserOp.goalAction(windowId, info.modifiers, true, tabObjects);
 }
 
 function onRequest(request) {

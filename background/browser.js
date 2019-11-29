@@ -37,7 +37,7 @@ export async function sendTabs(windowId, tabObjects, stayActive, staySelected) {
     }
 }
 
-export async function getSelectedTabs() {
+async function getSelectedTabs() {
     return await browser.tabs.query({ currentWindow: true, highlighted: true });
 }
 
@@ -70,6 +70,12 @@ export const menu = {
     hide: windowId => browser.menus.update(`${windowId}`, { visible: false }),
     show: windowId => browser.menus.update(`${windowId}`, { visible: true }),
     update: windowId => browser.menus.update(`${windowId}`, { title: menuTitle(windowId) }),
+    onClick: async (info, tabObject) => {
+        // If multiple tabs selected: Send selected tabs, active tab and target tab. Else send target tab.
+        let tabObjects = await getSelectedTabs();
+        tabObjects.push(tabObject);
+        goalAction(parseInt(info.menuItemId), info.modifiers, true, tabObjects);
+    }
 };
 
 function windowTitle(windowId) {
