@@ -43,10 +43,6 @@ export function remove(windowId) {
     delete windows[windowId];
 }
 
-export function has(windowId) {
-    return windowId in windows;
-}
-
 // Validate and store givenName for target window.
 // Automatically sets displayName.
 // Returns 0 if successful, otherwise returns output of isInvalidName().
