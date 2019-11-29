@@ -8,13 +8,8 @@ let lastWindowNumber = 0;
 export async function add(windowObject) {
     const windowId = windowObject.id;
     const tabCount = windowObject.tabs ? windowObject.tabs.length : (await browser.tabs.query({ windowId })).length;
+    const defaultName = createDefaultName(windowId);
     const now = Date.now();
-
-    // Generate unique defaultName
-    let defaultName;
-    do {
-        defaultName = `Window ${++lastWindowNumber} / id ${windowId}`;
-    } while (isInvalidName(windowId, defaultName));
 
     // Fetch stored data
     const [
@@ -22,8 +17,7 @@ export async function add(windowObject) {
         textColor = '#fff',
         backColor = '#00f',
     ] = await Promise.all(
-        ['givenName', 'textColor', 'backColor']
-        .map(key => browser.sessions.getWindowValue(windowId, key))
+        ['givenName', 'textColor', 'backColor'].map(key => browser.sessions.getWindowValue(windowId, key))
     );
 
     windows[windowId] = {
@@ -39,6 +33,14 @@ export async function add(windowObject) {
     };
 }
 
+function createDefaultName(windowId) {
+    let name;
+    do {
+        name = `Window ${++lastWindowNumber}`;
+    } while (nameExists(windowId, name));
+    return name;
+}
+
 export function remove(windowId) {
     delete windows[windowId];
 }
@@ -49,14 +51,13 @@ export function remove(windowId) {
 export function setName(windowId, name = '') {
     const metaWindow = windows[windowId];
     const error = isInvalidName(windowId, name);
-    if (!error) {
-        metaWindow.givenName = name;
-        metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
-        browser.sessions.setWindowValue(windowId, 'givenName', name);
-        BrowserOp.title.update(windowId);
-        BrowserOp.menu.update(windowId);
-    }
-    return error;
+    if (error) return error;
+    metaWindow.givenName = name;
+    metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
+    browser.sessions.setWindowValue(windowId, 'givenName', name);
+    BrowserOp.title.update(windowId);
+    BrowserOp.menu.update(windowId);
+    return 0;
 }
 
 // Validate name for target window.
@@ -68,8 +69,8 @@ function isInvalidName(windowId, name) {
     return nameExists(windowId, name);
 }
 
-// Check if name exists in other windows.
-// Note if name is same as target window's givenName or defaultName, there is no conflict.
+// Check if name conflicts with other windows.
+// Name that is identical to target window's givenName or defaultName: not considered a conflict.
 // Returns id of conflicting window, otherwise returns 0.
 function nameExists(windowId, name) {
     for (const id in windows) {
