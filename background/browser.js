@@ -60,6 +60,10 @@ export const title = {
     },
 };
 
+function windowTitle(windowId) {
+    return `${Metadata.windows[windowId].displayName} - `;
+}
+
 export const menu = {
     create: windowId => browser.menus.create({
         id: `${windowId}`,
@@ -77,10 +81,6 @@ export const menu = {
         goalAction(parseInt(info.menuItemId), info.modifiers, true, tabObjects);
     }
 };
-
-function windowTitle(windowId) {
-    return `${Metadata.windows[windowId].displayName} - `;
-}
 
 function menuTitle(windowId) {
     return `Send tab to ${Metadata.windows[windowId].displayName}`;
