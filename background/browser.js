@@ -45,16 +45,20 @@ function focusWindow(windowId) {
     browser.windows.update(windowId, { focused: true });
 }
 
-export function updateWindowBadge(windowId) {
-    const metaWindow = Metadata.windows[windowId];
-    browser.browserAction.setBadgeText({ windowId, text: `${metaWindow.tabCount}` });
-    browser.browserAction.setBadgeTextColor({ windowId, color: metaWindow.textColor });
-    browser.browserAction.setBadgeBackgroundColor({ windowId, color: metaWindow.backColor });
-}
+export const badge = {
+    update: windowId => {
+        const metaWindow = Metadata.windows[windowId];
+        browser.browserAction.setBadgeText({ windowId, text: `${metaWindow.tabCount}` });
+        browser.browserAction.setBadgeTextColor({ windowId, color: metaWindow.textColor });
+        browser.browserAction.setBadgeBackgroundColor({ windowId, color: metaWindow.backColor });
+    },
+};
 
-export function updateWindowTitle(windowId) {
-    browser.windows.update(windowId, { titlePreface: `${Metadata.windows[windowId].displayName} - ` });
-}
+export const title = {
+    update: windowId => {
+        browser.windows.update(windowId, { titlePreface: windowTitle(windowId) });
+    },
+};
 
 export const menu = {
     create: windowId => browser.menus.create({
@@ -65,7 +69,11 @@ export const menu = {
     remove: windowId => browser.menus.remove(`${windowId}`),
     hide: windowId => browser.menus.update(`${windowId}`, { visible: false }),
     show: windowId => browser.menus.update(`${windowId}`, { visible: true }),
-    rename: windowId => browser.menus.update(`${windowId}`, { title: menuTitle(windowId) }),
+    update: windowId => browser.menus.update(`${windowId}`, { title: menuTitle(windowId) }),
+};
+
+function windowTitle(windowId) {
+    return `${Metadata.windows[windowId].displayName} - `;
 }
 
 function menuTitle(windowId) {

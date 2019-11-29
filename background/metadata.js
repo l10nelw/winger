@@ -57,8 +57,8 @@ export function setName(windowId, name = '') {
         metaWindow.givenName = name;
         metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
         browser.sessions.setWindowValue(windowId, 'givenName', name);
-        BrowserOp.updateWindowTitle(windowId);
-        BrowserOp.menu.rename(windowId);
+        BrowserOp.title.update(windowId);
+        BrowserOp.menu.update(windowId);
     }
     return error;
 }

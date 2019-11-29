@@ -34,8 +34,8 @@ async function init() {
 async function onWindowCreated(windowObject) {
     await Metadata.add(windowObject);
     const windowId = windowObject.id;
-    BrowserOp.updateWindowBadge(windowId);
-    BrowserOp.updateWindowTitle(windowId);
+    BrowserOp.badge.update(windowId);
+    BrowserOp.title.update(windowId);
     BrowserOp.menu.create(windowId);
 }
 
@@ -56,27 +56,27 @@ function onTabCreated(tabObject) {
     const windowId = tabObject.windowId;
     if (!Metadata.has(windowId)) return;
     Metadata.windows[windowId].tabCount++;
-    BrowserOp.updateWindowBadge(windowId);
+    BrowserOp.badge.update(windowId);
 }
 
 function onTabRemoved(tabId, info) {
     if (info.isWindowClosing) return;
     const windowId = info.windowId;
     Metadata.windows[windowId].tabCount--;
-    BrowserOp.updateWindowBadge(windowId);
+    BrowserOp.badge.update(windowId);
 }
 
 function onTabDetached(tabId, info) {
     const windowId = info.oldWindowId;
     Metadata.windows[windowId].tabCount--;
-    BrowserOp.updateWindowBadge(windowId);
+    BrowserOp.badge.update(windowId);
 }
 
 function onTabAttached(tabId, info) {
     const windowId = info.newWindowId;
     if (!Metadata.has(windowId)) return;
     Metadata.windows[windowId].tabCount++;
-    BrowserOp.updateWindowBadge(windowId);
+    BrowserOp.badge.update(windowId);
 }
 
 async function onMenuClicked(info, tabObject) {
