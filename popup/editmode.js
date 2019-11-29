@@ -7,8 +7,11 @@ import * as Popup from './popup.js';
 import * as Omnibar from './omnibar.js';
 
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
-let $rows, last_index; // Constants for shiftActiveRow(), set in activatePopup()
+
+const omnibarText = `Edit Mode - Up / Down / Enter (done) / Esc (cancel)`;
 const $omnibar = Omnibar.$omnibar;
+
+let $rows, last_index; // Constants for shiftActiveRow(), set in activatePopup()
 
 const keyResponse = {
     async ArrowDown($input) {
@@ -41,6 +44,25 @@ function deactivate() {
     deactivatePopup();
 }
 
+function activatePopup() {
+    $omnibar.disabled = true;
+    $omnibar.value = omnibarText;
+    Omnibar.showAllRows();
+    document.addEventListener('keyup', onKeystroke);
+    document.addEventListener('focusout', onFocusOut);
+    $rows = Popup.$allWindowRows;
+    last_index = $rows.length - 1;
+}
+
+function deactivatePopup() {
+    $omnibar.disabled = false;
+    $omnibar.value = '';
+    $omnibar.focus();
+    document.removeEventListener('keyup', onKeystroke);
+    document.removeEventListener('focusout', onFocusOut);
+    $active = null;
+}
+
 function activateRow($row) {
     $active = $row;
     const $input = $row.$input;
@@ -65,25 +87,6 @@ function shiftActiveRow(shift_by) {
         new_index = 0;
     }
     activate($rows[new_index]);
-}
-
-function activatePopup() {
-    $omnibar.disabled = true;
-    $omnibar.value = `Edit mode: Enter to save, Esc to cancel`;
-    Omnibar.showAllRows();
-    document.addEventListener('keyup', onKeystroke);
-    document.addEventListener('focusout', onFocusOut);
-    $rows = Popup.$allWindowRows;
-    last_index = $rows.length - 1;
-}
-
-function deactivatePopup() {
-    $omnibar.disabled = false;
-    $omnibar.value = '';
-    $omnibar.focus();
-    document.removeEventListener('keyup', onKeystroke);
-    document.removeEventListener('focusout', onFocusOut);
-    $active = null;
 }
 
 async function onKeystroke(event) {
