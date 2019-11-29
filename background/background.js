@@ -86,7 +86,7 @@ function onRequest(request) {
     if (request.popup) {
         return Promise.resolve({
             metaWindows: Metadata.windows,
-            focusedWindowId: Metadata.focusedWindow.id,
+            currentWindowId: Metadata.focusedWindow.id,
             sortedIds: Metadata.sortedIds(),
         });
     }

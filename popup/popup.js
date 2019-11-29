@@ -10,12 +10,12 @@ $otherWindows.addEventListener('click', onClickRow);
 
 
 function init(response) {
-    const { metaWindows, focusedWindowId, sortedIds } = response;
+    const { metaWindows, currentWindowId, sortedIds } = response;
     for (const windowId of sortedIds) {
         const metaWindow = metaWindows[windowId];
         const $row = createRow(metaWindow);
         let $table = $otherWindows;
-        if (windowId == focusedWindowId) {
+        if (windowId == currentWindowId) {
             $row.querySelector('.sendTabBtn').remove();
             $table = $currentWindow;
         }
@@ -36,7 +36,6 @@ function createRow(metaWindow) {
     $input.placeholder = metaWindow.defaultName;
     $badge.textContent = metaWindow.tabCount;
 
-    // Add references to id and related elements
     $row._id = $input._id = metaWindow.id;
     $input.$row = $editBtn.$row = $row;
     $row.$input = $input;
