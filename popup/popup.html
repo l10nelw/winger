@@ -5,35 +5,26 @@
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
-    <table id="currentWindow">
-      <tr>
-        <td class="windowNameColumn">
-          <input class="windowNameInput current" readonly autocomplete="off">
-        </td>
-        <td class="tabCount">
-          <span class="badge"></span>
-        </td>
-        <td class="windowAction">
-          <button type="button" class="editBtn">✏️</button>
-        </td>
-      </tr>
-    </table>
+
+    <table id="currentWindow"></table>
     <input id="omnibar" type="text" autofocus>
-    <table id="windowList"></table>
+    <table id="otherWindows"></table>
+
     <template id="rowTemplate">
       <tr>
         <td class="sendTabBtn">></td>
         <td class="windowNameColumn">
-          <input class="windowNameInput other" readonly autocomplete="off">
+          <input class="windowNameInput" readonly autocomplete="off">
         </td>
         <td class="tabCount">
           <span class="badge"></span>
         </td>
-        <td class="windowAction">
+        <td class="windowBtns">
           <button type="button" class="editBtn">✏️</button>
         </td>
       </tr>
     </template>
+
     <script src="popup.js" type="module"></script>
   </body>
 </html>

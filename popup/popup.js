@@ -1,44 +1,48 @@
 import * as EditMode from './editmode.js';
 
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-const $windowList = document.getElementById('windowList');
-export const $currentWindowRow = document.querySelector('#currentWindow tr');
-export let $otherWindowRows, $allWindowRows;
+const $currentWindow = document.getElementById('currentWindow');
+const $otherWindows = document.getElementById('otherWindows');
+export let $currentWindowRow, $otherWindowRows, $allWindowRows;
 
 browser.runtime.sendMessage({ popup: true }).then(init);
-$windowList.addEventListener('click', onClickRow);
+$otherWindows.addEventListener('click', onClickRow);
 
 
 function init(response) {
     const { metaWindows, focusedWindowId, sortedIds } = response;
     for (const windowId of sortedIds) {
         const metaWindow = metaWindows[windowId];
-        windowId == focusedWindowId ? fillRow($currentWindowRow, metaWindow) : createRow(metaWindow);
+        const $row = createRow(metaWindow);
+        let $table = $otherWindows;
+        if (windowId == focusedWindowId) {
+            $row.querySelector('.sendTabBtn').remove();
+            $table = $currentWindow;
+        }
+        $table.appendChild($row);
     }
-    $otherWindowRows = [...$windowList.rows];
+    $currentWindowRow = $currentWindow.rows[0];
+    $otherWindowRows = [...$otherWindows.rows];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
 }
 
 function createRow(metaWindow) {
     const $row = document.importNode($rowTemplate, true);
-    fillRow($row, metaWindow);
-    $windowList.appendChild($row);
-}
-
-function fillRow($row, metaWindow) {
     const $input = $row.querySelector('input');
-    const $badge = $row.querySelector('.badge');
     const $editBtn = $row.querySelector('.editBtn');
+    const $badge = $row.querySelector('.badge');
 
     $input.value = metaWindow.givenName;
     $input.placeholder = metaWindow.defaultName;
     $badge.textContent = metaWindow.tabCount;
 
-    // Add references to id and related nodes
+    // Add references to id and related elements
     $row._id = $input._id = metaWindow.id;
     $input.$row = $editBtn.$row = $row;
     $row.$input = $input;
     $row.$editBtn = $editBtn;
+
+    return $row;
 }
 
 function onClickRow(event) {
