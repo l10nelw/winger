@@ -75,7 +75,7 @@ table {
 }
 
 .inputError {
-    border-color: #f00;
+    border-color: red;
 }
 
 .editBtn:before {
@@ -84,4 +84,23 @@ table {
 
 .editModeRow .editBtn:before {
     content: "✔️";
+}
+
+footer {
+    display: flex;
+}
+
+footer button {
+    flex: 1 1 auto;
+    border-radius: 0;
+}
+
+#help {
+    color: white;
+    background-color: #3a3;
+}
+
+#settings {
+    color: white;
+    background-color: #06f;
 }

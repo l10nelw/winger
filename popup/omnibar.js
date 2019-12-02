@@ -5,8 +5,7 @@ const $omnibar = document.getElementById('omnibar');
 const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
 const commands = {
     help() {
-        browser.tabs.create({ url: '/help/help.html' });
-        window.close();
+        Popup.help();
     },
     edit() {
         EditMode.activate();
