@@ -9,24 +9,14 @@ export async function add(windowObject) {
     const windowId = windowObject.id;
     const tabCount = windowObject.tabs ? windowObject.tabs.length : (await browser.tabs.query({ windowId })).length;
     const defaultName = createDefaultName(windowId);
+    const givenName = await browser.sessions.getWindowValue(windowId, 'givenName') || '';
     const now = Date.now();
-
-    // Fetch stored data
-    const [
-        givenName = '',
-        textColor = '#fff',
-        backColor = '#00f',
-    ] = await Promise.all(
-        ['givenName', 'textColor', 'backColor'].map(key => browser.sessions.getWindowValue(windowId, key))
-    );
 
     windows[windowId] = {
         id: windowId,
         displayName: givenName || defaultName,
         defaultName,
         givenName,
-        textColor,
-        backColor,
         tabCount,
         created: now,
         lastFocused: now,
