@@ -60,7 +60,7 @@ function isInvalidName(windowId, name) {
 }
 
 // Check if name conflicts with other windows.
-// Name that is identical to target window's givenName or defaultName: not considered a conflict.
+// Name that is identical to target window's givenName or defaultName: not considered conflict.
 // Returns id of conflicting window, otherwise returns 0.
 function nameExists(windowId, name) {
     for (const id in windows) {
