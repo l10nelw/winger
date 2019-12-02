@@ -11,10 +11,6 @@ const commands = {
     edit() {
         EditMode.activate();
     },
-    sendtab() { tabAction('sendTabs') },
-    sendtabs() { tabAction('sendTabs') },
-    bringtab() { tabAction('bringTabs') },
-    bringtabs() { tabAction('bringTabs') },
 };
 
 $omnibar.value = '';
@@ -75,12 +71,4 @@ export function showAllRows() {
     for (const $row of Popup.$otherWindowRows) {
         $row.hidden = false;
     }
-}
-
-function tabAction(prop) {
-    browser.runtime.sendMessage({
-        module: 'BrowserOp',
-        prop,
-        args: [Popup.$otherWindowRows[0]._id],
-    });
 }

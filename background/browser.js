@@ -15,12 +15,12 @@ export function goalAction(windowId, modifiers, doSendTabs, tabObjects) {
     }
 }
 
-export function bringTabs(windowId, tabObjects) {
+function bringTabs(windowId, tabObjects) {
     focusWindow(windowId);
     sendTabs(windowId, tabObjects, true, true);
 }
 
-export async function sendTabs(windowId, tabObjects, stayActive, staySelected) {
+async function sendTabs(windowId, tabObjects, stayActive, staySelected) {
     if (!tabObjects || !tabObjects.length) {
         tabObjects = await getSelectedTabs();
     }
