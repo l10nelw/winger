@@ -5,21 +5,21 @@
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
-
+    <input type="checkbox" id="editMode" hidden>
     <table id="currentWindow"></table>
     <input id="omnibar" type="text" autofocus>
     <table id="otherWindows"></table>
 
     <template id="rowTemplate">
-      <tr>
-        <td class="sendTabBtn">></td>
-        <td class="nameColumn">
+      <tr class="other">
+        <td class="tabAction">
+          <button type="button" class="sendTabBtn">></button>
+        </td>
+        <td class="mainColumn">
           <input class="nameInput" readonly autocomplete="off">
         </td>
-        <td class="tabCount">
-          <span class="badge"></span>
-        </td>
-        <td class="windowBtns">
+        <td class="tabCount"></td>
+        <td class="windowAction">
           <button type="button" class="editBtn"></button>
         </td>
       </tr>

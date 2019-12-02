@@ -1,27 +1,81 @@
+body {
+    width: 22em;
+    background-color: #eee;
+}
 
-.sendTabBtn {
-    padding: .5em 1.25em;
+button, input {
+    height: 2.5em;
+}
+
+input:disabled::placeholder,
+input:-moz-read-only::placeholder {
+    opacity: 1;
+}
+
+button {
+    width: 3em;
+    background-color: #ddd;
+    border-color: transparent;
+    border-radius: 4px;
+    text-align: center;
+}
+
+button:hover,
+button:active {
     background-color: #ccc;
 }
 
-.tabCount {
-    padding: .05em;
-    text-align: end;
+table {
+    border-collapse: collapse;
 }
 
-.badge {
-    background-color: #00f;
-    color: #fff;
-    padding: .2em .5em;
-    border-radius: 2px;
+.mainColumn {
+    width: 100%;
+}
+
+.nameInput {
+    padding: 0 .5em;
+}
+
+.nameInput:-moz-read-only {
+    background-color: transparent;
+    border-color: transparent;
+    cursor: default;
+}
+
+.tabCount {
+    padding: 0 1em;
+    color: #666;
+    text-align: end;
+    font-size: small;
+}
+
+.current .nameInput,
+.current .nameInput::placeholder {
+    width: 100%;
+    font-weight: bold;
+}
+
+#editMode:checked ~ table .sendTabBtn {
+    background-color: transparent;
+}
+
+#editMode:not(:checked) ~ table > .other:hover {
+    background-color: #e6e6e6;
+}
+
+.other > .mainColumn,
+.other > .tabCount,
+#editMode:checked ~ table > .other > .tabAction {
+    border-bottom: 1px solid #ccc;
+}
+
+.other .nameInput {
+    width: 12.9em;
 }
 
 .inputError {
-    border-color: red;
-}
-
-.editMode {
-
+    border-color: #f00;
 }
 
 .editBtn:before {

@@ -16,6 +16,7 @@ function init(response) {
         const $row = createRow(metaWindow);
         let $table = $otherWindows;
         if (windowId == currentWindowId) {
+            $row.classList.replace('other', 'current');
             $row.querySelector('.sendTabBtn').remove();
             $table = $currentWindow;
         }
@@ -30,11 +31,11 @@ function createRow(metaWindow) {
     const $row = document.importNode($rowTemplate, true);
     const $input = $row.querySelector('input');
     const $editBtn = $row.querySelector('.editBtn');
-    const $badge = $row.querySelector('.badge');
+    const $tabCount = $row.querySelector('.tabCount');
 
     $input.value = metaWindow.givenName;
     $input.placeholder = metaWindow.defaultName;
-    $badge.textContent = metaWindow.tabCount;
+    $tabCount.textContent = metaWindow.tabCount;
 
     $row._id = $input._id = metaWindow.id;
     $input.$row = $editBtn.$row = $row;
@@ -53,7 +54,7 @@ function onClick(event) {
     } else if ($activeRow) {
         $activeRow.$input.focus();
     } else {
-        const $row = $target.closest('tr');
+        const $row = $target.closest('.other');
         if ($row) goalAction(event, $row._id, hasClass($target, 'sendTabBtn'));
     }
 }
