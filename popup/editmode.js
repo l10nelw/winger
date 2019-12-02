@@ -1,111 +1,125 @@
 /*
-Edit Mode is activated on 2 levels, popup (general) and row (specific).
-Popup activation governs state that is sustained while different rows change active status.
+Edit Mode is activated on two levels, general and row (specific).
+General activation governs state that is sustained even while different rows change active status.
 */
 
 import * as Popup from './popup.js';
 import * as Omnibar from './omnibar.js';
 
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
+let $activeInput;
 
-const omnibarText = `Edit Mode - Up / Down / Enter (done) / Esc (cancel)`;
 const $omnibar = Omnibar.$omnibar;
+const omnibarText = `Edit Mode - Up/Down/Enter to save, Esc to cancel`;
 
-let $rows, last_index; // Constants for shiftActiveRow(), set in activatePopup()
-
-const keyResponse = {
-    async ArrowDown($input) {
-        const error = await saveName($input);
-        if (!error) shiftActiveRow(1);
-    },
-    async ArrowUp($input) {
-        const error = await saveName($input);
-        if (!error) shiftActiveRow(-1);
-    },
-    async Enter($input) {
-        const error = await saveName($input);
-        if (!error) deactivate();
-    },
-    // Capturing Tab does not provide the correct target; instead the focusout handler will use this:
-    async _tab($input) {
-        const error = await saveName($input);
-        if (error) $input.select();
-    },
-};
+let $rows, lastIndex; // 'Constants' for row.shiftActive(), set in general.activate()
 
 export function activate($row = Popup.$currentWindowRow) {
-    // If popup already activated, just switch active rows, else activate popup and this row
-    $active ? deactivateActiveRow() : activatePopup();
-    activateRow($row);
+    $active ? row.deactivate() : general.activate();
+    row.activate($row);
 }
 
-function deactivate() {
-    deactivateActiveRow();
-    deactivatePopup();
+export async function done(saveName = true) {
+    const error = saveName ? await trySaveName($activeInput) : 0;
+    if (error) return;
+    row.deactivate();
+    general.deactivate();
 }
 
-function activatePopup() {
-    $omnibar.disabled = true;
-    $omnibar.value = omnibarText;
-    Omnibar.showAllRows();
-    document.addEventListener('keyup', onKeystroke);
-    document.addEventListener('focusout', onFocusOut);
-    $rows = Popup.$allWindowRows;
-    last_index = $rows.length - 1;
-}
+const general = {
 
-function deactivatePopup() {
-    $omnibar.disabled = false;
-    $omnibar.value = '';
-    $omnibar.focus();
-    document.removeEventListener('keyup', onKeystroke);
-    document.removeEventListener('focusout', onFocusOut);
-    $active = null;
-}
+    toggle(yes) {
+        const evLi = yes ? 'addEventListener' : 'removeEventListener';
+        document[evLi]('keyup', onKeyup);
+        document[evLi]('focusout', onFocusout);
+        document.body.classList.toggle('editMode', yes);
+        $omnibar.disabled = yes;
+        $omnibar.value = yes ? omnibarText : '';
+    },
 
-function activateRow($row) {
-    $active = $row;
-    const $input = $row.$input;
-    $input._original = $input.value;
-    $input.readOnly = false;
-    $input.select();
-    $row.classList.add('editMode');
-}
+    activate() {
+        general.toggle(true);
+        Omnibar.showAllRows();
+        $rows = Popup.$allWindowRows;
+        lastIndex = $rows.length - 1;
+    },
 
-function deactivateActiveRow() {
-    $active.$input.readOnly = true;
-    $active.classList.remove('editMode');
-}
+    deactivate() {
+        general.toggle(false);
+        $omnibar.focus();
+        $active = null;
+    },
 
-function shiftActiveRow(shift_by) {
-    const this_index = $rows.indexOf($active);
-    if (this_index === -1) return;
-    let new_index = this_index + shift_by;
-    if (new_index < 0) {
-        new_index = last_index;
-    } else if (new_index > last_index) {
-        new_index = 0;
-    }
-    activate($rows[new_index]);
-}
+};
 
-async function onKeystroke(event) {
-    const $target = event.target;
+const row = {
+
+    toggle(yes) {
+        $active.classList.toggle('editModeRow', yes);
+        $activeInput.readOnly = !yes;
+    },
+
+    activate($row) {
+        $active = $row;
+        $activeInput = $active.$input;
+        $activeInput._original = $activeInput.value;
+        $activeInput.select();
+        row.toggle(true);
+    },
+
+    deactivate() {
+        row.toggle(false);
+    },
+
+    shiftActive(down) {
+        const thisIndex = $rows.indexOf($active);
+        if (thisIndex == -1) return;
+        let newIndex = thisIndex + down;
+        if (newIndex < 0) {
+            newIndex = lastIndex;
+        } else if (newIndex > lastIndex) {
+            newIndex = 0;
+        }
+        activate($rows[newIndex]);
+    },
+
+};
+
+const keyResponse = {
+
+    async ArrowDown() {
+        const error = await trySaveName($activeInput);
+        if (!error) row.shiftActive(1);
+    },
+
+    async ArrowUp() {
+        const error = await trySaveName($activeInput);
+        if (!error) row.shiftActive(-1);
+    },
+
+    async Enter() {
+        await done();
+    },
+
+};
+
+async function onKeyup(event) {
+    if (event.target != $activeInput) return;
     const key = event.key;
-    if (!isNameInput($target)) return;
     if (key in keyResponse) {
-        await keyResponse[key]($target);
-    } else if ($target.value != $target._invalid) {
-        toggleError($target, false);
+        await keyResponse[key]();
+    } else if ($activeInput.value != $activeInput._invalid) {
+        toggleError($activeInput, false);
     }
 }
 
-async function onFocusOut(event) {
-    const $target = event.target;
-    if (isNameInput($target)) keyResponse._tab($target);
+async function onFocusout(event) {
+    if (event.target != $activeInput) return;
+    const error = await trySaveName($activeInput);
+    if (error) $activeInput.select();
 }
 
-async function saveName($input) {
+async function trySaveName($input) {
     const name = $input.value = $input.value.trim();
     let error = 0;
     if (name !== $input._original) {
@@ -117,10 +131,6 @@ async function saveName($input) {
     }
     toggleError($input, error);
     return error;
-}
-
-function isNameInput($el) {
-    return $el.classList.contains('windowNameInput');
 }
 
 function toggleError($input, error) {

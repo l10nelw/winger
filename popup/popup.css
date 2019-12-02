@@ -4,10 +4,6 @@
     background-color: #ccc;
 }
 
-.windowName {
-    width: 100%;
-}
-
 .tabCount {
     padding: .05em;
     text-align: end;
@@ -22,4 +18,16 @@
 
 .inputError {
     border-color: red;
+}
+
+.editMode {
+
+}
+
+.editBtn:before {
+    content: "✏️";
+}
+
+.editModeRow .editBtn:before {
+    content: "✔️";
 }

@@ -1,15 +1,15 @@
 import * as EditMode from './editmode.js';
 
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-const $currentWindow = document.getElementById('currentWindow');
-const $otherWindows = document.getElementById('otherWindows');
 export let $currentWindowRow, $otherWindowRows, $allWindowRows;
 
 browser.runtime.sendMessage({ popup: true }).then(init);
-$otherWindows.addEventListener('click', onClickRow);
+document.addEventListener('click', onClick);
 
 
 function init(response) {
+    const $currentWindow = document.getElementById('currentWindow');
+    const $otherWindows = document.getElementById('otherWindows');
     const { metaWindows, currentWindowId, sortedIds } = response;
     for (const windowId of sortedIds) {
         const metaWindow = metaWindows[windowId];
@@ -44,12 +44,17 @@ function createRow(metaWindow) {
     return $row;
 }
 
-function onClickRow(event) {
-    if (EditMode.$active) return;
+function onClick(event) {
     const $target = event.target;
-    const $row = $target.closest('tr');
-    if ($row) {
-        goalAction(event, $row._id, !!$target.closest('.sendTabBtn'));
+    const $activeRow = EditMode.$active;
+    if (hasClass($target, 'editBtn')) {
+        const $row = $target.$row;
+        $row == $activeRow ? EditMode.done() : EditMode.activate($row);
+    } else if ($activeRow) {
+        $activeRow.$input.focus();
+    } else {
+        const $row = $target.closest('tr');
+        if ($row) goalAction(event, $row._id, hasClass($target, 'sendTabBtn'));
     }
 }
 
@@ -71,4 +76,8 @@ function getModifiers(event) {
         }
     }
     return modifiers;
+}
+
+function hasClass($el, cls) {
+    return $el.classList.contains(cls);
 }
