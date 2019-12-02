@@ -1,7 +1,7 @@
 import * as Popup from './popup.js';
 import * as EditMode from './editmode.js';
 
-export const $omnibar = document.getElementById('omnibar');
+const $omnibar = document.getElementById('omnibar');
 const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
 const commands = {
     help() {
@@ -13,7 +13,6 @@ const commands = {
     },
 };
 
-$omnibar.value = '';
 $omnibar.addEventListener('keyup', onInput);
 
 
@@ -71,4 +70,16 @@ export function showAllRows() {
     for (const $row of Popup.$otherWindowRows) {
         $row.hidden = false;
     }
+}
+
+export function info(str = '') {
+    $omnibar.placeholder = str;
+}
+
+export function disable(yes) {
+    $omnibar.disabled = yes;
+}
+
+export function focus() {
+    $omnibar.focus();
 }

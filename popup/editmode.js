@@ -10,7 +10,6 @@ export let $active = null; // Currently activated row; indicates if popup is in 
 let $activeInput;
 let $rows, lastIndex; // 'Constants' for row.shiftActive(), set in general.activate()
 const $editMode = document.getElementById('editMode');
-const $omnibar = Omnibar.$omnibar;
 const omnibarText = `Up/Down/Enter to save, Esc to cancel`;
 
 export function activate($row = Popup.$currentWindowRow) {
@@ -32,8 +31,8 @@ const general = {
         document[evLi]('keyup', onKeyup);
         document[evLi]('focusout', onFocusout);
         $editMode.checked = yes;
-        $omnibar.disabled = yes;
-        $omnibar.placeholder = yes ? omnibarText : '';
+        Omnibar.disable(yes);
+        Omnibar.info(yes ? omnibarText : '');
     },
 
     activate() {
@@ -45,7 +44,7 @@ const general = {
 
     deactivate() {
         general.toggle(false);
-        $omnibar.focus();
+        Omnibar.focus();
         $active = null;
     },
 
