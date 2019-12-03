@@ -25,6 +25,12 @@ function init(response) {
     $currentWindowRow = $currentWindow.querySelector('li');
     $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
+    lockHeight($otherWindows);
+}
+
+function lockHeight($el) {
+    $el.style.height = ``;
+    $el.style.height = `${$el.offsetHeight}px`;
 }
 
 function createRow(metaWindow) {
