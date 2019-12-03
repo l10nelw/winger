@@ -22,8 +22,8 @@ function init(response) {
         }
         $table.appendChild($row);
     }
-    $currentWindowRow = $currentWindow.rows[0];
-    $otherWindowRows = [...$otherWindows.rows];
+    $currentWindowRow = $currentWindow.querySelector('li');
+    $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
 }
 
