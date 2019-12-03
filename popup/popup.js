@@ -17,7 +17,7 @@ function init(response) {
         let $table = $otherWindows;
         if (windowId == currentWindowId) {
             $row.classList.replace('other', 'current');
-            $row.querySelector('.sendTabBtn').remove();
+            $row.querySelector('.tabAction').remove();
             $table = $currentWindow;
         }
         $table.appendChild($row);
@@ -26,11 +26,6 @@ function init(response) {
     $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
     lockHeight($otherWindows);
-}
-
-function lockHeight($el) {
-    $el.style.height = ``;
-    $el.style.height = `${$el.offsetHeight}px`;
 }
 
 function createRow(metaWindow) {
@@ -67,11 +62,6 @@ function onClick(event) {
     }
 }
 
-export function help() {
-    browser.tabs.create({ url: '/help/help.html' });
-    window.close();
-}
-
 export function goalAction(event, windowId, doSendTabs) {
     browser.runtime.sendMessage({
         module: 'BrowserOp',
@@ -92,6 +82,16 @@ function getModifiers(event) {
     return modifiers;
 }
 
+export function help() {
+    browser.tabs.create({ url: '/help/help.html' });
+    window.close();
+}
+
 function hasClass($el, cls) {
     return $el.classList.contains(cls);
+}
+
+function lockHeight($el) {
+    $el.style.height = ``;
+    $el.style.height = `${$el.offsetHeight}px`;
 }
