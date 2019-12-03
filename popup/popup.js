@@ -14,13 +14,13 @@ function init(response) {
     for (const windowId of sortedIds) {
         const metaWindow = metaWindows[windowId];
         const $row = createRow(metaWindow);
-        let $table = $otherWindows;
+        let $list = $otherWindows;
         if (windowId == currentWindowId) {
             $row.classList.replace('other', 'current');
             $row.querySelector('.sendTabBtn').remove();
-            $table = $currentWindow;
+            $list = $currentWindow;
         }
-        $table.appendChild($row);
+        $list.appendChild($row);
     }
     $currentWindowRow = $currentWindow.querySelector('li');
     $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
