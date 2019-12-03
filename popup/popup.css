@@ -3,14 +3,82 @@ body {
     background-color: #eee;
 }
 
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+
+/* --- Row --- */
+
+li {
+    display: flex;
+    list-style: none;
+}
+
 button, input {
     height: 2.5em;
 }
+
+.nameColumn {
+    flex: 1 1 auto;
+}
+
+.tabCount {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    min-width: 3em;
+    padding: 0 .8em;
+    color: #666;
+    font-size: small;
+}
+
+#editMode:not(:checked) ~ ul > .other:hover {
+    background-color: #e6e6e6;
+}
+
+.other > .nameColumn,
+.other > .tabCount,
+#editMode:checked ~ ul > .other > .tabAction {
+    border-bottom: 1px solid #ccc;
+}
+
+
+/* --- Input field --- */
 
 input:disabled::placeholder,
 input:-moz-read-only::placeholder {
     opacity: 1;
 }
+
+.nameInput {
+    padding: 0 .5em;
+    min-width: 100%;
+}
+
+.nameInput:-moz-read-only {
+    background-color: transparent;
+    border-color: transparent;
+    cursor: default;
+}
+
+.current .nameInput,
+.current .nameInput::placeholder {
+    width: 100%;
+    font-weight: bold;
+}
+
+.other .nameInput {
+    width: 13em;
+}
+
+.inputError {
+    border-color: red;
+}
+
+
+/* --- Button --- */
 
 button {
     width: 3em;
@@ -25,57 +93,8 @@ button:active {
     background-color: #ccc;
 }
 
-table {
-    border-collapse: collapse;
-}
-
-.mainColumn {
-    width: 100%;
-}
-
-.nameInput {
-    padding: 0 .5em;
-}
-
-.nameInput:-moz-read-only {
+#editMode:checked ~ ul .sendTabBtn {
     background-color: transparent;
-    border-color: transparent;
-    cursor: default;
-}
-
-.tabCount {
-    padding: 0 1em;
-    color: #666;
-    text-align: end;
-    font-size: small;
-}
-
-.current .nameInput,
-.current .nameInput::placeholder {
-    width: 100%;
-    font-weight: bold;
-}
-
-#editMode:checked ~ table .sendTabBtn {
-    background-color: transparent;
-}
-
-#editMode:not(:checked) ~ table > .other:hover {
-    background-color: #e6e6e6;
-}
-
-.other > .mainColumn,
-.other > .tabCount,
-#editMode:checked ~ table > .other > .tabAction {
-    border-bottom: 1px solid #ccc;
-}
-
-.other .nameInput {
-    width: 12.9em;
-}
-
-.inputError {
-    border-color: red;
 }
 
 .editBtn:before {
@@ -85,6 +104,9 @@ table {
 .editModeRow .editBtn:before {
     content: "✔️";
 }
+
+
+/* --- Footer --- */
 
 footer {
     display: flex;
@@ -104,3 +126,9 @@ footer button {
     color: white;
     background-color: #06f;
 }
+
+
+/* --- Utilities --- */
+
+/* Must set explicitly because `display: x` overrides `hidden` behaviour */
+[hidden] { display: none; }

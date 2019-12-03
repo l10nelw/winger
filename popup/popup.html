@@ -6,27 +6,27 @@
   </head>
   <body>
     <input type="checkbox" id="editMode" hidden>
-    <table id="currentWindow"></table>
+    <ul id="currentWindow"></ul>
     <input id="omnibar" type="text" autofocus>
-    <table id="otherWindows"></table>
+    <ul id="otherWindows"></ul>
     <footer>
       <button type="button" id="help">Help</button>
       <button type="button" id="settings">Settings</button>
     </footer>
 
     <template id="rowTemplate">
-      <tr class="other">
-        <td class="tabAction">
+      <li class="other">
+        <div class="tabAction">
           <button type="button" class="sendTabBtn">></button>
-        </td>
-        <td class="mainColumn">
+        </div>
+        <div class="nameColumn">
           <input class="nameInput" readonly autocomplete="off">
-        </td>
-        <td class="tabCount"></td>
-        <td class="windowAction">
+        </div>
+        <div class="tabCount"></div>
+        <div class="windowAction">
           <button type="button" class="editBtn"></button>
-        </td>
-      </tr>
+        </div>
+      </li>
     </template>
 
     <script src="popup.js" type="module"></script>
