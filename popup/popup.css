@@ -125,3 +125,10 @@ footer button {
 #settings {
     color: white;
     background-color: #06f;
+}
+
+
+/* --- Utilities --- */
+
+/* Must set explicitly because `display: x` overrides `hidden` behaviour */
+[hidden] { display: none; }
