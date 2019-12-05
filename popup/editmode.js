@@ -12,12 +12,26 @@ let $rows, lastIndex; // 'Constants' for row.shiftActive(), set in general.activ
 const $editMode = document.getElementById('editMode');
 const omnibarText = `Up/Down/Enter to save, Esc to cancel`;
 
+
+export function handleClick($target) {
+    let handled = false;
+    if ($target.classList.contains('editBtn')) {
+        const $row = $target.$row;
+        $row != $active ? activate($row) : done();
+        handled = true;
+    } else if ($active) {
+        $active.$input.focus();
+        handled = true;
+    }
+    return handled;
+}
+
 export function activate($row = Popup.$currentWindowRow) {
     $active ? row.deactivate() : general.activate();
     row.activate($row);
 }
 
-export async function done(saveName = true) {
+async function done(saveName = true) {
     const error = saveName ? await trySaveName($activeInput) : 0;
     if (error) return;
     row.deactivate();
