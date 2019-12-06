@@ -16,10 +16,12 @@ const omnibarText = `Up/Down/Enter to save, Esc to cancel`;
 export function handleClick($target) {
     let handled = false;
     if ($target.classList.contains('editBtn')) {
+        // If target is edit button, toggle row's activation
         const $row = $target.$row;
         $row != $active ? activate($row) : done();
         handled = true;
     } else if ($active) {
+        // Otherwise when in Edit Mode, return focus to active row
         $active.$input.focus();
         handled = true;
     }
@@ -32,8 +34,10 @@ export function activate($row = Popup.$currentWindowRow) {
 }
 
 async function done(saveName = true) {
-    const error = saveName ? await trySaveName($activeInput) : 0;
-    if (error) return;
+    if (saveName) {
+        const error = await trySaveName($activeInput);
+        if (error) return;
+    }
     row.deactivate();
     general.deactivate();
 }
@@ -97,7 +101,7 @@ const row = {
 
 };
 
-const keyResponse = {
+const keyEffects = {
 
     async ArrowDown() {
         const error = await trySaveName($activeInput);
@@ -118,19 +122,22 @@ const keyResponse = {
 async function onKeyup(event) {
     if (event.target != $activeInput) return;
     const key = event.key;
-    if (key in keyResponse) {
-        await keyResponse[key]();
+    if (key in keyEffects) {
+        // If input receives a keystroke with an effect assigned, perform effect
+        await keyEffects[key]();
     } else if ($activeInput.value != $activeInput._invalid) {
+        // If input content is changed, remove any error indicator
         toggleError($activeInput, false);
     }
 }
 
-async function onFocusout(event) {
+function onFocusout(event) {
     if (event.target != $activeInput) return;
-    const error = await trySaveName($activeInput);
-    if (error) $activeInput.select();
+    trySaveName($activeInput);
 }
 
+// Trim content of input and try to save it. Return 0 on success, non-zero on failure.
+// Toggles error indicator accordingly.
 async function trySaveName($input) {
     const name = $input.value = $input.value.trim();
     let error = 0;
@@ -145,6 +152,7 @@ async function trySaveName($input) {
     return error;
 }
 
+// Toggle on effects: apply error indicator, remember invalid content, select input.
 function toggleError($input, error) {
     $input.classList.toggle('inputError', error);
     $input._invalid = error ? $input.value : undefined;
