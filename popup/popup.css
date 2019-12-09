@@ -1,5 +1,5 @@
 body {
-    width: 22em;
+    width: 22rem;
     background-color: #eee;
 }
 
@@ -9,7 +9,7 @@ ul {
 }
 
 #otherWindows {
-    max-height: 30em;
+    max-height: 30rem;
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -23,7 +23,7 @@ li {
 }
 
 button, input {
-    height: 2.5em;
+    height: 2.5rem;
 }
 
 .nameColumn {
@@ -34,8 +34,8 @@ button, input {
     display: flex;
     align-items: center;
     justify-content: end;
-    min-width: 3em;
-    padding: 0 .8em;
+    min-width: 3rem;
+    padding: 0 .8rem;
     color: #666;
     font-size: small;
 }
@@ -59,7 +59,7 @@ input:-moz-read-only::placeholder {
 }
 
 .nameInput {
-    padding: 0 .5em;
+    padding: 0 .5rem;
     min-width: 100%;
 }
 
@@ -76,7 +76,7 @@ input:-moz-read-only::placeholder {
 }
 
 .other .nameInput {
-    width: 13em;
+    width: 13rem;
 }
 
 .inputError {
@@ -87,7 +87,7 @@ input:-moz-read-only::placeholder {
 /* --- Button --- */
 
 button {
-    width: 3em;
+    width: 3rem;
     background-color: #ddd;
     border-color: transparent;
     border-radius: 4px;
