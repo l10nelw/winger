@@ -68,20 +68,28 @@ export const menu = {
     create: windowId => browser.menus.create({
         id: `${windowId}`,
         title: menuTitle(windowId),
-        contexts: ['tab'],
+        contexts: ['tab', 'link'],
     }),
     remove: windowId => browser.menus.remove(`${windowId}`),
     hide: windowId => browser.menus.update(`${windowId}`, { visible: false }),
     show: windowId => browser.menus.update(`${windowId}`, { visible: true }),
     update: windowId => browser.menus.update(`${windowId}`, { title: menuTitle(windowId) }),
     onClick: async (info, tabObject) => {
-        // If multiple tabs selected: Send selected tabs, active tab and target tab. Else send target tab.
-        let tabObjects = await getSelectedTabs();
-        tabObjects.push(tabObject);
-        goalAction(parseInt(info.menuItemId), info.modifiers, true, tabObjects);
+        const windowId = parseInt(info.menuItemId);
+        const url = info.linkUrl;
+        if (url) {
+            // Link context
+            browser.tabs.create({ windowId, url });
+            if (info.modifiers.includes(modifier.bringTab)) focusWindow(windowId);
+        } else {
+            // Tab context
+            // If multiple tabs selected: Send selected tabs, active tab and target tab. Else send target tab only.
+            let tabObjects = [tabObject, ...await getSelectedTabs()];
+            goalAction(windowId, info.modifiers, true, tabObjects);
+        }
     }
 };
 
 function menuTitle(windowId) {
-    return `Send tab to ${Metadata.windows[windowId].displayName}`;
+    return Metadata.windows[windowId].displayName;
 }
