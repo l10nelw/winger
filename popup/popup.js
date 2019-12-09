@@ -55,7 +55,11 @@ function onClick(event) {
     const $target = event.target;
     if ($target.id == 'help') {
         help();
-    } else if (EditMode.handleClick($target)) {
+    } else
+    if ($target.id == 'options') {
+        options();
+    } else
+    if (EditMode.handleClick($target)) {
         return;
     } else {
         const $row = $target.closest('.other');
@@ -65,6 +69,11 @@ function onClick(event) {
 
 export function help() {
     browser.tabs.create({ url: '/help/help.html' });
+    window.close();
+}
+
+export function options() {
+    browser.runtime.openOptionsPage();
     window.close();
 }
 

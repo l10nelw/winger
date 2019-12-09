@@ -7,6 +7,9 @@ const commands = {
     help() {
         Popup.help();
     },
+    options() {
+        Popup.options();
+    },
     edit() {
         EditMode.activate();
     },

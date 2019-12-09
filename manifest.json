@@ -8,13 +8,9 @@
   },
   "permissions": [
     "menus",
-    "sessions"
+    "sessions",
+    "storage"
   ],
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "winman@example.com"
-    }
-  },
   "background": {
     "page": "background/background.html"
   },
@@ -26,12 +22,21 @@
     "default_popup": "popup/popup.html",
     "browser_style": true
   },
+  "options_ui": {
+    "page": "options/options.html",
+    "browser_style": true
+  },
   "commands": {
     "_execute_browser_action": {
       "description": "Open the popup panel",
       "suggested_key": {
         "default": "Alt+W"
       }
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "winman@example.com"
     }
   }
 }
