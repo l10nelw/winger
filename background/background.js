@@ -25,17 +25,19 @@ browser.menus.onClicked.addListener(BrowserOp.menu.onClick);
 async function init() {
     const allWindows = await browser.windows.getAll({ populate: true });
     for (const windowObject of allWindows) {
-        await onWindowCreated(windowObject);
-        if (windowObject.focused) Metadata.focusedWindow.id = windowObject.id;
+        await onWindowCreated(windowObject, true);
     }
 }
 
-async function onWindowCreated(windowObject) {
+async function onWindowCreated(windowObject, isInit) {
     await Metadata.add(windowObject);
     const windowId = windowObject.id;
+    BrowserOp.menu.create(windowId);
     BrowserOp.badge.update(windowId);
     BrowserOp.title.update(windowId);
-    BrowserOp.menu.create(windowId);
+    // Handle focus now because onFocusChanged fired (after onCreated) while Metadata.add() is still being fulfilled.
+    if (isInit && !windowObject.focused) return; // Limit focus handling during init()
+    onWindowFocused(windowId);
 }
 
 function onWindowRemoved(windowId) {
@@ -46,9 +48,9 @@ function onWindowRemoved(windowId) {
 function onWindowFocused(windowId) {
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windows[windowId].lastFocused = Date.now();
-    BrowserOp.menu.hide(windowId);
     BrowserOp.menu.show(Metadata.focusedWindow.id);
     Metadata.focusedWindow.id = windowId;
+    BrowserOp.menu.hide(windowId);
 }
 
 function onTabCreated(tabObject) {
