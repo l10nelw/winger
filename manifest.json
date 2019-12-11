@@ -23,7 +23,7 @@
     "browser_style": true
   },
   "options_ui": {
-    "page": "options/options.html",
+    "page": "preferences/preferences.html",
     "browser_style": true
   },
   "commands": {
