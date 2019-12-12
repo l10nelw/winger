@@ -1,5 +1,5 @@
 import * as Metadata from './metadata.js';
-import * as BrowserOp from './browser.js';
+import * as WindowTab from './windowtab.js';
 
 export function create(windowId) {
     browser.menus.create({
@@ -31,12 +31,12 @@ export async function onClick(info, tabObject) {
     if (url) {
         // Link context
         browser.tabs.create({ windowId, url });
-        if (info.modifiers.includes(modifier.bringTab)) BrowserOp.focusWindow(windowId);
+        if (info.modifiers.includes(modifier.bringTab)) WindowTab.focusWindow(windowId);
     } else {
         // Tab context
         // If multiple tabs selected: Send selected tabs, active tab and target tab. Else send target tab only.
-        let tabObjects = [tabObject, ...await BrowserOp.getSelectedTabs()];
-        BrowserOp.goalAction(windowId, info.modifiers, true, tabObjects);
+        let tabObjects = [tabObject, ...await WindowTab.getSelectedTabs()];
+        WindowTab.goalAction(windowId, info.modifiers, true, tabObjects);
     }
 }
 

@@ -1,5 +1,3 @@
-import * as Metadata from './metadata.js';
-
 const modifier = {
     sendTab: 'Alt',
     bringTab: 'Ctrl',

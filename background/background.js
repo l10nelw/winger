@@ -8,11 +8,11 @@ Naming notes:
 */
 
 import * as Metadata from './metadata.js';
-import * as BrowserOp from './browser.js';
+import * as WindowTab from './windowtab.js';
 import * as Menu from './menu.js';
 import * as Title from './title.js';
 import * as Badge from './badge.js';
-Object.assign(window, { Metadata, BrowserOp });
+Object.assign(window, { Metadata, WindowTab });
 
 init();
 browser.windows.onCreated.addListener(onWindowCreated);
