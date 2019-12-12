@@ -44,12 +44,3 @@ export async function getSelectedTabs() {
 export function focusWindow(windowId) {
     browser.windows.update(windowId, { focused: true });
 }
-
-export const badge = {
-    update: windowId => {
-        const metaWindow = Metadata.windows[windowId];
-        browser.browserAction.setBadgeText({ windowId, text: `${metaWindow.tabCount}` });
-        browser.browserAction.setBadgeTextColor({ windowId, color: 'black' });
-        browser.browserAction.setBadgeBackgroundColor({ windowId, color: 'white' });
-    },
-};

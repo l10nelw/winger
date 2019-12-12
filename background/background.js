@@ -11,6 +11,7 @@ import * as Metadata from './metadata.js';
 import * as BrowserOp from './browser.js';
 import * as Menu from './menu.js';
 import * as Title from './title.js';
+import * as Badge from './badge.js';
 Object.assign(window, { Metadata, BrowserOp });
 
 init();
@@ -35,7 +36,7 @@ async function onWindowCreated(windowObject, isInit) {
     await Metadata.add(windowObject);
     const windowId = windowObject.id;
     Menu.create(windowId);
-    BrowserOp.badge.update(windowId);
+    Badge.update(windowId);
     Title.update(windowId);
     // Handle focus now because onFocusChanged fired (after onCreated) while Metadata.add() is still being fulfilled.
     if (isInit && !windowObject.focused) return; // Limit focus handling during init()
@@ -59,27 +60,27 @@ function onTabCreated(tabObject) {
     const windowId = tabObject.windowId;
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windows[windowId].tabCount++;
-    BrowserOp.badge.update(windowId);
+    Badge.update(windowId);
 }
 
 function onTabRemoved(tabId, info) {
     if (info.isWindowClosing) return;
     const windowId = info.windowId;
     Metadata.windows[windowId].tabCount--;
-    BrowserOp.badge.update(windowId);
+    Badge.update(windowId);
 }
 
 function onTabDetached(tabId, info) {
     const windowId = info.oldWindowId;
     Metadata.windows[windowId].tabCount--;
-    BrowserOp.badge.update(windowId);
+    Badge.update(windowId);
 }
 
 function onTabAttached(tabId, info) {
     const windowId = info.newWindowId;
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windows[windowId].tabCount++;
-    BrowserOp.badge.update(windowId);
+    Badge.update(windowId);
 }
 
 function isWindowBeingCreated(windowId) {
