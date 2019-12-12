@@ -84,11 +84,7 @@ export function options() {
 }
 
 export function goalAction(event, windowId, doSendTabs) {
-    browser.runtime.sendMessage({
-        module: 'WindowTab',
-        prop: 'goalAction',
-        args: [windowId, getModifiers(event), doSendTabs],
-    });
+    browser.runtime.sendMessage({ goalAction: [windowId, getModifiers(event), doSendTabs] });
     window.close();
 }
 

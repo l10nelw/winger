@@ -12,7 +12,6 @@ import * as WindowTab from './windowtab.js';
 import * as Menu from './menu.js';
 import * as Title from './title.js';
 import * as Badge from './badge.js';
-Object.assign(window, { Metadata, WindowTab });
 
 init();
 browser.windows.onCreated.addListener(onWindowCreated);
@@ -87,15 +86,25 @@ function isWindowBeingCreated(windowId) {
     return !(windowId in Metadata.windows);
 }
 
-function onRequest(request) {
+async function onRequest(request) {
     if (request.popup) {
-        return Promise.resolve({
+        return {
             metaWindows: Metadata.windows,
             currentWindowId: Metadata.focusedWindow.id,
             sortedIds: Metadata.sortedIds(),
-        });
+        };
     }
-    if (request.module) {
-        return Promise.resolve(window[request.module][request.prop](...request.args));
+    if (request.setName) {
+        const windowId = request.windowId;
+        const error = await Metadata.setName(windowId, request.name);
+        if (!error) {
+            Title.update(windowId);
+            Menu.update(windowId);
+        }
+        return error;
+    }
+    if (request.goalAction) {
+        WindowTab.goalAction(...request.goalAction);
+        return;
     }
 }
