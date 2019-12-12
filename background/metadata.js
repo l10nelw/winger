@@ -1,4 +1,5 @@
 import * as BrowserOp from './browser.js';
+import * as Menu from './menu.js';
 
 export let windows = {};
 export let focusedWindow = { id: null };
@@ -46,7 +47,7 @@ export function setName(windowId, name = '') {
     metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
     browser.sessions.setWindowValue(windowId, 'givenName', name);
     BrowserOp.title.update(windowId);
-    BrowserOp.menu.update(windowId);
+    Menu.update(windowId);
     return 0;
 }
 

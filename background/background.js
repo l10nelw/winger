@@ -9,6 +9,7 @@ Naming notes:
 
 import * as Metadata from './metadata.js';
 import * as BrowserOp from './browser.js';
+import * as Menu from './menu.js';
 Object.assign(window, { Metadata, BrowserOp });
 
 init();
@@ -20,7 +21,7 @@ browser.tabs.onRemoved.addListener(onTabRemoved);
 browser.tabs.onDetached.addListener(onTabDetached);
 browser.tabs.onAttached.addListener(onTabAttached);
 browser.runtime.onMessage.addListener(onRequest);
-browser.menus.onClicked.addListener(BrowserOp.menu.onClick);
+browser.menus.onClicked.addListener(Menu.onClick);
 
 async function init() {
     const allWindows = await browser.windows.getAll({ populate: true });
@@ -32,7 +33,7 @@ async function init() {
 async function onWindowCreated(windowObject, isInit) {
     await Metadata.add(windowObject);
     const windowId = windowObject.id;
-    BrowserOp.menu.create(windowId);
+    Menu.create(windowId);
     BrowserOp.badge.update(windowId);
     BrowserOp.title.update(windowId);
     // Handle focus now because onFocusChanged fired (after onCreated) while Metadata.add() is still being fulfilled.
@@ -42,15 +43,15 @@ async function onWindowCreated(windowObject, isInit) {
 
 function onWindowRemoved(windowId) {
     Metadata.remove(windowId);
-    BrowserOp.menu.remove(windowId);
+    Menu.remove(windowId);
 }
 
 function onWindowFocused(windowId) {
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windows[windowId].lastFocused = Date.now();
-    BrowserOp.menu.show(Metadata.focusedWindow.id);
+    Menu.show(Metadata.focusedWindow.id);
     Metadata.focusedWindow.id = windowId;
-    BrowserOp.menu.hide(windowId);
+    Menu.hide(windowId);
 }
 
 function onTabCreated(tabObject) {

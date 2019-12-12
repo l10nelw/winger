@@ -37,11 +37,11 @@ async function sendTabs(windowId, tabObjects, stayActive, staySelected) {
     }
 }
 
-async function getSelectedTabs() {
+export async function getSelectedTabs() {
     return await browser.tabs.query({ currentWindow: true, highlighted: true });
 }
 
-function focusWindow(windowId) {
+export function focusWindow(windowId) {
     browser.windows.update(windowId, { focused: true });
 }
 
@@ -62,34 +62,4 @@ export const title = {
 
 function windowTitle(windowId) {
     return `${Metadata.windows[windowId].displayName} - `;
-}
-
-export const menu = {
-    create: windowId => browser.menus.create({
-        id: `${windowId}`,
-        title: menuTitle(windowId),
-        contexts: ['tab', 'link'],
-    }),
-    remove: windowId => browser.menus.remove(`${windowId}`),
-    hide: windowId => browser.menus.update(`${windowId}`, { visible: false }),
-    show: windowId => browser.menus.update(`${windowId}`, { visible: true }),
-    update: windowId => browser.menus.update(`${windowId}`, { title: menuTitle(windowId) }),
-    onClick: async (info, tabObject) => {
-        const windowId = parseInt(info.menuItemId);
-        const url = info.linkUrl;
-        if (url) {
-            // Link context
-            browser.tabs.create({ windowId, url });
-            if (info.modifiers.includes(modifier.bringTab)) focusWindow(windowId);
-        } else {
-            // Tab context
-            // If multiple tabs selected: Send selected tabs, active tab and target tab. Else send target tab only.
-            let tabObjects = [tabObject, ...await getSelectedTabs()];
-            goalAction(windowId, info.modifiers, true, tabObjects);
-        }
-    }
-};
-
-function menuTitle(windowId) {
-    return Metadata.windows[windowId].displayName;
 }
