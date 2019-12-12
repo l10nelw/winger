@@ -53,13 +53,3 @@ export const badge = {
         browser.browserAction.setBadgeBackgroundColor({ windowId, color: 'white' });
     },
 };
-
-export const title = {
-    update: windowId => {
-        browser.windows.update(windowId, { titlePreface: windowTitle(windowId) });
-    },
-};
-
-function windowTitle(windowId) {
-    return `${Metadata.windows[windowId].displayName} - `;
-}

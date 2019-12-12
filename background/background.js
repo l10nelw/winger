@@ -10,6 +10,7 @@ Naming notes:
 import * as Metadata from './metadata.js';
 import * as BrowserOp from './browser.js';
 import * as Menu from './menu.js';
+import * as Title from './title.js';
 Object.assign(window, { Metadata, BrowserOp });
 
 init();
@@ -35,7 +36,7 @@ async function onWindowCreated(windowObject, isInit) {
     const windowId = windowObject.id;
     Menu.create(windowId);
     BrowserOp.badge.update(windowId);
-    BrowserOp.title.update(windowId);
+    Title.update(windowId);
     // Handle focus now because onFocusChanged fired (after onCreated) while Metadata.add() is still being fulfilled.
     if (isInit && !windowObject.focused) return; // Limit focus handling during init()
     onWindowFocused(windowId);
