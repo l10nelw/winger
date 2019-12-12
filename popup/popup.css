@@ -36,8 +36,6 @@ button, input {
     justify-content: end;
     min-width: 3rem;
     padding: 0 .8rem;
-    color: #666;
-    font-size: small;
 }
 
 #editMode:not(:checked) ~ ul > .other:hover {
@@ -114,6 +112,11 @@ button:active {
 
 /* --- Footer --- */
 
+#status {
+    padding: .25rem .5rem;
+    text-align: center;
+}
+
 footer {
     display: flex;
 }
@@ -138,3 +141,8 @@ footer button {
 
 /* Must set explicitly because `display: x` overrides `hidden` behaviour */
 [hidden] { display: none; }
+
+.small {
+    color: #666;
+    font-size: small;
+}
