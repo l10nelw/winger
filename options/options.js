@@ -7,7 +7,6 @@ function set(event) {
     const setting = {};
     setting[name] = getValue(name, $target);
     browser.storage.local.set(setting);
-    console.log(setting);
 }
 
 function getValue(name, $target) {
