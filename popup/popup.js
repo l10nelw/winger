@@ -1,3 +1,4 @@
+import * as Status from './status.js';
 import * as EditMode from './editmode.js';
 
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
@@ -25,6 +26,7 @@ function init(response) {
     $currentWindowRow = $currentWindow.querySelector('li');
     $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
+    Status.update();
     lockHeight($otherWindows);
 }
 
@@ -38,10 +40,14 @@ function createRow(metaWindow) {
     const $input = $row.querySelector('input');
     const $editBtn = $row.querySelector('.editBtn');
     const $tabCount = $row.querySelector('.tabCount');
+    const tabCount = metaWindow.tabCount;
 
     $input.value = metaWindow.givenName;
     $input.placeholder = metaWindow.defaultName;
-    $tabCount.textContent = metaWindow.tabCount;
+    $tabCount.textContent = tabCount;
+
+    Status.count.tabs += tabCount;
+    Status.count.windows++;
 
     $row._id = $input._id = metaWindow.id;
     $input.$row = $editBtn.$row = $row;
@@ -55,7 +61,11 @@ function onClick(event) {
     const $target = event.target;
     if ($target.id == 'help') {
         help();
-    } else if (EditMode.handleClick($target)) {
+    } else
+    if ($target.id == 'options') {
+        options();
+    } else
+    if (EditMode.handleClick($target)) {
         return;
     } else {
         const $row = $target.closest('.other');
@@ -68,12 +78,13 @@ export function help() {
     window.close();
 }
 
+export function options() {
+    browser.runtime.openOptionsPage();
+    window.close();
+}
+
 export function goalAction(event, windowId, doSendTabs) {
-    browser.runtime.sendMessage({
-        module: 'BrowserOp',
-        prop: 'goalAction',
-        args: [windowId, getModifiers(event), doSendTabs],
-    });
+    browser.runtime.sendMessage({ goalAction: [windowId, getModifiers(event), doSendTabs] });
     window.close();
 }
 

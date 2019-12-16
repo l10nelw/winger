@@ -142,11 +142,7 @@ async function trySaveName($input) {
     const name = $input.value = $input.value.trim();
     let error = 0;
     if (name !== $input._original) {
-        error = await browser.runtime.sendMessage({
-            module: 'Metadata',
-            prop: 'setName',
-            args: [$input._id, name],
-        });
+        error = await browser.runtime.sendMessage({ setName: true, windowId: $input._id, name });
     }
     toggleError($input, error);
     return error;

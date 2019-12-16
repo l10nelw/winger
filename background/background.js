@@ -7,9 +7,12 @@ Naming notes:
   global window object.
 */
 
+import { retrieveOptions } from './options.js';
 import * as Metadata from './metadata.js';
-import * as BrowserOp from './browser.js';
-Object.assign(window, { Metadata, BrowserOp });
+import * as WindowTab from './windowtab.js';
+import * as Menu from './menu.js';
+import * as Title from './title.js';
+import * as Badge from './badge.js';
 
 init();
 browser.windows.onCreated.addListener(onWindowCreated);
@@ -20,77 +23,93 @@ browser.tabs.onRemoved.addListener(onTabRemoved);
 browser.tabs.onDetached.addListener(onTabDetached);
 browser.tabs.onAttached.addListener(onTabAttached);
 browser.runtime.onMessage.addListener(onRequest);
-browser.menus.onClicked.addListener(BrowserOp.menu.onClick);
 
 async function init() {
-    const allWindows = await browser.windows.getAll({ populate: true });
+    const gettingAllWindows = browser.windows.getAll({ populate: true });
+    const [allWindows, _] = await Promise.all([gettingAllWindows, retrieveOptions()]);
     for (const windowObject of allWindows) {
-        await onWindowCreated(windowObject);
-        if (windowObject.focused) Metadata.focusedWindow.id = windowObject.id;
+        await onWindowCreated(windowObject, true);
     }
 }
 
-async function onWindowCreated(windowObject) {
+async function onWindowCreated(windowObject, isInit) {
     await Metadata.add(windowObject);
     const windowId = windowObject.id;
-    BrowserOp.badge.update(windowId);
-    BrowserOp.title.update(windowId);
-    BrowserOp.menu.create(windowId);
+    Menu.create(windowId);
+    Badge.update(windowId);
+    Title.update(windowId);
+    // Handle focus now because onFocusChanged fired (after onCreated) while Metadata.add() is still being fulfilled.
+    if (isInit && !windowObject.focused) return; // Limit focus handling during init()
+    onWindowFocused(windowId);
 }
 
 function onWindowRemoved(windowId) {
     Metadata.remove(windowId);
-    BrowserOp.menu.remove(windowId);
+    Menu.remove(windowId);
 }
 
 function onWindowFocused(windowId) {
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windows[windowId].lastFocused = Date.now();
-    BrowserOp.menu.hide(windowId);
-    BrowserOp.menu.show(Metadata.focusedWindow.id);
+    Menu.show(Metadata.focusedWindow.id);
     Metadata.focusedWindow.id = windowId;
+    Menu.hide(windowId);
 }
 
 function onTabCreated(tabObject) {
     const windowId = tabObject.windowId;
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windows[windowId].tabCount++;
-    BrowserOp.badge.update(windowId);
+    Badge.update(windowId);
 }
 
 function onTabRemoved(tabId, info) {
     if (info.isWindowClosing) return;
     const windowId = info.windowId;
     Metadata.windows[windowId].tabCount--;
-    BrowserOp.badge.update(windowId);
+    Badge.update(windowId);
 }
 
 function onTabDetached(tabId, info) {
     const windowId = info.oldWindowId;
     Metadata.windows[windowId].tabCount--;
-    BrowserOp.badge.update(windowId);
+    Badge.update(windowId);
 }
 
 function onTabAttached(tabId, info) {
     const windowId = info.newWindowId;
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windows[windowId].tabCount++;
-    BrowserOp.badge.update(windowId);
+    Badge.update(windowId);
 }
 
 function isWindowBeingCreated(windowId) {
     return !(windowId in Metadata.windows);
 }
 
-function onRequest(request) {
+async function onRequest(request) {
+
+    // From popup/popup.js
     if (request.popup) {
-        return Promise.resolve({
+        return {
             metaWindows: Metadata.windows,
             currentWindowId: Metadata.focusedWindow.id,
             sortedIds: Metadata.sortedIds(),
-        });
+        };
     }
-    if (request.module) {
-        return Promise.resolve(window[request.module][request.prop](...request.args));
+    if (request.goalAction) {
+        WindowTab.goalAction(...request.goalAction);
+        return;
+    }
+
+    // From popup/editmode.js
+    if (request.setName) {
+        const windowId = request.windowId;
+        const error = await Metadata.setName(windowId, request.name);
+        if (!error) {
+            Title.update(windowId);
+            Menu.update(windowId);
+        }
+        return error;
     }
 }

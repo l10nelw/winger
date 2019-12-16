@@ -1,5 +1,3 @@
-import * as BrowserOp from './browser.js';
-
 export let windows = {};
 export let focusedWindow = { id: null };
 const invalidCharsNameRegex = /^\/|['"]/;
@@ -45,8 +43,6 @@ export function setName(windowId, name = '') {
     metaWindow.givenName = name;
     metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
     browser.sessions.setWindowValue(windowId, 'givenName', name);
-    BrowserOp.title.update(windowId);
-    BrowserOp.menu.update(windowId);
     return 0;
 }
 
