@@ -1,12 +1,19 @@
+import { OPTIONS } from './options.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
+let contexts;
+
 export function create(windowId) {
-    browser.menus.create({
-        id: `${windowId}`,
-        title: menuTitle(windowId),
-        contexts: ['tab', 'link'],
-    });
+    contexts = contexts || getContexts();
+    browser.menus.create({ id: `${windowId}`, title: menuTitle(windowId), contexts });
+}
+
+function getContexts() {
+    let list = [];
+    if (OPTIONS.enable_tab_menu) list.push('tab');
+    if (OPTIONS.enable_link_menu) list.push('link');
+    return list;
 }
 
 export function remove(windowId) {

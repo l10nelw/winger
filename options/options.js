@@ -1,21 +1,39 @@
-const $form = document.querySelector('form');
-$form.onchange = set;
+import { retrieveOptions } from '../background/options.js';
 
-function set(event) {
-    const $target = event.target;
-    const name = $target.name;
-    const setting = {};
-    setting[name] = getValue(name, $target);
-    browser.storage.local.set(setting);
+const $form = document.querySelector('form');
+init();
+
+
+async function init() {
+    const options = await retrieveOptions();
+    for (const name in options) {
+        setFieldValue(name, options[name]);
+    }
+    $form.onchange = onOptionChange;
 }
 
-function getValue(name, $target) {
+function onOptionChange(event) {
+    storeOption(event);
+    browser.runtime.reload();
+}
+
+function storeOption(event) {
+    const name = event.target.name;
+    let option = {};
+    option[name] = getFieldValue(name);
+    browser.storage.local.set(option);
+}
+
+function setFieldValue(name, value) {
     const $field = $form[name];
-    if ($target.type == 'checkbox') {
-        if ($field.length) {
-            return [...$field].filter($i => $i.checked).map($i => $i.value); // array
-        }
-        return $field.checked; // boolean
+    if ($field.type == 'checkbox') {
+        $field.checked = value;
+    } else {
+        $field.value = value;
     }
-    return $field.value; // string
+}
+
+function getFieldValue(name) {
+    const $field = $form[name];
+    return $field.type == 'checkbox' ? $field.checked : $field.value;
 }

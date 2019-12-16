@@ -7,6 +7,7 @@ Naming notes:
   global window object.
 */
 
+import { retrieveOptions } from './options.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
 import * as Menu from './menu.js';
@@ -25,7 +26,8 @@ browser.runtime.onMessage.addListener(onRequest);
 browser.menus.onClicked.addListener(Menu.onClick);
 
 async function init() {
-    const allWindows = await browser.windows.getAll({ populate: true });
+    const gettingAllWindows = browser.windows.getAll({ populate: true });
+    const [allWindows, _] = await Promise.all([gettingAllWindows, retrieveOptions()]);
     for (const windowObject of allWindows) {
         await onWindowCreated(windowObject, true);
     }
