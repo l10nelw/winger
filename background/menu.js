@@ -2,21 +2,18 @@ import { OPTIONS } from './options.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
-let initialized = false;
 let contexts = [];
 
-export function create(windowId) {
-    if (!initialized) init();
-    browser.menus.create({ id: `${windowId}`, title: menuTitle(windowId), contexts });
-}
-
-function init() {
+export function init() {
     if (OPTIONS.enable_tab_menu) contexts.push('tab');
     if (OPTIONS.enable_link_menu) contexts.push('link');
     if (contexts.length) {
         browser.menus.onClicked.addListener(onClick);
     }
-    initialized = true;
+}
+
+export function create(windowId) {
+    browser.menus.create({ id: `${windowId}`, title: menuTitle(windowId), contexts });
 }
 
 async function onClick(info, tabObject) {

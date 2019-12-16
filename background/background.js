@@ -27,6 +27,7 @@ browser.runtime.onMessage.addListener(onRequest);
 async function init() {
     const gettingAllWindows = browser.windows.getAll({ populate: true });
     const [allWindows, _] = await Promise.all([gettingAllWindows, retrieveOptions()]);
+    Menu.init();
     for (const windowObject of allWindows) {
         await onWindowCreated(windowObject, true);
     }
