@@ -18,10 +18,6 @@ init();
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onRemoved.addListener(onWindowRemoved);
 browser.windows.onFocusChanged.addListener(onWindowFocused);
-browser.tabs.onCreated.addListener(onTabCreated);
-browser.tabs.onRemoved.addListener(onTabRemoved);
-browser.tabs.onDetached.addListener(onTabDetached);
-browser.tabs.onAttached.addListener(onTabAttached);
 browser.runtime.onMessage.addListener(onRequest);
 
 async function init() {
@@ -57,33 +53,6 @@ function onWindowFocused(windowId) {
     Menu.hide(windowId);
 }
 
-function onTabCreated(tabObject) {
-    const windowId = tabObject.windowId;
-    if (isWindowBeingCreated(windowId)) return;
-    Metadata.windows[windowId].tabCount++;
-    Badge.update(windowId);
-}
-
-function onTabRemoved(tabId, info) {
-    if (info.isWindowClosing) return;
-    const windowId = info.windowId;
-    Metadata.windows[windowId].tabCount--;
-    Badge.update(windowId);
-}
-
-function onTabDetached(tabId, info) {
-    const windowId = info.oldWindowId;
-    Metadata.windows[windowId].tabCount--;
-    Badge.update(windowId);
-}
-
-function onTabAttached(tabId, info) {
-    const windowId = info.newWindowId;
-    if (isWindowBeingCreated(windowId)) return;
-    Metadata.windows[windowId].tabCount++;
-    Badge.update(windowId);
-}
-
 function isWindowBeingCreated(windowId) {
     return !(windowId in Metadata.windows);
 }
@@ -109,6 +78,7 @@ async function onRequest(request) {
         const error = await Metadata.setName(windowId, request.name);
         if (!error) {
             Title.update(windowId);
+            Badge.update(windowId);
             Menu.update(windowId);
         }
         return error;

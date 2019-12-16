@@ -8,7 +8,7 @@ browser.runtime.sendMessage({ popup: true }).then(init);
 document.addEventListener('click', onClick);
 
 
-function init(response) {
+async function init(response) {
     const $currentWindow = document.getElementById('currentWindow');
     const $otherWindows = document.getElementById('otherWindows');
     const { metaWindows, currentWindowId, sortedIds } = response;
@@ -26,28 +26,18 @@ function init(response) {
     $currentWindowRow = $currentWindow.querySelector('li');
     $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
-    Status.update();
     lockHeight($otherWindows);
-}
-
-function lockHeight($el) {
-    $el.style.height = ``;
-    $el.style.height = `${$el.offsetHeight}px`;
+    Status.update(' ');
+    await populateTabCounts();
 }
 
 function createRow(metaWindow) {
     const $row = document.importNode($rowTemplate, true);
     const $input = $row.querySelector('input');
     const $editBtn = $row.querySelector('.editBtn');
-    const $tabCount = $row.querySelector('.tabCount');
-    const tabCount = metaWindow.tabCount;
 
     $input.value = metaWindow.givenName;
     $input.placeholder = metaWindow.defaultName;
-    $tabCount.textContent = tabCount;
-
-    Status.count.tabs += tabCount;
-    Status.count.windows++;
 
     $row._id = $input._id = metaWindow.id;
     $input.$row = $editBtn.$row = $row;
@@ -55,6 +45,22 @@ function createRow(metaWindow) {
     $row.$editBtn = $editBtn;
 
     return $row;
+}
+
+async function populateTabCounts() {
+    for (const $row of $allWindowRows) {
+        const windowId = $row._id;
+        const tabCount = (await browser.tabs.query({ windowId })).length;
+        $row.querySelector('.tabCount').textContent = tabCount;
+        Status.count.tabs += tabCount;
+        Status.count.windows++;
+    }
+    Status.update();
+}
+
+function lockHeight($el) {
+    $el.style.height = ``;
+    $el.style.height = `${$el.offsetHeight}px`;
 }
 
 function onClick(event) {
