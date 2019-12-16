@@ -88,6 +88,8 @@ function isWindowBeingCreated(windowId) {
 }
 
 async function onRequest(request) {
+
+    // From popup/popup.js
     if (request.popup) {
         return {
             metaWindows: Metadata.windows,
@@ -95,6 +97,12 @@ async function onRequest(request) {
             sortedIds: Metadata.sortedIds(),
         };
     }
+    if (request.goalAction) {
+        WindowTab.goalAction(...request.goalAction);
+        return;
+    }
+
+    // From popup/editmode.js
     if (request.setName) {
         const windowId = request.windowId;
         const error = await Metadata.setName(windowId, request.name);
@@ -103,9 +111,5 @@ async function onRequest(request) {
             Menu.update(windowId);
         }
         return error;
-    }
-    if (request.goalAction) {
-        WindowTab.goalAction(...request.goalAction);
-        return;
     }
 }

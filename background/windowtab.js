@@ -3,6 +3,8 @@ const modifier = {
     bringTab: 'Ctrl',
 }
 
+// Select the end-goal action based on any modifiers or sendTab override, given a target windowId.
+// Array of target tabObjects is optional; if not explicitly given, sendTabs() will get them.
 export function goalAction(windowId, modifiers, doSendTabs, tabObjects) {
     if (modifiers.includes(modifier.bringTab)) {
         bringTabs(windowId, tabObjects);
@@ -35,10 +37,10 @@ async function sendTabs(windowId, tabObjects, stayActive, staySelected) {
     }
 }
 
-export async function getSelectedTabs() {
-    return await browser.tabs.query({ currentWindow: true, highlighted: true });
-}
-
 export function focusWindow(windowId) {
     browser.windows.update(windowId, { focused: true });
+}
+
+export async function getSelectedTabs() {
+    return await browser.tabs.query({ currentWindow: true, highlighted: true });
 }
