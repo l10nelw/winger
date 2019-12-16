@@ -23,7 +23,6 @@ browser.tabs.onRemoved.addListener(onTabRemoved);
 browser.tabs.onDetached.addListener(onTabDetached);
 browser.tabs.onAttached.addListener(onTabAttached);
 browser.runtime.onMessage.addListener(onRequest);
-browser.menus.onClicked.addListener(Menu.onClick);
 
 async function init() {
     const gettingAllWindows = browser.windows.getAll({ populate: true });
