@@ -1,14 +1,11 @@
-const modifier = {
-    sendTab: 'Alt',
-    bringTab: 'Ctrl',
-}
+import { OPTIONS } from './options.js';
 
 // Select the end-goal action based on any modifiers or sendTab override, given a target windowId.
 // Array of target tabObjects is optional; if not explicitly given, sendTabs() will get them.
 export function goalAction(windowId, modifiers, doSendTabs, tabObjects) {
-    if (modifiers.includes(modifier.bringTab)) {
+    if (modifiers.includes(OPTIONS.bring_tab_modifier)) {
         bringTabs(windowId, tabObjects);
-    } else if (doSendTabs || modifiers.includes(modifier.sendTab)) {
+    } else if (doSendTabs || modifiers.includes(OPTIONS.send_tab_modifier)) {
         sendTabs(windowId, tabObjects);
     } else {
         focusWindow(windowId);
