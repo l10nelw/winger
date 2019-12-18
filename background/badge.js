@@ -1,5 +1,5 @@
 import { OPTIONS } from './options.js';
-import * as Metadata from './metadata.js';
+import { windows as metaWindows } from './metadata.js';
 
 let show;
 
@@ -13,7 +13,6 @@ export function init() {
 
 export function update(windowId) {
     if (!show) return;
-    const metaWindow = Metadata.windows[windowId];
-    const text = `${metaWindow.displayName}`;
+    const text = `${metaWindows[windowId].displayName}`;
     browser.browserAction.setBadgeText({ windowId, text });
 }

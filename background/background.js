@@ -10,9 +10,9 @@ Naming notes:
 import { retrieveOptions } from './options.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
+import * as Badge from './badge.js';
 import * as Menu from './menu.js';
 import * as Title from './title.js';
-import * as Badge from './badge.js';
 
 init();
 browser.windows.onCreated.addListener(onWindowCreated);
@@ -23,8 +23,9 @@ browser.runtime.onMessage.addListener(onRequest);
 async function init() {
     const gettingAllWindows = browser.windows.getAll({ populate: true });
     const [allWindows, _] = await Promise.all([gettingAllWindows, retrieveOptions()]);
-    Menu.init();
-    Badge.init();
+    for (const module of [Badge, Menu, Title]) {
+        module.init();
+    }
     for (const windowObject of allWindows) {
         await onWindowCreated(windowObject, true);
     }

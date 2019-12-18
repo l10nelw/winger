@@ -1,5 +1,5 @@
 import { OPTIONS } from './options.js';
-import * as Metadata from './metadata.js';
+import { windows as metaWindows } from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
 let contexts = [];
@@ -48,5 +48,5 @@ export function update(windowId) {
 }
 
 function menuTitle(windowId) {
-    return Metadata.windows[windowId].displayName;
+    return metaWindows[windowId].displayName;
 }
