@@ -41,14 +41,14 @@ function storeOption($target) {
 
 function setFieldValue(name, value) {
     const $field = $form[name];
-    if ($field.type == 'checkbox') {
-        $field.checked = value;
-    } else {
-        $field.value = value;
-    }
+    $field[relevantFieldProp($field)] = value;
 }
 
 function getFieldValue(name) {
     const $field = $form[name];
-    return $field.type == 'checkbox' ? $field.checked : $field.value;
+    return $field[relevantFieldProp($field)];
+}
+
+function relevantFieldProp($field) {
+    return $field.type == 'checkbox' ? 'checked' : 'value';
 }
