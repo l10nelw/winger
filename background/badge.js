@@ -16,3 +16,4 @@ export function update(windowId) {
     const text = `${metaWindows[windowId].displayName}`;
     browser.browserAction.setBadgeText({ windowId, text });
 }
+export { update as create };

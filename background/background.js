@@ -10,9 +10,11 @@ Naming notes:
 import { retrieveOptions } from './options.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
+
 import * as Badge from './badge.js';
 import * as Menu from './menu.js';
 import * as Title from './title.js';
+const WindowParts = [Badge, Menu, Title];
 
 init();
 browser.windows.onCreated.addListener(onWindowCreated);
@@ -23,9 +25,7 @@ browser.runtime.onMessage.addListener(onRequest);
 async function init() {
     const gettingAllWindows = browser.windows.getAll({ populate: true });
     const [allWindows, _] = await Promise.all([gettingAllWindows, retrieveOptions()]);
-    for (const module of [Badge, Menu, Title]) {
-        module.init();
-    }
+    WindowParts.forEach(part => part.init());
     for (const windowObject of allWindows) {
         await onWindowCreated(windowObject, true);
     }
@@ -34,9 +34,8 @@ async function init() {
 async function onWindowCreated(windowObject, isInit) {
     await Metadata.add(windowObject);
     const windowId = windowObject.id;
-    Menu.create(windowId);
-    Badge.update(windowId);
-    Title.update(windowId);
+    WindowParts.forEach(part => part.create(windowId));
+
     // Handle focus now because onFocusChanged fired (after onCreated) while Metadata.add() is still being fulfilled.
     if (isInit && !windowObject.focused) return; // Limit focus handling during init()
     onWindowFocused(windowId);
@@ -78,11 +77,7 @@ async function onRequest(request) {
     if (request.setName) {
         const windowId = request.windowId;
         const error = await Metadata.setName(windowId, request.name);
-        if (!error) {
-            Title.update(windowId);
-            Badge.update(windowId);
-            Menu.update(windowId);
-        }
+        if (!error) WindowParts.forEach(part => part.update(windowId));
         return error;
     }
 }
