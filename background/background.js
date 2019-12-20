@@ -23,8 +23,7 @@ browser.windows.onFocusChanged.addListener(onWindowFocused);
 browser.runtime.onMessage.addListener(onRequest);
 
 async function init() {
-    const gettingAllWindows = browser.windows.getAll({ populate: true });
-    const [allWindows, _] = await Promise.all([gettingAllWindows, retrieveOptions()]);
+    const [allWindows, _] = await Promise.all([browser.windows.getAll(), retrieveOptions()]);
     WindowParts.forEach(part => part.init());
     for (const windowObject of allWindows) {
         await onWindowCreated(windowObject, true);
