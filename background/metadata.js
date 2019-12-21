@@ -3,28 +3,52 @@ export let focusedWindow = { id: null };
 const invalidCharsNameRegex = /^\/|['"]/;
 let lastWindowNumber = 0;
 
+export async function init(windowObjects) {
+    let windowIds = [];
+    for (const windowObject of windowObjects) {
+        const windowId = windowObject.id;
+        windowIds.push(windowId);
+        windows[windowId] = createMetaWindow(windowObject);
+    }
+    await retrieveGivenNames(windowIds);
+    setDefaultAndDisplayNames(windowIds);
+}
+
 export async function add(windowObject) {
     const windowId = windowObject.id;
-    const defaultName = createDefaultName(windowId);
-    const givenName = await browser.sessions.getWindowValue(windowId, 'givenName') || '';
-    const now = Date.now();
+    windows[windowId] = createMetaWindow(windowObject);
+    await retrieveGivenNames([windowId]);
+    setDefaultAndDisplayNames([windowId]);
+}
 
-    windows[windowId] = {
-        id: windowId,
-        displayName: givenName || defaultName,
-        defaultName,
-        givenName,
+function createMetaWindow(windowObject) {
+    const now = Date.now();
+    return {
+        id: windowObject.id,
         created: now,
         lastFocused: now,
     };
 }
 
-function createDefaultName(windowId) {
-    let name;
-    do {
-        name = `Window ${++lastWindowNumber}`;
-    } while (nameExists(windowId, name));
-    return name;
+async function retrieveGivenNames(windowIds) {
+    const getGivenName = windowId => browser.sessions.getWindowValue(windowId, 'givenName');
+    const givenNames = await Promise.all(windowIds.map(getGivenName));
+    let i = 0;
+    for (const windowId of windowIds) {
+        windows[windowId].givenName = givenNames[i++] || '';
+    }
+}
+
+function setDefaultAndDisplayNames(windowIds) {
+    for (const windowId of windowIds) {
+        let name;
+        do {
+            name = `Window ${++lastWindowNumber}`;
+        } while (nameExists(windowId, name));
+        const metaWindow = windows[windowId];
+        metaWindow.defaultName = name;
+        metaWindow.displayName = metaWindow.givenName || name;
+    }
 }
 
 export function remove(windowId) {

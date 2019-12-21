@@ -23,15 +23,16 @@ browser.windows.onFocusChanged.addListener(onWindowFocused);
 browser.runtime.onMessage.addListener(onRequest);
 
 async function init() {
-    const [allWindows, _] = await Promise.all([browser.windows.getAll(), retrieveOptions()]);
-    WindowParts.forEach(part => part.init());
-    for (const windowObject of allWindows) {
+    const [windowObjects, _] = await Promise.all([browser.windows.getAll(), retrieveOptions()]);
+    WindowParts.forEach(part => part.init()); // Initialise with options retrieved
+    await Metadata.init(windowObjects);
+    for (const windowObject of windowObjects) {
         await onWindowCreated(windowObject, true);
     }
 }
 
 async function onWindowCreated(windowObject, isInit) {
-    await Metadata.add(windowObject);
+    if (!isInit) await Metadata.add(windowObject);
     const windowId = windowObject.id;
     WindowParts.forEach(part => part.create(windowId));
 
