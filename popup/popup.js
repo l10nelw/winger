@@ -11,8 +11,8 @@ document.addEventListener('click', onClick);
 async function init(response) {
     const $currentWindow = document.getElementById('currentWindow');
     const $otherWindows = document.getElementById('otherWindows');
-    const { metaWindows, currentWindowId, sortedIds } = response;
-    for (const windowId of sortedIds) {
+    const { metaWindows, currentWindowId, sortedWindowIds } = response;
+    for (const windowId of sortedWindowIds) {
         const metaWindow = metaWindows[windowId];
         const $row = createRow(metaWindow);
         let $list = $otherWindows;
