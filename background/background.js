@@ -73,9 +73,9 @@ async function onRequest(request) {
     }
 
     // From popup/editmode.js
-    if (request.setName) {
+    if (request.giveName) {
         const windowId = request.windowId;
-        const error = await Metadata.setName(windowId, request.name);
+        const error = await Metadata.giveName(windowId, request.name);
         if (!error) WindowParts.forEach(part => part.update(windowId));
         return error;
     }

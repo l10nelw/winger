@@ -34,7 +34,7 @@ export function remove(windowId) {
 // Validate and store givenName for target window.
 // Automatically sets displayName.
 // Returns 0 if successful, otherwise returns output of isInvalidName().
-export function setName(windowId, name = '') {
+export function giveName(windowId, name = '') {
     const metaWindow = windows[windowId];
     const error = isInvalidName(windowId, name);
     if (error) return error;
