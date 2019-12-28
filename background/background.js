@@ -26,19 +26,14 @@ async function init() {
     const [windowObjects, _] = await Promise.all([browser.windows.getAll(), retrieveOptions()]);
     WindowParts.forEach(part => part.init()); // Initialise with options retrieved
     await Metadata.init(windowObjects);
-    for (const windowObject of windowObjects) {
-        await onWindowCreated(windowObject, true);
-    }
+    windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
 }
 
 async function onWindowCreated(windowObject, isInit) {
     if (!isInit) await Metadata.add(windowObject);
     const windowId = windowObject.id;
     WindowParts.forEach(part => part.create(windowId));
-
-    // Handle focus now because onFocusChanged fired (after onCreated) while Metadata.add() is still being fulfilled.
-    if (isInit && !windowObject.focused) return; // Limit focus handling during init()
-    onWindowFocused(windowId);
+    if (windowObject.focused) onWindowFocused(windowId);
 }
 
 function onWindowRemoved(windowId) {

@@ -3,6 +3,7 @@ export let focusedWindow = { id: null };
 const invalidCharsNameRegex = /^\/|['"]/;
 let lastWindowNumber = 0;
 
+// Perform equivalent of add() for every open window all at once.
 export async function init(windowObjects) {
     let windowIds = [];
     for (const windowObject of windowObjects) {
@@ -10,28 +11,29 @@ export async function init(windowObjects) {
         windowIds.push(windowId);
         windows[windowId] = createMetaWindow(windowObject);
     }
-    await retrieveGivenNames(windowIds);
-    setDefaultAndDisplayNames(windowIds);
+    await nameMetaWindows(windowIds);
 }
 
 export async function add(windowObject) {
     const windowId = windowObject.id;
     windows[windowId] = createMetaWindow(windowObject);
-    await retrieveGivenNames([windowId]);
-    setDefaultAndDisplayNames([windowId]);
+    await nameMetaWindows([windowId]);
 }
 
 function createMetaWindow(windowObject) {
-    const now = Date.now();
     return {
         id: windowObject.id,
-        created: now,
-        lastFocused: now,
+        created: Date.now(),
+        lastFocused: 0,
     };
 }
 
-async function retrieveGivenNames(windowIds) {
-    const getGivenName = windowId => browser.sessions.getWindowValue(windowId, 'givenName');
+async function nameMetaWindows(windowIds) {
+    await restoreGivenNames(windowIds);
+    setDefaultAndDisplayNames(windowIds);
+}
+
+async function restoreGivenNames(windowIds) {
     const givenNames = await Promise.all(windowIds.map(getGivenName));
     let i = 0;
     for (const windowId of windowIds) {
@@ -39,16 +41,25 @@ async function retrieveGivenNames(windowIds) {
     }
 }
 
+function getGivenName(windowId) {
+    return browser.sessions.getWindowValue(windowId, 'givenName');
+}
+
 function setDefaultAndDisplayNames(windowIds) {
     for (const windowId of windowIds) {
-        let name;
-        do {
-            name = `Window ${++lastWindowNumber}`;
-        } while (nameExists(windowId, name));
         const metaWindow = windows[windowId];
+        const name = createDefaultName(windowId);
         metaWindow.defaultName = name;
         metaWindow.displayName = metaWindow.givenName || name;
     }
+}
+
+function createDefaultName(windowId) {
+    let name;
+    do {
+        name = `Window ${++lastWindowNumber}`;
+    } while (nameExists(windowId, name));
+    return name;
 }
 
 export function remove(windowId) {
@@ -63,7 +74,7 @@ export function giveName(windowId, name = '') {
     const error = isInvalidName(windowId, name);
     if (error) return error;
     metaWindow.givenName = name;
-    metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
+    metaWindow.displayName = name || metaWindow.defaultName;
     browser.sessions.setWindowValue(windowId, 'givenName', name);
     return 0;
 }
