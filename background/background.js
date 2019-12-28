@@ -60,7 +60,7 @@ async function onRequest(request) {
         return {
             metaWindows: Metadata.windows,
             currentWindowId: Metadata.focusedWindow.id,
-            sortedIds: Metadata.sortedIds(),
+            sortedWindowIds: Metadata.sortedWindowIds(),
         };
     }
     if (request.goalAction) {
