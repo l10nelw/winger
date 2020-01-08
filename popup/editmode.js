@@ -33,11 +33,9 @@ export function activate($row = Popup.$currentWindowRow) {
     row.activate($row);
 }
 
-async function done(saveName = true) {
-    if (saveName) {
-        const error = await trySaveName($activeInput);
-        if (error) return;
-    }
+async function done() {
+    const error = await trySaveName($activeInput);
+    if (error) return;
     row.deactivate();
     general.deactivate();
 }
