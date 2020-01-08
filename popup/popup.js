@@ -75,7 +75,7 @@ function onClick(event) {
         return;
     } else {
         const $row = $target.closest('.other');
-        if ($row) goalAction(event, $row._id, hasClass($target, 'sendTabBtn'));
+        if ($row) goalAction(event, $row._id, $target.classList.contains('sendTabBtn'));
     }
 }
 
@@ -103,8 +103,4 @@ function getModifiers(event) {
         }
     }
     return modifiers;
-}
-
-function hasClass($el, cls) {
-    return $el.classList.contains(cls);
 }

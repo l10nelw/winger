@@ -23,21 +23,17 @@ browser.windows.onFocusChanged.addListener(onWindowFocused);
 browser.runtime.onMessage.addListener(onRequest);
 
 async function init() {
-    const [allWindows, _] = await Promise.all([browser.windows.getAll(), retrieveOptions()]);
-    WindowParts.forEach(part => part.init());
-    for (const windowObject of allWindows) {
-        await onWindowCreated(windowObject, true);
-    }
+    const [windowObjects, _] = await Promise.all([browser.windows.getAll(), retrieveOptions()]);
+    WindowParts.forEach(part => part.init()); // Initialise with options retrieved
+    await Metadata.init(windowObjects);
+    windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
 }
 
 async function onWindowCreated(windowObject, isInit) {
-    await Metadata.add(windowObject);
+    if (!isInit) await Metadata.add(windowObject);
     const windowId = windowObject.id;
     WindowParts.forEach(part => part.create(windowId));
-
-    // Handle focus now because onFocusChanged fired (after onCreated) while Metadata.add() is still being fulfilled.
-    if (isInit && !windowObject.focused) return; // Limit focus handling during init()
-    onWindowFocused(windowId);
+    if (windowObject.focused) onWindowFocused(windowId);
 }
 
 function onWindowRemoved(windowId) {

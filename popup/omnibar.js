@@ -33,11 +33,11 @@ function onInput(event) {
     }
 }
 
-// Autocomplete a command based on str. Returns command, or undefined if none found.
+// Autocomplete a command based on str, case-insensitive. Returns command, or undefined if no command found.
 function completeCommand(str) {
-    const strUnslashed = str.slice(1);
+    const strUnslashed = str.slice(1).toUpperCase();
     for (const command in commands) {
-        if (command.startsWith(strUnslashed)) {
+        if (command.toUpperCase().startsWith(strUnslashed)) {
             $omnibar.value = `/${command}`;
             $omnibar.setSelectionRange(str.length, command.length + 1);
             return command;
@@ -45,13 +45,14 @@ function completeCommand(str) {
     }
 }
 
-// Hide rows whose names do not contain str. Returns first matching row or null.
+// Hide rows whose names do not contain str, case-insensitive. Returns first matching row or null.
 function filterRows(str) {
     let $firstMatchRow;
     if (str) {
+        str = str.toUpperCase();
         for (const $row of Popup.$otherWindowRows) {
             const $input = $row.$input;
-            const isMatch = ($input.value || $input.placeholder).includes(str);
+            const isMatch = ($input.value || $input.placeholder).toUpperCase().includes(str);
             $row.hidden = !isMatch;
             $firstMatchRow = $firstMatchRow || (isMatch ? $row : null); // if not already found, it's this row
         }

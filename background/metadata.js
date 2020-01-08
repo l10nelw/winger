@@ -3,20 +3,55 @@ export let focusedWindow = { id: null };
 const invalidCharsNameRegex = /^\/|['"]/;
 let lastWindowNumber = 0;
 
+// Perform equivalent of add() for every open window all at once.
+export async function init(windowObjects) {
+    let windowIds = [];
+    for (const windowObject of windowObjects) {
+        const windowId = windowObject.id;
+        windowIds.push(windowId);
+        windows[windowId] = createMetaWindow(windowObject);
+    }
+    await nameMetaWindows(windowIds);
+}
+
 export async function add(windowObject) {
     const windowId = windowObject.id;
-    const defaultName = createDefaultName(windowId);
-    const givenName = await browser.sessions.getWindowValue(windowId, 'givenName') || '';
-    const now = Date.now();
+    windows[windowId] = createMetaWindow(windowObject);
+    await nameMetaWindows([windowId]);
+}
 
-    windows[windowId] = {
-        id: windowId,
-        displayName: givenName || defaultName,
-        defaultName,
-        givenName,
-        created: now,
-        lastFocused: now,
+function createMetaWindow(windowObject) {
+    return {
+        id: windowObject.id,
+        created: Date.now(),
+        lastFocused: 0,
     };
+}
+
+async function nameMetaWindows(windowIds) {
+    await restoreGivenNames(windowIds);
+    setDefaultAndDisplayNames(windowIds);
+}
+
+async function restoreGivenNames(windowIds) {
+    const givenNames = await Promise.all(windowIds.map(getGivenName));
+    let i = 0;
+    for (const windowId of windowIds) {
+        windows[windowId].givenName = givenNames[i++] || '';
+    }
+}
+
+function getGivenName(windowId) {
+    return browser.sessions.getWindowValue(windowId, 'givenName');
+}
+
+function setDefaultAndDisplayNames(windowIds) {
+    for (const windowId of windowIds) {
+        const metaWindow = windows[windowId];
+        const name = createDefaultName(windowId);
+        metaWindow.defaultName = name;
+        metaWindow.displayName = metaWindow.givenName || name;
+    }
 }
 
 function createDefaultName(windowId) {
@@ -39,7 +74,7 @@ export function giveName(windowId, name = '') {
     const error = isInvalidName(windowId, name);
     if (error) return error;
     metaWindow.givenName = name;
-    metaWindow.displayName = metaWindow.givenName || metaWindow.defaultName;
+    metaWindow.displayName = name || metaWindow.defaultName;
     browser.sessions.setWindowValue(windowId, 'givenName', name);
     return 0;
 }
@@ -71,7 +106,7 @@ function nameExists(windowId, name) {
 export function sortedWindowIds(sortBy = 'lastFocused') {
     let metaWindows = Object.values(windows);
     metaWindows.sort(sortMethod[sortBy]);
-    const windowIds = metaWindows.map(object => object.id);
+    const windowIds = metaWindows.map(metaWindow => metaWindow.id);
     return windowIds;
 }
 
