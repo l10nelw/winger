@@ -1,14 +1,14 @@
 import { retrieveOptions } from '../background/options.js';
 
 const $form = document.querySelector('form');
-const $modifierFields = ['bring_tab_modifier', 'send_tab_modifier'].map(name => $form[name]);
+const $modifierFields = ['bring_tab_modifier', 'send_tab_modifier'].map(fieldName => $form[fieldName]);
 let OPTIONS;
 init();
 
 async function init() {
     OPTIONS = await retrieveOptions();
-    for (const name in OPTIONS) {
-        setFieldValue(name, OPTIONS[name]);
+    for (const fieldName in OPTIONS) {
+        setFieldValue(fieldName, OPTIONS[fieldName]);
     }
     document.body.hidden = false; // Page initially hidden to avoid flash of value changes on reload.
     $form.onchange = onOptionChange;
@@ -33,19 +33,19 @@ function handleModifierFields($target) {
 }
 
 function storeOption($target) {
-    const name = $target.name;
+    const fieldName = $target.name;
     let option = {};
-    option[name] = getFieldValue(name);
+    option[fieldName] = getFieldValue(fieldName);
     browser.storage.local.set(option);
 }
 
-function setFieldValue(name, value) {
-    const $field = $form[name];
+function setFieldValue(fieldName, value) {
+    const $field = $form[fieldName];
     $field[relevantFieldProp($field)] = value;
 }
 
-function getFieldValue(name) {
-    const $field = $form[name];
+function getFieldValue(fieldName) {
+    const $field = $form[fieldName];
     return $field[relevantFieldProp($field)];
 }
 
