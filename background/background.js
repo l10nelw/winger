@@ -11,10 +11,11 @@ import { retrieveOptions } from './options.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
-import * as Badge from './badge.js';
+// import * as Badge from './badge.js';
 import * as Menu from './menu.js';
 import * as Title from './title.js';
-const WindowParts = [Badge, Menu, Title];
+// const WindowParts = [Badge, Menu, Title];
+const WindowParts = [Menu, Title];
 
 init();
 browser.windows.onCreated.addListener(onWindowCreated);
