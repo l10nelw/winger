@@ -3,6 +3,7 @@ Edit Mode is activated on two levels, general and row (specific).
 General activation governs state that is sustained even while different rows change active status.
 */
 
+import { hasClass } from '../utils.js';
 import * as Popup from './popup.js';
 import * as Omnibar from './omnibar.js';
 
@@ -15,7 +16,7 @@ const omnibarText = `Up/Down/Enter to save, Esc to cancel`;
 
 export function handleClick($target) {
     let handled = false;
-    if ($target.classList.contains('editBtn')) {
+    if (hasClass($target, 'editBtn')) {
         // If target is edit button, toggle row's activation
         const $row = $target.$row;
         $row != $active ? activate($row) : done();

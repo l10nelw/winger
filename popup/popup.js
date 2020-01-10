@@ -1,3 +1,4 @@
+import { hasClass } from '../utils.js';
 import * as Status from './status.js';
 import * as EditMode from './editmode.js';
 
@@ -105,8 +106,4 @@ function getModifiers(event) {
         }
     }
     return modifiers;
-}
-
-function hasClass($el, cls) {
-    return $el.classList.contains(cls);
 }
