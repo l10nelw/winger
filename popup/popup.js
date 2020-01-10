@@ -18,7 +18,7 @@ async function init(response) {
         let $list = $otherWindows;
         if (windowId == currentWindowId) {
             $row.classList.replace('other', 'current');
-            $row.querySelector('.sendTabBtn').remove();
+            $row.querySelector('.tabActions').remove();
             $list = $currentWindow;
         }
         $list.appendChild($row);
@@ -72,10 +72,12 @@ function onClick(event) {
         options();
     } else
     if (EditMode.handleClick($target)) {
-        return;
+        return; // Click handled by EditMode
     } else {
         const $row = $target.closest('.other');
-        if ($row) goalAction(event, $row._id, $target.classList.contains('sendTabBtn'));
+        if ($row) {
+            goalAction(event, $row._id, hasClass($target, 'bringTabBtn'), hasClass($target, 'sendTabBtn'));
+        }
     }
 }
 
@@ -89,8 +91,8 @@ export function options() {
     window.close();
 }
 
-export function goalAction(event, windowId, doSendTabs) {
-    browser.runtime.sendMessage({ goalAction: [windowId, getModifiers(event), doSendTabs] });
+export function goalAction(event, windowId, doBringTabs, doSendTabs) {
+    browser.runtime.sendMessage({ goalAction: [windowId, getModifiers(event), doBringTabs, doSendTabs] });
     window.close();
 }
 
@@ -103,4 +105,8 @@ function getModifiers(event) {
         }
     }
     return modifiers;
+}
+
+function hasClass($el, cls) {
+    return $el.classList.contains(cls);
 }

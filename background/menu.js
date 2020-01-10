@@ -27,7 +27,7 @@ async function onClick(info, tabObject) {
         // Tab context
         // If multiple tabs selected: Send selected tabs, active tab and target tab. Else send target tab only.
         let tabObjects = [tabObject, ...await WindowTab.getSelectedTabs()];
-        WindowTab.goalAction(windowId, info.modifiers, true, tabObjects);
+        WindowTab.goalAction(windowId, info.modifiers, false, true, tabObjects);
     }
 }
 

@@ -1,5 +1,5 @@
 body {
-    width: 22rem;
+    width: 24rem;
     background-color: #eee;
 }
 
@@ -19,10 +19,13 @@ ul {
 
 li {
     display: flex;
+    align-items: center;
     list-style: none;
+    border-bottom: 1px solid #ccc;
+
 }
 
-button, input {
+input, .tabCount {
     height: 2.5rem;
 }
 
@@ -36,16 +39,6 @@ button, input {
     justify-content: end;
     min-width: 3rem;
     padding: 0 .8rem;
-}
-
-#editMode:not(:checked) ~ ul > .other:hover {
-    background-color: #e6e6e6;
-}
-
-.other > .nameColumn,
-.other > .tabCount,
-#editMode:checked ~ ul > .other > .tabAction {
-    border-bottom: 1px solid #ccc;
 }
 
 
@@ -74,7 +67,7 @@ input:-moz-read-only::placeholder {
 }
 
 .other .nameInput {
-    width: 13rem;
+    width: 100%;
 }
 
 .inputError {
@@ -85,11 +78,12 @@ input:-moz-read-only::placeholder {
 /* --- Button --- */
 
 button {
-    width: 3rem;
+    width: 2.2rem;
+    height: 2.2rem;
     background-color: #ddd;
     border-color: transparent;
-    border-radius: 4px;
     text-align: center;
+    border-radius: 50%;
 }
 
 button:hover,
@@ -97,16 +91,36 @@ button:active {
     background-color: #ccc;
 }
 
-#editMode:checked ~ ul .sendTabBtn {
-    background-color: transparent;
-}
-
 .editBtn:before {
     content: "✏️";
 }
 
+.btnGroup {
+    display: flex;
+}
+
+.tabActions > button {
+    margin-left: .2rem;
+}
+
+.windowActions > button {
+    margin-right: .2rem;
+}
+
+
+/* --- Edit Mode --- */
+
 .editModeRow .editBtn:before {
     content: "✔️";
+}
+
+#editMode:not(:checked) ~ ul .other:hover {
+    background-color: #e6e6e6;
+}
+
+#editMode:checked ~ ul button:not(.editBtn) {
+    background-color: transparent;
+    opacity: .5;
 }
 
 
