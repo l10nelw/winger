@@ -1,6 +1,16 @@
+:root {
+    --bgc-base: #eee;
+    --bgc-base-focus: #ddd;
+    --bgc-rowbtn: #d0d0d0;
+    --bgc-rowbtn-focus: #bbb;
+    --fgc-muted: #666;
+    --borderc-base: #ccc;
+    --borderc-error: red;
+}
+
 body {
     width: 24rem;
-    background-color: #eee;
+    background-color: var(--bgc-base);
 }
 
 ul {
@@ -21,8 +31,7 @@ li {
     display: flex;
     align-items: center;
     list-style: none;
-    border-bottom: 1px solid #ccc;
-
+    border-bottom: 1px solid var(--borderc-base);
 }
 
 input, .tabCount {
@@ -44,7 +53,7 @@ input, .tabCount {
 #editMode:not(:checked) ~ ul > .otherRow:hover,
 #editMode:not(:checked) ~ ul > .otherRow:focus,
 #editMode:not(:checked) ~ ul > .otherRow:focus-within {
-    background-color: #e6e6e6;
+    background-color:var(--bgc-base-focus);
 }
 
 
@@ -77,7 +86,7 @@ input:-moz-read-only::placeholder {
 }
 
 .inputError {
-    border-color: red;
+    border-color: var(--borderc-error);
 }
 
 
@@ -86,7 +95,7 @@ input:-moz-read-only::placeholder {
 button {
     width: 2.2rem;
     height: 2.2rem;
-    background-color: #ddd;
+    background-color: var(--bgc-rowbtn);
     border-color: transparent;
     text-align: center;
     border-radius: 50%;
@@ -94,7 +103,7 @@ button {
 
 button:hover,
 button:focus {
-    background-color: #ccc;
+    background-color: var(--bgc-rowbtn-focus);
 }
 
 .editBtn:before {
@@ -148,6 +157,6 @@ footer button {
 [hidden] { display: none; }
 
 .small {
-    color: #666;
+    color: var(--fgc-muted);
     font-size: small;
 }
