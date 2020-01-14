@@ -41,6 +41,12 @@ input, .tabCount {
     padding: 0 .8rem;
 }
 
+#editMode:not(:checked) ~ ul > .otherRow:hover,
+#editMode:not(:checked) ~ ul > .otherRow:focus,
+#editMode:not(:checked) ~ ul > .otherRow:focus-within {
+    background-color: #e6e6e6;
+}
+
 
 /* --- Input field --- */
 
@@ -60,13 +66,13 @@ input:-moz-read-only::placeholder {
     cursor: default;
 }
 
-.current .nameInput,
-.current .nameInput::placeholder {
+.currentRow .nameInput,
+.currentRow .nameInput::placeholder {
     width: 100%;
     font-weight: bold;
 }
 
-.other .nameInput {
+.otherRow .nameInput {
     width: 100%;
 }
 
@@ -87,12 +93,21 @@ button {
 }
 
 button:hover,
-button:active {
+button:focus {
     background-color: #ccc;
 }
 
 .editBtn:before {
     content: "✏️";
+}
+
+.editModeRow .editBtn:before {
+    content: "✔️";
+}
+
+#editMode:checked ~ ul button:not(.editBtn) {
+    background-color: transparent;
+    opacity: .5;
 }
 
 .btnGroup {
@@ -105,22 +120,6 @@ button:active {
 
 .windowActions > button {
     margin-right: .2rem;
-}
-
-
-/* --- Edit Mode --- */
-
-.editModeRow .editBtn:before {
-    content: "✔️";
-}
-
-#editMode:not(:checked) ~ ul .other:hover {
-    background-color: #e6e6e6;
-}
-
-#editMode:checked ~ ul button:not(.editBtn) {
-    background-color: transparent;
-    opacity: .5;
 }
 
 

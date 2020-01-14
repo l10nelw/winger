@@ -9,6 +9,7 @@ import * as Omnibar from './omnibar.js';
 
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
 let $activeInput;
+let $tabActionBtns;
 let $rows, lastIndex; // 'Constants' for row.shiftActive(), set in general.activate()
 const $editMode = document.getElementById('editMode');
 const omnibarText = `Up/Down/Enter to save, Esc to cancel`;
@@ -48,6 +49,8 @@ const general = {
         document[evLi]('keyup', onKeyup);
         document[evLi]('focusout', onFocusout);
         $editMode.checked = yes;
+        $tabActionBtns = $tabActionBtns || [...document.querySelectorAll('.tabActions > button')];
+        $tabActionBtns.forEach($btn => $btn.tabIndex = yes ? -1 : 0);
         Omnibar.disable(yes);
         Omnibar.info(yes ? omnibarText : '');
     },
@@ -72,6 +75,7 @@ const row = {
     toggle(yes) {
         $active.classList.toggle('editModeRow', yes);
         $activeInput.readOnly = !yes;
+        $activeInput.tabIndex = yes ? 0 : -1;
     },
 
     activate($row) {

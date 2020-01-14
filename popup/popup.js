@@ -18,8 +18,9 @@ async function init(response) {
         const $row = createRow(metaWindow);
         let $list = $otherWindows;
         if (windowId == currentWindowId) {
-            $row.classList.replace('other', 'current');
+            $row.classList.replace('otherRow', 'currentRow');
             $row.querySelector('.tabActions').remove();
+            $row.tabIndex = -1;
             $list = $currentWindow;
         }
         $list.appendChild($row);
@@ -75,10 +76,10 @@ function onClick(event) {
     if (EditMode.handleClick($target)) {
         return; // Click handled by EditMode
     } else {
-        const $row = $target.closest('.other');
         if ($row) {
             goalAction(event, $row._id, hasClass($target, 'bringTabBtn'), hasClass($target, 'sendTabBtn'));
         }
+        const $row = $target.closest('.otherRow');
     }
 }
 
