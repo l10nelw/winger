@@ -28,7 +28,7 @@ function onInput(event) {
     } else {
         const $firstMatchRow = filterRows(str);
         if (enter && $firstMatchRow) {
-            Popup.goalAction(event, $firstMatchRow._id);
+            Popup.callGoalAction(event, $firstMatchRow._id);
         }
     }
 }

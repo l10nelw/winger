@@ -76,10 +76,8 @@ function onClick(event) {
     if (EditMode.handleClick($target)) {
         return; // Click handled by EditMode
     } else {
-        if ($row) {
-            goalAction(event, $row._id, hasClass($target, 'bringTabBtn'), hasClass($target, 'sendTabBtn'));
-        }
         const $row = $target.closest('.otherRow');
+        if ($row) callGoalAction(event, $row._id, $target);
     }
 }
 
@@ -93,8 +91,10 @@ export function options() {
     window.close();
 }
 
-export function goalAction(event, windowId, doBringTabs, doSendTabs) {
-    browser.runtime.sendMessage({ goalAction: [windowId, getModifiers(event), doBringTabs, doSendTabs] });
+export function callGoalAction(event, windowId, $button) {
+    let args = [windowId, getModifiers(event)];
+    if ($button) args.push(hasClass($button, 'bringTabBtn'), hasClass($button, 'sendTabBtn'));
+    browser.runtime.sendMessage({ goalAction: args });
     window.close();
 }
 
