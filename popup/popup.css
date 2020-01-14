@@ -114,14 +114,6 @@ button:focus {
     display: flex;
 }
 
-.tabActions > button {
-    margin-left: .2rem;
-}
-
-.windowActions > button {
-    margin-right: .2rem;
-}
-
 
 /* --- Footer --- */
 
