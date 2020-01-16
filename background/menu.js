@@ -7,28 +7,38 @@ let contexts = [];
 export function init() {
     if (OPTIONS.enable_tab_menu) contexts.push('tab');
     if (OPTIONS.enable_link_menu) contexts.push('link');
-    if (contexts.length) {
-        browser.menus.onClicked.addListener(onClick);
+    if (contexts.length) browser.menus.onClicked.addListener(onClick);
+}
+
+function onClick(info, tabObject) {
+    const windowId = parseInt(info.menuItemId);
+    const url = info.linkUrl;
+    if (url) {
+        onClickLinkContext(windowId, url, info.modifiers);
+    } else {
+        onClickTabContext(windowId, tabObject, info.modifiers);
     }
+}
+
+function onClickLinkContext(windowId, url, modifiers) {
+    browser.tabs.create({ windowId, url });
+    if (modifiers.includes(OPTIONS.bringtab_modifier)) WindowTab.focusWindow(windowId);
+}
+
+async function onClickTabContext(windowId, tabObject, modifiers) {
+    let tabObjects = await WindowTab.getSelectedTabs();
+    if (tabObjects.length == 1) {
+        // If no more than the active tab is selected, send only the target tab.
+        tabObjects = [tabObject];
+    } else if (!tabObjects.includes(tabObject)) {
+        // If target tab is not among the selected tabs, include it.
+        tabObjects.push(tabObject);
+    }
+    WindowTab.goalAction(windowId, modifiers, false, true, tabObjects);
 }
 
 export function create(windowId) {
     browser.menus.create({ id: `${windowId}`, title: menuTitle(windowId), contexts });
-}
-
-async function onClick(info, tabObject) {
-    const windowId = parseInt(info.menuItemId);
-    const url = info.linkUrl;
-    if (url) {
-        // Link context
-        browser.tabs.create({ windowId, url });
-        if (info.modifiers.includes(modifier.bringTab)) WindowTab.focusWindow(windowId);
-    } else {
-        // Tab context
-        // If multiple tabs selected: Send selected tabs, active tab and target tab. Else send target tab only.
-        let tabObjects = [tabObject, ...await WindowTab.getSelectedTabs()];
-        WindowTab.goalAction(windowId, info.modifiers, false, true, tabObjects);
-    }
 }
 
 export function remove(windowId) {
