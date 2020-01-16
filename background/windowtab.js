@@ -6,7 +6,7 @@ export function goalAction(windowId, modifiers, doBringTabs, doSendTabs, tabObje
     if (doBringTabs || modifiers.includes(OPTIONS.bring_tab_modifier)) {
         bringTabs(windowId, tabObjects);
     } else if (doSendTabs || modifiers.includes(OPTIONS.send_tab_modifier)) {
-        sendTabs(windowId, tabObjects);
+        sendTabs(windowId, tabObjects, OPTIONS.keep_sent_tabs_selected);
     } else {
         focusWindow(windowId);
     }
@@ -14,28 +14,42 @@ export function goalAction(windowId, modifiers, doBringTabs, doSendTabs, tabObje
 
 function bringTabs(windowId, tabObjects) {
     focusWindow(windowId);
-    sendTabs(windowId, tabObjects, true, true);
+    sendTabs(windowId, tabObjects, true);
 }
 
-async function sendTabs(windowId, tabObjects, stayActive, staySelected) {
+async function sendTabs(windowId, tabObjects, staySelected) {
     if (!tabObjects || !tabObjects.length) {
         tabObjects = await getSelectedTabs();
     }
     const tabIds = tabObjects.map(tab => tab.id);
+    let pinnedTabIds;
+    if (OPTIONS.move_pinned_tabs) {
+        pinnedTabIds = tabObjects.filter(tab => tab.pinned).map(tab => tab.id);
+        await Promise.all(pinnedTabIds.map(unpinTab));
+    }
     await browser.tabs.move(tabIds, { windowId, index: -1 });
-    if (stayActive) {
+    if (pinnedTabIds) pinnedTabIds.forEach(pinTab);
+    if (staySelected) {
         const activeTab = tabObjects.find(tab => tab.active);
         if (activeTab) browser.tabs.update(activeTab.id, { active: true });
-    }
-    if (staySelected) {
-        for (const tabId of tabIds) {
-            browser.tabs.update(tabId, { highlighted: true, active: false });
-        }
+        tabIds.forEach(highlightTab);
     }
 }
 
+function unpinTab(tabId) {
+    return browser.tabs.update(tabId, { pinned: false });
+}
+
+function pinTab(tabId) {
+    return browser.tabs.update(tabId, { pinned: true });
+}
+
+function highlightTab(tabId) {
+    return browser.tabs.update(tabId, { highlighted: true, active: false });
+}
+
 export function focusWindow(windowId) {
-    browser.windows.update(windowId, { focused: true });
+    return browser.windows.update(windowId, { focused: true });
 }
 
 export async function getSelectedTabs() {
