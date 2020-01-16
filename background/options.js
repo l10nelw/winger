@@ -3,8 +3,8 @@ const DEFAULT = {
     bringtab_modifier: 'Ctrl',
     sendtab_modifier: 'Alt',
 
-    enable_tab_menu: true,
-    enable_link_menu: true,
+    // enable_tab_menu: true,
+    // enable_link_menu: true,
 
     // show_badge: true,
 
