@@ -12,20 +12,21 @@ export function init() {
 
 function onClick(info, tabObject) {
     const windowId = parseInt(info.menuItemId);
+    const modifiers = info.modifiers;
     const url = info.linkUrl;
     if (url) {
-        onClickLinkContext(windowId, url, info.modifiers);
+        onClickLinkContext(url, windowId, modifiers);
     } else {
-        onClickTabContext(windowId, tabObject, info.modifiers);
+        onClickTabContext(tabObject, windowId, modifiers);
     }
 }
 
-function onClickLinkContext(windowId, url, modifiers) {
+function onClickLinkContext(url, windowId, modifiers) {
     browser.tabs.create({ windowId, url });
     if (modifiers.includes(OPTIONS.bringtab_modifier)) WindowTab.focusWindow(windowId);
 }
 
-async function onClickTabContext(windowId, tabObject, modifiers) {
+async function onClickTabContext(tabObject, windowId, modifiers) {
     let tabObjects = await WindowTab.getSelectedTabs();
     if (tabObjects.length == 1) {
         // If no more than the active tab is selected, send only the target tab.
