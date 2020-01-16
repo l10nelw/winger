@@ -41,7 +41,7 @@ function storeOption($target) {
 
 function setFieldValue(fieldName, value) {
     const $field = $form[fieldName];
-    $field[relevantFieldProp($field)] = value;
+    if ($field) $field[relevantFieldProp($field)] = value;
 }
 
 function getFieldValue(fieldName) {
