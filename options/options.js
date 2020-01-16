@@ -1,7 +1,7 @@
 import { retrieveOptions } from '../background/options.js';
 
 const $form = document.querySelector('form');
-const $modifierFields = ['bring_tab_modifier', 'send_tab_modifier'].map(fieldName => $form[fieldName]);
+const $modifierFields = ['bringtab_modifier', 'sendtab_modifier'].map(fieldName => $form[fieldName]);
 let OPTIONS;
 init();
 

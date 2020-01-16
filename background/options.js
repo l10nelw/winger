@@ -1,6 +1,8 @@
 const DEFAULT = {
-    bring_tab_modifier: 'Ctrl',
-    send_tab_modifier: 'Alt',
+
+    bringtab_modifier: 'Ctrl',
+    sendtab_modifier: 'Alt',
+
     enable_tab_menu: true,
     enable_link_menu: true,
 

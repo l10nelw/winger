@@ -3,9 +3,9 @@ import { OPTIONS } from './options.js';
 // Select the end-goal action based on any modifiers or sendTab override, given a target windowId.
 // Array of target tabObjects is optional; if not explicitly given, sendTabs() will get them.
 export function goalAction(windowId, modifiers, doBringTabs, doSendTabs, tabObjects) {
-    if (doBringTabs || modifiers.includes(OPTIONS.bring_tab_modifier)) {
+    if (doBringTabs || modifiers.includes(OPTIONS.bringtab_modifier)) {
         bringTabs(windowId, tabObjects);
-    } else if (doSendTabs || modifiers.includes(OPTIONS.send_tab_modifier)) {
+    } else if (doSendTabs || modifiers.includes(OPTIONS.sendtab_modifier)) {
         sendTabs(windowId, tabObjects, OPTIONS.keep_sent_tabs_selected);
     } else {
         focusWindow(windowId);
