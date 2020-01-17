@@ -29,20 +29,13 @@ function createMetaWindow(windowObject) {
 }
 
 async function nameMetaWindows(windowIds) {
-    await restoreGivenNames(windowIds);
+    await Promise.all(windowIds.map(restoreGivenName));
     setDefaultAndDisplayNames(windowIds);
 }
 
-async function restoreGivenNames(windowIds) {
-    const givenNames = await Promise.all(windowIds.map(getGivenName));
-    let i = 0;
-    for (const windowId of windowIds) {
-        windows[windowId].givenName = givenNames[i++] || '';
-    }
-}
-
-function getGivenName(windowId) {
-    return browser.sessions.getWindowValue(windowId, 'givenName');
+async function restoreGivenName(windowId) {
+    const givenName = await browser.sessions.getWindowValue(windowId, 'givenName');
+    windows[windowId].givenName = givenName || '';
 }
 
 function setDefaultAndDisplayNames(windowIds) {
