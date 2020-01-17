@@ -1,5 +1,6 @@
 import { hasClass } from '../utils.js';
 import * as Status from './status.js';
+import * as TabCount from './tabcount.js';
 import * as EditMode from './editmode.js';
 
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
@@ -9,7 +10,7 @@ browser.runtime.sendMessage({ popup: true }).then(init);
 document.addEventListener('click', onClick);
 
 
-async function init(response) {
+function init(response) {
     const $currentWindow = document.getElementById('currentWindow');
     const $otherWindows = document.getElementById('otherWindows');
     const { metaWindows, currentWindowId, sortedWindowIds } = response;
@@ -29,14 +30,14 @@ async function init(response) {
     $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
     lockHeight($otherWindows);
-    Status.update(' ');
-    await populateTabCounts();
+    TabCount.init();
 }
 
 function createRow(metaWindow) {
     const $row = document.importNode($rowTemplate, true);
     const $input = $row.querySelector('input');
     const $editBtn = $row.querySelector('.editBtn');
+    const $tabCount = $row.querySelector('.tabCount');
 
     $input.value = metaWindow.givenName;
     $input.placeholder = metaWindow.defaultName;
@@ -45,19 +46,9 @@ function createRow(metaWindow) {
     $input.$row = $editBtn.$row = $row;
     $row.$input = $input;
     $row.$editBtn = $editBtn;
+    $row.$tabCount = $tabCount;
 
     return $row;
-}
-
-async function populateTabCounts() {
-    for (const $row of $allWindowRows) {
-        const windowId = $row._id;
-        const tabCount = (await browser.tabs.query({ windowId })).length;
-        $row.querySelector('.tabCount').textContent = tabCount;
-        Status.count.tabs += tabCount;
-        Status.count.windows++;
-    }
-    Status.update();
 }
 
 function lockHeight($el) {
