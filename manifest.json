@@ -9,7 +9,8 @@
   "permissions": [
     "menus",
     "sessions",
-    "storage"
+    "storage",
+    "tabs"
   ],
   "background": {
     "page": "background/background.html"

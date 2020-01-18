@@ -23,6 +23,7 @@ export async function add(windowObject) {
 function createMetaWindow(windowObject) {
     return {
         id: windowObject.id,
+        incognito: windowObject.incognito,
         created: Date.now(),
         lastFocused: 0,
     };
