@@ -79,6 +79,8 @@ function reopenTabs(windowId, tabObjects) {
             url: tab.url,
             pinned: tab.pinned,
             active: tab.active,
+            discarded: tab.discarded,
+            isInReaderMode: tab.isInReaderMode,
         });
     }
     return Promise.all(tabObjects.map(reopen));
