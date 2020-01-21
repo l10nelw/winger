@@ -71,20 +71,22 @@ function selectTab(tabId) {
     return browser.tabs.update(tabId, { highlighted: true, active: false });
 }
 
-function reopenTabs(windowId, tabObjects) {
-    function reopen(tab) {
-        browser.tabs.remove(tab.id);
-        return browser.tabs.create({
+async function reopenTabs(windowId, tabObjects) {
+    async function reopen(tab) {
         const url = tab.isInReaderMode ? getUrlFromReader(tab.url) : tab.url;
+        const newTab = await browser.tabs.create({
             windowId,
             url,
             pinned: tab.pinned,
             active: tab.active,
             discarded: tab.discarded,
-        });
             openInReaderMode: tab.isInReaderMode,
+        }).catch(error => null);
+        if (newTab) browser.tabs.remove(tab.id);
+        return newTab;
     }
-    return Promise.all(tabObjects.map(reopen));
+    return (await Promise.all(tabObjects.map(reopen))).filter(tab => tab);
+}
 
 function getUrlFromReader(readerUrl) {
     return decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));
