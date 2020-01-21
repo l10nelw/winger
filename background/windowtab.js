@@ -75,13 +75,17 @@ function reopenTabs(windowId, tabObjects) {
     function reopen(tab) {
         browser.tabs.remove(tab.id);
         return browser.tabs.create({
+        const url = tab.isInReaderMode ? getUrlFromReader(tab.url) : tab.url;
             windowId,
-            url: tab.url,
+            url,
             pinned: tab.pinned,
             active: tab.active,
             discarded: tab.discarded,
-            isInReaderMode: tab.isInReaderMode,
         });
+            openInReaderMode: tab.isInReaderMode,
     }
     return Promise.all(tabObjects.map(reopen));
+
+function getUrlFromReader(readerUrl) {
+    return decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));
 }
