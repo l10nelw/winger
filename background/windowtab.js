@@ -85,7 +85,8 @@ async function reopenTabs(windowId, tabObjects) {
         if (newTab) browser.tabs.remove(tab.id);
         return newTab;
     }
-    return (await Promise.all(tabObjects.map(reopen))).filter(tab => tab);
+    tabObjects = await Promise.all(tabObjects.map(reopen));
+    return tabObjects.filter(tab => tab);
 }
 
 function getUrlFromReader(readerUrl) {
