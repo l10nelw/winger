@@ -18,7 +18,7 @@ async function moveTabs(windowId, tabObjects, doStaySelected, doFocusWindow) {
     tabObjects = tabObjects || await getSelectedTabs();
     if (doFocusWindow) focusWindow(windowId);
 
-    // If either origin or destination is incognito, reopen tabs instead of move.
+    // If either origin or destination window is private, reopen tabs instead of move.
     if (sameContext(windowId, tabObjects[0])) {
         // Move
         const tabIds = tabObjects.map(tab => tab.id);
@@ -51,8 +51,8 @@ export async function getSelectedTabs() {
 }
 
 function sameContext(windowIdOrObject1, windowIdOrObject2) {
-    const isIncognito = x => isNaN(x) ? x.incognito : metaWindows[x].incognito;
-    return isIncognito(windowIdOrObject1) == isIncognito(windowIdOrObject2);
+    const isPrivate = x => isNaN(x) ? x.incognito : metaWindows[x].incognito;
+    return isPrivate(windowIdOrObject1) == isPrivate(windowIdOrObject2);
 }
 
 function unpinTab(tabId) {

@@ -48,7 +48,7 @@ function createRow(metaWindow) {
     $row.$input = $input;
     $row.$editBtn = $editBtn;
     $row.$tabCount = $tabCount;
-    if (metaWindow.incognito) $row.classList.add('incognito');
+    if (metaWindow.incognito) $row.classList.add('private');
 
     return $row;
 }
@@ -59,10 +59,10 @@ function lockHeight($el) {
 }
 
 function indicateReopenTab() {
-    const isIncognito = $row => hasClass($row, 'incognito');
-    const currentIncognito = isIncognito($currentWindowRow);
+    const isPrivate = $row => hasClass($row, 'private');
+    const currentPrivate = isPrivate($currentWindowRow);
     for (const $row of $otherWindowRows) {
-        if (isIncognito($row) != currentIncognito) {
+        if (isPrivate($row) != currentPrivate) {
             const $tabActions = $row.querySelector('.tabActions');
             $tabActions.classList.add('reopenTab');
         }
@@ -95,9 +95,9 @@ export function options() {
     window.close();
 }
 
-export function callGoalAction(event, windowId, $button) {
+export function callGoalAction(event, windowId, $target) {
     let args = [windowId, getModifiers(event)];
-    if ($button) args.push(hasClass($button, 'bringTabBtn'), hasClass($button, 'sendTabBtn'));
+    if ($target) args.push(hasClass($target, 'bringTabBtn'), hasClass($target, 'sendTabBtn'));
     browser.runtime.sendMessage({ goalAction: args });
     window.close();
 }

@@ -3,11 +3,11 @@
     --bgc-base-focus: #ddd;
     --bgc-rowbtn: #d0d0d0;
     --bgc-rowbtn-focus: #bbb;
-    --fgc-incognito: purple;
+    --fgc-private: purple;
     --fgc-muted: #666;
     --borderc-base: #ccc;
     --borderc-error: red;
-    --borderc-incognito: darkorchid;
+    --borderc-private: darkorchid;
 }
 
 body {
@@ -92,8 +92,8 @@ input:-moz-read-only::placeholder {
     border-color: var(--borderc-error);
 }
 
-.incognito .nameInput {
-    color: var(--fgc-incognito);
+.private .nameInput {
+    color: var(--fgc-private);
 }
 
 
@@ -131,7 +131,7 @@ button:focus {
 }
 
 .reopenTab button {
-    border: 1px solid var(--borderc-incognito);
+    border: 1px solid var(--borderc-private);
 }
 
 
