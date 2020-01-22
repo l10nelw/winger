@@ -10,6 +10,7 @@
 
 body {
     width: 24rem;
+    overflow: hidden;
     background-color: var(--bgc-base);
 }
 
@@ -92,9 +93,13 @@ input:-moz-read-only::placeholder {
 
 /* --- Button --- */
 
+.btnGroup {
+    display: flex;
+}
+
 button {
-    width: 2.2rem;
-    height: 2.2rem;
+    width: 2rem;
+    height: 2rem;
     background-color: var(--bgc-rowbtn);
     border-color: transparent;
     text-align: center;
@@ -119,8 +124,6 @@ button:focus {
     opacity: .5;
 }
 
-.btnGroup {
-    display: flex;
 }
 
 
