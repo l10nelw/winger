@@ -63,8 +63,8 @@ function indicateReopenTab() {
     const currentPrivate = isPrivate($currentWindowRow);
     for (const $row of $otherWindowRows) {
         if (isPrivate($row) != currentPrivate) {
-            const $tabActions = $row.querySelector('.tabActions');
-            $tabActions.classList.add('reopenTab');
+            const $tabActionBtns = $row.querySelectorAll('.tabActions > button');
+            $tabActionBtns.forEach($btn => $btn.classList.add('reopenTab'));
         }
     }
 }
