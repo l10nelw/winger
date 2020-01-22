@@ -29,6 +29,7 @@ function init(response) {
     $currentWindowRow = $currentWindow.querySelector('li');
     $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
+    indicateReopenTab();
     lockHeight($otherWindows);
     TabCount.init();
 }
@@ -47,6 +48,7 @@ function createRow(metaWindow) {
     $row.$input = $input;
     $row.$editBtn = $editBtn;
     $row.$tabCount = $tabCount;
+    if (metaWindow.incognito) $row.classList.add('incognito');
 
     return $row;
 }
@@ -54,6 +56,17 @@ function createRow(metaWindow) {
 function lockHeight($el) {
     $el.style.height = ``;
     $el.style.height = `${$el.offsetHeight}px`;
+}
+
+function indicateReopenTab() {
+    const isIncognito = $row => hasClass($row, 'incognito');
+    const currentIncognito = isIncognito($currentWindowRow);
+    for (const $row of $otherWindowRows) {
+        if (isIncognito($row) != currentIncognito) {
+            const $tabActions = $row.querySelector('.tabActions');
+            $tabActions.classList.add('reopenTab');
+        }
+    }
 }
 
 function onClick(event) {
