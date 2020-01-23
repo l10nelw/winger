@@ -4,11 +4,16 @@
     --bgc-rowbtn: #d0d0d0;
     --bgc-rowbtn-focus: #bbb;
     --fgc-private: purple;
-    --fgc-muted: #666;
+    --fgc-muted: #555;
     --borderc-base: #ccc;
     --borderc-error: red;
     --borderc-private: darkorchid;
 }
+
+
+
+
+/* --- Container --- */
 
 body {
     width: 24rem;
@@ -26,6 +31,8 @@ ul {
     overflow-x: hidden;
     overflow-y: auto;
 }
+
+
 
 
 /* --- Row --- */
@@ -58,6 +65,8 @@ input, .tabCount {
 #editMode:not(:checked) ~ ul > .otherRow:focus-within {
     background-color:var(--bgc-base-focus);
 }
+
+
 
 
 /* --- Input field --- */
@@ -95,6 +104,8 @@ input:-moz-read-only::placeholder {
 .private .nameInput {
     color: var(--fgc-private);
 }
+
+
 
 
 /* --- Button --- */
@@ -135,12 +146,22 @@ button:focus {
 }
 
 
-/* --- Footer --- */
+
+
+/* --- Status bar --- */
 
 #status {
     padding: .25rem .5rem;
+}
+
+.defaultStatus {
     text-align: center;
 }
+
+
+
+
+/* --- Footer --- */
 
 footer {
     display: flex;
@@ -160,6 +181,8 @@ footer button {
     color: white;
     background-color: #06f;
 }
+
+
 
 
 /* --- Utilities --- */

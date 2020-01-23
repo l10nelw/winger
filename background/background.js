@@ -61,6 +61,7 @@ async function onRequest(request) {
             metaWindows: Metadata.windows,
             currentWindowId: Metadata.focusedWindow.id,
             sortedWindowIds: Metadata.sortedWindowIds(),
+            selectedTabCount: (await WindowTab.getSelectedTabs()).length,
         };
     }
     if (request.goalAction) {

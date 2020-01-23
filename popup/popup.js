@@ -4,16 +4,18 @@ import * as TabCount from './tabcount.js';
 import * as EditMode from './editmode.js';
 
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
+const $body = document.body;
+let selectedTabCount = 1;
 export let $currentWindowRow, $otherWindowRows, $allWindowRows;
 
 browser.runtime.sendMessage({ popup: true }).then(init);
-document.addEventListener('click', onClick);
-
 
 function init(response) {
     const $currentWindow = document.getElementById('currentWindow');
     const $otherWindows = document.getElementById('otherWindows');
     const { metaWindows, currentWindowId, sortedWindowIds } = response;
+    selectedTabCount = response.selectedTabCount;
+
     for (const windowId of sortedWindowIds) {
         const metaWindow = metaWindows[windowId];
         const $row = createRow(metaWindow);
@@ -26,12 +28,18 @@ function init(response) {
         }
         $list.appendChild($row);
     }
+
     $currentWindowRow = $currentWindow.querySelector('li');
     $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
+
     indicateReopenTab();
     lockHeight($otherWindows);
     TabCount.populate();
+
+    $body.addEventListener('click', onClick);
+    $body.addEventListener('mouseover', onMouseOver);
+    $body.addEventListener('mouseleave', event => Status.show());
 }
 
 function createRow(metaWindow) {
@@ -63,7 +71,7 @@ function indicateReopenTab() {
     const currentPrivate = isPrivate($currentWindowRow);
     for (const $row of $otherWindowRows) {
         if (isPrivate($row) != currentPrivate) {
-            const $tabActionBtns = $row.querySelectorAll('.tabActions > button');
+            const $tabActionBtns = $row.querySelectorAll('.tabActions button');
             $tabActionBtns.forEach($btn => $btn.classList.add('reopenTab'));
         }
     }
@@ -83,6 +91,22 @@ function onClick(event) {
         const $row = $target.closest('.otherRow');
         if ($row) callGoalAction(event, $row._id, $target);
     }
+}
+
+function onMouseOver(event) {
+    const $target = event.target;
+    const $row = $target.closest('li');
+    const name = $row ? $row.$input.value || $row.$input.placeholder : '';
+    const tab_s = selectedTabCount == 1 ? 'tab' : 'tabs';
+    const statusText =
+        $target.matches('.reopenTab.bringTabBtn')   ? `Close ${tab_s} and reopen in (and switch to): ${name}` :
+        $target.matches('.reopenTab.sendTabBtn')    ? `Close ${tab_s} and reopen in: ${name}` :
+        $target.classList.contains('bringTabBtn')   ? `Bring ${tab_s} to: ${name}` :
+        $target.classList.contains('sendTabBtn')    ? `Send ${tab_s} to: ${name}` :
+        $target.classList.contains('editBtn')       ? `Edit: ${name}` :
+        $row && $row.classList.contains('otherRow') ? `Switch to: ${name}` :
+        '';
+    Status.show(statusText);
 }
 
 export function help() {
