@@ -1,6 +1,6 @@
 import { hasClass } from '../utils.js';
+import * as Count from './count.js';
 import * as Status from './status.js';
-import * as TabCount from './tabcount.js';
 import * as EditMode from './editmode.js';
 
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
@@ -34,8 +34,8 @@ function init(response) {
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
 
     indicateReopenTab();
+    Count.populate();
     lockHeight($otherWindows);
-    TabCount.populate();
 
     $body.addEventListener('click', onClick);
     $body.addEventListener('mouseover', onMouseOver);

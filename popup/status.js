@@ -1,6 +1,9 @@
+import { count } from './count.js';
+
 const $status = document.getElementById('status');
-export const count = { tabs: 0, windows: 0 };
 let defaultText;
+
+$status.textContent = ' ';
 
 // Show text in status bar. If no text given, show last updated defaultText.
 export function show(text) {
