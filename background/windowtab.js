@@ -77,6 +77,7 @@ async function reopenTabs(windowId, tabObjects) {
         const newTab = await browser.tabs.create({
             windowId,
             url,
+            title: tab.title,
             pinned: tab.pinned,
             active: tab.active,
             discarded: tab.discarded,
