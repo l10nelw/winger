@@ -31,7 +31,7 @@ function init(response) {
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
     indicateReopenTab();
     lockHeight($otherWindows);
-    TabCount.init();
+    TabCount.populate();
 }
 
 function createRow(metaWindow) {
