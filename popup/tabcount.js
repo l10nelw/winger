@@ -3,7 +3,7 @@ import { $allWindowRows } from './popup.js';
 import * as Status from './status.js';
 
 export async function init() {
-    Status.update(' ');
+    Status.show(' ');
     const tabCounts = await Promise.all($allWindowRows.map(getAndShow));
     Status.count.tabs = sum(tabCounts);
     Status.count.windows = $allWindowRows.length;

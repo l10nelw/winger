@@ -1,8 +1,18 @@
 const $status = document.getElementById('status');
 export const count = { tabs: 0, windows: 0 };
+let defaultText;
 
-export function update(text) {
-    $status.textContent = text || tabCountText();
+// Show text in status bar. If no text given, show last updated defaultText.
+export function show(text) {
+    defaultText = defaultText || tabCountText();
+    $status.textContent = text || defaultText;
+    $status.classList.toggle('defaultStatus', !text);
+}
+
+// Update and show defaultText in status bar.
+export function update() {
+    $status.textContent = defaultText = tabCountText();
+    $status.classList.add('defaultStatus');
 }
 
 function tabCountText() {
