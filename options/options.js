@@ -1,6 +1,7 @@
 import { retrieveOptions } from '../background/options.js';
 
-const $form = document.querySelector('form');
+const $body = document.body;
+const $form = $body.querySelector('form');
 const $modifierFields = ['bringtab_modifier', 'sendtab_modifier'].map(fieldName => $form[fieldName]);
 let OPTIONS;
 init();
@@ -10,7 +11,7 @@ async function init() {
     for (const fieldName in OPTIONS) {
         setFieldValue(fieldName, OPTIONS[fieldName]);
     }
-    document.body.hidden = false; // Page initially hidden to avoid flash of value changes on reload.
+    $body.hidden = false; // Page initially hidden to avoid flash of value changes on reload.
     $form.onchange = onOptionChange;
 }
 
