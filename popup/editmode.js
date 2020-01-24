@@ -9,9 +9,10 @@ import * as Omnibar from './omnibar.js';
 
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
 let $activeInput;
-let $tabActionBtns;
+let $disabledBtns;
 let $rows, lastIndex; // 'Constants' for row.shiftActive(), set in general.activate()
 const $editMode = document.getElementById('editMode');
+const $body = document.body;
 const omnibarText = `Up/Down/Enter to save, Esc to cancel`;
 
 
@@ -45,12 +46,13 @@ async function done() {
 const general = {
 
     toggle(yes) {
+        const tabIndex = yes ? -1 : 0;
+        $disabledBtns = $disabledBtns || [...$body.querySelectorAll('.action:not(.editBtn)')];
+        $disabledBtns.forEach($btn => $btn.tabIndex = tabIndex);
         const evLi = yes ? 'addEventListener' : 'removeEventListener';
-        document[evLi]('keyup', onKeyup);
-        document[evLi]('focusout', onFocusout);
+        $body[evLi]('keyup', onKeyUp);
+        $body[evLi]('focusout', onFocusout);
         $editMode.checked = yes;
-        $tabActionBtns = $tabActionBtns || [...document.querySelectorAll('.tabActions > button')];
-        $tabActionBtns.forEach($btn => $btn.tabIndex = yes ? -1 : 0);
         Omnibar.disable(yes);
         Omnibar.info(yes ? omnibarText : '');
     },
@@ -122,7 +124,7 @@ const keyEffects = {
 
 };
 
-async function onKeyup(event) {
+async function onKeyUp(event) {
     if (event.target != $activeInput) return;
     const key = event.key;
     if (key in keyEffects) {
