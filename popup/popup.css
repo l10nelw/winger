@@ -76,24 +76,24 @@ input:-moz-read-only::placeholder {
     opacity: 1;
 }
 
-.nameInput {
+.input {
     padding: 0 .5rem;
     min-width: 100%;
 }
 
-.nameInput:-moz-read-only {
+.input:-moz-read-only {
     background-color: transparent;
     border-color: transparent;
     cursor: default;
 }
 
-.currentRow .nameInput,
-.currentRow .nameInput::placeholder {
+.currentRow .input,
+.currentRow .input::placeholder {
     width: 100%;
     font-weight: bold;
 }
 
-.otherRow .nameInput {
+.otherRow .input {
     width: 100%;
 }
 
@@ -101,7 +101,7 @@ input:-moz-read-only::placeholder {
     border-color: var(--borderc-error);
 }
 
-.private .nameInput {
+.private .input {
     color: var(--fgc-private);
 }
 

@@ -44,18 +44,19 @@ function init(response) {
 
 function createRow(metaWindow) {
     const $row = document.importNode($rowTemplate, true);
-    const $input = $row.querySelector('input');
-    const $editBtn = $row.querySelector('.editBtn');
-    const $tabCount = $row.querySelector('.tabCount');
 
-    $input.value = metaWindow.givenName;
-    $input.placeholder = metaWindow.defaultName;
+    // Add references to elements, and in each a reference back to the row
+    const elements = ['sendBtn', 'bringBtn', 'input', 'tabCount', 'editBtn'];
+    for (const element of elements) {
+        const prop = `$${element}`;
+        $row[prop] = $row.querySelector(`.${element}`);
+        $row[prop].$row = $row;
+    }
 
-    $row._id = $input._id = metaWindow.id;
-    $input.$row = $editBtn.$row = $row;
-    $row.$input = $input;
-    $row.$editBtn = $editBtn;
-    $row.$tabCount = $tabCount;
+    // Add data
+    $row._id = metaWindow.id;
+    $row.$input.value = metaWindow.givenName;
+    $row.$input.placeholder = metaWindow.defaultName;
     if (metaWindow.incognito) $row.classList.add('private');
 
     return $row;
@@ -121,7 +122,7 @@ export function options() {
 
 export function callGoalAction(event, windowId, $target) {
     let args = [windowId, getModifiers(event)];
-    if ($target) args.push(hasClass($target, 'bringTabBtn'), hasClass($target, 'sendTabBtn'));
+    if ($target) args.push(hasClass($target, 'bringBtn'), hasClass($target, 'sendBtn'));
     browser.runtime.sendMessage({ goalAction: args });
     window.close();
 }
