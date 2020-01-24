@@ -76,6 +76,7 @@ const row = {
 
     toggle(yes) {
         $active.classList.toggle('editModeRow', yes);
+        $activeInput.classList.toggle('allowRightClick', yes);
         $activeInput.readOnly = !yes;
         $activeInput.tabIndex = yes ? 0 : -1;
     },

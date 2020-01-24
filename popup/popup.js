@@ -38,6 +38,7 @@ function init(response) {
     lockHeight($otherWindows);
 
     $body.addEventListener('click', onClick);
+    $body.addEventListener('contextmenu', onRightClick);
     $body.addEventListener('mouseover', onMouseOver);
     $body.addEventListener('mouseleave', event => Status.show());
 }
@@ -91,6 +92,13 @@ function onClick(event) {
     } else {
         const $row = $target.closest('.otherRow');
         if ($row) callGoalAction(event, $row._id, $target);
+    }
+}
+
+function onRightClick(event) {
+    if (!hasClass(event.target, 'allowRightClick')) {
+        event.preventDefault();
+        return;
     }
 }
 
