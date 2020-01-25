@@ -19,29 +19,30 @@ export function generate(tabCount, hasReopenTab) {
     };
 }
 
-export function show($element) {
-    if (!$element.closest('.action')) {
+export function show(event) {
+    let $target = event.target;
+    if (!$target.closest('.action')) {
         Status.show();
         return;
     }
-    let selector = matchSelector($element);
+    let selector = matchSelector($target);
     if (!selector) {
         selector = '.otherRow';
-        $element = $element.closest(selector);
+        $target = $target.closest(selector);
     }
     let tooltip = tooltips[selector];
-    if (end(tooltip) == ':') tooltip += ` ${getName($element)}`;
-    $element.title = tooltip;
+    if (end(tooltip) == ':') tooltip += ` ${getName($target)}`;
+    $target.title = tooltip;
     Status.show(tooltip);
 }
 
-function matchSelector($element) {
+function matchSelector($target) {
     for (const selector in tooltips) {
-        if ($element.matches(selector)) return selector;
+        if ($target.matches(selector)) return selector;
     }
 }
 
-function getName($element) {
-    const $input = ($element.$row || $element).$input;
+function getName($target) {
+    const $input = ($target.$row || $target).$input;
     return $input.value || $input.placeholder;
 }
