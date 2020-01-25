@@ -43,6 +43,7 @@ function init(response) {
     $body.addEventListener('focusin', Tooltip.show);
     $body.addEventListener('mouseover', Tooltip.show);
     $body.addEventListener('mouseleave', event => Status.show());
+    $body.addEventListener('keyup', onKeyUp);
 }
 
 function createRow(metaWindow) {
@@ -103,6 +104,13 @@ function onRightClick(event) {
     if (!hasClass('allowRightClick', event.target)) {
         event.preventDefault();
         return;
+    }
+}
+
+function onKeyUp(event) {
+    const $target = event.target;
+    if (hasClass('otherRow', $target) && ['Enter', ' '].includes(event.key)) {
+        callGoalAction(event, $target._id);
     }
 }
 
