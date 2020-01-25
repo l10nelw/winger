@@ -141,7 +141,7 @@ button:focus {
     opacity: .5;
 }
 
-.reopenTab {
+.reopenTab > .tabActions > button {
     border: 1px solid var(--borderc-private);
 }
 

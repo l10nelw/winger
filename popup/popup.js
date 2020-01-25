@@ -1,11 +1,11 @@
 import { hasClass } from '../utils.js';
 import * as Count from './count.js';
 import * as Status from './status.js';
+import * as Tooltip from './tooltip.js';
 import * as EditMode from './editmode.js';
 
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 const $body = document.body;
-let selectedTabCount = 1;
 export let $currentWindowRow, $otherWindowRows, $allWindowRows;
 
 browser.runtime.sendMessage({ popup: true }).then(init);
@@ -14,13 +14,13 @@ function init(response) {
     const $currentWindow = document.getElementById('currentWindow');
     const $otherWindows = document.getElementById('otherWindows');
     const { metaWindows, currentWindowId, sortedWindowIds } = response;
-    selectedTabCount = response.selectedTabCount;
 
     for (const windowId of sortedWindowIds) {
         const metaWindow = metaWindows[windowId];
         const $row = createRow(metaWindow);
         let $list = $otherWindows;
         if (windowId == currentWindowId) {
+            $row.classList.remove('action');
             $row.classList.replace('otherRow', 'currentRow');
             $row.querySelector('.tabActions').remove();
             $row.tabIndex = -1;
@@ -33,7 +33,8 @@ function init(response) {
     $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
 
-    indicateReopenTab();
+    const hasReopenTab = indicateReopenTab();
+    Tooltip.generate(response.selectedTabCount, hasReopenTab);
     Count.populate();
     lockHeight($otherWindows);
 
@@ -46,7 +47,7 @@ function init(response) {
 function createRow(metaWindow) {
     const $row = document.importNode($rowTemplate, true);
 
-    // Add references to elements, and in each a reference back to the row
+    // Add references to elements, and in each a reference to the row
     const elements = ['sendBtn', 'bringBtn', 'input', 'tabCount', 'editBtn'];
     for (const element of elements) {
         const prop = `$${element}`;
@@ -63,20 +64,22 @@ function createRow(metaWindow) {
     return $row;
 }
 
-function lockHeight($el) {
-    $el.style.height = ``;
-    $el.style.height = `${$el.offsetHeight}px`;
-}
-
 function indicateReopenTab() {
     const isPrivate = $row => hasClass($row, 'private');
     const currentPrivate = isPrivate($currentWindowRow);
+    let hasReopenTab = false;
     for (const $row of $otherWindowRows) {
         if (isPrivate($row) != currentPrivate) {
-            const $tabActionBtns = $row.querySelectorAll('.tabActions button');
-            $tabActionBtns.forEach($btn => $btn.classList.add('reopenTab'));
+            $row.classList.add('reopenTab');
+            hasReopenTab = true;
         }
     }
+    return hasReopenTab;
+}
+
+function lockHeight($el) {
+    $el.style.height = ``;
+    $el.style.height = `${$el.offsetHeight}px`;
 }
 
 function onClick(event) {
@@ -103,19 +106,7 @@ function onRightClick(event) {
 }
 
 function onMouseOver(event) {
-    const $target = event.target;
-    const $row = $target.closest('li');
-    const name = $row ? $row.$input.value || $row.$input.placeholder : '';
-    const tab_s = selectedTabCount == 1 ? 'tab' : 'tabs';
-    const statusText =
-        $target.matches('.reopenTab.bringTabBtn')   ? `Close ${tab_s} and reopen in (and switch to): ${name}` :
-        $target.matches('.reopenTab.sendTabBtn')    ? `Close ${tab_s} and reopen in: ${name}` :
-        $target.classList.contains('bringTabBtn')   ? `Bring ${tab_s} to: ${name}` :
-        $target.classList.contains('sendTabBtn')    ? `Send ${tab_s} to: ${name}` :
-        $target.classList.contains('editBtn')       ? `Edit: ${name}` :
-        $row && $row.classList.contains('otherRow') ? `Switch to: ${name}` :
-        '';
-    Status.show(statusText);
+    Tooltip.show(event.target);
 }
 
 export function help() {

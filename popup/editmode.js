@@ -9,7 +9,7 @@ import * as Omnibar from './omnibar.js';
 
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
 let $activeInput;
-let $disabledBtns;
+let $disabledActions;
 let $rows, lastIndex; // 'Constants' for row.shiftActive(), set in general.activate()
 const $editMode = document.getElementById('editMode');
 const $body = document.body;
@@ -47,8 +47,11 @@ const general = {
 
     toggle(yes) {
         const tabIndex = yes ? -1 : 0;
-        $disabledBtns = $disabledBtns || [...$body.querySelectorAll('.action:not(.editBtn)')];
-        $disabledBtns.forEach($btn => $btn.tabIndex = tabIndex);
+        $disabledActions = $disabledActions || [...$body.querySelectorAll('.action:not(.editBtn)')];
+        for (const $action of $disabledActions) {
+            $action.classList.toggle('action', !yes);
+            $action.tabIndex = tabIndex;
+        }
         const evLi = yes ? 'addEventListener' : 'removeEventListener';
         $body[evLi]('keyup', onKeyUp);
         $body[evLi]('focusout', onFocusout);

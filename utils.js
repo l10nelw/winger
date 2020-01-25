@@ -5,3 +5,7 @@ export function hasClass($el, cls) {
 export function sum(array) {
     return array.reduce((a, b) => a + b, 0);
 }
+
+export function end(sequence) {
+    return sequence[sequence.length - 1];
+}
