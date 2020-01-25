@@ -40,7 +40,8 @@ function init(response) {
 
     $body.addEventListener('click', onClick);
     $body.addEventListener('contextmenu', onRightClick);
-    $body.addEventListener('mouseover', onMouseOver);
+    $body.addEventListener('focusin', showTooltip);
+    $body.addEventListener('mouseover', showTooltip);
     $body.addEventListener('mouseleave', event => Status.show());
 }
 
@@ -105,7 +106,7 @@ function onRightClick(event) {
     }
 }
 
-function onMouseOver(event) {
+function showTooltip(event) {
     Tooltip.show(event.target);
 }
 
