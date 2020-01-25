@@ -66,7 +66,7 @@ function createRow(metaWindow) {
 }
 
 function indicateReopenTab() {
-    const isPrivate = $row => hasClass($row, 'private');
+    const isPrivate = $row => hasClass('private', $row);
     const currentPrivate = isPrivate($currentWindowRow);
     let hasReopenTab = false;
     for (const $row of $otherWindowRows) {
@@ -100,7 +100,7 @@ function onClick(event) {
 }
 
 function onRightClick(event) {
-    if (!hasClass(event.target, 'allowRightClick')) {
+    if (!hasClass('allowRightClick', event.target)) {
         event.preventDefault();
         return;
     }
@@ -118,7 +118,7 @@ export function options() {
 
 export function callGoalAction(event, windowId, $target) {
     let args = [windowId, getModifiers(event)];
-    if ($target) args.push(hasClass($target, 'bringBtn'), hasClass($target, 'sendBtn'));
+    if ($target) args.push(hasClass('bringBtn', $target), hasClass('sendBtn', $target));
     browser.runtime.sendMessage({ goalAction: args });
     window.close();
 }

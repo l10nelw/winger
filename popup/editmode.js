@@ -18,7 +18,7 @@ const omnibarText = `Up/Down/Enter to save, Esc to cancel`;
 
 export function handleClick($target) {
     let handled = false;
-    if (hasClass($target, 'editBtn')) {
+    if (hasClass('editBtn', $target)) {
         // If target is edit button, toggle row's activation
         const $row = $target.$row;
         $row != $active ? activate($row) : done();
