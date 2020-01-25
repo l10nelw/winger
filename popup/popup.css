@@ -190,7 +190,7 @@ footer button {
 /* Must set explicitly because `display: x` overrides `hidden` behaviour */
 [hidden] { display: none; }
 
-.small {
+.muted {
     color: var(--fgc-muted);
-    font-size: small;
+    font-size: 95%;
 }
