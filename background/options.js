@@ -1,7 +1,7 @@
 const DEFAULT = {
 
-    bringtab_modifier: 'Ctrl',
-    sendtab_modifier: 'Alt',
+    bring_modifier: 'Ctrl',
+    send_modifier: 'Alt',
 
     // enable_tab_menu: true,
     // enable_link_menu: true,
@@ -14,7 +14,7 @@ const DEFAULT = {
 
 export let OPTIONS;
 
-export async function retrieveOptions() {
+export async function retrieve() {
     if (!OPTIONS) OPTIONS = { ...DEFAULT, ...await browser.storage.local.get() };
     return OPTIONS;
 }

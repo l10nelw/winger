@@ -23,7 +23,7 @@ function onClick(info, tabObject) {
 
 function onClickLinkContext(url, windowId, modifiers) {
     browser.tabs.create({ windowId, url });
-    if (modifiers.includes(OPTIONS.bringtab_modifier)) WindowTab.focusWindow(windowId);
+    if (modifiers.includes(OPTIONS.bring_modifier)) WindowTab.focusWindow(windowId);
 }
 
 async function onClickTabContext(tabObject, windowId, modifiers) {

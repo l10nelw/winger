@@ -1,13 +1,13 @@
-import { retrieveOptions } from '../background/options.js';
+import * as Options from '../background/options.js';
 
 const $body = document.body;
 const $form = $body.querySelector('form');
-const $modifierFields = ['bringtab_modifier', 'sendtab_modifier'].map(fieldName => $form[fieldName]);
+const $modifierFields = ['bring_modifier', 'send_modifier'].map(fieldName => $form[fieldName]);
 let OPTIONS;
 init();
 
 async function init() {
-    OPTIONS = await retrieveOptions();
+    OPTIONS = await Options.retrieve();
     for (const fieldName in OPTIONS) {
         setFieldValue(fieldName, OPTIONS[fieldName]);
     }

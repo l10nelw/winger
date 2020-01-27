@@ -7,7 +7,7 @@ Naming notes:
   global window object.
 */
 
-import { retrieveOptions } from './options.js';
+import * as Options from './options.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
@@ -23,8 +23,8 @@ browser.windows.onFocusChanged.addListener(onWindowFocused);
 browser.runtime.onMessage.addListener(onRequest);
 
 async function init() {
-    const [windowObjects, _] = await Promise.all([browser.windows.getAll(), retrieveOptions()]);
-    WindowParts.forEach(part => part.init()); // Initialise with options retrieved
+    const [windowObjects,] = await Promise.all([browser.windows.getAll(), Options.retrieve()]);
+    WindowParts.forEach(part => part.init());
     await Metadata.init(windowObjects);
     windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
 }
