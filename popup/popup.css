@@ -112,10 +112,6 @@ input:-moz-read-only::placeholder {
 
 /* --- Button --- */
 
-.btnGroup {
-    display: flex;
-}
-
 button {
     width: 2rem;
     height: 2rem;
@@ -143,7 +139,7 @@ button:focus {
     opacity: .5;
 }
 
-.reopenTab > .tabActions > button {
+.reopenTab > .tab.action {
     border: 1px solid var(--borderc-private);
 }
 

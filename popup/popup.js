@@ -22,7 +22,8 @@ function init(response) {
         if (windowId == currentWindowId) {
             $row.classList.remove('action');
             $row.classList.replace('otherRow', 'currentRow');
-            $row.querySelector('.tabActions').remove();
+            $row.$bringBtn.remove();
+            $row.$sendBtn.remove();
             $row.tabIndex = -1;
             $list = $currentWindow;
         }
