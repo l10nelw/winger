@@ -9,3 +9,14 @@ export function sum(array) {
 export function end(sequence) {
     return sequence[sequence.length - 1];
 }
+
+export function getModifiers(event) {
+    let modifiers = [];
+    for (const prop in event) {
+        if (prop.endsWith('Key') && event[prop]) {
+            const modifier = prop[0].toUpperCase() + prop.slice(1, -3);
+            modifiers.push(modifier);
+        }
+    }
+    return modifiers;
+}

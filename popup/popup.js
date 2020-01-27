@@ -1,4 +1,4 @@
-import { hasClass } from '../utils.js';
+import { hasClass, getModifiers } from '../utils.js';
 import * as Count from './count.js';
 import * as Status from './status.js';
 import * as Tooltip from './tooltip.js';
@@ -130,15 +130,4 @@ export function callGoalAction(event, windowId, $target) {
     if ($target) args.push(hasClass('bringBtn', $target), hasClass('sendBtn', $target));
     browser.runtime.sendMessage({ goalAction: args });
     window.close();
-}
-
-function getModifiers(event) {
-    let modifiers = [];
-    for (const prop in event) {
-        if (prop.endsWith('Key') && event[prop]) {
-            let modifier = prop[0].toUpperCase() + prop.slice(1, -3);
-            modifiers.push(modifier);
-        }
-    }
-    return modifiers;
 }
