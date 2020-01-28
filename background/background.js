@@ -57,7 +57,9 @@ async function onRequest(request) {
 
     // From popup/popup.js
     if (request.popup) {
+        const { bring_modifier, send_modifier } = Options.OPTIONS;
         return {
+            OPTIONS: { bring_modifier, send_modifier },
             metaWindows: Metadata.windows,
             currentWindowId: Metadata.focusedWindow.id,
             sortedWindowIds: Metadata.sortedWindowIds(),

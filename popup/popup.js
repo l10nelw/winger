@@ -6,7 +6,7 @@ import * as EditMode from './editmode.js';
 
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 const $body = document.body;
-export let $currentWindowRow, $otherWindowRows, $allWindowRows;
+export let OPTIONS, $currentWindowRow, $otherWindowRows, $allWindowRows;
 
 browser.runtime.sendMessage({ popup: true }).then(init);
 
@@ -14,6 +14,7 @@ function init(response) {
     const $currentWindow = document.getElementById('currentWindow');
     const $otherWindows = document.getElementById('otherWindows');
     const { metaWindows, currentWindowId, sortedWindowIds } = response;
+    OPTIONS = response.OPTIONS;
 
     for (const windowId of sortedWindowIds) {
         const metaWindow = metaWindows[windowId];

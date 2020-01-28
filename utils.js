@@ -1,5 +1,5 @@
 export function hasClass(cls, $element) {
-    return $element.classList.contains(cls);
+    return $element && $element.classList.contains(cls);
 }
 
 export function sum(array) {
