@@ -10,13 +10,7 @@ export function end(sequence) {
     return sequence[sequence.length - 1];
 }
 
+// Return array of active modifiers in the form of ['Alt', 'Ctrl', 'Shift'] or parts thereof or [].
 export function getModifiers(event) {
-    let modifiers = [];
-    for (const prop in event) {
-        if (prop.endsWith('Key') && event[prop]) {
-            const modifier = prop[0].toUpperCase() + prop.slice(1, -3);
-            modifiers.push(modifier);
-        }
-    }
-    return modifiers;
+    return ['altKey', 'ctrlKey', 'shiftKey'].filter(m => event[m]).map(m => m[0].toUpperCase() + m.slice(1, -3));
 }
