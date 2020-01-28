@@ -2,7 +2,7 @@ import { hasClass, getModifiers, end } from '../utils.js';
 import * as Popup from './popup.js';
 import * as Status from './status.js';
 
-let EditTooltips, Tooltips;
+let EditTooltips, Tooltips, $lastTarget;
 
 export function generate(tabCount, hasReopenTab) {
     const tabPhrase = tabCount == 1 ? 'tab' : `${tabCount} tabs`;
@@ -49,13 +49,24 @@ export function generate(tabCount, hasReopenTab) {
     };
 }
 
+// Show tooltip based on event.
+// A modifer array may be passed instead of event to toggle relevant modifier text in the tooltip.
 export function show(event) {
+    let modifiers;
     let $target = event.target;
-    if (!$target.closest('.action')) return Status.show();
+    if ($target) {
+        // event passed
+        if (!$target.closest('.action')) return Status.show();
+        $lastTarget = $target;
+    } else {
+        // array passed
+        $target = $lastTarget;
+        modifiers = event;
+    }
     let text = matchTooltip(EditTooltips, $target, $target.$row);
     if (!text) {
+        modifiers = modifiers || getModifiers(event);
         const $otherRow = $target.closest('.otherRow');
-        const modifiers = getModifiers(event);
         const doBringTab = modifiers.includes(Popup.OPTIONS.bring_modifier);
         const doSendTab  = modifiers.includes(Popup.OPTIONS.send_modifier);
         text = matchTooltip(Tooltips, $target, $otherRow, doBringTab, doSendTab);

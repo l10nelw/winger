@@ -45,6 +45,7 @@ function init(response) {
     $body.addEventListener('focusin', Tooltip.show);
     $body.addEventListener('mouseover', Tooltip.show);
     $body.addEventListener('mouseleave', event => Status.show());
+    $body.addEventListener('keydown', onKeyDown);
     $body.addEventListener('keyup', onKeyUp);
 }
 
@@ -109,10 +110,16 @@ function onRightClick(event) {
     }
 }
 
+function onKeyDown(event) {
+    const modifiers = getModifiers(event);
+    if (modifiers.length) Tooltip.show(modifiers);
+}
+
 function onKeyUp(event) {
+    Tooltip.show([]);
     const $target = event.target;
     if (hasClass('otherRow', $target) && ['Enter', ' '].includes(event.key)) {
-        callGoalAction(event, $target._id);
+        callGoalAction(event, $target._id, null, modifiers);
     }
 }
 
@@ -126,8 +133,8 @@ export function options() {
     window.close();
 }
 
-export function callGoalAction(event, windowId, $target) {
-    let args = [windowId, getModifiers(event)];
+export function callGoalAction(event, windowId, $target, modifiers) {
+    let args = [windowId, modifiers || getModifiers(event)];
     if ($target) args.push(hasClass('bringBtn', $target), hasClass('sendBtn', $target));
     browser.runtime.sendMessage({ goalAction: args });
     window.close();
