@@ -5,9 +5,11 @@ import { windows as metaWindows } from './metadata.js';
 // Relevant modifiers may override given doBringTabs/doSendTabs booleans.
 // If tabObjects not given, moveTabs() will find currently selected tabs.
 export async function goalAction(windowId, modifiers, doBringTabs, doSendTabs, tabObjects) {
-    if (doBringTabs || modifiers.includes(OPTIONS.bring_modifier)) {
+    const hasBringModifier = modifiers.includes(OPTIONS.bring_modifier);
+    const hasSendModifier = modifiers.includes(OPTIONS.send_modifier);
+    if (hasBringModifier || doBringTabs && !hasSendModifier) {
         moveTabs(windowId, tabObjects, true, true); // Bring tabs to window
-    } else if (doSendTabs || modifiers.includes(OPTIONS.send_modifier)) {
+    } else if (hasSendModifier || doSendTabs) {
         moveTabs(windowId, tabObjects, OPTIONS.keep_sent_tabs_selected);  // Send tabs to window
     } else {
         focusWindow(windowId); // Switch to window
