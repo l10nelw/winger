@@ -52,19 +52,19 @@ export function generate(tabCount, hasReopenTab) {
 }
 
 // Show tooltip based on event.
-// A modifer array may be passed instead of event to toggle relevant modifier text in the tooltip.
+// A modifer array instead of event may be given to toggle relevant modifier text in the tooltip.
 export function show(event) {
     let modifiers;
     let $target = event.target;
     if ($target) {
-        // event passed
-        if (!$target.closest('.action')) return Status.show();
+        // event given
         $lastTarget = $target;
     } else {
-        // array passed
+        // array given
         $target = $lastTarget;
         modifiers = event;
     }
+    if (!$target.closest('.action')) return Status.show();
     let text = matchTooltip(EditTooltips, $target, $target.$row);
     if (!text) {
         modifiers = modifiers || getModifiers(event);
