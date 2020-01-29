@@ -1,7 +1,7 @@
 import * as Popup from './popup.js';
 import * as EditMode from './editmode.js';
 
-const $omnibar = document.getElementById('omnibar');
+export const $omnibar = document.getElementById('omnibar');
 const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
 const commands = {
     help:    _ => Popup.help(),
@@ -9,10 +9,7 @@ const commands = {
     edit:    _ => EditMode.activate(),
 };
 
-$omnibar.addEventListener('keyup', onInput);
-
-
-function onInput(event) {
+export function onKeyUp(event) {
     const str = $omnibar.value;
     const key = event.key;
     const enter = key === 'Enter';

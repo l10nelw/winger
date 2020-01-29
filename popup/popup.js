@@ -1,6 +1,7 @@
 import { hasClass, getModifiers } from '../utils.js';
 import * as Count from './count.js';
 import * as Status from './status.js';
+import * as Omnibar from './omnibar.js';
 import * as Tooltip from './tooltip.js';
 import * as EditMode from './editmode.js';
 
@@ -118,6 +119,9 @@ function onKeyDown(event) {
 function onKeyUp(event) {
     Tooltip.show([]);
     const $target = event.target;
+    if ($target == Omnibar.$omnibar) {
+        Omnibar.onKeyUp(event);
+    } else
     if (hasClass('otherRow', $target) && ['Enter', ' '].includes(event.key)) {
         callGoalAction(event, $target._id, null, modifiers);
     }
