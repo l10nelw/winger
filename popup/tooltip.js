@@ -75,7 +75,7 @@ export function show(event) {
         const modifierText = doBringTab ? `[${bringModifier}] ` : doSendTab ? `[${sendModifier}] ` : ``;
         text = modifierText + text;
     }
-    if (end(text) == ':') text += ` ${getName($target)}`;
+    if (end(text) == ':') text += ` ${Popup.rowName($target.$row || $target)}`;
     Status.show(text);
 }
 
@@ -84,9 +84,4 @@ function matchTooltip(tooltipDict, ...args) {
         const tooltip = tooltipDict[action];
         if (tooltip.match(...args)) return tooltip.text;
     }
-}
-
-function getName($target) {
-    const $input = ($target.$row || $target).$input;
-    return $input.value || $input.placeholder;
 }

@@ -123,6 +123,11 @@ function onKeyUp(event) {
     }
 }
 
+export function rowName($row) {
+    const $input = $row.$input;
+    return $input.value || $input.placeholder;
+}
+
 export function help() {
     browser.tabs.create({ url: '/help/help.html' });
     window.close();

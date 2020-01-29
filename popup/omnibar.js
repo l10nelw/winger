@@ -51,8 +51,7 @@ function filterRows(str) {
     if (str) {
         str = str.toUpperCase();
         for (const $row of Popup.$otherWindowRows) {
-            const $input = $row.$input;
-            const isMatch = ($input.value || $input.placeholder).toUpperCase().includes(str);
+            const isMatch = Popup.rowName($row).toUpperCase().includes(str);
             $row.hidden = !isMatch;
             $firstMatchRow = $firstMatchRow || (isMatch ? $row : null); // if not already found, it's this row
         }
