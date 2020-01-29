@@ -79,10 +79,10 @@ async function reopenTabs(windowId, tabObjects) {
         const newTab = await browser.tabs.create({
             windowId,
             url,
-            title: tab.title,
             pinned: tab.pinned,
             active: tab.active,
             discarded: tab.discarded,
+            title: tab.discarded ? tab.title : null,
             openInReaderMode: tab.isInReaderMode,
         }).catch(error => null);
         if (newTab) browser.tabs.remove(tab.id);
