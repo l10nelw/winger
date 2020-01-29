@@ -4,9 +4,9 @@ import * as EditMode from './editmode.js';
 export const $omnibar = document.getElementById('omnibar');
 const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
 const commands = {
-    help:    _ => Popup.help(),
-    options: _ => Popup.options(),
-    edit:    _ => EditMode.activate(),
+    help:    Popup.help,
+    options: Popup.options,
+    edit:    EditMode.activate,
 };
 
 export function onKeyUp(event) {
@@ -15,12 +15,12 @@ export function onKeyUp(event) {
     const enter = key === 'Enter';
     if (str[0] === '/') {
         let command;
-        if (str.length > 1 && !controlKeys.includes(key)) {
+        if (!controlKeys.includes(key)) {
             command = completeCommand(str);
         }
         if (enter) {
-            $omnibar.value = '';
             if (command) commands[command]();
+            $omnibar.value = '';
         }
     } else {
         const $firstMatchRow = filterRows(str);
