@@ -9,7 +9,7 @@ const DEFAULT = {
     // show_badge: true,
 
     move_pinned_tabs: true,
-    keep_sent_tabs_selected: false,
+    keep_sent_tabs_selected: true,
 };
 
 export let OPTIONS;
