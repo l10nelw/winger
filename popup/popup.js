@@ -24,8 +24,8 @@ function init(response) {
         if (windowId == currentWindowId) {
             $row.classList.remove('action');
             $row.classList.replace('otherRow', 'currentRow');
-            $row.$bringBtn.remove();
-            $row.$sendBtn.remove();
+            $row.$bringBtn.style.visibility = 'hidden';
+            $row.$sendBtn.style.visibility = 'hidden';
             $row.tabIndex = -1;
             $list = $currentWindow;
         }
