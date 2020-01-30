@@ -13,7 +13,7 @@ let $disabledActions;
 let $rows, lastIndex; // 'Constants' for row.shiftActive(), set in general.activate()
 const $editMode = document.getElementById('editMode');
 const $body = document.body;
-const omnibarText = `Up/Down/Enter to save, Esc to cancel`;
+const omnibarText = `Edit Mode: Enter/Up/Down to save, Esc to cancel`;
 
 
 export function handleClick($target) {
