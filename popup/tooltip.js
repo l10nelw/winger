@@ -51,7 +51,7 @@ export function generate(tabCount, hasReopenTab) {
 }
 
 // Show tooltip based on event.
-// A modifer array instead of event may be given to toggle relevant modifier text in the tooltip.
+// A modifer array may be given instead of event to toggle relevant modifier text in the tooltip.
 export function show(event) {
     let modifiers;
     let $target = event.target;

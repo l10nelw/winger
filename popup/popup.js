@@ -53,13 +53,13 @@ function init(response) {
 function createRow(metaWindow) {
     const $row = document.importNode($rowTemplate, true);
 
-    // Add references to elements, and in each a reference to the row
-    const elements = ['sendBtn', 'bringBtn', 'input', 'tabCount', 'editBtn'];
-    for (const element of elements) {
+    // Add references to elements, and in each, a reference to the row
+    ['sendBtn', 'bringBtn', 'input', 'tabCount', 'editBtn']
+    .forEach(element => {
         const prop = `$${element}`;
         $row[prop] = $row.querySelector(`.${element}`);
         $row[prop].$row = $row;
-    }
+    });
 
     // Add data
     $row._id = metaWindow.id;
@@ -123,7 +123,7 @@ function onKeyUp(event) {
         Omnibar.onKeyUp(event);
     } else
     if (hasClass('otherRow', $target) && ['Enter', ' '].includes(event.key)) {
-        callGoalAction(event, $target._id, null, modifiers);
+        callGoalAction(event, $target._id);
     }
 }
 
@@ -142,8 +142,8 @@ export function options() {
     window.close();
 }
 
-export function callGoalAction(event, windowId, $target, modifiers) {
-    let args = [windowId, modifiers || getModifiers(event)];
+export function callGoalAction(event, windowId, $target) {
+    let args = [windowId, getModifiers(event)];
     if ($target) args.push(hasClass('bringBtn', $target), hasClass('sendBtn', $target));
     browser.runtime.sendMessage({ goalAction: args });
     window.close();
