@@ -17,6 +17,7 @@ import * as Title from './title.js';
 const WindowParts = [Title];
 
 init();
+setIconTitle();
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onRemoved.addListener(onWindowRemoved);
 browser.windows.onFocusChanged.addListener(onWindowFocused);
@@ -27,6 +28,11 @@ async function init() {
     WindowParts.forEach(part => part.init());
     await Metadata.init(windowObjects);
     windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
+}
+
+async function setIconTitle() {
+    const [{ name }, [{ shortcut }]] = await Promise.all([browser.management.getSelf(), browser.commands.getAll()]);
+    browser.browserAction.setTitle({ title: `${name} (${shortcut})` });
 }
 
 async function onWindowCreated(windowObject, isInit) {
