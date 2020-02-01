@@ -73,14 +73,14 @@ input, .tabCount {
 
 /* --- Input field --- */
 
+.input {
+    width: 100%;
+    padding: 0 .5rem;
+}
+
 input:disabled::placeholder,
 input:-moz-read-only::placeholder {
     opacity: 1;
-}
-
-.input {
-    padding: 0 .5rem;
-    min-width: 100%;
 }
 
 .input:-moz-read-only {
@@ -89,14 +89,8 @@ input:-moz-read-only::placeholder {
     cursor: default;
 }
 
-.currentRow .input,
-.currentRow .input::placeholder {
-    width: 100%;
+.currentRow:not(.editModeRow) .input {
     font-weight: bold;
-}
-
-.otherRow .input {
-    width: 100%;
 }
 
 .inputError {
