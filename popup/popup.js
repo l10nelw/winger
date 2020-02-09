@@ -42,8 +42,8 @@ function init(response) {
     $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
 
-    const hasReopenTab = indicateReopenTab();
-    Tooltip.generate(response.selectedTabCount, hasReopenTab);
+    const hasReopenAction = indicateReopenAction();
+    Tooltip.generate(response.selectedTabCount, hasReopenAction);
     Count.populate();
     lockHeight($otherWindows);
 
@@ -103,17 +103,17 @@ function createRow(metaWindow) {
     return $row;
 }
 
-function indicateReopenTab() {
+function indicateReopenAction() {
     const isPrivate = $row => hasClass('private', $row);
-    const currentPrivate = isPrivate($currentWindowRow);
-    let hasReopenTab = false;
+    const currentIsPrivate = isPrivate($currentWindowRow);
+    let hasReopenAction = false;
     for (const $row of $otherWindowRows) {
-        if (isPrivate($row) != currentPrivate) {
+        if (isPrivate($row) != currentIsPrivate) {
             $row.classList.add('reopenTab');
-            hasReopenTab = true;
+            hasReopenAction = true;
         }
     }
-    return hasReopenTab;
+    return hasReopenAction;
 }
 
 function lockHeight($el) {
