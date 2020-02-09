@@ -76,6 +76,7 @@ input, .tabCount {
 .input {
     width: 100%;
     padding: 0 .5rem;
+    text-align: start;
 }
 
 input:disabled::placeholder,
@@ -180,5 +181,6 @@ footer button {
 
 /* --- Utilities --- */
 
-/* Must set explicitly because `display: x` overrides `hidden` behaviour */
-[hidden] { display: none; }
+[hidden] { display: none; } /* Must set explicitly because `display: x` overrides `hidden` behaviour */
+
+.invisible { visibility: hidden; }

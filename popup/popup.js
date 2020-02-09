@@ -1,4 +1,4 @@
-import { hasClass, getModifiers } from '../utils.js';
+import { hasClass, changeClass, getModifiers } from '../utils.js';
 import * as Count from './count.js';
 import * as Status from './status.js';
 import * as Omnibar from './omnibar.js';
@@ -23,9 +23,9 @@ function init(response) {
         let $list = $otherWindows;
         if (windowId == currentWindowId) {
             $row.classList.remove('action');
-            $row.classList.replace('otherRow', 'currentRow');
-            $row.$bringBtn.style.visibility = 'hidden';
-            $row.$sendBtn.style.visibility = 'hidden';
+            changeClass('otherRow', 'currentRow', $row);
+            changeClass('action', 'invisible', $row.$bringBtn);
+            changeClass('action', 'invisible', $row.$sendBtn);
             $row.tabIndex = -1;
             $list = $currentWindow;
         }
