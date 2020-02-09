@@ -1,4 +1,10 @@
 :root {
+    --width-body-rem: 21;
+    --width-btn-rem: 2;
+    --height-input-rem: 2.5;
+    --width-body: calc(var(--width-body-rem) * 1rem);
+    --width-btn: calc(var(--width-btn-rem) * 1rem);
+    --height-input: calc(var(--height-input-rem) * 1rem);
     --bgc-base: #eee;
     --bgc-base-focus: #ddd;
     --bgc-rowbtn: #d0d0d0;
@@ -16,7 +22,7 @@
 /* --- Container --- */
 
 body {
-    width: 24rem;
+    width: var(--width-body);
     overflow: hidden;
     background-color: var(--bgc-base);
 }
@@ -45,7 +51,7 @@ li {
 }
 
 input, .tabCount {
-    height: 2.5rem;
+    height: var(--height-input);
 }
 
 .nameColumn {
@@ -108,8 +114,9 @@ input:-moz-read-only::placeholder {
 /* --- Button --- */
 
 button {
-    width: 2rem;
-    height: 2rem;
+    flex: 0 0 auto;
+    width: var(--width-btn);
+    height: var(--width-btn);
     background-color: var(--bgc-rowbtn);
     border-color: transparent;
     text-align: center;

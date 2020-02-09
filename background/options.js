@@ -1,5 +1,11 @@
 const DEFAULT = {
 
+    popup_bring: true,
+    popup_send: true,
+    popup_edit: true,
+    popup_help: true,
+    popup_options: true,
+
     bring_modifier: 'Ctrl',
     send_modifier: 'Alt',
 

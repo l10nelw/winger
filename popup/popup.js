@@ -5,8 +5,13 @@ import * as Omnibar from './omnibar.js';
 import * as Tooltip from './tooltip.js';
 import * as EditMode from './editmode.js';
 
-const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 const $body = document.body;
+
+// Mutated by removeElements(), used by createRow()
+const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
+const rowElementSelectors = new Set(['.sendBtn', '.bringBtn', '.input', '.tabCount', '.editBtn']);
+
+// Populated by init()
 export let OPTIONS, $currentWindowRow, $otherWindowRows, $allWindowRows;
 
 browser.runtime.sendMessage({ popup: true }).then(init);
@@ -16,6 +21,7 @@ function init(response) {
     const $otherWindows = document.getElementById('otherWindows');
     const { metaWindows, currentWindowId, sortedWindowIds } = response;
     OPTIONS = response.OPTIONS;
+    removeElements();
 
     for (const windowId of sortedWindowIds) {
         const metaWindow = metaWindows[windowId];
@@ -50,15 +56,42 @@ function init(response) {
     $body.addEventListener('keyup', onKeyUp);
 }
 
+function removeElements() {
+    const elements = {
+        popup_bring:   [$rowTemplate, '.bringBtn'],
+        popup_send:    [$rowTemplate, '.sendBtn'],
+        popup_edit:    [$rowTemplate, '.editBtn'],
+        popup_help:    [$body, '#help'],
+        popup_options: [$body, '#options'],
+    }
+    const $document = document.documentElement;
+    const styles = getComputedStyle($document);
+    const buttonWidth = styles.getPropertyValue('--width-btn-rem');
+    let popupWidth = styles.getPropertyValue('--width-body-rem');
+
+    for (const element in elements) {
+        if (OPTIONS[element]) continue; // If element enabled, leave it alone
+        const [$parent, selector] = elements[element];
+        const $element = $parent.querySelector(selector);
+        $element.remove();
+        if ($parent == $rowTemplate) {
+            rowElementSelectors.delete(selector);
+            if ($element.tagName == 'BUTTON') popupWidth -= buttonWidth; // Reduce popup width if a row button is removed
+        }
+    }
+    $document.style.setProperty('--width-body-rem', popupWidth);
+
+}
+
 function createRow(metaWindow) {
     const $row = document.importNode($rowTemplate, true);
 
-    // Add references to elements, and in each, a reference to the row
-    ['sendBtn', 'bringBtn', 'input', 'tabCount', 'editBtn']
-    .forEach(element => {
-        const prop = `$${element}`;
-        $row[prop] = $row.querySelector(`.${element}`);
-        $row[prop].$row = $row;
+    // Add references to row elements, and in each, a reference to the row
+    rowElementSelectors.forEach(selector => {
+        const $element = $row.querySelector(selector);
+        const property = selector.replace('.', '$');
+        $element.$row = $row;
+        $row[property] = $element;
     });
 
     // Add data
