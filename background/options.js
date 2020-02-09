@@ -6,8 +6,8 @@ const DEFAULT = {
     popup_help: true,
     popup_options: true,
 
-    bring_modifier: 'Ctrl',
-    send_modifier: 'Alt',
+    bring_modifier: 'Shift',
+    send_modifier: 'Ctrl',
 
     // enable_tab_menu: true,
     // enable_link_menu: true,
