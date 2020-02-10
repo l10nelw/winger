@@ -1,10 +1,10 @@
 :root {
     --width-body-rem: 21;
     --width-btn-rem: 2;
-    --height-input-rem: 2.5;
+    --height-row-rem: 2.5;
     --width-body: calc(var(--width-body-rem) * 1rem);
     --width-btn: calc(var(--width-btn-rem) * 1rem);
-    --height-input: calc(var(--height-input-rem) * 1rem);
+    --height-row: calc(var(--height-row-rem) * 1rem);
     --bgc-base: #eee;
     --bgc-base-focus: #ddd;
     --bgc-rowbtn: #d0d0d0;
@@ -51,7 +51,7 @@ li {
 }
 
 input, .tabCount {
-    height: var(--height-input);
+    height: var(--height-row);
 }
 
 .nameColumn {
@@ -170,6 +170,7 @@ footer {
 
 footer button {
     flex: 1 1 auto;
+    height: var(--height-row);
     border-radius: 0;
 }
 
