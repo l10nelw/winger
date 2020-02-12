@@ -9,4 +9,5 @@ export const getModifiers =
 // Forgiving* shorthands for $element.classList methods.
 // *Silently does nothing if $element does not exist.
 export const hasClass = (cls, $element) => $element && $element.classList.contains(cls);
+export const addClass = (cls, $element) => $element && $element.classList.add(cls);
 export const changeClass = (clsA, clsB, $element) => $element && $element.classList.replace(clsA, clsB);

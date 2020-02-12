@@ -1,4 +1,4 @@
-import { hasClass, changeClass, getModifiers } from '../utils.js';
+import { hasClass, addClass, changeClass, getModifiers } from '../utils.js';
 import * as Count from './count.js';
 import * as Status from './status.js';
 import * as Omnibar from './omnibar.js';
@@ -109,7 +109,8 @@ function indicateReopenAction() {
     let hasReopenAction = false;
     for (const $row of $otherWindowRows) {
         if (isPrivate($row) != currentIsPrivate) {
-            $row.classList.add('reopenTab');
+            addClass('reopen', $row.$bringBtn);
+            addClass('reopen', $row.$sendBtn);
             hasReopenAction = true;
         }
     }
