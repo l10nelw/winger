@@ -1,3 +1,9 @@
+/*
+- All releavnt metadata is embedded and updated within the DOM structure = the popup's local source-of-truth throughout
+  its lifetime. There is no separate set of data objects to be managed in parallel with the DOM.
+- A variable prefixed with '$' references a DOM node or a collection of DOM nodes.
+*/
+
 import { hasClass, addClass, changeClass, getModifiers } from '../utils.js';
 import * as Count from './count.js'; // Runs './status.js'
 import * as Omnibar from './omnibar.js';
@@ -9,33 +15,16 @@ const $body = document.body;
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 const rowElementSelectors = new Set(['.sendBtn', '.bringBtn', '.input', '.tabCount', '.editBtn']);
 
-// Populated by init()
+// Defined in init()
 export let OPTIONS, $currentWindowRow, $otherWindowRows, $allWindowRows;
 
 browser.runtime.sendMessage({ popup: true }).then(init);
 
-function init(response) {
-    const $currentWindow = document.getElementById('currentWindow');
-    const $otherWindows = document.getElementById('otherWindows');
-    const { metaWindows, currentWindowId, sortedWindowIds } = response;
-    OPTIONS = response.OPTIONS;
-    removeElements();
+function init({ options, metaWindows, currentWindowId, sortedWindowIds, selectedTabCount }) {
+    OPTIONS = options;
+    removeElements(OPTIONS);
 
-    for (const windowId of sortedWindowIds) {
-        const metaWindow = metaWindows[windowId];
-        const $row = createRow(metaWindow);
-        let $list = $otherWindows;
-        if (windowId == currentWindowId) {
-            $row.classList.remove('action');
-            changeClass('otherRow', 'currentRow', $row);
-            changeClass('action', 'invisible', $row.$bringBtn);
-            changeClass('action', 'invisible', $row.$sendBtn);
-            $row.tabIndex = -1;
-            $list = $currentWindow;
-        }
-        $list.appendChild($row);
-    }
-
+    const [$currentWindow, $otherWindows] = populateRows(metaWindows, currentWindowId, sortedWindowIds);
     $currentWindowRow = $currentWindow.querySelector('li');
     $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
@@ -50,7 +39,7 @@ function init(response) {
     $body.addEventListener('keyup', onKeyUp);
 }
 
-function removeElements() {
+function removeElements(OPTIONS) {
     const elements = {
         popup_bring:   [$rowTemplate, '.bringBtn'],
         popup_send:    [$rowTemplate, '.sendBtn'],
@@ -74,7 +63,27 @@ function removeElements() {
         }
     }
     $document.style.setProperty('--width-body-rem', popupWidth);
+}
 
+function populateRows(metaWindows, currentWindowId, sortedWindowIds) {
+    const $currentWindow = document.getElementById('currentWindow');
+    const $otherWindows  = document.getElementById('otherWindows');
+    for (const windowId of sortedWindowIds) {
+        const metaWindow = metaWindows[windowId];
+        const $row = createRow(metaWindow);
+        if (windowId == currentWindowId) {
+            $row.classList.remove('action');
+            $row.title = '';
+            changeClass('otherRow', 'currentRow', $row);
+            changeClass('action', 'invisible', $row.$bringBtn);
+            changeClass('action', 'invisible', $row.$sendBtn);
+            $row.tabIndex = -1;
+            $currentWindow.appendChild($row);
+        } else {
+            $otherWindows.appendChild($row);
+        }
+    }
+    return [$currentWindow, $otherWindows];
 }
 
 function createRow(metaWindow) {

@@ -1,10 +1,7 @@
 /*
-Naming notes:
-- A variable prefixed with '$' references a DOM node or a collection of DOM nodes.
-- Data created and used by this addon pertaining to a window are 'metadata' and an object collecting
-  them is a 'metawindow'. The metawindows live in Metadata.windows as the addon's source-of-truth.
-- Window objects returned by the WebExtensions API are named windowObject to avoid confusion with the
-  global window object.
+- Data created and used by this webextension pertaining to a window are 'metadata' and an object collecting them is a
+  'metawindow'. The metawindows live in Metadata.windows as the webextension's source-of-truth.
+- Window objects returned by the WebExtensions API are named windowObject to avoid confusion with the global window object.
 */
 
 import * as Options from './options.js';
@@ -64,7 +61,7 @@ async function onRequest(request) {
     // From popup/popup.js
     if (request.popup) {
         return {
-            OPTIONS: Options.OPTIONS,
+            options: Options.OPTIONS,
             metaWindows: Metadata.windows,
             currentWindowId: Metadata.focusedWindow.id,
             sortedWindowIds: Metadata.sortedWindowIds(),
