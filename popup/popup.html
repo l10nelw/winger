@@ -16,14 +16,14 @@
     </footer>
 
     <template id="rowTemplate">
-      <li class="window action otherRow" tabindex="0">
-        <button type="button" class="tab action sendBtn">></button>
-        <button type="button" class="tab action bringBtn">»</button>
+      <li class="window action otherRow" tabindex="0" title="Switch to: ">
+        <button type="button" class="tab action sendBtn" title="Send # to: ">></button>
+        <button type="button" class="tab action bringBtn" title="Bring # to: ">»</button>
         <div class="nameColumn">
           <input class="input" readonly tabindex="-1" autocomplete="off">
         </div>
         <div class="tabCount"></div>
-        <button type="button" class="window action editBtn"></button>
+        <button type="button" class="window action editBtn" title="Edit: " data-title="Save and exit Edit Mode"></button>
       </li>
     </template>
 

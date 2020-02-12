@@ -1,8 +1,6 @@
 import { hasClass, addClass, changeClass, getModifiers } from '../utils.js';
-import * as Count from './count.js';
-import * as Status from './status.js';
+import * as Count from './count.js'; // Runs './status.js'
 import * as Omnibar from './omnibar.js';
-import * as Tooltip from './tooltip.js';
 import * as EditMode from './editmode.js';
 
 const $body = document.body;
@@ -42,17 +40,13 @@ function init(response) {
     $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
 
-    const hasReopenAction = indicateReopenAction();
-    Tooltip.generate(response.selectedTabCount, hasReopenAction);
     Count.populate();
+    indicateReopenAction();
+    initTooltips(selectedTabCount);
     lockHeight($otherWindows);
 
     $body.addEventListener('click', onClick);
     $body.addEventListener('contextmenu', onRightClick);
-    $body.addEventListener('focusin', Tooltip.show);
-    $body.addEventListener('mouseover', Tooltip.show);
-    $body.addEventListener('mouseleave', event => Status.show());
-    $body.addEventListener('keydown', onKeyDown);
     $body.addEventListener('keyup', onKeyUp);
 }
 
@@ -106,15 +100,42 @@ function createRow(metaWindow) {
 function indicateReopenAction() {
     const isPrivate = $row => hasClass('private', $row);
     const currentIsPrivate = isPrivate($currentWindowRow);
-    let hasReopenAction = false;
     for (const $row of $otherWindowRows) {
         if (isPrivate($row) != currentIsPrivate) {
             addClass('reopen', $row.$bringBtn);
             addClass('reopen', $row.$sendBtn);
-            hasReopenAction = true;
         }
     }
-    return hasReopenAction;
+}
+
+function initTooltips(tabCount) {
+    let rowNames = new Map();
+    function memoisedRowName($row) {
+        let name = rowNames.get($row);
+        if (!name) {
+            name = rowName($row);
+            rowNames.set($row, name);
+        }
+        return name;
+    }
+    const tabCountPhrase = tabCount == 1 ? 'tab' : `${tabCount} tabs`;
+    const reopenPhrase = '(close-reopen) ';
+    const $actions = $body.querySelectorAll('.action');
+
+    for (const $action of $actions) {
+        const name = memoisedRowName($action.$row || $action);
+        const insertedText = (hasClass('reopen', $action) ? reopenPhrase : '') + tabCountPhrase;
+        $action.title = updateTooltipName($action.title, name).replace('#', insertedText);
+    }
+}
+
+export function updateTooltipName(tooltip, name) {
+    const colon = ': ';
+    const colonIndex = tooltip.indexOf(colon);
+    if (colonIndex > -1) {
+        tooltip = tooltip.slice(0, colonIndex + colon.length) + name;
+    }
+    return tooltip;
 }
 
 function lockHeight($el) {
@@ -145,13 +166,7 @@ function onRightClick(event) {
     }
 }
 
-function onKeyDown(event) {
-    const modifiers = getModifiers(event);
-    if (modifiers.length) Tooltip.show(modifiers);
-}
-
 function onKeyUp(event) {
-    Tooltip.show([]);
     const $target = event.target;
     if ($target == Omnibar.$omnibar) {
         Omnibar.onKeyUp(event);
