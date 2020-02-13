@@ -48,10 +48,7 @@ const general = {
     toggle(yes) {
         const tabIndex = yes ? -1 : 0;
         $disabledActions = $disabledActions || [...$body.querySelectorAll('.action:not(.editBtn)')];
-        for (const $action of $disabledActions) {
-            $action.classList.toggle('action', !yes);
-            $action.tabIndex = tabIndex;
-        }
+        $disabledActions.forEach($action => $action.tabIndex = tabIndex);
         const evLi = yes ? 'addEventListener' : 'removeEventListener';
         $body[evLi]('keyup', onKeyUp);
         $body[evLi]('focusout', onFocusout);
