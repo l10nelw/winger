@@ -122,7 +122,7 @@ function initTooltips(tabCount) {
     function memoisedRowName($row) {
         let name = rowNames.get($row);
         if (!name) {
-            name = rowName($row);
+            name = getDisplayName($row);
             rowNames.set($row, name);
         }
         return name;
@@ -185,8 +185,8 @@ function onKeyUp(event) {
     }
 }
 
-export function rowName($row) {
-    const $input = $row.$input;
+export function getDisplayName($rowElement) {
+    const $input = hasClass('input', $rowElement) && $rowElement || $rowElement.$input || $rowElement.$row.$input;
     return $input.value || $input.placeholder;
 }
 
