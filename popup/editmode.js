@@ -13,7 +13,9 @@ let $disabledActions;
 let $rows, lastIndex; // 'Constants' for row.shiftActive(), set in general.activate()
 const $editMode = document.getElementById('editMode');
 const $body = document.body;
+
 const omnibarText = `Enter/Up/Down to save, Esc to cancel`;
+let altTooltip = `Save and exit Edit Mode`;
 
 
 export function handleClick($target) {
@@ -79,6 +81,7 @@ const row = {
         $activeInput.classList.toggle('allowRightClick', yes);
         $activeInput.readOnly = !yes;
         $activeInput.tabIndex = yes ? 0 : -1;
+        [$active.$editBtn.title, altTooltip] = [altTooltip, $active.$editBtn.title];
     },
 
     activate($row) {
@@ -90,7 +93,11 @@ const row = {
     },
 
     deactivate() {
+        const $row = $active;
+        const displayName = Popup.getDisplayName($activeInput);
         row.toggle(false);
+        [$row, ...$row.querySelectorAll('.action')]
+            .forEach($action => $action.title = Popup.updateTooltipName($action.title, displayName));
     },
 
     shiftActive(down) {
