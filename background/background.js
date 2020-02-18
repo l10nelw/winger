@@ -4,7 +4,7 @@
 - Window objects returned by the WebExtensions API are named windowObject to avoid confusion with the global window object.
 */
 
-import * as Options from './options.js';
+import * as Settings from './settings.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
@@ -21,7 +21,7 @@ browser.windows.onFocusChanged.addListener(onWindowFocused);
 browser.runtime.onMessage.addListener(onRequest);
 
 async function init() {
-    const [windowObjects,] = await Promise.all([browser.windows.getAll(), Options.retrieve()]);
+    const [windowObjects,] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
     WindowParts.forEach(part => part.init());
     await Metadata.init(windowObjects);
     windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
@@ -61,7 +61,7 @@ async function onRequest(request) {
     // From popup/popup.js
     if (request.popup) {
         return {
-            options: Options.OPTIONS,
+            settings: Settings.SETTINGS,
             metaWindows: Metadata.windows,
             currentWindowId: Metadata.focusedWindow.id,
             sortedWindowIds: Metadata.sortedWindowIds(),

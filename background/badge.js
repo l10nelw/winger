@@ -1,10 +1,10 @@
-import { OPTIONS } from './options.js';
+import { SETTINGS } from './settings.js';
 import { windows as metaWindows } from './metadata.js';
 
 let show;
 
 export function init() {
-    show = OPTIONS.show_badge;
+    show = SETTINGS.show_badge;
     if (show) {
         browser.browserAction.setBadgeTextColor({ color: 'black' });
         browser.browserAction.setBadgeBackgroundColor({ color: 'white' });

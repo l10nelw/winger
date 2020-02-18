@@ -1,4 +1,4 @@
-import { OPTIONS } from './options.js';
+import { SETTINGS } from './settings.js';
 import { windows as metaWindows } from './metadata.js';
 
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
@@ -20,8 +20,8 @@ export async function doAction({ action, windowId, reopen, tabs, modifiers }) {
 }
 
 function modifyAction(action, modifiers) {
-    return modifiers.includes(OPTIONS.bring_modifier) ? 'bringTabs' :
-           modifiers.includes(OPTIONS.send_modifier)  ? 'sendTabs' :
+    return modifiers.includes(SETTINGS.bring_modifier) ? 'bringTabs' :
+           modifiers.includes(SETTINGS.send_modifier)  ? 'sendTabs' :
            action;
 }
 
@@ -37,7 +37,7 @@ function sendTabs(windowId, tabs, reopen) {
 
 async function moveTabs(windowId, tabs) {
     let pinnedTabIds;
-    if (OPTIONS.move_pinned_tabs) {
+    if (SETTINGS.move_pinned_tabs) {
         pinnedTabIds = tabs.filter(tab => tab.pinned).map(tab => tab.id);
         await Promise.all(pinnedTabIds.map(unpinTab));
     }
@@ -47,17 +47,17 @@ async function moveTabs(windowId, tabs) {
 
     if (pinnedTabIds) pinnedTabIds.forEach(pinTab);
 
-    if (OPTIONS.keep_moved_active_tab_active) {
+    if (SETTINGS.keep_moved_active_tab_active) {
         const activeTabObject = tabs.find(tab => tab.active);
         if (activeTabObject) activateTab(activeTabObject.id);
     }
-    if (OPTIONS.keep_moved_tabs_selected) {
+    if (SETTINGS.keep_moved_tabs_selected) {
         tabIds.forEach(selectTab);
     }
 }
 
 async function reopenTabs(windowId, tabs) {
-    if (!OPTIONS.move_pinned_tabs) {
+    if (!SETTINGS.move_pinned_tabs) {
         tabs = tabs.filter(tab => !tab.pinned);
     }
 
@@ -67,7 +67,7 @@ async function reopenTabs(windowId, tabs) {
             windowId,
             url,
             pinned: tab.pinned,
-            active: OPTIONS.keep_moved_active_tab_active ? tab.active : null,
+            active: SETTINGS.keep_moved_active_tab_active ? tab.active : null,
             discarded: tab.discarded,
             title: tab.discarded ? tab.title : null,
             openInReaderMode: tab.isInReaderMode,
@@ -77,7 +77,7 @@ async function reopenTabs(windowId, tabs) {
     }
     tabs = await Promise.all(tabs.map(reopenTab));
 
-    if (OPTIONS.keep_moved_tabs_selected) {
+    if (SETTINGS.keep_moved_tabs_selected) {
         tabs.forEach(tab => { if (tab && !tab.active) selectTab(tab.id) });
     }
 }

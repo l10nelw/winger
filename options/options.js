@@ -1,24 +1,24 @@
-import * as Options from '../background/options.js';
+import * as Settings from '../background/settings.js';
 
 const $body = document.body;
 const $form = $body.querySelector('form');
-const $modifierFields = ['bring_modifier', 'send_modifier'].map(fieldName => $form[fieldName]);
-let OPTIONS;
+const $modifierFields = [$form.bring_modifier, $form.send_modifier];
+let SETTINGS;
 init();
 
 async function init() {
-    OPTIONS = await Options.retrieve();
-    for (const fieldName in OPTIONS) {
-        setFieldValue(fieldName, OPTIONS[fieldName]);
+    SETTINGS = await Settings.retrieve();
+    for (const fieldName in SETTINGS) {
+        setFieldValue(fieldName, SETTINGS[fieldName]);
     }
     $body.hidden = false; // Page initially hidden to avoid flash of value changes on reload.
-    $form.onchange = onOptionChange;
+    $form.onchange = onFieldChange;
 }
 
-function onOptionChange(event) {
+function onFieldChange(event) {
     const $target = event.target;
     handleModifierFields($target);
-    storeOption($target);
+    saveSetting($target);
     browser.runtime.reload();
 }
 
@@ -28,16 +28,14 @@ function handleModifierFields($target) {
     if (index == -1) return;
     const $other = $modifierFields[1 - index];
     if ($target.value == $other.value) {
-        $other.value = OPTIONS[$target.name];
-        storeOption($other);
+        $other.value = SETTINGS[$target.name];
+        saveSetting($other);
     }
 }
 
-function storeOption($target) {
+function saveSetting($target) {
     const fieldName = $target.name;
-    let option = {};
-    option[fieldName] = getFieldValue(fieldName);
-    browser.storage.local.set(option);
+    browser.storage.local.set({ [fieldName]: getFieldValue(fieldName) });
 }
 
 function setFieldValue(fieldName, value) {

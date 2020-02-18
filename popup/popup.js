@@ -16,7 +16,7 @@ const $rowTemplate = document.getElementById('rowTemplate').content.firstElement
 const rowElementSelectors = new Set(['.send', '.bring', '.input', '.tabCount', '.edit']);
 
 // Defined in init()
-export let OPTIONS, $currentWindowRow, $otherWindowRows, $allWindowRows;
+export let SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows;
 
 // data-action element attribute functions.
 const actionAttr = 'data-action';
@@ -27,9 +27,9 @@ export const getActionElements = ($scope, suffix = '') => $scope.querySelectorAl
 
 browser.runtime.sendMessage({ popup: true }).then(init);
 
-function init({ options, metaWindows, currentWindowId, sortedWindowIds, selectedTabCount }) {
-    OPTIONS = options;
-    removeElements(OPTIONS);
+function init({ settings, metaWindows, currentWindowId, sortedWindowIds, selectedTabCount }) {
+    SETTINGS = settings;
+    removeElements(SETTINGS);
 
     const [$currentWindow, $otherWindows] = populateRows(metaWindows, currentWindowId, sortedWindowIds);
     $currentWindowRow = $currentWindow.querySelector('li');
@@ -45,14 +45,14 @@ function init({ options, metaWindows, currentWindowId, sortedWindowIds, selected
     $body.addEventListener('contextmenu', onRightClick);
     $body.addEventListener('keyup', onKeyUp);
 
-    function removeElements(OPTIONS) {
+    function removeElements(SETTINGS) {
         const elements = {
-            // Keys are from OPTIONS
-            popup_bring:   [$rowTemplate, '.bring'],
-            popup_send:    [$rowTemplate, '.send'],
-            popup_edit:    [$rowTemplate, '.edit'],
-            popup_help:    [$body, '#help'],
-            popup_options: [$body, '#options'],
+            // Keys are from SETTINGS
+            popup_bring:    [$rowTemplate, '.bring'],
+            popup_send:     [$rowTemplate, '.send'],
+            popup_edit:     [$rowTemplate, '.edit'],
+            popup_help:     [$body, '#help'],
+            popup_settings: [$body, '#settings'],
         }
         const $document = document.documentElement;
         const styles = getComputedStyle($document);
@@ -60,7 +60,7 @@ function init({ options, metaWindows, currentWindowId, sortedWindowIds, selected
         let popupWidth = styles.getPropertyValue('--width-body-rem');
 
         for (const element in elements) {
-            if (OPTIONS[element]) continue; // If element enabled, leave it alone
+            if (SETTINGS[element]) continue; // If element enabled, leave it alone
             const [$parent, selector] = elements[element];
             const $el = $parent.querySelector(selector);
             $el.remove();
@@ -161,8 +161,8 @@ function onClick(event) {
     if ($target.id == 'help') {
         help();
     } else
-    if ($target.id == 'options') {
-        options();
+    if ($target.id == 'settings') {
+        settings();
     } else
     if (EditMode.handleClick($target)) {
         return; // Click handled by EditMode
@@ -199,7 +199,7 @@ export function help() {
     window.close();
 }
 
-export function options() {
+export function settings() {
     browser.runtime.openOptionsPage();
     window.close();
 }

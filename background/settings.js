@@ -4,7 +4,7 @@ const DEFAULT = {
     popup_send: true,
     popup_edit: true,
     popup_help: true,
-    popup_options: true,
+    popup_settings: true,
 
     bring_modifier: 'Shift',
     send_modifier: 'Ctrl',
@@ -19,9 +19,9 @@ const DEFAULT = {
     keep_moved_tabs_selected: false,
 };
 
-export let OPTIONS;
+export let SETTINGS;
 
 export async function retrieve() {
-    if (!OPTIONS) OPTIONS = { ...DEFAULT, ...await browser.storage.local.get() };
-    return OPTIONS;
+    if (!SETTINGS) SETTINGS = { ...DEFAULT, ...await browser.storage.local.get(DEFAULT) };
+    return SETTINGS;
 }

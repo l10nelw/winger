@@ -1,12 +1,12 @@
-import { OPTIONS } from './options.js';
+import { SETTINGS } from './settings.js';
 import { windows as metaWindows } from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
 let contexts = [];
 
 export function init() {
-    if (OPTIONS.enable_tab_menu) contexts.push('tab');
-    if (OPTIONS.enable_link_menu) contexts.push('link');
+    if (SETTINGS.enable_tab_menu) contexts.push('tab');
+    if (SETTINGS.enable_link_menu) contexts.push('link');
     if (contexts.length) browser.menus.onClicked.addListener(onClick);
 }
 
@@ -23,7 +23,7 @@ function onClick(info, tabObject) {
 
 function onClickLinkContext(url, windowId, modifiers) {
     browser.tabs.create({ windowId, url });
-    if (modifiers.includes(OPTIONS.bring_modifier)) WindowTab.focusWindow(windowId);
+    if (modifiers.includes(SETTINGS.bring_modifier)) WindowTab.focusWindow(windowId);
 }
 
 async function onClickTabContext(tabObject, windowId, modifiers) {
