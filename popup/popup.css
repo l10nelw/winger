@@ -141,6 +141,10 @@ button:focus {
     opacity: .5;
 }
 
+.currentRow .tabAction {
+    visibility: hidden;
+}
+
 .reopenTabs .tabAction {
     border: 1px solid var(--borderc-private);
 }
@@ -190,5 +194,3 @@ footer button {
 /* --- Utilities --- */
 
 [hidden] { display: none; } /* Must set explicitly because `display: x` overrides `hidden` behaviour */
-
-.invisible { visibility: hidden; }

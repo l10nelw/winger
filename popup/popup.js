@@ -81,8 +81,6 @@ function populateRows(metaWindows, currentWindowId, sortedWindowIds) {
         const $row = createRow(metaWindow);
         if (windowId == currentWindowId) {
             changeClass('otherRow', 'currentRow', $row);
-            addClass('invisible', $row.$bring);
-            addClass('invisible', $row.$send);
             [$row, $row.$bring, $row.$send].forEach(unsetAction);
             $row.tabIndex = -1;
             $row.title = '';
