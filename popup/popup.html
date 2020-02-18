@@ -8,7 +8,7 @@
     <input type="checkbox" id="editMode" hidden>
     <ul id="currentWindow"></ul>
     <input id="omnibar" class="allowRightClick" type="text" autofocus>
-    <ul id="otherWindows"></ul>
+    <ul id="otherWindows" tabindex="-1"></ul>
     <div id="status"></div>
     <footer>
       <button type="button" id="help">Help</button>
@@ -16,14 +16,14 @@
     </footer>
 
     <template id="rowTemplate">
-      <li class="window action otherRow" tabindex="0" title="Switch to: ">
-        <button type="button" class="tab action sendBtn" title="Send # to: ">></button>
-        <button type="button" class="tab action bringBtn" title="Bring # to: ">»</button>
+      <li tabindex="0" class="otherRow" data-action="switchToWindow" title="Switch to: ">
+        <button type="button" class="tabAction send" data-action="sendTabs" title="Send # to: ">></button>
+        <button type="button" class="tabAction bring" data-action="bringTabs" title="Bring # to: ">»</button>
         <div class="nameColumn">
-          <input class="input" readonly tabindex="-1" autocomplete="off">
+          <input tabindex="-1" class="input" readonly autocomplete="off">
         </div>
         <div class="tabCount"></div>
-        <button type="button" class="window action editBtn" title="Edit: "></button>
+        <button type="button" class="edit" data-action="edit" title="Edit: "></button>
       </li>
     </template>
 

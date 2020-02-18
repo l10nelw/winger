@@ -128,20 +128,20 @@ button:focus {
     background-color: var(--bgc-rowbtn-focus);
 }
 
-.editBtn:before {
+.edit:before {
     content: "✏️";
 }
 
-.editModeRow .editBtn:before {
+.editModeRow .edit:before {
     content: "✔️";
 }
 
-#editMode:checked ~ ul button:not(.editBtn) {
+#editMode:checked ~ ul button:not(.edit) {
     background-color: transparent;
     opacity: .5;
 }
 
-.tab.action.reopen {
+.reopenTabs .tabAction {
     border: 1px solid var(--borderc-private);
 }
 

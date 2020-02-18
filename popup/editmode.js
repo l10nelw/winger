@@ -3,7 +3,7 @@ Edit Mode is activated on two levels, general and row (specific).
 General activation governs state that is sustained even while different rows change active status.
 */
 
-import { hasClass } from '../utils.js';
+import { hasClass, toggleClass } from '../utils.js';
 import * as Popup from './popup.js';
 import * as Omnibar from './omnibar.js';
 
@@ -20,7 +20,7 @@ let altTooltip = `Save and exit Edit Mode`;
 
 export function handleClick($target) {
     let handled = false;
-    if (hasClass('editBtn', $target)) {
+    if (hasClass('edit', $target)) {
         // If target is edit button, toggle row's activation
         const $row = $target.$row;
         $row != $active ? activate($row) : done();
@@ -49,7 +49,7 @@ const general = {
 
     toggle(yes) {
         const tabIndex = yes ? -1 : 0;
-        $disabledActions = $disabledActions || [...$body.querySelectorAll('.action:not(.editBtn)')];
+        $disabledActions = $disabledActions || [...Popup.getActionElements($body, ':not(.edit)')];
         $disabledActions.forEach($action => $action.tabIndex = tabIndex);
         const evLi = yes ? 'addEventListener' : 'removeEventListener';
         $body[evLi]('keyup', onKeyUp);
@@ -60,14 +60,14 @@ const general = {
     },
 
     activate() {
-        general.toggle(true);
+        this.toggle(true);
         Omnibar.showAllRows();
         $rows = Popup.$allWindowRows;
         lastIndex = $rows.length - 1;
     },
 
     deactivate() {
-        general.toggle(false);
+        this.toggle(false);
         Omnibar.focus();
         $active = null;
     },
@@ -77,11 +77,11 @@ const general = {
 const row = {
 
     toggle(yes) {
-        $active.classList.toggle('editModeRow', yes);
-        $activeInput.classList.toggle('allowRightClick', yes);
+        toggleClass('editModeRow', $active, yes);
+        toggleClass('allowRightClick', $activeInput, yes);
         $activeInput.readOnly = !yes;
         $activeInput.tabIndex = yes ? 0 : -1;
-        [$active.$editBtn.title, altTooltip] = [altTooltip, $active.$editBtn.title];
+        [$active.$edit.title, altTooltip] = [altTooltip, $active.$edit.title];
     },
 
     activate($row) {
@@ -89,15 +89,16 @@ const row = {
         $activeInput = $active.$input;
         $activeInput._original = $activeInput.value;
         $activeInput.select();
-        row.toggle(true);
+        this.toggle(true);
     },
 
     deactivate() {
         const $row = $active;
         const displayName = Popup.getDisplayName($activeInput);
-        row.toggle(false);
-        [$row, ...$row.querySelectorAll('.action')]
-            .forEach($action => $action.title = Popup.updateTooltipName($action.title, displayName));
+        this.toggle(false);
+        for (const $action of [$row, ...Popup.getActionElements($row)]) {
+            $action.title = Popup.updateTooltipName($action.title, displayName);
+        }
     },
 
     shiftActive(down) {
@@ -161,9 +162,9 @@ async function trySaveName($input) {
     return error;
 }
 
-// Toggle on effects: apply error indicator, remember invalid content, select input.
+// Toggle-on effects: apply error indicator, remember invalid content, select input.
 function toggleError($input, error) {
-    $input.classList.toggle('inputError', error);
+    toggleClass('inputError', $input, error);
     $input._invalid = error ? $input.value : undefined;
     if (error) $input.select();
 }

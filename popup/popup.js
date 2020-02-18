@@ -13,10 +13,17 @@ const $body = document.body;
 
 // Mutated by removeElements(), used by createRow()
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-const rowElementSelectors = new Set(['.sendBtn', '.bringBtn', '.input', '.tabCount', '.editBtn']);
+const rowElementSelectors = new Set(['.send', '.bring', '.input', '.tabCount', '.edit']);
 
 // Defined in init()
 export let OPTIONS, $currentWindowRow, $otherWindowRows, $allWindowRows;
+
+// data-action element attribute functions.
+const actionAttr = 'data-action';
+const getAction = $el => $el && $el.getAttribute(actionAttr);
+const unsetAction = $el => $el && $el.removeAttribute(actionAttr);
+export const getActionElements = ($scope, suffix = '') => $scope.querySelectorAll(`[${actionAttr}]${suffix}`);
+
 
 browser.runtime.sendMessage({ popup: true }).then(init);
 
@@ -41,9 +48,10 @@ function init({ options, metaWindows, currentWindowId, sortedWindowIds, selected
 
 function removeElements(OPTIONS) {
     const elements = {
-        popup_bring:   [$rowTemplate, '.bringBtn'],
-        popup_send:    [$rowTemplate, '.sendBtn'],
-        popup_edit:    [$rowTemplate, '.editBtn'],
+        // Keys are from OPTIONS
+        popup_bring:   [$rowTemplate, '.bring'],
+        popup_send:    [$rowTemplate, '.send'],
+        popup_edit:    [$rowTemplate, '.edit'],
         popup_help:    [$body, '#help'],
         popup_options: [$body, '#options'],
     }
@@ -55,11 +63,11 @@ function removeElements(OPTIONS) {
     for (const element in elements) {
         if (OPTIONS[element]) continue; // If element enabled, leave it alone
         const [$parent, selector] = elements[element];
-        const $element = $parent.querySelector(selector);
-        $element.remove();
+        const $el = $parent.querySelector(selector);
+        $el.remove();
         if ($parent == $rowTemplate) {
             rowElementSelectors.delete(selector);
-            if ($element.tagName == 'BUTTON') popupWidth -= buttonWidth; // Reduce popup width if a row button is removed
+            if ($el.tagName == 'BUTTON') popupWidth -= buttonWidth; // Reduce popup width if a row button is removed
         }
     }
     $document.style.setProperty('--width-body-rem', popupWidth);
@@ -72,12 +80,12 @@ function populateRows(metaWindows, currentWindowId, sortedWindowIds) {
         const metaWindow = metaWindows[windowId];
         const $row = createRow(metaWindow);
         if (windowId == currentWindowId) {
-            $row.classList.remove('action');
-            $row.title = '';
             changeClass('otherRow', 'currentRow', $row);
-            changeClass('action', 'invisible', $row.$bringBtn);
-            changeClass('action', 'invisible', $row.$sendBtn);
+            addClass('invisible', $row.$bring);
+            addClass('invisible', $row.$send);
+            [$row, $row.$bring, $row.$send].forEach(unsetAction);
             $row.tabIndex = -1;
+            $row.title = '';
             $currentWindow.appendChild($row);
         } else {
             $otherWindows.appendChild($row);
@@ -91,17 +99,17 @@ function createRow(metaWindow) {
 
     // Add references to row elements, and in each, a reference to the row
     rowElementSelectors.forEach(selector => {
-        const $element = $row.querySelector(selector);
+        const $el = $row.querySelector(selector);
         const property = selector.replace('.', '$');
-        $element.$row = $row;
-        $row[property] = $element;
+        $el.$row = $row;
+        $row[property] = $el;
     });
 
     // Add data
     $row._id = metaWindow.id;
     $row.$input.value = metaWindow.givenName;
     $row.$input.placeholder = metaWindow.defaultName;
-    if (metaWindow.incognito) $row.classList.add('private');
+    if (metaWindow.incognito) addClass('private', $row);
 
     return $row;
 }
@@ -110,10 +118,7 @@ function indicateReopenAction() {
     const isPrivate = $row => hasClass('private', $row);
     const currentIsPrivate = isPrivate($currentWindowRow);
     for (const $row of $otherWindowRows) {
-        if (isPrivate($row) != currentIsPrivate) {
-            addClass('reopen', $row.$bringBtn);
-            addClass('reopen', $row.$sendBtn);
-        }
+        if (isPrivate($row) != currentIsPrivate) addClass('reopenTabs', $row);
     }
 }
 
@@ -129,12 +134,12 @@ function initTooltips(tabCount) {
     }
     const tabCountPhrase = tabCount == 1 ? 'tab' : `${tabCount} tabs`;
     const reopenPhrase = '(close-reopen) ';
-    const $actions = $body.querySelectorAll('.action');
-
+    const $actions = getActionElements($body);
     for (const $action of $actions) {
-        const name = memoisedRowName($action.$row || $action);
-        const insertedText = (hasClass('reopen', $action) ? reopenPhrase : '') + tabCountPhrase;
-        $action.title = updateTooltipName($action.title, name).replace('#', insertedText);
+        const $row = $action.$row || $action;
+        const name = memoisedRowName($row);
+        const insertText = (hasClass('reopenTabs', $row) ? reopenPhrase : '') + tabCountPhrase;
+        $action.title = updateTooltipName($action.title, name).replace('#', insertText);
     }
 }
 
@@ -163,8 +168,7 @@ function onClick(event) {
     if (EditMode.handleClick($target)) {
         return; // Click handled by EditMode
     } else {
-        const $row = $target.closest('.otherRow');
-        if ($row) callGoalAction(event, $row._id, $target);
+        requestAction(event, $target);
     }
 }
 
@@ -181,7 +185,7 @@ function onKeyUp(event) {
         Omnibar.onKeyUp(event);
     } else
     if (hasClass('otherRow', $target) && ['Enter', ' '].includes(event.key)) {
-        callGoalAction(event, $target._id);
+        requestAction(event, $target);
     }
 }
 
@@ -200,9 +204,18 @@ export function options() {
     window.close();
 }
 
-export function callGoalAction(event, windowId, $target) {
-    let args = [windowId, getModifiers(event)];
-    if ($target) args.push(hasClass('bringBtn', $target), hasClass('sendBtn', $target));
-    browser.runtime.sendMessage({ goalAction: args });
+// Get action parameters from event and $action element, to request for action execution by the background.
+export function requestAction(event, $action = event.target) {
+    const $row = $action.$row || $action;
+    const windowId = $row._id;
+    if (!windowId) return;
+    const action = getAction($action) || getAction($row);
+    if (!action) return;
+    browser.runtime.sendMessage({
+        action,
+        windowId,
+        reopen: hasClass('reopenTabs', $row),
+        modifiers: getModifiers(event),
+    });
     window.close();
 }

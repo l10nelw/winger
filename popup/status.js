@@ -1,4 +1,5 @@
 import { count } from './count.js';
+import { addClass, toggleClass } from '../utils.js';
 
 const $status = document.getElementById('status');
 let defaultText;
@@ -9,13 +10,13 @@ $status.textContent = ' ';
 export function show(text) {
     defaultText = defaultText || tabCountText();
     $status.textContent = text || defaultText;
-    $status.classList.toggle('defaultStatus', !text);
+    toggleClass('defaultStatus', $status, !text);
 }
 
 // Update and show defaultText in status bar.
 export function update() {
     $status.textContent = defaultText = tabCountText();
-    $status.classList.add('defaultStatus');
+    addClass('defaultStatus', $status);
 }
 
 function tabCountText() {

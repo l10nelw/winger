@@ -25,7 +25,7 @@ export function onKeyUp(event) {
     } else {
         const $firstMatchRow = filterRows(str);
         if (enter && $firstMatchRow) {
-            Popup.callGoalAction(event, $firstMatchRow._id);
+            Popup.requestAction(event, $firstMatchRow);
         }
     }
 }

@@ -68,8 +68,10 @@ async function onRequest(request) {
             selectedTabCount: (await WindowTab.getSelectedTabs()).length,
         };
     }
-    if (request.goalAction) {
-        WindowTab.goalAction(...request.goalAction);
+
+    // From popup/popup.js
+    if (request.action) {
+        WindowTab.doAction(request);
         return;
     }
 
