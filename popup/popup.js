@@ -37,110 +37,116 @@ function init({ options, metaWindows, currentWindowId, sortedWindowIds, selected
     $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
 
     Count.populate();
-    indicateReopenAction();
+    indicateReopenTabs();
     initTooltips(selectedTabCount);
     lockHeight($otherWindows);
 
     $body.addEventListener('click', onClick);
     $body.addEventListener('contextmenu', onRightClick);
     $body.addEventListener('keyup', onKeyUp);
-}
 
-function removeElements(OPTIONS) {
-    const elements = {
-        // Keys are from OPTIONS
-        popup_bring:   [$rowTemplate, '.bring'],
-        popup_send:    [$rowTemplate, '.send'],
-        popup_edit:    [$rowTemplate, '.edit'],
-        popup_help:    [$body, '#help'],
-        popup_options: [$body, '#options'],
+    function removeElements(OPTIONS) {
+        const elements = {
+            // Keys are from OPTIONS
+            popup_bring:   [$rowTemplate, '.bring'],
+            popup_send:    [$rowTemplate, '.send'],
+            popup_edit:    [$rowTemplate, '.edit'],
+            popup_help:    [$body, '#help'],
+            popup_options: [$body, '#options'],
+        }
+        const $document = document.documentElement;
+        const styles = getComputedStyle($document);
+        const buttonWidth = styles.getPropertyValue('--width-btn-rem');
+        let popupWidth = styles.getPropertyValue('--width-body-rem');
+
+        for (const element in elements) {
+            if (OPTIONS[element]) continue; // If element enabled, leave it alone
+            const [$parent, selector] = elements[element];
+            const $el = $parent.querySelector(selector);
+            $el.remove();
+            if ($parent == $rowTemplate) {
+                rowElementSelectors.delete(selector);
+                if ($el.tagName == 'BUTTON') popupWidth -= buttonWidth; // Reduce popup width if a row button is removed
+            }
+        }
+        $document.style.setProperty('--width-body-rem', popupWidth);
     }
-    const $document = document.documentElement;
-    const styles = getComputedStyle($document);
-    const buttonWidth = styles.getPropertyValue('--width-btn-rem');
-    let popupWidth = styles.getPropertyValue('--width-body-rem');
 
-    for (const element in elements) {
-        if (OPTIONS[element]) continue; // If element enabled, leave it alone
-        const [$parent, selector] = elements[element];
-        const $el = $parent.querySelector(selector);
-        $el.remove();
-        if ($parent == $rowTemplate) {
-            rowElementSelectors.delete(selector);
-            if ($el.tagName == 'BUTTON') popupWidth -= buttonWidth; // Reduce popup width if a row button is removed
+    function populateRows(metaWindows, currentWindowId, sortedWindowIds) {
+        const $currentWindow = document.getElementById('currentWindow');
+        const $otherWindows  = document.getElementById('otherWindows');
+        for (const windowId of sortedWindowIds) {
+            const metaWindow = metaWindows[windowId];
+            const $row = createRow(metaWindow);
+            if (windowId == currentWindowId) {
+                changeClass('otherRow', 'currentRow', $row);
+                [$row, $row.$bring, $row.$send].forEach(unsetAction);
+                $row.tabIndex = -1;
+                $row.title = '';
+                $currentWindow.appendChild($row);
+            } else {
+                $otherWindows.appendChild($row);
+            }
+        }
+        return [$currentWindow, $otherWindows];
+    }
+
+    function createRow(metaWindow) {
+        const $row = document.importNode($rowTemplate, true);
+
+        // Add references to row elements, and in each, a reference to the row
+        rowElementSelectors.forEach(selector => {
+            const $el = $row.querySelector(selector);
+            const property = selector.replace('.', '$');
+            $el.$row = $row;
+            $row[property] = $el;
+        });
+
+        // Add data
+        $row._id = metaWindow.id;
+        $row.$input.value = metaWindow.givenName;
+        $row.$input.placeholder = metaWindow.defaultName;
+        if (metaWindow.incognito) addClass('private', $row);
+
+        return $row;
+    }
+
+    function indicateReopenTabs() {
+        const isPrivate = $row => hasClass('private', $row);
+        const currentIsPrivate = isPrivate($currentWindowRow);
+        for (const $row of $otherWindowRows) {
+            if (isPrivate($row) != currentIsPrivate) addClass('reopenTabs', $row);
         }
     }
-    $document.style.setProperty('--width-body-rem', popupWidth);
-}
 
-function populateRows(metaWindows, currentWindowId, sortedWindowIds) {
-    const $currentWindow = document.getElementById('currentWindow');
-    const $otherWindows  = document.getElementById('otherWindows');
-    for (const windowId of sortedWindowIds) {
-        const metaWindow = metaWindows[windowId];
-        const $row = createRow(metaWindow);
-        if (windowId == currentWindowId) {
-            changeClass('otherRow', 'currentRow', $row);
-            [$row, $row.$bring, $row.$send].forEach(unsetAction);
-            $row.tabIndex = -1;
-            $row.title = '';
-            $currentWindow.appendChild($row);
-        } else {
-            $otherWindows.appendChild($row);
+    function initTooltips(tabCount) {
+        let rowNames = new Map();
+        function memoisedRowName($row) {
+            let name = rowNames.get($row);
+            if (!name) {
+                name = getDisplayName($row);
+                rowNames.set($row, name);
+            }
+            return name;
+        }
+        const tabCountPhrase = tabCount == 1 ? 'tab' : `${tabCount} tabs`;
+        const reopenPhrase = '(close-reopen) ';
+        const $actions = getActionElements($body);
+        for (const $action of $actions) {
+            const $row = $action.$row || $action;
+            const name = memoisedRowName($row);
+            const insertText = (hasClass('reopenTabs', $row) ? reopenPhrase : '') + tabCountPhrase;
+            $action.title = updateTooltipName($action.title, name).replace('#', insertText);
         }
     }
-    return [$currentWindow, $otherWindows];
-}
 
-function createRow(metaWindow) {
-    const $row = document.importNode($rowTemplate, true);
-
-    // Add references to row elements, and in each, a reference to the row
-    rowElementSelectors.forEach(selector => {
-        const $el = $row.querySelector(selector);
-        const property = selector.replace('.', '$');
-        $el.$row = $row;
-        $row[property] = $el;
-    });
-
-    // Add data
-    $row._id = metaWindow.id;
-    $row.$input.value = metaWindow.givenName;
-    $row.$input.placeholder = metaWindow.defaultName;
-    if (metaWindow.incognito) addClass('private', $row);
-
-    return $row;
-}
-
-function indicateReopenAction() {
-    const isPrivate = $row => hasClass('private', $row);
-    const currentIsPrivate = isPrivate($currentWindowRow);
-    for (const $row of $otherWindowRows) {
-        if (isPrivate($row) != currentIsPrivate) addClass('reopenTabs', $row);
+    function lockHeight($el) {
+        $el.style.height = ``;
+        $el.style.height = `${$el.offsetHeight}px`;
     }
 }
 
-function initTooltips(tabCount) {
-    let rowNames = new Map();
-    function memoisedRowName($row) {
-        let name = rowNames.get($row);
-        if (!name) {
-            name = getDisplayName($row);
-            rowNames.set($row, name);
-        }
-        return name;
-    }
-    const tabCountPhrase = tabCount == 1 ? 'tab' : `${tabCount} tabs`;
-    const reopenPhrase = '(close-reopen) ';
-    const $actions = getActionElements($body);
-    for (const $action of $actions) {
-        const $row = $action.$row || $action;
-        const name = memoisedRowName($row);
-        const insertText = (hasClass('reopenTabs', $row) ? reopenPhrase : '') + tabCountPhrase;
-        $action.title = updateTooltipName($action.title, name).replace('#', insertText);
-    }
-}
-
+// Add or change the name portion of a tooltip.
 export function updateTooltipName(tooltip, name) {
     const colon = ': ';
     const colonIndex = tooltip.indexOf(colon);
@@ -148,11 +154,6 @@ export function updateTooltipName(tooltip, name) {
         tooltip = tooltip.slice(0, colonIndex + colon.length) + name;
     }
     return tooltip;
-}
-
-function lockHeight($el) {
-    $el.style.height = ``;
-    $el.style.height = `${$el.offsetHeight}px`;
 }
 
 function onClick(event) {
@@ -187,6 +188,7 @@ function onKeyUp(event) {
     }
 }
 
+// Given a $row or any of its child elements, get the displayName.
 export function getDisplayName($rowElement) {
     const $input = hasClass('input', $rowElement) && $rowElement || $rowElement.$input || $rowElement.$row.$input;
     return $input.value || $input.placeholder;
@@ -202,7 +204,7 @@ export function options() {
     window.close();
 }
 
-// Get action parameters from event and $action element, to request for action execution by the background.
+// Gather action parameters from event and $action element, and request for action execution by the background.
 export function requestAction(event, $action = event.target) {
     const $row = $action.$row || $action;
     const windowId = $row._id;
