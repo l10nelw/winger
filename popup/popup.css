@@ -129,7 +129,7 @@ button {
     width: var(--width-btn);
     height: var(--width-btn);
     background-color: var(--bgc-rowbtn);
-    border-color: transparent;
+    border: 1px solid transparent;
     text-align: center;
     border-radius: 50%;
 }
@@ -157,7 +157,7 @@ button:focus {
 }
 
 .reopenTabs .tabAction {
-    border: 1px solid var(--borderc-private);
+    border-color: var(--borderc-private);
 }
 
 
