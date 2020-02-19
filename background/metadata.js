@@ -20,10 +20,10 @@ export async function add(windowObject) {
     await nameMetaWindows([windowId]);
 }
 
-function createMetaWindow(windowObject) {
+function createMetaWindow({ id, incognito }) {
     return {
-        id: windowObject.id,
-        incognito: windowObject.incognito,
+        id,
+        incognito,
         created: Date.now(),
         lastFocused: 0,
     };

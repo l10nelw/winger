@@ -91,7 +91,7 @@ function init({ settings, metaWindows, currentWindowId, sortedWindowIds, selecte
         return [$currentWindow, $otherWindows];
     }
 
-    function createRow(metaWindow) {
+    function createRow({ id, incognito, givenName, defaultName }) {
         const $row = document.importNode($rowTemplate, true);
 
         // Add references to row elements, and in each, a reference to the row
@@ -103,10 +103,10 @@ function init({ settings, metaWindows, currentWindowId, sortedWindowIds, selecte
         });
 
         // Add data
-        $row._id = metaWindow.id;
-        $row.$input.value = metaWindow.givenName;
-        $row.$input.placeholder = metaWindow.defaultName;
-        if (metaWindow.incognito) addClass('private', $row);
+        $row._id = id;
+        $row.$input.value = givenName;
+        $row.$input.placeholder = defaultName;
+        if (incognito) addClass('private', $row);
 
         return $row;
     }
