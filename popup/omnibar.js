@@ -4,9 +4,9 @@ import * as EditMode from './editmode.js';
 export const $omnibar = document.getElementById('omnibar');
 const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
 const commands = {
-    edit:     EditMode.activate,
     help:     Popup.help,
     settings: Popup.settings,
+    edit:     EditMode.activate,
 };
 
 export function onKeyUp(event) {
