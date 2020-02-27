@@ -10,6 +10,7 @@ import * as Omnibar from './omnibar.js';
 import * as EditMode from './editmode.js';
 
 const $body = document.body;
+const supportBtns = { help, settings };
 
 // Mutated by removeElements(), used by createRow()
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
@@ -158,17 +159,10 @@ export function updateTooltipName(tooltip, name) {
 
 function onClick(event) {
     const $target = event.target;
-    if ($target.id == 'help') {
-        help();
-    } else
-    if ($target.id == 'settings') {
-        settings();
-    } else
-    if (EditMode.handleClick($target)) {
-        return; // Click handled by EditMode
-    } else {
-        requestAction(event, $target);
-    }
+    const id = $target.id;
+    if (id in supportBtns) supportBtns[id](); // Closes popup
+    if (EditMode.handleClick($target)) return; // Handled by EditMode
+    requestAction(event, $target);
 }
 
 function onRightClick(event) {
