@@ -43,10 +43,18 @@ ul {
         linear-gradient(transparent, var(--bgc-base) 70%) 0 100%,
         radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.3), transparent),
         radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.3), transparent) 0 100%;
-    background-color: var(--bgc-base);
     background-repeat: no-repeat;
     background-attachment: local, local, scroll, scroll;
     background-size: 100% 14px, 100% 14px, 100% 7px, 100% 7px;
+}
+
+
+
+
+/* --- Omnibar --- */
+
+#omnibar::placeholder {
+    font-size: small;
 }
 
 
@@ -82,7 +90,7 @@ input, .tabCount {
 #editMode:not(:checked) ~ ul > .otherRow:hover,
 #editMode:not(:checked) ~ ul > .otherRow:focus,
 #editMode:not(:checked) ~ ul > .otherRow:focus-within {
-    background-color:var(--bgc-base-focus);
+    background-color: var(--bgc-base-focus);
 }
 
 
