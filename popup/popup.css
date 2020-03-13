@@ -9,11 +9,11 @@
     --bgc-base-focus: #ddd;
     --bgc-rowbtn: #d0d0d0;
     --bgc-rowbtn-focus: #bbb;
-    --fgc-private: purple;
     --fgc-muted: #555;
     --borderc-base: #ccc;
     --borderc-error: red;
-    --borderc-private: darkorchid;
+    --bgc-private: darkorchid;
+    --fgc-private: purple;
 }
 
 
@@ -124,32 +124,45 @@ input:-moz-read-only::placeholder {
 
 /* --- Button --- */
 
-button {
+li button {
     flex: 0 0 auto;
     width: var(--width-btn);
     height: var(--width-btn);
+    opacity: .75;
     background-color: var(--bgc-rowbtn);
-    border: 1px solid transparent;
-    text-align: center;
+    background-size: 95%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
     border-radius: 50%;
 }
 
 button:hover,
 button:focus {
+    opacity: 1;
     background-color: var(--bgc-rowbtn-focus);
 }
 
-.edit:before {
-    content: "✏️";
+.send {
+    background-image: url("../icons/send.svg");
 }
 
-.editModeRow .edit:before {
-    content: "✔️";
+.bring {
+    background-image: url("../icons/bring.svg");
+}
+
+.edit {
+    background-image: url("../icons/edit.svg");
+    background-size: 70%;
+}
+
+.editModeRow .edit {
+    background-image: url("../icons/check.svg");
 }
 
 #editMode:checked ~ ul button:not(.edit) {
     background-color: transparent;
-    opacity: .5;
+    opacity: .25;
 }
 
 .currentRow .tabAction {
@@ -157,7 +170,7 @@ button:focus {
 }
 
 .reopenTabs .tabAction {
-    border-color: var(--borderc-private);
+    background-color: var(--bgc-private);
 }
 
 
@@ -186,7 +199,8 @@ footer {
 footer button {
     flex: 1 1 auto;
     height: var(--height-row);
-    border-radius: 0;
+    border: none;
+    text-align: center;
 }
 
 #help {
