@@ -1,7 +1,8 @@
 /*
-- All releavnt metadata is embedded and updated within the DOM structure = the popup's local source-of-truth throughout
-  its lifetime. There is no separate set of data objects to be managed in parallel with the DOM.
+- A window is represented in the popup as a 'row', which is represented by a list item (<li>) in HTML.
 - A variable prefixed with '$' references a DOM node or a collection of DOM nodes.
+- All relevant metadata is embedded and updated within the popup's DOM structure. There is no separate,
+  representative dataset to be managed in parallel with the DOM, apart from Metadata in the background.
 */
 
 import { hasClass, addClass, changeClass, getModifiers } from '../utils.js';
@@ -10,7 +11,6 @@ import * as Omnibar from './omnibar.js';
 import * as EditMode from './editmode.js';
 
 const $body = document.body;
-const supportBtns = { help, settings };
 
 // Mutated by removeElements(), used by createRow()
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
@@ -19,13 +19,13 @@ const rowElementSelectors = new Set(['.send', '.bring', '.input', '.tabCount', '
 // Defined in init()
 export let SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows;
 
-// data-action element attribute functions.
+// Action attribute utilities
 const actionAttr = 'data-action';
-const getAction = $el => $el && $el.getAttribute(actionAttr);
-const unsetAction = $el => $el && $el.removeAttribute(actionAttr);
+const getActionAttr = $el => $el && $el.getAttribute(actionAttr);
+const unsetActionAttr = $el => $el && $el.removeAttribute(actionAttr);
 export const getActionElements = ($scope, suffix = '') => $scope.querySelectorAll(`[${actionAttr}]${suffix}`);
 
-
+// Request metadata from background for initialisation
 browser.runtime.sendMessage({ popup: true }).then(init);
 
 function init({ settings, metaWindows, currentWindowId, sortedWindowIds, selectedTabCount }) {
@@ -71,6 +71,7 @@ function init({ settings, metaWindows, currentWindowId, sortedWindowIds, selecte
             }
         }
         $document.style.setProperty('--width-body-rem', popupWidth);
+
     }
 
     function populateRows(metaWindows, currentWindowId, sortedWindowIds) {
@@ -81,7 +82,7 @@ function init({ settings, metaWindows, currentWindowId, sortedWindowIds, selecte
             const $row = createRow(metaWindow);
             if (windowId == currentWindowId) {
                 changeClass('otherRow', 'currentRow', $row);
-                [$row, $row.$bring, $row.$send].forEach(unsetAction);
+                [$row, $row.$bring, $row.$send].forEach(unsetActionAttr);
                 $row.tabIndex = -1;
                 $row.title = '';
                 $currentWindow.appendChild($row);
@@ -131,12 +132,12 @@ function init({ settings, metaWindows, currentWindowId, sortedWindowIds, selecte
             return name;
         }
         const tabCountPhrase = tabCount == 1 ? 'tab' : `${tabCount} tabs`;
-        const reopenPhrase = '(close-reopen) ';
+        const reopenPhrase = $row => hasClass('reopenTabs', $row) ? '(reopen) ' : '';
         const $actions = getActionElements($body);
         for (const $action of $actions) {
             const $row = $action.$row || $action;
             const name = memoisedRowName($row);
-            const insertText = (hasClass('reopenTabs', $row) ? reopenPhrase : '') + tabCountPhrase;
+            const insertText = reopenPhrase($row) + tabCountPhrase;
             $action.title = updateTooltipName($action.title, name).replace('#', insertText);
         }
     }
@@ -156,6 +157,18 @@ export function updateTooltipName(tooltip, name) {
     }
     return tooltip;
 }
+
+export function help() {
+    browser.tabs.create({ url: '/help/help.html' });
+    window.close();
+}
+
+export function settings() {
+    browser.runtime.openOptionsPage();
+    window.close();
+}
+
+const supportBtns = { help, settings };
 
 function onClick(event) {
     const $target = event.target;
@@ -188,22 +201,13 @@ export function getDisplayName($rowElement) {
     return $input.value || $input.placeholder;
 }
 
-export function help() {
-    browser.tabs.create({ url: '/help/help.html' });
-    window.close();
-}
-
-export function settings() {
-    browser.runtime.openOptionsPage();
-    window.close();
-}
-
-// Gather action parameters from event and $action element, and request for action execution by the background.
+// Gather action parameters from event and $action element. If action and windowId found, send parameters to
+// background to request action execution.
 export function requestAction(event, $action = event.target) {
     const $row = $action.$row || $action;
     const windowId = $row._id;
     if (!windowId) return;
-    const action = getAction($action) || getAction($row);
+    const action = getActionAttr($action) || getActionAttr($row);
     if (!action) return;
     browser.runtime.sendMessage({
         action,

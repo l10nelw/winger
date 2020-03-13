@@ -38,26 +38,9 @@ async function onClickTabContext(tabObject, windowId, modifiers) {
     WindowTab.goalAction(windowId, modifiers, false, true, tabObjects);
 }
 
-export function create(windowId) {
-    browser.menus.create({ id: `${windowId}`, title: menuTitle(windowId), contexts });
-}
-
-export function remove(windowId) {
-    browser.menus.remove(`${windowId}`);
-}
-
-export function hide(windowId) {
-    browser.menus.update(`${windowId}`, { visible: false });
-}
-
-export function show(windowId) {
-    browser.menus.update(`${windowId}`, { visible: true });
-}
-
-export function update(windowId) {
-    browser.menus.update(`${windowId}`, { title: menuTitle(windowId) });
-}
-
-function menuTitle(windowId) {
-    return metaWindows[windowId].displayName;
-}
+const menuTitle = windowId => metaWindows[windowId].displayName;
+export const create = windowId => browser.menus.create({ id: `${windowId}`, title: menuTitle(windowId), contexts });
+export const remove = windowId => browser.menus.remove(`${windowId}`);
+export const hide   = windowId => browser.menus.update(`${windowId}`, { visible: false });
+export const show   = windowId => browser.menus.update(`${windowId}`, { visible: true });
+export const update = windowId => browser.menus.update(`${windowId}`, { title: menuTitle(windowId) });

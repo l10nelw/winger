@@ -165,6 +165,6 @@ async function trySaveName($input) {
 // Toggle-on effects: apply error indicator, remember invalid content, select input.
 function toggleError($input, error) {
     toggleClass('inputError', $input, error);
-    $input._invalid = error ? $input.value : undefined;
+    $input._invalid = error ? $input.value : null;
     if (error) $input.select();
 }

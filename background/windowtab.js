@@ -1,19 +1,19 @@
 import { SETTINGS } from './settings.js';
 import { windows as metaWindows } from './metadata.js';
 
-export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
 const unpinTab    = tabId => browser.tabs.update(tabId, { pinned: false });
 const pinTab      = tabId => browser.tabs.update(tabId, { pinned: true });
 const activateTab = tabId => browser.tabs.update(tabId, { active: true });
 const selectTab   = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
 const getUrlFromReader = readerUrl => decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));
 
+export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
 export const switchToWindow = windowId => browser.windows.update(windowId, { focused: true });
 const actionFunctions = { bringTabs, sendTabs, switchToWindow };
 
 // Select actionFunction to execute based on `action` and optionally `reopen` and `modifiers`, given `windowId`.
 // If `tabs` not given, currently selected tabs will be used.
-export async function doAction({ action, windowId, reopen, tabs, modifiers }) {
+export async function doAction({ action, windowId, tabs, reopen, modifiers }) {
     tabs = tabs || await getSelectedTabs();
     action = modifyAction(action, modifiers);
     actionFunctions[action](windowId, tabs, reopen);

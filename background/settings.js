@@ -22,6 +22,6 @@ const DEFAULT = {
 export let SETTINGS;
 
 export async function retrieve() {
-    if (!SETTINGS) SETTINGS = { ...DEFAULT, ...await browser.storage.local.get(DEFAULT) };
+    if (!SETTINGS) SETTINGS = { ...await browser.storage.local.get(DEFAULT) };
     return SETTINGS;
 }
