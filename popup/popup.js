@@ -18,6 +18,7 @@ const rowElementSelectors = new Set(['.send', '.bring', '.input', '.tabCount', '
 
 // Defined in init()
 export let SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows;
+let modifierHints;
 
 // Action attribute utilities
 const actionAttr = 'data-action';
@@ -31,6 +32,7 @@ browser.runtime.sendMessage({ popup: true }).then(init);
 function init({ settings, metaWindows, currentWindowId, sortedWindowIds, selectedTabCount }) {
     SETTINGS = settings;
     removeElements(SETTINGS);
+    setModifierHints(SETTINGS);
 
     const [$currentWindow, $otherWindows] = populateRows(metaWindows, currentWindowId, sortedWindowIds);
     $currentWindowRow = $currentWindow.querySelector('li');
@@ -44,6 +46,7 @@ function init({ settings, metaWindows, currentWindowId, sortedWindowIds, selecte
 
     $body.addEventListener('click', onClick);
     $body.addEventListener('contextmenu', onRightClick);
+    $body.addEventListener('keydown', onKeyDown);
     $body.addEventListener('keyup', onKeyUp);
 
     function removeElements(SETTINGS) {
@@ -72,6 +75,15 @@ function init({ settings, metaWindows, currentWindowId, sortedWindowIds, selecte
         }
         $document.style.setProperty('--width-body-rem', popupWidth);
 
+    }
+
+    function setModifierHints(SETTINGS) {
+        const bringModifier = SETTINGS.bring_modifier;
+        const sendModifier  = SETTINGS.send_modifier;
+        modifierHints = {
+            [bringModifier]: `${bringModifier.toUpperCase()}: Bring tab(s) to`,
+            [sendModifier]:  `${sendModifier.toUpperCase()}: Send tab(s) to`,
+        };
     }
 
     function populateRows(metaWindows, currentWindowId, sortedWindowIds) {
@@ -179,14 +191,22 @@ function onClick(event) {
 }
 
 function onRightClick(event) {
-    if (!hasClass('allowRightClick', event.target)) {
-        event.preventDefault();
-        return;
+    if (!hasClass('allowRightClick', event.target)) event.preventDefault();
+}
+
+function onKeyDown(event) {
+    if (!EditMode.$active) {
+        let key = event.key;
+        if (key === 'Control') key = 'Ctrl';
+        Omnibar.info(modifierHints[key]);
     }
 }
 
 function onKeyUp(event) {
     const $target = event.target;
+    if (!EditMode.$active) {
+        Omnibar.info();
+    }
     if ($target == Omnibar.$omnibar) {
         Omnibar.onKeyUp(event);
     } else

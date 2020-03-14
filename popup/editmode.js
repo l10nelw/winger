@@ -14,7 +14,7 @@ let $rows, lastIndex; // 'Constants' for row.shiftActive(), set in general.activ
 const $editMode = document.getElementById('editMode');
 const $body = document.body;
 
-const omnibarText = `Enter/Up/Down to save, Esc to cancel`;
+const omnibarHint = `ENTER/↑/↓: Save, ESC: Cancel`;
 let altTooltip = `Save and exit Edit Mode`;
 
 
@@ -56,7 +56,7 @@ const general = {
         $body[evLi]('focusout', onFocusout);
         $editMode.checked = yes;
         Omnibar.disable(yes);
-        Omnibar.info(yes ? omnibarText : '');
+        Omnibar.info(yes ? omnibarHint : '');
     },
 
     activate() {

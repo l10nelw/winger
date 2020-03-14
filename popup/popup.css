@@ -51,15 +51,6 @@ ul {
 
 
 
-/* --- Omnibar --- */
-
-#omnibar::placeholder {
-    font-size: small;
-}
-
-
-
-
 /* --- Row --- */
 
 li {
