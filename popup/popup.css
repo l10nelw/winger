@@ -129,7 +129,7 @@ li button {
     height: var(--width-btn);
     opacity: .75;
     background-color: var(--bgc-rowbtn);
-    background-size: 95%;
+    background-size: 90%;
     background-repeat: no-repeat;
     background-position: center;
     border: none;
@@ -152,11 +152,12 @@ button:focus {
 
 .edit {
     background-image: url("../icons/edit.svg");
-    background-size: 70%;
+    background-size: 60%;
 }
 
 .editModeRow .edit {
     background-image: url("../icons/check.svg");
+    background-color: lightgreen;
 }
 
 #editMode:checked ~ ul button:not(.edit) {
