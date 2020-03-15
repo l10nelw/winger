@@ -32,7 +32,7 @@ browser.runtime.sendMessage({ popup: true }).then(init);
 function init({ settings, metaWindows, currentWindowId, sortedWindowIds, selectedTabCount }) {
     SETTINGS = settings;
     removeElements(SETTINGS);
-    setModifierHints(SETTINGS);
+    setModifierHints(SETTINGS, selectedTabCount);
 
     const [$currentWindow, $otherWindows] = populateRows(metaWindows, currentWindowId, sortedWindowIds);
     $currentWindowRow = $currentWindow.querySelector('li');
@@ -74,15 +74,15 @@ function init({ settings, metaWindows, currentWindowId, sortedWindowIds, selecte
             }
         }
         $document.style.setProperty('--width-body-rem', popupWidth);
-
     }
 
-    function setModifierHints(SETTINGS) {
+    function setModifierHints(SETTINGS, selectedTabCount) {
         const bringModifier = SETTINGS.bring_modifier;
         const sendModifier  = SETTINGS.send_modifier;
+        const tabWord = selectedTabCount == 1 ? 'tab' : 'tabs';
         modifierHints = {
-            [bringModifier]: `${bringModifier.toUpperCase()}: Bring tab(s) to`,
-            [sendModifier]:  `${sendModifier.toUpperCase()}: Send tab(s) to`,
+            [bringModifier]: `${bringModifier.toUpperCase()}: Bring ${tabWord} to`,
+            [sendModifier]:  `${sendModifier.toUpperCase() }: Send ${tabWord} to`,
         };
     }
 
