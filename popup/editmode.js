@@ -5,7 +5,7 @@ General activation governs state that is sustained even while different rows cha
 
 import { hasClass, toggleClass } from '../utils.js';
 import * as Popup from './popup.js';
-import * as Omnibar from './omnibar.js';
+import * as Omnibox from './omnibox.js';
 
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
 let $activeInput;
@@ -14,7 +14,7 @@ let $rows, lastIndex; // 'Constants' for row.shiftActive(), set in general.activ
 const $editMode = document.getElementById('editMode');
 const $body = document.body;
 
-const omnibarHint = `ENTER/↑/↓: Save, ESC: Cancel`;
+const omniboxHint = `ENTER/↑/↓: Save, ESC: Cancel`;
 let altTooltip = `Save and exit Edit Mode`;
 
 
@@ -55,20 +55,20 @@ const general = {
         $body[evLi]('keyup', onKeyUp);
         $body[evLi]('focusout', onFocusout);
         $editMode.checked = yes;
-        Omnibar.disable(yes);
-        Omnibar.info(yes ? omnibarHint : '');
+        Omnibox.disable(yes);
+        Omnibox.info(yes ? omniboxHint : '');
     },
 
     activate() {
         this.toggle(true);
-        Omnibar.showAllRows();
+        Omnibox.showAllRows();
         $rows = Popup.$allWindowRows;
         lastIndex = $rows.length - 1;
     },
 
     deactivate() {
         this.toggle(false);
-        Omnibar.focus();
+        Omnibox.focus();
         $active = null;
     },
 

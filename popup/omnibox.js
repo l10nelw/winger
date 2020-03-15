@@ -1,16 +1,16 @@
 import * as Popup from './popup.js';
 import * as EditMode from './editmode.js';
 
-export const $omnibar = document.getElementById('omnibar');
+export const $omnibox = document.getElementById('omnibox');
 const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
 const commands = {
-    help:     Popup.help,
-    settings: Popup.settings,
+    help:     Popup.openHelp,
+    settings: Popup.openSettings,
     edit:     EditMode.activate,
 };
 
 export function onKeyUp(event) {
-    const str = $omnibar.value;
+    const str = $omnibox.value;
     const key = event.key;
     const enter = key === 'Enter';
     if (str[0] === '/') {
@@ -20,7 +20,7 @@ export function onKeyUp(event) {
         }
         if (enter) {
             if (command) commands[command]();
-            $omnibar.value = '';
+            $omnibox.value = '';
         }
     } else {
         const $firstMatchRow = filterRows(str);
@@ -35,8 +35,8 @@ function completeCommand(str) {
     const strUnslashed = str.slice(1).toUpperCase();
     for (const command in commands) {
         if (command.toUpperCase().startsWith(strUnslashed)) {
-            $omnibar.value = `/${command}`;
-            $omnibar.setSelectionRange(str.length, command.length + 1);
+            $omnibox.value = `/${command}`;
+            $omnibox.setSelectionRange(str.length, command.length + 1);
             return command;
         }
     }
@@ -66,13 +66,13 @@ export function showAllRows() {
 }
 
 export function info(str = '') {
-    $omnibar.placeholder = str;
+    $omnibox.placeholder = str;
 }
 
 export function disable(yes) {
-    $omnibar.disabled = yes;
+    $omnibox.disabled = yes;
 }
 
 export function focus() {
-    $omnibar.focus();
+    $omnibox.focus();
 }

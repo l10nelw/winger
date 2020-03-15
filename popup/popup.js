@@ -7,7 +7,7 @@
 
 import { hasClass, addClass, changeClass, getModifiers } from '../utils.js';
 import * as Count from './count.js'; // Runs './status.js'
-import * as Omnibar from './omnibar.js';
+import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
 
 const $body = document.body;
@@ -198,17 +198,17 @@ function onKeyDown(event) {
     if (!EditMode.$active) {
         let key = event.key;
         if (key === 'Control') key = 'Ctrl';
-        Omnibar.info(modifierHints[key]);
+        Omnibox.info(modifierHints[key]);
     }
 }
 
 function onKeyUp(event) {
     const $target = event.target;
     if (!EditMode.$active) {
-        Omnibar.info();
+        Omnibox.info();
     }
-    if ($target == Omnibar.$omnibar) {
-        Omnibar.onKeyUp(event);
+    if ($target == Omnibox.$omnibox) {
+        Omnibox.onKeyUp(event);
     } else
     if (hasClass('otherRow', $target) && ['Enter', ' '].includes(event.key)) {
         requestAction(event, $target);
