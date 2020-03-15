@@ -170,22 +170,22 @@ export function updateTooltipName(tooltip, name) {
     return tooltip;
 }
 
-export function help() {
+export function openHelp() {
     browser.tabs.create({ url: '/help/help.html' });
     window.close();
 }
 
-export function settings() {
+export function openSettings() {
     browser.runtime.openOptionsPage();
     window.close();
 }
 
-const supportBtns = { help, settings };
+const uniqueBtnActions = { openHelp, openSettings };
 
 function onClick(event) {
     const $target = event.target;
     const id = $target.id;
-    if (id in supportBtns) supportBtns[id](); // Closes popup
+    if (id in uniqueBtnActions) uniqueBtnActions[id](); // Closes popup
     if (EditMode.handleClick($target)) return; // Handled by EditMode
     requestAction(event, $target);
 }

@@ -127,7 +127,7 @@ li button {
     flex: 0 0 auto;
     width: var(--width-btn);
     height: var(--width-btn);
-    opacity: .75;
+    opacity: .7;
     background-color: var(--bgc-rowbtn);
     background-size: 90%;
     background-repeat: no-repeat;
@@ -201,6 +201,10 @@ footer button {
     height: var(--height-row);
     border: none;
     text-align: center;
+}
+
+footer img {
+    vertical-align: bottom;
 }
 
 #help {
