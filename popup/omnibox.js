@@ -4,8 +4,8 @@ import * as EditMode from './editmode.js';
 export const $omnibox = document.getElementById('omnibox');
 const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
 const commands = {
-    help:     Popup.openHelp,
-    settings: Popup.openSettings,
+    help:     Popup.help,
+    settings: Popup.settings,
     edit:     EditMode.activate,
 };
 

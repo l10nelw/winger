@@ -1,10 +1,9 @@
 import { sum } from '../utils.js';
-import { $allWindowRows } from './popup.js';
 import * as Status from './status.js';
 
 export const count = { tabs: 0, windows: 0 };
 
-export async function populate() {
+export async function populate($allWindowRows) {
     const tabCounts = await Promise.all($allWindowRows.map(getAndShow));
     count.tabs = sum(tabCounts);
     count.windows = $allWindowRows.length;

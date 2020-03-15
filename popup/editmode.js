@@ -6,6 +6,7 @@ General activation governs state that is sustained even while different rows cha
 import { hasClass, toggleClass } from '../utils.js';
 import * as Popup from './popup.js';
 import * as Omnibox from './omnibox.js';
+import * as Tooltip from './tooltip.js';
 
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
 let $activeInput;
@@ -93,12 +94,10 @@ const row = {
     },
 
     deactivate() {
-        const $row = $active;
         const displayName = Popup.getDisplayName($activeInput);
+        const $actions = [$active, ...Popup.getActionElements($active)];
+        $actions.forEach($action => $action.title = Tooltip.updateName($action.title, displayName));
         this.toggle(false);
-        for (const $action of [$row, ...Popup.getActionElements($row)]) {
-            $action.title = Popup.updateTooltipName($action.title, displayName);
-        }
     },
 
     shiftActive(down) {

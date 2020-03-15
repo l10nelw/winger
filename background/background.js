@@ -61,7 +61,7 @@ async function onRequest(request) {
     // From popup/popup.js
     if (request.popup) {
         return {
-            settings: Settings.SETTINGS,
+            SETTINGS: Settings.SETTINGS,
             metaWindows: Metadata.windows,
             currentWindowId: Metadata.focusedWindow.id,
             sortedWindowIds: Metadata.sortedWindowIds(),
