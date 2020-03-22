@@ -94,6 +94,7 @@ const row = {
     },
 
     deactivate() {
+        $activeInput.setSelectionRange(0, 0); // In case the input has a very long name, this ensures the beginning is visible.
         const displayName = Popup.getDisplayName($activeInput);
         const $actions = [$active, ...Popup.getActionElements($active)];
         $actions.forEach($action => $action.title = Tooltip.updateName($action.title, displayName));
