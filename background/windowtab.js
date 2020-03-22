@@ -8,8 +8,8 @@ const selectTab   = tabId => browser.tabs.update(tabId, { active: false, highlig
 const getUrlFromReader = readerUrl => decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));
 
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
-export const switchToWindow = windowId => browser.windows.update(windowId, { focused: true });
-const actionFunctions = { bringTabs, sendTabs, switchToWindow };
+export const switchWindow = windowId => browser.windows.update(windowId, { focused: true });
+const actionFunctions = { bringTabs, sendTabs, switchWindow };
 
 // Select actionFunction to execute based on `action` and optionally `reopen` and `modifiers`, given `windowId`.
 // If `tabs` not given, currently selected tabs will be used.
@@ -26,8 +26,8 @@ function modifyAction(action, modifiers) {
 }
 
 function bringTabs(windowId, tabs, reopen) {
-    switchToWindow(windowId);
     sendTabs(windowId, tabs, reopen);
+    switchWindow(windowId);
 }
 
 function sendTabs(windowId, tabs, reopen) {
