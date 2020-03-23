@@ -20,7 +20,7 @@ export default async function init() {
     const $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
     const modifierHints = createModifierHints(SETTINGS, selectedTabCount);
 
-    Count.populate($allWindowRows);
+    Count.init($allWindowRows);
     Tooltip.init(selectedTabCount);
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
     lockHeight($otherWindows);

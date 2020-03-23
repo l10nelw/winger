@@ -1,9 +1,10 @@
 import { sum } from '../utils.js';
 import * as Status from './status.js';
+import * as Popup from './popup.js';
 
 export const count = { tabs: 0, windows: 0 };
 
-export async function populate($allWindowRows) {
+export async function init($allWindowRows) {
     const tabCounts = await Promise.all($allWindowRows.map(getAndShow));
     count.tabs = sum(tabCounts);
     count.windows = $allWindowRows.length;
@@ -22,7 +23,7 @@ async function getAndShow($row) {
 }
 
 function increment(windowId, value) {
-    const $row = $allWindowRows.find($row => $row._id == windowId);
+    const $row = Popup.$allWindowRows.find($row => $row._id == windowId);
     const $tabCount = $row.$tabCount;
     $tabCount.textContent = parseInt($tabCount.textContent) + value;
     count.tabs += value;
