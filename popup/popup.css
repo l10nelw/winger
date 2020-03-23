@@ -91,7 +91,8 @@ input, .tabCount {
 
 .input {
     width: 100%;
-    padding: 0 .5rem;
+    margin-left: .25rem;
+    padding: 0 .25rem;
     text-align: start;
 }
 

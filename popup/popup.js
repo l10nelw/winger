@@ -1,5 +1,5 @@
 /*
-- A window is represented in the popup as a 'row', which is represented by a list item (<li>) in HTML.
+- A window is represented in the popup as a 'row', which is represented by an HTML list item (<li>).
 - A variable prefixed with '$' references a DOM node or a collection of DOM nodes.
 - All relevant data are embedded and managed within the popup's DOM structure. There is no separate, representative
   dataset to be maintained in parallel with the DOM (apart from Metadata in the background).

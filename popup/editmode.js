@@ -81,7 +81,8 @@ const row = {
         toggleClass('allowRightClick', $activeInput, yes);
         $activeInput.readOnly = !yes;
         $activeInput.tabIndex = yes ? 0 : -1;
-        [$active.$edit.title, altTooltip] = [altTooltip, $active.$edit.title];
+        const $edit = $active.$edit;
+        [$edit.title, altTooltip] = [altTooltip, $edit.title];
     },
 
     activate($row) {

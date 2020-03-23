@@ -1,6 +1,8 @@
 import { hasClass } from '../utils.js';
 import * as Popup from './popup.js';
 
+const colon = ': ';
+
 export function init(tabCount) {
     let rowNames = new Map();
 
@@ -26,7 +28,6 @@ export function init(tabCount) {
 
 // Add or change the name portion of a tooltip.
 export function updateName(tooltip, name) {
-    const colon = ': ';
     const colonIndex = tooltip.indexOf(colon);
     if (colonIndex > -1) {
         tooltip = tooltip.slice(0, colonIndex + colon.length) + name;
