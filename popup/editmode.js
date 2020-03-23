@@ -54,7 +54,6 @@ const general = {
         $disabledActions.forEach($action => $action.tabIndex = tabIndex);
         const evLi = yes ? 'addEventListener' : 'removeEventListener';
         $body[evLi]('keyup', onKeyUp);
-        $body[evLi]('focusout', onFocusout);
         $editMode.checked = yes;
         Omnibox.disable(yes);
         Omnibox.info(yes ? omniboxHint : '');
@@ -143,11 +142,6 @@ async function onKeyUp(event) {
         // If input content is changed, remove any error indicator
         toggleError($activeInput, false);
     }
-}
-
-function onFocusout(event) {
-    if (event.target != $activeInput) return;
-    trySaveName($activeInput);
 }
 
 // Trim content of input and try to save it. Return 0 on success, non-zero on failure.
