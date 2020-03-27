@@ -1,4 +1,4 @@
-import { hasClass, addClass, changeClass, toggleClass } from '../utils.js';
+import { hasClass, addClass, changeClass, toggleClass, isButton } from '../utils.js';
 import * as Popup from './popup.js';
 import * as Count from './count.js'; // Runs './status.js'
 import * as Tooltip from './tooltip.js';
@@ -49,7 +49,7 @@ function removeElements(SETTINGS) {
         $el.remove();
         if ($parent == $rowTemplate) {
             rowElementSelectors.delete(selector);
-            if ($el.tagName == 'BUTTON') popupWidth -= buttonWidth; // Reduce popup width if a row button is removed
+            if (isButton($el)) popupWidth -= buttonWidth; // Reduce popup width if a row button is removed
         }
     }
     $document.style.setProperty('--width-body-rem', popupWidth);

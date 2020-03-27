@@ -11,4 +11,5 @@ export const changeClass = (clsA, clsB, $el) => $el && $el.classList.replace(cls
 export const toggleClass = (cls, $el, force) => $el && $el.classList.toggle(cls, force);
 
 // Element type
+export const isButton = $el => $el.tagName === 'BUTTON';
 export const isInput = $el => $el.tagName === 'INPUT';
