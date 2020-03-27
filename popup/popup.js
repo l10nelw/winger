@@ -5,13 +5,14 @@
   dataset to be maintained in parallel with the DOM (apart from Metadata in the background).
 */
 
-import { hasClass, getModifiers } from '../utils.js';
+import { hasClass, getModifiers, isInput } from '../utils.js';
 import init from './init.js';
 import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
 
 const $body = document.body;
 const uniqueBtnActions = { help, settings };
+let $enterKeyDownInput = null;
 
 // Action attribute utilities
 const actionAttr = 'data-action';
@@ -44,22 +45,31 @@ function onRightClick(event) {
 }
 
 function onKeyDown(event) {
+    let key = event.key;
+    const $target = event.target;
     if (!EditMode.$active) {
-        let key = event.key;
         if (key === 'Control') key = 'Ctrl';
         Omnibox.info(modifierHints[key]);
+    }
+    if (key === 'Enter' && isInput($target)) {
+        $enterKeyDownInput = $target;
     }
 }
 
 function onKeyUp(event) {
+    const key = event.key;
     const $target = event.target;
-    if (!EditMode.$active) {
-        Omnibox.info();
+    if (!EditMode.$active) Omnibox.info();
+    if (key === 'Enter' && $target === $enterKeyDownInput) {
+         // Indicate to the input that Enter has been keyed down and up both within it.
+         // Guards against cases where input receives the keyup right after the keydown was invoked elsewhere.
+         $target._enter = true;
+        $enterKeyDownInput = null;
     }
     if ($target == Omnibox.$omnibox) {
-        Omnibox.onKeyUp(event);
+        Omnibox.handleKeyUp(event);
     } else
-    if (hasClass('otherRow', $target) && ['Enter', ' '].includes(event.key)) {
+    if (hasClass('otherRow', $target) && ['Enter', ' '].includes(key)) {
         requestAction(event, $target);
     }
 }

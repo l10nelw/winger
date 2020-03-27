@@ -9,23 +9,24 @@ const commands = {
     edit:     EditMode.activate,
 };
 
-export function onKeyUp(event) {
+export function handleKeyUp(event) {
     const str = $omnibox.value;
     const key = event.key;
-    const enter = key === 'Enter';
+    const enter = key === 'Enter' && $omnibox._enter;
     if (str[0] === '/') {
+        // Handle slash command
         let command;
-        if (!controlKeys.includes(key)) {
-            command = completeCommand(str);
-        }
+        if (!controlKeys.includes(key)) command = completeCommand(str);
         if (enter) {
             if (command) commands[command]();
             $omnibox.value = '';
+            $omnibox._enter = false;
         }
     } else {
         const $firstMatchRow = filterRows(str);
         if (enter && $firstMatchRow) {
             Popup.requestAction(event, $firstMatchRow);
+            $omnibox._enter = false;
         }
     }
 }
@@ -60,9 +61,7 @@ function filterRows(str) {
 }
 
 export function showAllRows() {
-    for (const $row of Popup.$otherWindowRows) {
-        $row.hidden = false;
-    }
+    Popup.$otherWindowRows.forEach($row => $row.hidden = false);
 }
 
 export function info(str = '') {

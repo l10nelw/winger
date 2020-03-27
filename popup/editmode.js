@@ -128,7 +128,10 @@ const keyEffects = {
     },
 
     async Enter() {
-        await done();
+        if ($activeInput._enter) {
+            $activeInput._enter = false;
+            await done();
+        }
     },
 
 };
