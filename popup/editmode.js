@@ -11,7 +11,7 @@ import * as Tooltip from './tooltip.js';
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
 let $activeInput;
 let $disabledActions;
-let $rows, lastIndex; // 'Constants' for row.shiftActive(), set in general.activate()
+let $rows, lastIndex; // 'Constants' for row.shiftActive() defined in general.activate()
 const $editMode = document.getElementById('editMode');
 const $body = document.body;
 

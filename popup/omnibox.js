@@ -13,20 +13,21 @@ export function handleKeyUp(event) {
     const str = $omnibox.value;
     const key = event.key;
     const enter = key === 'Enter' && $omnibox._enter;
+    if (enter) $omnibox._enter = false;
     if (str[0] === '/') {
         // Handle slash command
         let command;
-        if (!controlKeys.includes(key)) command = completeCommand(str);
+        if (!controlKeys.includes(key)) {
+            command = completeCommand(str);
+        }
         if (enter) {
-            if (command) commands[command]();
             $omnibox.value = '';
-            $omnibox._enter = false;
+            if (command) commands[command]();
         }
     } else {
         const $firstMatchRow = filterRows(str);
         if (enter && $firstMatchRow) {
             Popup.requestAction(event, $firstMatchRow);
-            $omnibox._enter = false;
         }
     }
 }

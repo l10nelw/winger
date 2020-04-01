@@ -1,8 +1,9 @@
 /*
 - A window is represented in the popup as a 'row', which is represented by an HTML list item (<li>).
+- All relevant data are embedded and managed within the popup's DOM structure. No separate, representative dataset
+  to be maintained in parallel with the DOM (apart from Metadata in the background).
 - A variable prefixed with '$' references a DOM node or a collection of DOM nodes.
-- All relevant data are embedded and managed within the popup's DOM structure. There is no separate, representative
-  dataset to be maintained in parallel with the DOM (apart from Metadata in the background).
+- Some DOM nodes have custom properties (expandos), prefixed with '_', to concisely store and pass around data.
 */
 
 import { hasClass, getModifiers, isInput } from '../utils.js';
@@ -11,7 +12,7 @@ import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
 
 const $body = document.body;
-const uniqueBtnActions = { help, settings };
+const supportBtns = { help, settings };
 let $enterKeyDownInput = null;
 
 // Action attribute utilities
@@ -35,7 +36,7 @@ let modifierHints;
 function onClick(event) {
     const $target = event.target;
     const id = $target.id;
-    if (id in uniqueBtnActions) uniqueBtnActions[id](); // Closes popup
+    if (id in supportBtns) supportBtns[id](); // Closes popup
     if (EditMode.handleClick($target)) return; // Handled by EditMode
     requestAction(event, $target);
 }
@@ -61,9 +62,9 @@ function onKeyUp(event) {
     const $target = event.target;
     if (!EditMode.$active) Omnibox.info();
     if (key === 'Enter' && $target === $enterKeyDownInput) {
-         // Indicate to the input that Enter has been keyed down and up both within it.
-         // Guards against cases where input receives the keyup right after the keydown was invoked elsewhere.
-         $target._enter = true;
+        // Indicate that Enter has been keyed down and up both within the same input.
+        // Guards against cases where input receives the keyup after the keydown was invoked elsewhere (usually a button).
+        $target._enter = true;
         $enterKeyDownInput = null;
     }
     if ($target == Omnibox.$omnibox) {
