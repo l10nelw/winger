@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>WinMan Quick Guide</title>
+    <style>
+      :root {
+        --border-theme-color: #ccc;
+      }
+
+      body {
+        /* background-color: black;
+        color: white; */
+        max-width: 70rem;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      h1, h2, h3, h4, p {
+        margin-top: 0;
+      }
+      h1, h2 {
+        margin-bottom: 2rem;
+      }
+      kbd {
+        font-size: larger;
+        font-weight: bold;
+      }
+
+      .button {
+        background-color: #ccc;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .button img {
+        width: 90%;
+      }
+
+      .row { display: flex; }
+      .equal-col > .col { flex: 1; }
+
+      .collapse-box {
+        display: block;
+        padding: 1rem;
+        border: 3px solid var(--border-theme-color);
+        border-radius: 1rem;
+        cursor: pointer;
+      }
+      .collapse-head {
+        align-items: center;
+      }
+      .collapse-arrow {
+        transition: transform .2s;
+      }
+      .collapse-hide:checked ~ .collapse-body {
+        display: none;
+      }
+      .collapse-hide:checked ~ .collapse-head > .collapse-arrow {
+        transform: rotate(.5turn);
+      }
+      .arrow-up {
+        width: 0;
+        height: 0;
+        border-top: none;
+        border-bottom: 12px solid var(--border-theme-color);
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        margin: 0 5px;
+      }
+
+      .light-border { border: 1px solid #ccc; }
+      .left-mark-border { border-left: 3px solid var(--border-theme-color); }
+
+      .lastchild-mb-0 > :last-child { margin-bottom: 0; }
+      .m-0 { margin: 0; }
+      .mr-1 { margin-right: 1rem; }
+      .mx-1 { margin-left: 1rem; margin-right: 1rem; }
+      .mb-1 { margin-bottom: 1rem; }
+      .mb-2 { margin-bottom: 2rem; }
+      .mb-5 { margin-bottom: 5rem; }
+      .pt-1 { padding-top: 1rem; }
+      .pl-1 { padding-left: 1rem; }
+      .center { text-align: center; }
+      .small { font-size: small; }
+    </style>
+  </head>
+  <body>
+
+    <h1 class="center mb-5">WinMan (Window Manager)<br>Quick Guide</h1>
+
+    <label class="collapse-box mb-5">
+      <input type="checkbox" class="collapse-hide" checked hidden>
+      <div class="row collapse-head">
+        <h2 class="col m-0" style="flex: 1">First, a few things you should know how to do on your browser...</h2>
+        <div class="col collapse-arrow arrow-up"></div>
+      </div>
+      <div class="collapse-body pt-1">
+
+        <h3>&bull; Create new windows</h3>
+        <div class="row equal-col mb-2">
+          <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
+            <h4>Ctrl+N</h4>
+            <p>Opens a fresh new window.</p>
+            <p><kbd>Ctrl+Shift+P</kbd> opens a new private window.</p>
+          </section>
+          <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
+            <h4>Tear off tab(s)</h4>
+            <p>With your mouse, drag-and-drop a tab off the tab strip to create a new window containing the selected tab(s).</p>
+          </section>
+          <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
+            <h4>Shift+click a link</h4>
+            <p>Opens the link in a new window.</p>
+            <p>(<kbd>Ctrl</kbd>+click opens it in a new tab.)</p>
+          </section>
+        </div>
+        <h3>&bull; Select multiple tabs</h3>
+        <div class="left-mark-border pl-1 mx-1">
+          <p><kbd>Ctrl</kbd>+click on each tab you want to select, one by one.</p>
+          <p><kbd>Shift</kbd>+click on a tab to select all the tabs between it and the current tab, inclusive.</p>
+        </div>
+
+      </div>
+    </label>
+
+    <section class="mb-5">
+      <h2 class="center">The WinMan Popup</h2>
+      <p>Click on the WinMan toolbar button to open the popup.</p>
+      <div class="row">
+        <div class="col"><img src="popup.png" class="light-border" alt="WinMan popup"></div>
+        <div class="col mx-1">
+          <p>Every window is represented by a row, showing its name and how many tabs it contains.</p>
+          <p>The top row represents the currently focused window (<strong>current window</strong>).</p>
+          <p>Below it is the WinMan <strong><a href="#omnibox">omnibox</a></strong>.</p>
+          <p>Below the omnibox is a list of <strong>other windows</strong>, sorted by most recently focused (seen). So the first row below
+            the omnibox represents the previously focused window.</p>
+          <p>Below the list is the status bar showing the total number of tabs and windows open.</p>
+          <p>And below that are supportive function buttons.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h2 class="center">Basic Actions</h2>
+      <div class="row equal-col mb-1">
+
+        <section class="col mx-1">
+          <h3>&bull; Switch Window</h3>
+          <p><img src="switch.png" alt=""></p>
+          <p>Click on a row to <strong>switch</strong> to the window.</p>
+        </section>
+
+        <section class="col mx-1">
+          <h3>&bull; Send Tab</h3>
+          <div class="row">
+            <p class="col button mr-1"><img src="../icons/send.svg" alt=""></p>
+            <p class="col">The <strong>send</strong> button "sends" the selected tab(s) to the corresponding window while staying on the current window.</p>
+          </div>
+          <p>Holding <kbd>Ctrl</kbd> while doing a <em>switch</em> changes it into a <strong>send</strong>.
+            Thus, you can also <kbd>Ctrl</kbd>-click a row to send tabs to that window.</p>
+        </section>
+
+        <section class="col mx-1">
+          <h3>&bull; Bring Tab</h3>
+          <div class="row">
+            <p class="col button mr-1"><img src="../icons/bring.svg" alt=""></p>
+            <p class="col">The <strong>bring</strong> button switches to the corresponding window while "bringing" the selected tab(s) along. Essentially
+              <em>switch</em> and <em>send</em> combined.</p>
+          </div>
+          <p>Holding <kbd>Shift</kbd> while doing a <em>switch</em> changes it into a <strong>bring</strong>.
+            Thus, you can also <kbd>Shift</kbd>-click a row to bring tabs to that window.</p>
+        </section>
+
+      </div>
+
+      <section class="small mx-1">
+        <p><strong>Private window behaviour:</strong> Tabs cannot conventionally be moved between normal and private windows, so <em>send</em> and <em>bring</em>
+          actions will <strong>reopen</strong> tabs in the destination window instead. (Page state, such as filled form data and scroll position, will be lost.)</p>
+      </section>
+
+    </section>
+
+    <section class="mb-5">
+      <h2 class="center">Edit Mode</h2>
+      <div class="row">
+
+        <p class="col button"><img src="../icons/edit.svg" style="width: 60%" alt=""></p>
+
+        <div class="col mx-1">
+          <p>The <strong>edit</strong> button lets you name/rename the corresponding window.</p>
+          <p>When invoked the popup enters <em>Edit mode</em>, during which you can type in a name and use the following keys:</p>
+          <ul>
+            <li><kbd>Enter</kbd> to save the currently edited name and exit Edit mode.</li>
+            <li><kbd>Up</kbd> or <kbd>Down</kbd> to save the currently edited name and edit another window name.</li>
+            <li><kbd>Esc</kbd> to close the popup, exiting Edit mode and cancelling any changes to the currently edited name.</li>
+          </ul>
+          <p>Names must be unique and may not begin with a forward slash ("/").</p>
+          <p class="small">Note: WinMan assigns every window a default name (Window 1, Window 2 and so on), visible when a window has no
+            user-given name. Unlike given names, default names are temporary and are not guaranteed to persist across browser sessions.</p>
+        </div>
+
+        <p class="col"><img src="popup-edit.png" class="light-border" alt="WinMan popup in Edit mode"></p>
+
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h2 id="omnibox" class="center">The Omnibox</h2>
+
+      <section class="row mb-1">
+
+        <div class="col mr-1">
+          <p>Multipurpose input field that allows execution of any action via keyboard.</p>
+          <p>Primary omnibox powers:</p>
+          <ul>
+            <li>Start typing in a window name (or part of it) to <strong>filter</strong> the list of other windows.</li>
+            <li>Press <kbd>Enter</kbd> to <strong>switch</strong> to the window represented by <em>the first row below the omnibox</em>.</li>
+          </ul>
+          <p>And remember that holding <kbd>Ctrl</kbd> or <kbd>Shift</kbd> while doing a <strong>switch</strong> changes it to a <strong>send</strong> or <strong>bring</strong> respectively.</p>
+          <p>Thus, to <strong>switch</strong> | <strong>send tabs</strong> | <strong>bring tabs</strong> to a window via keyboard:</p>
+          <ol>
+            <li><kbd>Alt+W</kbd> (the default keyboard shortcut<small>*</small>) to open the popup.</li>
+            <li>If the window row is already immediately below the omnibox, skip this step. Otherwise, start typing its name until it is.</li>
+            <li><kbd>Enter</kbd> | <kbd>Ctrl+Enter</kbd> | <kbd>Shift+Enter</kbd>.</li>
+          </ol>
+          <p class="small">*If it has changed, hover your pointer over the WinMan button to check what it is.</p class="small">
+        </div>
+
+        <p class="col"><img src="popup-filter.png" class="light-border" alt="WinMan popup filtering windows"></p>
+
+      </section>
+
+      <section class="mb-1">
+        <h3>Slash commands</h3>
+        <p>Other actions can be performed by typing one of these slash commands, followed by <kbd>Enter</kbd>:</p>
+        <ul>
+          <li><kbd>/help</kbd>, <kbd>/h</kbd> or just <kbd>/</kbd> &ndash; Open this help page</li>
+          <li><kbd>/edit</kbd> or <kbd>/e</kbd> &ndash; Enter Edit mode to rename windows</li>
+          <li><kbd>/settings</kbd> or <kbd>/s</kbd> &ndash; Open WinMan settings</li>
+        </ul>
+      </section>
+
+    </section>
+
+    <footer class="center">
+      <h2>Enjoy using WinMan!</h2>
+      <p>More features are coming...</p>
+      <ul class="small">
+        <li>Dark theme</li>
+        <li>Stash away windows as bookmarks</li>
+        <li>Tab and link context menus</li>
+        <li>Differentiate between windows at a glance via toolbar button</li>
+        <li>Customize window title format</li>
+        <li>Option to not close emptied windows</li>
+        <li>Ability to keep popup open on send action</li>
+        <li>Indicate windows playing audio or seeking attention</li>
+      </ul>
+      <p>Feedback? Suggestions?</p>
+    </footer>
+  </body>
+</html>
+
+
+      <!-- <style>
+        .popup {
+            width: var(--width-body);
+            background-color: var(--bgc-base);
+            color: black;
+            font-family: sans-serif;
+            font-size: 14px;
+        }
+        .popup tr > td:nth-child(1),
+        .popup tr > td:nth-child(2),
+        .popup tr > td:last-child {
+            width: 1%;
+        }
+        .popup .send,
+        .popup .bring {
+            width: 27px;
+        }
+        .popup tr > td:nth-child(4) {
+            font-size: 13px;
+        }
+        .popup input,
+        .popup .tabCount {
+            height: var(--height-row);
+        }
+      </style>
+      <div class="popup">
+        <div class="row">Window 4</div>
+      </div>
+      <table class="popup">
+        <tr>
+          <td></td>
+          <td></td>
+          <td>Window 4</td>
+          <td>1</td>
+          <td><img class="edit" src="../icons/edit.svg" alt=""></td>
+        </tr>
+        <tr>
+          <td><img class="send" src="../icons/send.svg" alt=""></td>
+          <td><img class="bring" src="../icons/bring.svg" alt=""></td>
+          <td>Window 3</td>
+          <td>1</td>
+          <td><img class="edit" src="../icons/edit.svg" alt=""></td>
+        </tr>
+      </table> -->
