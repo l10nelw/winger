@@ -1,6 +1,6 @@
 export let windows = {};
 export let focusedWindow = { id: null };
-const invalidCharsNameRegex = /^\/|['"]/;
+const invalidCharsNameRegex = /^\//;
 let lastWindowNumber = 0;
 
 // Perform equivalent of add() for every open window all at once.
