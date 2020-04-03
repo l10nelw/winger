@@ -50,9 +50,6 @@
         border-radius: 1rem;
         cursor: pointer;
       }
-      .collapse-head {
-        align-items: center;
-      }
       .collapse-arrow {
         transition: transform .2s;
       }
@@ -84,6 +81,7 @@
       .mb-5 { margin-bottom: 5rem; }
       .pt-1 { padding-top: 1rem; }
       .pl-1 { padding-left: 1rem; }
+      .ai-center { align-items: center; }
       .center { text-align: center; }
       .small { font-size: small; }
     </style>
@@ -93,8 +91,8 @@
     <h1 class="center mb-5">WinMan (Window Manager)<br>Quick Guide</h1>
 
     <label class="collapse-box mb-5">
-      <input type="checkbox" class="collapse-hide" checked hidden>
-      <div class="row collapse-head">
+      <input type="checkbox" class="collapse-hide" hidden>
+      <div class="row ai-center collapse-head">
         <h2 class="col m-0" style="flex: 1">First, a few things you should know how to do on your browser...</h2>
         <div class="col collapse-arrow arrow-up"></div>
       </div>
@@ -128,7 +126,10 @@
 
     <section class="mb-5">
       <h2 class="center">The WinMan Popup</h2>
-      <p>Click on the WinMan toolbar button to open the popup.</p>
+      <div class="row ai-center">
+        <p class="button mr-1" style="border-radius: 8px"><img src="../icons/winman.svg" alt=""></p>
+        <p>Click on the WinMan toolbar button to open the popup.</p>
+      </div>
       <div class="row">
         <div class="col"><img src="popup.png" class="light-border" alt="WinMan popup"></div>
         <div class="col mx-1">
@@ -178,7 +179,7 @@
 
       <section class="small mx-1">
         <p><strong>Private window behaviour:</strong> Tabs cannot conventionally be moved between normal and private windows, so <em>send</em> and <em>bring</em>
-          actions will <strong>reopen</strong> tabs in the destination window instead. (Page state, such as filled form data and scroll position, will be lost.)</p>
+          actions will <strong>close and reopen</strong> tabs in the destination window instead. (Page state, such as filled form data and scroll position, will be lost.)</p>
       </section>
 
     </section>
@@ -213,20 +214,21 @@
       <section class="row mb-1">
 
         <div class="col mr-1">
-          <p>Multipurpose input field that allows execution of any action via keyboard.</p>
+          <p>A multipurpose input field that allows execution of any action with a keyboard, very simply.</p>
           <p>Primary omnibox powers:</p>
           <ul>
-            <li>Start typing in a window name (or part of it) to <strong>filter</strong> the list of other windows.</li>
-            <li>Press <kbd>Enter</kbd> to <strong>switch</strong> to the window represented by <em>the first row below the omnibox</em>.</li>
+            <li>Press <kbd>Enter</kbd> to <strong>switch</strong> to <em>the first window listed below the omnibox</em>.</li>
+            <li>Start typing in a window name, or part of it, to <strong>filter</strong> the list of other windows (and change the first listed window).</li>
           </ul>
-          <p>And remember that holding <kbd>Ctrl</kbd> or <kbd>Shift</kbd> while doing a <strong>switch</strong> changes it to a <strong>send</strong> or <strong>bring</strong> respectively.</p>
+          <p>Remember that holding <kbd>Ctrl</kbd> or <kbd>Shift</kbd> while doing a <strong>switch</strong> changes it to a <strong>send</strong> or <strong>bring</strong> respectively.</p>
           <p>Thus, to <strong>switch</strong> | <strong>send tabs</strong> | <strong>bring tabs</strong> to a window via keyboard:</p>
           <ol>
             <li><kbd>Alt+W</kbd> (the default keyboard shortcut<small>*</small>) to open the popup.</li>
-            <li>If the window row is already immediately below the omnibox, skip this step. Otherwise, start typing its name until it is.</li>
+            <li>If the window row is already <em>immediately below the omnibox</em>, skip this step. Otherwise, start typing its name until it is.</li>
             <li><kbd>Enter</kbd> | <kbd>Ctrl+Enter</kbd> | <kbd>Shift+Enter</kbd>.</li>
           </ol>
-          <p class="small">*If it has changed, hover your pointer over the WinMan button to check what it is.</p class="small">
+          <p>Try it a couple of times; it's easier done than said!</p>
+          <p class="small">*If the shortcut has changed, hover your pointer over the WinMan button to check what it is.</p class="small">
         </div>
 
         <p class="col"><img src="popup-filter.png" class="light-border" alt="WinMan popup filtering windows"></p>
