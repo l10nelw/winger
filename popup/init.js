@@ -47,7 +47,7 @@ function removeElements(SETTINGS) {
         const [$parent, selector] = elements[element];
         const $el = $parent.querySelector(selector);
         $el.remove();
-        if ($parent == $rowTemplate) {
+        if ($parent === $rowTemplate) {
             rowElementSelectors.delete(selector);
             if (isButton($el)) popupWidth -= buttonWidth; // Reduce popup width if a row button is removed
         }
@@ -95,12 +95,11 @@ function createRow({ id, incognito, givenName, defaultName }) {
 }
 
 function createModifierHints(SETTINGS, selectedTabCount) {
-    const bringModifier = SETTINGS.bring_modifier;
-    const sendModifier  = SETTINGS.send_modifier;
-    const tabWord = selectedTabCount == 1 ? 'tab' : 'tabs';
+    const { bring_modifier, send_modifier } = SETTINGS;
+    const tabWord = selectedTabCount === 1 ? 'tab' : 'tabs';
     return {
-        [bringModifier]: `${bringModifier.toUpperCase()}: Bring ${tabWord} to`,
-        [sendModifier]:  `${sendModifier.toUpperCase() }: Send ${tabWord} to`,
+        [bring_modifier]: `${bring_modifier.toUpperCase()}: Bring ${tabWord} to...`,
+        [send_modifier]:  `${send_modifier.toUpperCase()}: Send ${tabWord} to...`,
     };
 }
 
