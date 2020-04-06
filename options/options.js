@@ -2,7 +2,6 @@ import * as Settings from '../background/settings.js';
 
 const $body = document.body;
 const $form = $body.querySelector('form');
-const $modifierFields = [$form.bring_modifier, $form.send_modifier];
 let SETTINGS;
 init();
 
@@ -17,20 +16,8 @@ async function init() {
 
 function onFieldChange(event) {
     const $target = event.target;
-    handleModifierFields($target);
     saveSetting($target);
     browser.runtime.reload();
-}
-
-// If a modifier option is set to the same as the other, swap their values instead.
-function handleModifierFields($target) {
-    const index = $modifierFields.indexOf($target);
-    if (index == -1) return;
-    const $other = $modifierFields[1 - index];
-    if ($target.value == $other.value) {
-        $other.value = SETTINGS[$target.name];
-        saveSetting($other);
-    }
 }
 
 function saveSetting($target) {

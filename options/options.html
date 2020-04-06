@@ -4,7 +4,15 @@
     <meta charset="utf-8">
     <style>
       body {
-        padding: 1rem;
+        padding: 0 1rem;
+      }
+      label {
+        display: inline-flex;
+        align-items: baseline;
+        margin-bottom: .25rem;
+      }
+      [type="checkbox"] {
+        margin-right: 1rem;
       }
     </style>
   </head>
@@ -14,11 +22,11 @@
       <h2>Behaviour</h2>
       <h3>Moving tabs (send &amp; bring)</h3>
       <p>
-        <label><input type="checkbox" name="move_pinned_tabs"> Allow pinned tabs to be moved</label><br>
-        <label><input type="checkbox" name="keep_moved_active_tab_active"> If an active tab<small>*</small> is moved, make it the destination window's active tab</label><br>
-        <label><input type="checkbox" name="keep_moved_tabs_selected"> Keep multiple moved tabs selected in the destination window</label><br>
+        <label><input type="checkbox" name="keep_moved_active_tab_active"> <span>When an active tab<small>*</small> is moved, make it the destination window's new active tab</span></label><br>
+        <label><input type="checkbox" name="keep_moved_tabs_selected"> <span>When multiple selected tabs are moved, keep them selected in the destination window</span></label><br>
+        <label><input type="checkbox" name="move_pinned_tabs"> <span>Allow pinned tabs to be moved</span></label><br>
       </p>
-      <p><small>*The tab with its content visible</small></p>
+      <p><small>*The tab with its contents visible</small></p>
 
       <h2>Appearance</h2>
       <h3>Show these elements in the popup</h3>
@@ -35,49 +43,9 @@
       <p>Click the ⚙️ button at the top of this page, click <strong>Manage Extension Shortcuts</strong> and look for the WinMan shortcut.</p>
 
       <h2>Private windows</h2>
-      <p>It is recommended to allow WinMan to work in private windows. Otherwise, WinMan will simply not see them.</p>
+      <p>It is recommended to allow WinMan to work in private windows; otherwise WinMan will simply not see them.</p>
       <p>If you have not done so, go to the <strong>Details</strong> tab above this page, then for <strong>Run in Private Windows</strong> choose <strong>Allow</strong>.</p>
 
-      <!-- <p>
-        <label>
-          "Bring tab" modifier
-          <select name="bring_modifier">
-            <option>Alt</option>
-            <option>Ctrl</option>
-            <option>Shift</option>
-          </select>
-        </label>
-      </p>
-      <p>
-        <label>
-          "Send tab" modifier
-          <select name="send_modifier">
-            <option>Alt</option>
-            <option>Ctrl</option>
-            <option>Shift</option>
-          </select>
-        </label>
-      </p> -->
-      <!--
-      <p>
-        <label>
-          <input type="checkbox" name="enable_tab_menu">
-          Enable tab context menu <i>(Default: checked)</i>
-        </label>
-      </p>
-      <p>
-        <label>
-          <input type="checkbox" name="enable_link_menu">
-          Enable link context menu <i>(Default: checked)</i>
-        </label>
-      </p>
-      <p>
-        <label>
-          <input type="checkbox" name="show_badge">
-          Show short name badge on toolbar button<i>(Default: checked)</i>
-        </label>
-      </p>
-      -->
     </form>
     <script src="options.js" type="module"></script>
   </body>

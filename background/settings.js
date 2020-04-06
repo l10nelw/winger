@@ -14,9 +14,9 @@ const DEFAULT = {
 
     // show_badge: true,
 
-    move_pinned_tabs: true,
     keep_moved_active_tab_active: true,
     keep_moved_tabs_selected: false,
+    move_pinned_tabs: false,
 };
 
 export let SETTINGS;
