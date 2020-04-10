@@ -7,25 +7,23 @@
   <body>
     <input type="checkbox" id="editMode" hidden>
     <ul id="currentWindow"></ul>
-    <input id="omnibar" type="text" autofocus>
-    <ul id="otherWindows"></ul>
+    <input id="omnibox" class="allowRightClick" type="text" autofocus>
+    <ul id="otherWindows" tabindex="-1"></ul>
+    <div id="status"></div>
     <footer>
-      <button type="button" id="help">Help</button>
-      <button type="button" id="settings">Settings</button>
+      <button type="button" id="help"><img src="../icons/help.svg" width="18" height="18"> Help</button>
+      <button type="button" id="settings"><img src="../icons/settings.svg" width="18" height="18"> Settings</button>
     </footer>
 
     <template id="rowTemplate">
-      <li class="other">
-        <div class="tabAction">
-          <button type="button" class="sendTabBtn">></button>
-        </div>
+      <li tabindex="0" class="otherRow" data-action="switchWindow" title="Switch to: ">
+        <button type="button" class="tabAction send" data-action="sendTabs" title="Send # to: "></button>
+        <button type="button" class="tabAction bring" data-action="bringTabs" title="Bring # to: "></button>
         <div class="nameColumn">
-          <input class="nameInput" readonly autocomplete="off">
+          <input tabindex="-1" class="input" readonly autocomplete="off">
         </div>
         <div class="tabCount"></div>
-        <div class="windowAction">
-          <button type="button" class="editBtn"></button>
-        </div>
+        <button type="button" class="edit" data-action="edit" title="Edit: "></button>
       </li>
     </template>
 

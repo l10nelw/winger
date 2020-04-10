@@ -2,36 +2,42 @@
   "manifest_version": 2,
   "name": "WinMan",
   "description": "Window Manager: name windows, switch windows and move tabs between windows",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "icons": {
-    "64": "icon.png"
+    "48": "icons/winman.svg",
+    "96": "icons/winman.svg"
   },
   "permissions": [
-    "menus",
-    "sessions"
+    "sessions",
+    "storage",
+    "tabs"
   ],
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "winman@example.com"
-    }
-  },
   "background": {
     "page": "background/background.html"
   },
   "browser_action": {
     "default_icon": {
-      "64": "icon.png"
+      "48": "icons/winman.svg",
+      "96": "icons/winman.svg"
     },
-    "default_title": "WinMan",
     "default_popup": "popup/popup.html",
+    "browser_style": true
+  },
+  "options_ui": {
+    "page": "options/options.html",
     "browser_style": true
   },
   "commands": {
     "_execute_browser_action": {
       "description": "Open the popup panel",
       "suggested_key": {
-        "default": "Alt+W"
+        "default": "F2"
       }
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "winman@example.com"
     }
   }
 }

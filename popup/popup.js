@@ -1,85 +1,78 @@
+/*
+- A window is represented in the popup as a 'row', which is represented by an HTML list item (<li>).
+- All relevant data are embedded and managed within the popup's DOM structure. No separate, representative dataset
+  to be maintained in parallel with the DOM (apart from Metadata in the background).
+- A variable prefixed with '$' references a DOM node or a collection of DOM nodes.
+- Some DOM nodes have custom properties (expandos), prefixed with '_', to concisely store and pass around data.
+*/
+
+import { hasClass, getModifiers, isInput } from '../utils.js';
+import init from './init.js';
+import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
 
-const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-export let $currentWindowRow, $otherWindowRows, $allWindowRows;
+const $body = document.body;
+const supportBtns = { help, settings };
+let $enterKeyDownInput = null;
 
-browser.runtime.sendMessage({ popup: true }).then(init);
-document.addEventListener('click', onClick);
+// Action attribute utilities
+const actionAttr = 'data-action';
+export const getActionAttr = $el => $el && $el.getAttribute(actionAttr);
+export const unsetActionAttr = $el => $el && $el.removeAttribute(actionAttr);
+export const getActionElements = ($scope = $body, suffix = '') => $scope.querySelectorAll(`[${actionAttr}]${suffix}`);
 
+// Populated by init()
+export let SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows;
+let modifierHints;
 
-function init(response) {
-    const $currentWindow = document.getElementById('currentWindow');
-    const $otherWindows = document.getElementById('otherWindows');
-    const { metaWindows, currentWindowId, sortedIds } = response;
-    for (const windowId of sortedIds) {
-        const metaWindow = metaWindows[windowId];
-        const $row = createRow(metaWindow);
-        let $table = $otherWindows;
-        if (windowId == currentWindowId) {
-            $row.classList.replace('other', 'current');
-            $row.querySelector('.tabAction').remove();
-            $table = $currentWindow;
-        }
-        $table.appendChild($row);
-    }
-    $currentWindowRow = $currentWindow.querySelector('li');
-    $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
-    $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
-    lockHeight($otherWindows);
-}
-
-function createRow(metaWindow) {
-    const $row = document.importNode($rowTemplate, true);
-    const $input = $row.querySelector('input');
-    const $editBtn = $row.querySelector('.editBtn');
-    const $tabCount = $row.querySelector('.tabCount');
-
-    $input.value = metaWindow.givenName;
-    $input.placeholder = metaWindow.defaultName;
-    $tabCount.textContent = metaWindow.tabCount;
-
-    $row._id = $input._id = metaWindow.id;
-    $input.$row = $editBtn.$row = $row;
-    $row.$input = $input;
-    $row.$editBtn = $editBtn;
-
-    return $row;
-}
+(async () => {
+    ({ SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints } = await init());
+    $body.addEventListener('click', onClick);
+    $body.addEventListener('contextmenu', onRightClick);
+    $body.addEventListener('keydown', onKeyDown);
+    $body.addEventListener('keyup', onKeyUp);
+})();
 
 function onClick(event) {
     const $target = event.target;
-    const $activeRow = EditMode.$active;
-    if ($target.id == 'help') {
-        help();
-    } else if (hasClass($target, 'editBtn')) {
-        const $row = $target.$row;
-        $row == $activeRow ? EditMode.done() : EditMode.activate($row);
-    } else if ($activeRow) {
-        $activeRow.$input.focus();
-    } else {
-        const $row = $target.closest('.other');
-        if ($row) goalAction(event, $row._id, hasClass($target, 'sendTabBtn'));
+    const id = $target.id;
+    if (id in supportBtns) supportBtns[id](); // Closes popup
+    if (EditMode.handleClick($target)) return; // Handled by EditMode
+    requestAction(event, $target);
+}
+
+function onRightClick(event) {
+    if (!hasClass('allowRightClick', event.target)) event.preventDefault();
+}
+
+function onKeyDown(event) {
+    let key = event.key;
+    const $target = event.target;
+    if (!EditMode.$active) {
+        if (key === 'Control') key = 'Ctrl';
+        Omnibox.info(modifierHints[key]);
+    }
+    if (key === 'Enter' && isInput($target)) {
+        $enterKeyDownInput = $target;
     }
 }
 
-export function goalAction(event, windowId, doSendTabs) {
-    browser.runtime.sendMessage({
-        module: 'BrowserOp',
-        prop: 'goalAction',
-        args: [windowId, getModifiers(event), doSendTabs],
-    });
-    window.close();
-}
-
-function getModifiers(event) {
-    let modifiers = [];
-    for (const prop in event) {
-        if (prop.endsWith('Key') && event[prop]) {
-            let modifier = prop[0].toUpperCase() + prop.slice(1, -3);
-            modifiers.push(modifier);
-        }
+function onKeyUp(event) {
+    const key = event.key;
+    const $target = event.target;
+    if (!EditMode.$active) Omnibox.info();
+    if (key === 'Enter' && $target === $enterKeyDownInput) {
+        // Indicate that Enter has been keyed down and up both within the same input.
+        // Guards against cases where input receives the keyup after the keydown was invoked elsewhere (usually a button).
+        $target._enter = true;
+        $enterKeyDownInput = null;
     }
-    return modifiers;
+    if ($target == Omnibox.$omnibox) {
+        Omnibox.handleKeyUp(event);
+    } else
+    if (hasClass('otherRow', $target) && ['Enter', ' '].includes(key)) {
+        requestAction(event, $target);
+    }
 }
 
 export function help() {
@@ -87,11 +80,30 @@ export function help() {
     window.close();
 }
 
-function hasClass($el, cls) {
-    return $el.classList.contains(cls);
+export function settings() {
+    browser.runtime.openOptionsPage();
+    window.close();
 }
 
-function lockHeight($el) {
-    $el.style.height = ``;
-    $el.style.height = `${$el.offsetHeight}px`;
+// Given a $row or any of its child elements, get the displayName.
+export function getDisplayName($rowElement) {
+    const $input = hasClass('input', $rowElement) && $rowElement || $rowElement.$input || $rowElement.$row.$input;
+    return $input.value || $input.placeholder;
+}
+
+// Gather action parameters from event and $action element. If action and windowId found, send parameters to
+// background to request action execution.
+export function requestAction(event, $action = event.target) {
+    const $row = $action.$row || $action;
+    const windowId = $row._id;
+    if (!windowId) return;
+    const action = getActionAttr($action) || getActionAttr($row);
+    if (!action) return;
+    browser.runtime.sendMessage({
+        action,
+        windowId,
+        reopen: hasClass('reopenTabs', $row),
+        modifiers: getModifiers(event),
+    });
+    window.close();
 }

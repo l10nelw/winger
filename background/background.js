@@ -1,96 +1,85 @@
 /*
-Naming notes:
-- A variable prefixed with '$' references a DOM node or a collection of DOM nodes.
-- Data created and used by this addon pertaining to a window are 'metadata' and an object collecting
-  them is a 'metawindow'. The metawindows live in Metadata.windows as the addon's source-of-truth.
-- Window objects returned by the WebExtensions API are named windowObject to avoid confusion with the
-  global window object.
+- Data created and used by this webextension pertaining to a window are 'metadata' and an object collecting them is a
+  'metawindow'. The metawindows live in Metadata.windows as the webextension's source-of-truth.
+- Window objects returned by the WebExtensions API are named windowObject to avoid confusion with the global window object.
 */
 
+import * as Settings from './settings.js';
 import * as Metadata from './metadata.js';
-import * as BrowserOp from './browser.js';
-Object.assign(window, { Metadata, BrowserOp });
+import * as WindowTab from './windowtab.js';
+
+// import * as Badge from './badge.js';
+// import * as Menu from './menu.js';
+import * as Title from './title.js';
+const WindowParts = [Title];
 
 init();
+setIconTitle();
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onRemoved.addListener(onWindowRemoved);
 browser.windows.onFocusChanged.addListener(onWindowFocused);
-browser.tabs.onCreated.addListener(onTabCreated);
-browser.tabs.onRemoved.addListener(onTabRemoved);
-browser.tabs.onDetached.addListener(onTabDetached);
-browser.tabs.onAttached.addListener(onTabAttached);
 browser.runtime.onMessage.addListener(onRequest);
-browser.menus.onClicked.addListener(BrowserOp.menu.onClick);
 
 async function init() {
-    const allWindows = await browser.windows.getAll({ populate: true });
-    for (const windowObject of allWindows) {
-        await onWindowCreated(windowObject);
-        if (windowObject.focused) Metadata.focusedWindow.id = windowObject.id;
-    }
+    const [windowObjects,] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
+    WindowParts.forEach(part => part.init());
+    await Metadata.init(windowObjects);
+    windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
 }
 
-async function onWindowCreated(windowObject) {
-    await Metadata.add(windowObject);
+async function setIconTitle() {
+    const [{ name }, [{ shortcut }]] = await Promise.all([browser.management.getSelf(), browser.commands.getAll()]);
+    browser.browserAction.setTitle({ title: `${name} (${shortcut})` });
+}
+
+async function onWindowCreated(windowObject, isInit) {
+    if (!isInit) await Metadata.add(windowObject);
     const windowId = windowObject.id;
-    BrowserOp.badge.update(windowId);
-    BrowserOp.title.update(windowId);
-    BrowserOp.menu.create(windowId);
+    WindowParts.forEach(part => part.create(windowId));
+    if (windowObject.focused) onWindowFocused(windowId);
 }
 
 function onWindowRemoved(windowId) {
     Metadata.remove(windowId);
-    BrowserOp.menu.remove(windowId);
+    // Menu.remove(windowId);
 }
 
 function onWindowFocused(windowId) {
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windows[windowId].lastFocused = Date.now();
-    BrowserOp.menu.hide(windowId);
-    BrowserOp.menu.show(Metadata.focusedWindow.id);
+    // Menu.show(Metadata.focusedWindow.id);
     Metadata.focusedWindow.id = windowId;
-}
-
-function onTabCreated(tabObject) {
-    const windowId = tabObject.windowId;
-    if (isWindowBeingCreated(windowId)) return;
-    Metadata.windows[windowId].tabCount++;
-    BrowserOp.badge.update(windowId);
-}
-
-function onTabRemoved(tabId, info) {
-    if (info.isWindowClosing) return;
-    const windowId = info.windowId;
-    Metadata.windows[windowId].tabCount--;
-    BrowserOp.badge.update(windowId);
-}
-
-function onTabDetached(tabId, info) {
-    const windowId = info.oldWindowId;
-    Metadata.windows[windowId].tabCount--;
-    BrowserOp.badge.update(windowId);
-}
-
-function onTabAttached(tabId, info) {
-    const windowId = info.newWindowId;
-    if (isWindowBeingCreated(windowId)) return;
-    Metadata.windows[windowId].tabCount++;
-    BrowserOp.badge.update(windowId);
+    // Menu.hide(windowId);
 }
 
 function isWindowBeingCreated(windowId) {
     return !(windowId in Metadata.windows);
 }
 
-function onRequest(request) {
+async function onRequest(request) {
+
+    // From popup/popup.js
     if (request.popup) {
-        return Promise.resolve({
+        return {
+            SETTINGS: Settings.SETTINGS,
             metaWindows: Metadata.windows,
             currentWindowId: Metadata.focusedWindow.id,
-            sortedIds: Metadata.sortedIds(),
-        });
+            sortedWindowIds: Metadata.sortedWindowIds(),
+            selectedTabCount: (await WindowTab.getSelectedTabs()).length,
+        };
     }
-    if (request.module) {
-        return Promise.resolve(window[request.module][request.prop](...request.args));
+
+    // From popup/popup.js
+    if (request.action) {
+        WindowTab.doAction(request);
+        return;
+    }
+
+    // From popup/editmode.js
+    if (request.giveName) {
+        const windowId = request.windowId;
+        const error = await Metadata.giveName(windowId, request.name);
+        if (!error) WindowParts.forEach(part => part.update(windowId));
+        return error;
     }
 }
