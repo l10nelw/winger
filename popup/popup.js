@@ -75,8 +75,17 @@ function onKeyUp(event) {
     }
 }
 
-export function help() {
-    browser.tabs.create({ url: '/help/help.html' });
+export async function help() {
+    const path = 'help/help.html';
+    const url = browser.runtime.getURL(path);
+    const openedHelpTabs = await browser.tabs.query({ url });
+    if (openedHelpTabs.length) {
+        const tab = openedHelpTabs[0];
+        browser.tabs.update(tab.id, { active: true });
+        browser.windows.update(tab.windowId, { focused: true });
+    } else {
+        browser.tabs.create({ url: `/${path}` });
+    }
     window.close();
 }
 
