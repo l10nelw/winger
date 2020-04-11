@@ -24,6 +24,7 @@ export default async function init() {
     Tooltip.init(selectedTabCount);
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
     lockHeight($otherWindows);
+    alignWithScrollbar($currentWindow, $otherWindows);
 
     return { SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints };
 }
@@ -114,4 +115,9 @@ function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
 function lockHeight($el) {
     $el.style.height = ``;
     $el.style.height = `${$el.offsetHeight}px`;
+}
+
+function alignWithScrollbar($aligningEl, $scrollingEl) {
+    const scrollbarWidth = $scrollingEl.offsetWidth - $scrollingEl.clientWidth;
+    if (scrollbarWidth) $aligningEl.style.marginInlineEnd = `${scrollbarWidth}px`;
 }
