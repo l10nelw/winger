@@ -13,7 +13,6 @@ import * as EditMode from './editmode.js';
 
 const $body = document.body;
 const supportBtns = { help, settings };
-let $enterKeyDownInput = null;
 
 // Action attribute utilities
 const actionAttr = 'data-action';
@@ -45,26 +44,36 @@ function onRightClick(event) {
     if (!hasClass('allowRightClick', event.target)) event.preventDefault();
 }
 
+// Flag if Enter has been keyed down and up both within the same input. A handler should then check and reset the flag (_enter).
+// Guards against cases where input receives the keyup after the keydown was invoked elsewhere (usually a button).
+const enterChecker = {
+    $input: null,
+    keyDown(key, $target) {
+        if (key === 'Enter' && isInput($target)) {
+            this.$input = $target;
+        }
+    },
+    keyUp(key, $target) {
+        if (key === 'Enter' && $target === this.$input) {
+            $target._enter = true;
+            this.$input = null;
+        }
+    }
+};
+
 function onKeyDown(event) {
     let key = event.key;
-    const $target = event.target;
+    enterChecker.keyDown(key, event.target);
     if (!EditMode.$active) {
         if (key === 'Control') key = 'Ctrl';
         Omnibox.info(modifierHints[key]);
-    }
-    if (key === 'Enter' && isInput($target)) {
-        $enterKeyDownInput = $target;
     }
 }
 
 function onKeyUp(event) {
     const key = event.key;
     const $target = event.target;
-    if (key === 'Enter' && $target === $enterKeyDownInput) {
-        // Indicate that Enter has been keyed down and up both within the same input.
-        // Guards against cases where input receives the keyup after the keydown was invoked elsewhere (usually a button).
-        $target._enter = true;
-        $enterKeyDownInput = null;
+    enterChecker.keyUp(key, $target);
     if (EditMode.$active) {
         return EditMode.handleKeyUp(key, $target);
     }
