@@ -60,18 +60,20 @@ function onKeyDown(event) {
 function onKeyUp(event) {
     const key = event.key;
     const $target = event.target;
-    if (!EditMode.$active) Omnibox.info();
     if (key === 'Enter' && $target === $enterKeyDownInput) {
         // Indicate that Enter has been keyed down and up both within the same input.
         // Guards against cases where input receives the keyup after the keydown was invoked elsewhere (usually a button).
         $target._enter = true;
         $enterKeyDownInput = null;
+    if (EditMode.$active) {
+        return EditMode.handleKeyUp(key, $target);
     }
+    Omnibox.info();
     if ($target == Omnibox.$omnibox) {
-    } else
-        Omnibox.handleKeyUp(key, event);
+        return Omnibox.handleKeyUp(key, event);
+    }
     if (hasClass('otherRow', $target) && ['Enter', ' '].includes(key)) {
-        requestAction(event, $target);
+        return requestAction(event, $target);
     }
 }
 

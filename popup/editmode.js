@@ -52,8 +52,6 @@ const general = {
         const tabIndex = yes ? -1 : 0;
         $disabledActions = $disabledActions || [...Popup.getActionElements($body, ':not(.edit)')];
         $disabledActions.forEach($action => $action.tabIndex = tabIndex);
-        const evLi = yes ? 'addEventListener' : 'removeEventListener';
-        $body[evLi]('keyup', onKeyUp);
         $editMode.checked = yes;
         Omnibox.disable(yes);
         Omnibox.info(yes ? omniboxHint : '');
@@ -136,13 +134,13 @@ const keyEffects = {
 
 };
 
-async function onKeyUp(event) {
-    if (event.target != $activeInput) return;
-    const key = event.key;
+export async function handleKeyUp(key, $target) {
+    if ($target !== $activeInput) return;
     if (key in keyEffects) {
         // If input receives a keystroke with an effect assigned, perform effect
         await keyEffects[key]();
-    } else if ($activeInput.value != $activeInput._invalid) {
+    } else
+    if ($activeInput.value !== $activeInput._invalid) {
         // If input content is changed, remove any error indicator
         toggleError($activeInput, false);
     }
