@@ -68,8 +68,8 @@ function onKeyUp(event) {
         $enterKeyDownInput = null;
     }
     if ($target == Omnibox.$omnibox) {
-        Omnibox.handleKeyUp(event);
     } else
+        Omnibox.handleKeyUp(key, event);
     if (hasClass('otherRow', $target) && ['Enter', ' '].includes(key)) {
         requestAction(event, $target);
     }

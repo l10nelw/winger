@@ -9,9 +9,8 @@ const commands = {
     edit:     EditMode.activate,
 };
 
-export function handleKeyUp(event) {
+export function handleKeyUp(key, event) {
     const str = $omnibox.value;
-    const key = event.key;
     const enter = key === 'Enter' && $omnibox._enter;
     if (enter) $omnibox._enter = false;
     if (str[0] === '/') {
