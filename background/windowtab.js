@@ -1,5 +1,4 @@
 import { SETTINGS } from './settings.js';
-import { windows as metaWindows } from './metadata.js';
 
 const unpinTab    = tabId => browser.tabs.update(tabId, { pinned: false });
 const pinTab      = tabId => browser.tabs.update(tabId, { pinned: true });
@@ -85,9 +84,4 @@ async function reopenTabs(windowId, tabs) {
         tabs.forEach(tab => { if (!tab.active) selectTab(tab.id) });
     }
     return tabs;
-}
-
-export function samePrivateStatus(windowIdOrObject1, windowIdOrObject2) {
-    const isPrivate = x => isNaN(x) ? x.incognito : metaWindows[x].incognito;
-    return isPrivate(windowIdOrObject1) == isPrivate(windowIdOrObject2);
 }
