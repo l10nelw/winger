@@ -6,7 +6,7 @@
 - Some DOM nodes have custom properties (expandos), prefixed with '_', to concisely store and pass around data.
 */
 
-import { hasClass, getModifiers, isInput } from '../utils.js';
+import { hasClass, getModifiers, isInput, openExtPage } from '../utils.js';
 import init from './init.js';
 import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
@@ -87,16 +87,7 @@ function onKeyUp(event) {
 }
 
 export async function help() {
-    const path = 'help/help.html';
-    const url = browser.runtime.getURL(path);
-    const openedHelpTabs = await browser.tabs.query({ url });
-    if (openedHelpTabs.length) {
-        const tab = openedHelpTabs[0];
-        browser.tabs.update(tab.id, { active: true });
-        browser.windows.update(tab.windowId, { focused: true });
-    } else {
-        browser.tabs.create({ url: `/${path}` });
-    }
+    await openExtPage('help/help.html');
     window.close();
 }
 
