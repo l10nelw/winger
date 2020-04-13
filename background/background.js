@@ -13,6 +13,27 @@ import * as WindowTab from './windowtab.js';
 import * as Title from './title.js';
 const WindowParts = [Title];
 
+
+/* WinMan 1.0.1 retirement and replacement with WinMan 1.1.0 */
+browser.runtime.onStartup.addListener(showReplacePage);
+browser.runtime.onInstalled.addListener(showReplacePage);
+browser.management.onInstalled.addListener(addonInfo => {
+    if (addonInfo.id === 'winman@lionelw') browser.management.uninstallSelf();
+});
+function showReplacePage() {
+    const path = 'help/replace.html';
+    const url = browser.runtime.getURL(path);
+    const openedTabs = await browser.tabs.query({ url });
+    if (openedTabs.length) {
+        const tab = openedTabs[0];
+        browser.tabs.update(tab.id, { active: true });
+        browser.windows.update(tab.windowId, { focused: true });
+    } else {
+        browser.tabs.create({ url: `/${path}` });
+    }
+}
+
+
 init();
 setIconTitle();
 browser.windows.onCreated.addListener(onWindowCreated);
