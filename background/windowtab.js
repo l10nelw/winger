@@ -25,14 +25,15 @@ function modifyAction(action, modifiers) {
            action;
 }
 
-function bringTabs(windowId, tabs, reopen) {
-    sendTabs(windowId, tabs, reopen);
-    switchWindow(windowId);
+async function bringTabs(windowId, tabs, reopen) {
+    if (await sendTabs(windowId, tabs, reopen)) {
+        switchWindow(windowId);
+    }
 }
 
-function sendTabs(windowId, tabs, reopen) {
+async function sendTabs(windowId, tabs, reopen) {
     const tabAction = reopen ? reopenTabs : moveTabs;
-    tabAction(windowId, tabs);
+    return await tabAction(windowId, tabs);
 }
 
 async function moveTabs(windowId, tabs) {
@@ -43,17 +44,19 @@ async function moveTabs(windowId, tabs) {
     }
 
     const tabIds = tabs.map(tab => tab.id);
-    await browser.tabs.move(tabIds, { windowId, index: -1 });
+    const movedTabs = await browser.tabs.move(tabIds, { windowId, index: -1 });
+    if (!movedTabs.length) return;
 
     if (pinnedTabIds) pinnedTabIds.forEach(pinTab);
 
     if (SETTINGS.keep_moved_active_tab_active) {
-        const activeTabObject = tabs.find(tab => tab.active);
-        if (activeTabObject) activateTab(activeTabObject.id);
+        const activeTab = tabs.find(tab => tab.active);
+        if (activeTab) activateTab(activeTab.id);
     }
     if (SETTINGS.keep_moved_tabs_selected) {
         tabIds.forEach(selectTab);
     }
+    return movedTabs;
 }
 
 async function reopenTabs(windowId, tabs) {
@@ -75,11 +78,13 @@ async function reopenTabs(windowId, tabs) {
         if (newTab) browser.tabs.remove(tab.id);
         return newTab;
     }
-    tabs = await Promise.all(tabs.map(reopenTab));
+    tabs = (await Promise.all(tabs.map(reopenTab))).filter(tab => tab);
+    if (!tabs.length) return;
 
     if (SETTINGS.keep_moved_tabs_selected) {
-        tabs.forEach(tab => { if (tab && !tab.active) selectTab(tab.id) });
+        tabs.forEach(tab => { if (!tab.active) selectTab(tab.id) });
     }
+    return tabs;
 }
 
 export function samePrivateStatus(windowIdOrObject1, windowIdOrObject2) {
