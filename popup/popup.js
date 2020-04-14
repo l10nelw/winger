@@ -11,7 +11,7 @@ import init from './init.js';
 import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
 
-const $body = document.body;
+export const $body = document.body;
 const supportBtns = { help, settings };
 
 // Action attribute utilities

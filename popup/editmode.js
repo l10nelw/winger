@@ -13,7 +13,6 @@ let $activeInput;
 let $disabledActions;
 let $rows, lastIndex; // 'Constants' for row.shiftActive() defined in general.activate()
 const $editMode = document.getElementById('editMode');
-const $body = document.body;
 
 const omniboxHint = `ENTER/↑/↓: Save, ESC: Cancel`;
 let altTooltip = `Save and exit Edit Mode`;
@@ -50,7 +49,7 @@ const general = {
 
     toggle(yes) {
         const tabIndex = yes ? -1 : 0;
-        $disabledActions = $disabledActions || [...Popup.getActionElements($body, ':not(.edit)')];
+        $disabledActions = $disabledActions || [...Popup.getActionElements(Popup.$body, ':not(.edit)')];
         $disabledActions.forEach($action => $action.tabIndex = tabIndex);
         $editMode.checked = yes;
         Omnibox.disable(yes);

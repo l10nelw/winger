@@ -7,8 +7,6 @@ import * as Tooltip from './tooltip.js';
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 const rowElementSelectors = new Set(['.send', '.bring', '.input', '.tabCount', '.edit']);
 
-const $body = document.body;
-
 export default async function init() {
     const { SETTINGS, metaWindows, currentWindowId, sortedWindowIds, selectedTabCount } =
         await browser.runtime.sendMessage({ popup: true });
@@ -35,8 +33,8 @@ function removeElements(SETTINGS) {
         popup_bring:    [$rowTemplate, '.bring'],
         popup_send:     [$rowTemplate, '.send'],
         popup_edit:     [$rowTemplate, '.edit'],
-        popup_help:     [$body, '#help'],
-        popup_settings: [$body, '#settings'],
+        popup_help:     [Popup.$body, '#help'],
+        popup_settings: [Popup.$body, '#settings'],
     }
     const $document = document.documentElement;
     const styles = getComputedStyle($document);
