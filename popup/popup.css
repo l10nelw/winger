@@ -137,8 +137,8 @@ li button {
     border-radius: 50%;
 }
 
-button:hover,
-button:focus {
+li button:hover,
+li button:focus {
     opacity: 1;
     background-color: var(--bgc-rowbtn-focus);
 }
