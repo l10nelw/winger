@@ -13,15 +13,3 @@ export const toggleClass = (cls, $el, force) => $el && $el.classList.toggle(cls,
 // Element type
 export const isButton = $el => $el.tagName === 'BUTTON';
 export const isInput = $el => $el.tagName === 'INPUT';
-
-export async function openExtPage(pathname) {
-    const url = browser.runtime.getURL(pathname);
-    const openedPages = await browser.tabs.query({ url });
-    if (openedPages.length) {
-        const tab = openedPages[0];
-        browser.tabs.update(tab.id, { active: true });
-        browser.windows.update(tab.windowId, { focused: true });
-    } else {
-        browser.tabs.create({ url: `/${pathname}` });
-    }
-}

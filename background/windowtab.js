@@ -6,12 +6,25 @@ const activateTab = tabId => browser.tabs.update(tabId, { active: true });
 const selectTab   = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
 const getUrlFromReader = readerUrl => decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));
 
+export const openHelp = () => openExtPage('help/help.html');
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
 export const switchWindow = windowId => browser.windows.update(windowId, { focused: true });
 const actionFunctions = { bringTabs, sendTabs, switchWindow };
 
+// Open extension page or switch to tab if already open
+async function openExtPage(pathname) {
+    const url = browser.runtime.getURL(pathname);
+    const openedPages = await browser.tabs.query({ url });
+    if (openedPages.length) {
+        const tab = openedPages[0];
+        browser.tabs.update(tab.id, { active: true });
+        browser.windows.update(tab.windowId, { focused: true });
+    } else {
+        browser.tabs.create({ url: `/${pathname}` });
+    }
+}
+
 // Select actionFunction to execute based on `action` and optionally `reopen` and `modifiers`, given `windowId`.
-// If `tabs` not given, currently selected tabs will be used.
 export async function doAction({ action, windowId, tabs, reopen, modifiers }) {
     tabs = tabs || await getSelectedTabs();
     action = modifyAction(action, modifiers);
@@ -19,6 +32,7 @@ export async function doAction({ action, windowId, tabs, reopen, modifiers }) {
 }
 
 function modifyAction(action, modifiers) {
+    if (!modifiers.length) return action;
     return modifiers.includes(SETTINGS.bring_modifier) ? 'bringTabs' :
            modifiers.includes(SETTINGS.send_modifier)  ? 'sendTabs' :
            action;

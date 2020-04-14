@@ -68,12 +68,8 @@ async function onRequest(request) {
             selectedTabCount: (await WindowTab.getSelectedTabs()).length,
         };
     }
-
-    // From popup/popup.js
-    if (request.action) {
-        WindowTab.doAction(request);
-        return;
-    }
+    if (request.action) return WindowTab.doAction(request);
+    if (request.help) return WindowTab.openHelp();
 
     // From popup/editmode.js
     if (request.giveName) {

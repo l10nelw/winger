@@ -6,7 +6,7 @@
 - Some DOM nodes have custom properties (expandos), prefixed with '_', to concisely store and pass around data.
 */
 
-import { hasClass, getModifiers, isInput, openExtPage } from '../utils.js';
+import { hasClass, getModifiers, isInput } from '../utils.js';
 import init from './init.js';
 import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
@@ -86,8 +86,8 @@ function onKeyUp(event) {
     }
 }
 
-export async function help() {
-    await openExtPage('help/help.html');
+export function help() {
+    browser.runtime.sendMessage({ help: true });
     window.close();
 }
 
