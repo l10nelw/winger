@@ -12,6 +12,7 @@ import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
 
 export const $body = document.body;
+const $omnibox = Omnibox.$omnibox;
 const supportBtns = { help, settings };
 
 // Action attribute utilities
@@ -30,6 +31,7 @@ let modifierHints;
     $body.addEventListener('contextmenu', onRightClick);
     $body.addEventListener('keydown', onKeyDown);
     $body.addEventListener('keyup', onKeyUp);
+    $body.addEventListener('focusout', onFocusOut);
 })();
 
 function onClick(event) {
@@ -78,12 +80,16 @@ function onKeyUp(event) {
         return EditMode.handleKeyUp(key, $target);
     }
     Omnibox.info();
-    if ($target == Omnibox.$omnibox) {
+    if ($target == $omnibox) {
         return Omnibox.handleKeyUp(key, event);
     }
     if (hasClass('otherRow', $target) && ['Enter', ' '].includes(key)) {
         return requestAction(event, $target);
     }
+}
+
+function onFocusOut(event) {
+    if (event.target == $omnibox) Omnibox.info();
 }
 
 export function help() {
