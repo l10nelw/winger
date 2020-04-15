@@ -22,11 +22,11 @@ export const unsetActionAttr = $el => $el && $el.removeAttribute(actionAttr);
 export const getActionElements = ($scope = $body, suffix = '') => $scope.querySelectorAll(`[${actionAttr}]${suffix}`);
 
 // Populated by init()
-export let SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows;
+export let SETTINGS, $otherWindowsList, $currentWindowRow, $otherWindowRows, $allWindowRows;
 let modifierHints;
 
 (async () => {
-    ({ SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints } = await init());
+    ({ SETTINGS, $otherWindowsList, $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints } = await init());
     $body.addEventListener('click', onClick);
     $body.addEventListener('contextmenu', onRightClick);
     $body.addEventListener('keydown', onKeyDown);

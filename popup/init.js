@@ -3,6 +3,9 @@ import * as Popup from './popup.js';
 import * as Count from './count.js'; // Runs './status.js'
 import * as Tooltip from './tooltip.js';
 
+const $currentWindowList = document.getElementById('currentWindow');
+const $otherWindowsList = document.getElementById('otherWindows');
+
 // Mutated by removeElements(), used by createRow()
 const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
 const rowElementSelectors = new Set(['.send', '.bring', '.input', '.tabCount', '.edit']);
@@ -12,19 +15,26 @@ export default async function init() {
         await browser.runtime.sendMessage({ popup: true });
 
     removeElements(SETTINGS);
-    const [$currentWindow, $otherWindows] = populate(metaWindows, currentWindowId, sortedWindowIds);
-    const $currentWindowRow = $currentWindow.querySelector('li');
-    const $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
+    populate(metaWindows, currentWindowId, sortedWindowIds);
+    const $currentWindowRow = $currentWindowList.firstElementChild;
+    const $otherWindowRows = [...$otherWindowsList.children];
     const $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
     const modifierHints = createModifierHints(SETTINGS, selectedTabCount);
 
     Count.init($allWindowRows);
     Tooltip.init(selectedTabCount);
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
-    lockHeight($otherWindows);
-    alignWithScrollbar($currentWindow, $otherWindows);
+    alignWithScrollbar($currentWindowList, $otherWindowsList);
+    lockHeight($otherWindowsList);
 
-    return { SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints };
+    return {
+        SETTINGS,
+        $otherWindowsList,
+        $currentWindowRow,
+        $otherWindowRows,
+        $allWindowRows,
+        modifierHints,
+    };
 }
 
 function removeElements(SETTINGS) {
@@ -55,8 +65,6 @@ function removeElements(SETTINGS) {
 }
 
 function populate(metaWindows, currentWindowId, sortedWindowIds) {
-    const $currentWindow = document.getElementById('currentWindow');
-    const $otherWindows  = document.getElementById('otherWindows');
     for (const windowId of sortedWindowIds) {
         const metaWindow = metaWindows[windowId];
         const $row = createRow(metaWindow);
@@ -65,12 +73,11 @@ function populate(metaWindows, currentWindowId, sortedWindowIds) {
             [$row, $row.$bring, $row.$send].forEach(Popup.unsetActionAttr);
             $row.tabIndex = -1;
             $row.title = '';
-            $currentWindow.appendChild($row);
+            $currentWindowList.appendChild($row);
         } else {
-            $otherWindows.appendChild($row);
+            $otherWindowsList.appendChild($row);
         }
     }
-    return [$currentWindow, $otherWindows];
 }
 
 function createRow({ id, incognito, givenName, defaultName }) {
