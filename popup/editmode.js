@@ -65,7 +65,7 @@ const general = {
 
     deactivate() {
         this.toggle(false);
-        Omnibox.focus();
+        Omnibox.$omnibox.focus();
         $active = null;
     },
 

@@ -71,7 +71,3 @@ export function info(str = '') {
 export function disable(yes) {
     $omnibox.disabled = yes;
 }
-
-export function focus() {
-    $omnibox.focus();
-}
