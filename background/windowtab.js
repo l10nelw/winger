@@ -9,7 +9,12 @@ const getUrlFromReader = readerUrl => decodeURIComponent(readerUrl.slice(readerU
 export const openHelp = () => openExtPage('help/help.html');
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
 export const switchWindow = windowId => browser.windows.update(windowId, { focused: true });
-const actionFunctions = { bringTabs, sendTabs, switchWindow };
+
+const actionFunctions = {
+    bring:  bringTabs,
+    send:   sendTabs,
+    switch: switchWindow
+};
 
 // Open extension page or switch to tab if already open
 async function openExtPage(pathname) {
@@ -33,8 +38,8 @@ export async function doAction({ action, windowId, tabs, reopen, modifiers }) {
 
 function modifyAction(action, modifiers) {
     if (!modifiers.length) return action;
-    return modifiers.includes(SETTINGS.bring_modifier) ? 'bringTabs' :
-           modifiers.includes(SETTINGS.send_modifier)  ? 'sendTabs' :
+    return modifiers.includes(SETTINGS.bring_modifier) ? 'bring' :
+           modifiers.includes(SETTINGS.send_modifier)  ? 'send' :
            action;
 }
 
