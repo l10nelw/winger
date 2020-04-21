@@ -213,9 +213,19 @@ footer img {
     background-color: #3a3;
 }
 
+#help:hover,
+#help:focus {
+    background-color: #4b4;
+}
+
 #settings {
     color: white;
     background-color: #06f;
+}
+
+#settings:hover,
+#settings:focus{
+    background-color: #28f;
 }
 
 
