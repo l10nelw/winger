@@ -6,8 +6,9 @@
 - Some DOM nodes have custom properties (expandos), prefixed with '_', to concisely store and pass around data.
 */
 
-import { hasClass, getModifiers, isInput } from '../utils.js';
+import { hasClass, getModifiers } from '../utils.js';
 import init from './init.js';
+import * as Key from './key.js';
 import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
 
@@ -46,26 +47,9 @@ function onRightClick(event) {
     if (!hasClass('allowRightClick', event.target)) event.preventDefault();
 }
 
-// Flag if Enter has been keyed down and up both within the same input. A handler should then check and reset the flag (_enter).
-// Guards against cases where input receives the keyup after the keydown was invoked elsewhere (usually a button).
-const enterChecker = {
-    $input: null,
-    keyDown(key, $target) {
-        if (key === 'Enter' && isInput($target)) {
-            this.$input = $target;
-        }
-    },
-    keyUp(key, $target) {
-        if (key === 'Enter' && $target === this.$input) {
-            $target._enter = true;
-            this.$input = null;
-        }
-    }
-};
-
 function onKeyDown(event) {
     let key = event.key;
-    enterChecker.keyDown(key, event.target);
+    Key.enterCheck.down(key, event.target);
     if (EditMode.$active) return;
     if (key === 'Control') key = 'Ctrl';
     Omnibox.info(modifierHints[key]);
@@ -74,7 +58,7 @@ function onKeyDown(event) {
 function onKeyUp(event) {
     const key = event.key;
     const $target = event.target;
-    enterChecker.keyUp(key, $target);
+    Key.enterCheck.up(key, $target);
     if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
     Omnibox.info();
     if ($target == $omnibox) return Omnibox.handleKeyUp(key, event);
