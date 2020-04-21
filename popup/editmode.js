@@ -59,6 +59,7 @@ const general = {
     activate() {
         this.toggle(true);
         Omnibox.showAllRows();
+        Omnibox.$omnibox.value = '';
         $rows = Popup.$allWindowRows;
         lastIndex = $rows.length - 1;
     },
