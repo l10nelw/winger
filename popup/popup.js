@@ -61,6 +61,7 @@ function onKeyUp(event) {
     Key.enterCheck.up(key, $target);
     if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
     Omnibox.info();
+    if (Key.navigateByArrow(key, $target)) return;
     if ($target == $omnibox) return Omnibox.handleKeyUp(key, event);
     if (hasClass('otherRow', $target) && ['Enter', ' '].includes(key)) {
         return requestAction(event, $target);

@@ -71,6 +71,8 @@ function populate(metaWindows, currentWindowId, sortedWindowIds) {
         if (windowId == currentWindowId) {
             changeClass('otherRow', 'currentRow', $row);
             [$row, $row.$bring, $row.$send].forEach(Popup.unsetActionAttr);
+            delete $row.$bring;
+            delete $row.$send;
             $row.tabIndex = -1;
             $row.title = '';
             $currentWindowList.appendChild($row);
