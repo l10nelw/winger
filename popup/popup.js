@@ -38,7 +38,7 @@ function onClick(event) {
     const $target = event.target;
     const id = $target.id;
     if (id in supportBtns) supportBtns[id](); // Closes popup
-    if (EditMode.handleClick($target)) return; // Handled by EditMode
+    if (EditMode.handleClick($target)) return;
     requestAction(event, $target);
 }
 
@@ -66,23 +66,18 @@ const enterChecker = {
 function onKeyDown(event) {
     let key = event.key;
     enterChecker.keyDown(key, event.target);
-    if (!EditMode.$active) {
-        if (key === 'Control') key = 'Ctrl';
-        Omnibox.info(modifierHints[key]);
-    }
+    if (EditMode.$active) return;
+    if (key === 'Control') key = 'Ctrl';
+    Omnibox.info(modifierHints[key]);
 }
 
 function onKeyUp(event) {
     const key = event.key;
     const $target = event.target;
     enterChecker.keyUp(key, $target);
-    if (EditMode.$active) {
-        return EditMode.handleKeyUp(key, $target);
-    }
+    if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
     Omnibox.info();
-    if ($target == $omnibox) {
-        return Omnibox.handleKeyUp(key, event);
-    }
+    if ($target == $omnibox) return Omnibox.handleKeyUp(key, event);
     if (hasClass('otherRow', $target) && ['Enter', ' '].includes(key)) {
         return requestAction(event, $target);
     }
