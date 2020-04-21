@@ -6,10 +6,6 @@ import * as Tooltip from './tooltip.js';
 const $currentWindowList = document.getElementById('currentWindow');
 const $otherWindowsList = document.getElementById('otherWindows');
 
-// Mutated by removeElements(), used by createRow()
-const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-const rowElementSelectors = new Set(['.send', '.bring', '.input', '.tabCount', '.edit']);
-
 export default async function init() {
     const { SETTINGS, metaWindows, currentWindowId, sortedWindowIds, selectedTabCount } =
         await browser.runtime.sendMessage({ popup: true });
@@ -36,6 +32,10 @@ export default async function init() {
         modifierHints,
     };
 }
+
+// Mutated by removeElements(), used by createRow()
+const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
+const rowElementSelectors = new Set(['.send', '.bring', '.input', '.tabCount', '.edit']);
 
 function removeElements(SETTINGS) {
     const elements = {
@@ -84,12 +84,12 @@ function createRow({ id, incognito, givenName, defaultName }) {
     const $row = document.importNode($rowTemplate, true);
 
     // Add references to row elements, and in each, a reference to the row
-    rowElementSelectors.forEach(selector => {
+    for (const selector of rowElementSelectors) {
         const $el = $row.querySelector(selector);
         const property = selector.replace('.', '$');
         $el.$row = $row;
         $row[property] = $el;
-    });
+    }
 
     // Add data
     $row._id = id;
