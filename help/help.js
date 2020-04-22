@@ -1,5 +1,9 @@
-const $body = document.body;
-if (navigator.userAgent.indexOf('Mac OS X') !== -1) {
-    $body.querySelectorAll('.js-cmdOnMac').forEach($el => $el.textContent = $el.textContent.replace('Ctrl', 'Cmd'));
-    $body.querySelectorAll('.js-hideOnMac').forEach($el => $el.style.visibility = 'hidden');
-}
+const $$ = selector => document.body.querySelectorAll(selector);
+browser.commands.getAll().then(commands => {
+    $$('.js-shortcut').forEach($el => $el.textContent = commands[0].shortcut);
+}).then(() => {
+    if (navigator.userAgent.indexOf('Mac OS X') !== -1) {
+        $$('.js-cmdOnMac').forEach($el => $el.textContent = $el.textContent.replace('Ctrl', 'Cmd'));
+        $$('.js-hideOnMac').forEach($el => $el.style.visibility = 'hidden');
+    }
+});
