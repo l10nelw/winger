@@ -5,8 +5,8 @@ import { $omnibox } from './omnibox.js';
 const $footer = document.body.querySelector('footer');
 
 const button = {
-    list: null,
-    current: null,
+    list: null, // List of an otherRow's button references.
+    current: null, // Currrent button reference ("$action").
     getReference($el) {
         const action = isButton($el) && getActionAttr($el);
         if (action) return `$${action}`;
@@ -17,12 +17,14 @@ const button = {
     set($el) {
         this.current = this.getReference($el);
     },
+    // Shift the current button reference left or right.
     offset(amount) {
         const list = this.list;
         const i = list.indexOf(this.current) + amount;
         this.current = i === -2 ? list[list.length-1] : i >= 0 && i < list.length && list[i];
-        // no btn +1 = first btn, no btn -1 = last btn, btn +1/-1 = next btn or no btn.
+        // No btn +1 = first btn. No btn -1 = last btn. Btn +1/-1 = next btn or no btn.
     },
+    // Return the appropriate button element in the currentWindowRow.
     currentWindow() {
         let $btn = $currentWindowRow[this.current];
         if ($btn) return $btn;
@@ -31,7 +33,7 @@ const button = {
             if ($btn) return $btn;
         }
     },
-    // Take and return the same $row, unless a $button is to be returned instead.
+    // Take and return the same row element, unless a button element should be returned instead.
     orRow($row) {
         if ($row) return $row[this.current] || $row;
     }
