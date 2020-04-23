@@ -20,7 +20,7 @@ browser.runtime.onInstalled.addListener(showReplacePage);
 browser.management.onInstalled.addListener(addonInfo => {
     if (addonInfo.id === 'winman@lionelw') browser.management.uninstallSelf();
 });
-function showReplacePage() {
+async function showReplacePage() {
     const path = 'help/replace.html';
     const url = browser.runtime.getURL(path);
     const openedTabs = await browser.tabs.query({ url });
