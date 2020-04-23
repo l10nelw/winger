@@ -22,6 +22,7 @@ async function openExtPage(pathname) {
     const openedPages = await browser.tabs.query({ url });
     if (openedPages.length) {
         const tab = openedPages[0];
+        browser.tabs.reload(tab.id);
         browser.tabs.update(tab.id, { active: true });
         browser.windows.update(tab.windowId, { focused: true });
     } else {
