@@ -13,7 +13,6 @@ let $activeInput;
 let $disabledActions;
 let $rows, lastIndex; // 'Constants' for row.shiftActive() defined in general.activate()
 const $editMode = document.getElementById('editMode');
-const $body = document.body;
 
 const omniboxHint = `ENTER/↑/↓: Save, ESC: Cancel`;
 let altTooltip = `Save and exit Edit Mode`;
@@ -50,10 +49,8 @@ const general = {
 
     toggle(yes) {
         const tabIndex = yes ? -1 : 0;
-        $disabledActions = $disabledActions || [...Popup.getActionElements($body, ':not(.edit)')];
+        $disabledActions = $disabledActions || [...Popup.getActionElements(Popup.$body, ':not(.edit)')];
         $disabledActions.forEach($action => $action.tabIndex = tabIndex);
-        const evLi = yes ? 'addEventListener' : 'removeEventListener';
-        $body[evLi]('keyup', onKeyUp);
         $editMode.checked = yes;
         Omnibox.disable(yes);
         Omnibox.info(yes ? omniboxHint : '');
@@ -62,13 +59,14 @@ const general = {
     activate() {
         this.toggle(true);
         Omnibox.showAllRows();
+        Omnibox.$omnibox.value = '';
         $rows = Popup.$allWindowRows;
         lastIndex = $rows.length - 1;
     },
 
     deactivate() {
         this.toggle(false);
-        Omnibox.focus();
+        Omnibox.$omnibox.focus();
         $active = null;
     },
 
@@ -136,13 +134,13 @@ const keyEffects = {
 
 };
 
-async function onKeyUp(event) {
-    if (event.target != $activeInput) return;
-    const key = event.key;
+export async function handleKeyUp(key, $target) {
+    if ($target !== $activeInput) return;
     if (key in keyEffects) {
         // If input receives a keystroke with an effect assigned, perform effect
         await keyEffects[key]();
-    } else if ($activeInput.value != $activeInput._invalid) {
+    } else
+    if ($activeInput.value !== $activeInput._invalid) {
         // If input content is changed, remove any error indicator
         toggleError($activeInput, false);
     }

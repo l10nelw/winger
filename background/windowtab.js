@@ -1,5 +1,4 @@
 import { SETTINGS } from './settings.js';
-import { windows as metaWindows } from './metadata.js';
 
 const unpinTab    = tabId => browser.tabs.update(tabId, { pinned: false });
 const pinTab      = tabId => browser.tabs.update(tabId, { pinned: true });
@@ -7,12 +6,31 @@ const activateTab = tabId => browser.tabs.update(tabId, { active: true });
 const selectTab   = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
 const getUrlFromReader = readerUrl => decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));
 
+export const openHelp = () => openExtPage('help/help.html');
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
 export const switchWindow = windowId => browser.windows.update(windowId, { focused: true });
-const actionFunctions = { bringTabs, sendTabs, switchWindow };
+
+const actionFunctions = {
+    bring:  bringTabs,
+    send:   sendTabs,
+    switch: switchWindow
+};
+
+// Open extension page or switch to tab if already open
+async function openExtPage(pathname) {
+    const url = browser.runtime.getURL(pathname);
+    const openedPages = await browser.tabs.query({ url });
+    if (openedPages.length) {
+        const tab = openedPages[0];
+        browser.tabs.reload(tab.id);
+        browser.tabs.update(tab.id, { active: true });
+        browser.windows.update(tab.windowId, { focused: true });
+    } else {
+        browser.tabs.create({ url: `/${pathname}` });
+    }
+}
 
 // Select actionFunction to execute based on `action` and optionally `reopen` and `modifiers`, given `windowId`.
-// If `tabs` not given, currently selected tabs will be used.
 export async function doAction({ action, windowId, tabs, reopen, modifiers }) {
     tabs = tabs || await getSelectedTabs();
     action = modifyAction(action, modifiers);
@@ -20,19 +38,21 @@ export async function doAction({ action, windowId, tabs, reopen, modifiers }) {
 }
 
 function modifyAction(action, modifiers) {
-    return modifiers.includes(SETTINGS.bring_modifier) ? 'bringTabs' :
-           modifiers.includes(SETTINGS.send_modifier)  ? 'sendTabs' :
+    if (!modifiers.length) return action;
+    return modifiers.includes(SETTINGS.bring_modifier) ? 'bring' :
+           modifiers.includes(SETTINGS.send_modifier)  ? 'send' :
            action;
 }
 
-function bringTabs(windowId, tabs, reopen) {
-    sendTabs(windowId, tabs, reopen);
-    switchWindow(windowId);
+async function bringTabs(windowId, tabs, reopen) {
+    if (await sendTabs(windowId, tabs, reopen)) {
+        switchWindow(windowId);
+    }
 }
 
-function sendTabs(windowId, tabs, reopen) {
+async function sendTabs(windowId, tabs, reopen) {
     const tabAction = reopen ? reopenTabs : moveTabs;
-    tabAction(windowId, tabs);
+    return await tabAction(windowId, tabs);
 }
 
 async function moveTabs(windowId, tabs) {
@@ -43,17 +63,19 @@ async function moveTabs(windowId, tabs) {
     }
 
     const tabIds = tabs.map(tab => tab.id);
-    await browser.tabs.move(tabIds, { windowId, index: -1 });
+    const movedTabs = await browser.tabs.move(tabIds, { windowId, index: -1 });
+    if (!movedTabs.length) return;
 
     if (pinnedTabIds) pinnedTabIds.forEach(pinTab);
 
     if (SETTINGS.keep_moved_active_tab_active) {
-        const activeTabObject = tabs.find(tab => tab.active);
-        if (activeTabObject) activateTab(activeTabObject.id);
+        const activeTab = tabs.find(tab => tab.active);
+        if (activeTab) activateTab(activeTab.id);
     }
     if (SETTINGS.keep_moved_tabs_selected) {
         tabIds.forEach(selectTab);
     }
+    return movedTabs;
 }
 
 async function reopenTabs(windowId, tabs) {
@@ -75,14 +97,11 @@ async function reopenTabs(windowId, tabs) {
         if (newTab) browser.tabs.remove(tab.id);
         return newTab;
     }
-    tabs = await Promise.all(tabs.map(reopenTab));
+    tabs = (await Promise.all(tabs.map(reopenTab))).filter(tab => tab);
+    if (!tabs.length) return;
 
     if (SETTINGS.keep_moved_tabs_selected) {
-        tabs.forEach(tab => { if (tab && !tab.active) selectTab(tab.id) });
+        tabs.forEach(tab => { if (!tab.active) selectTab(tab.id) });
     }
-}
-
-export function samePrivateStatus(windowIdOrObject1, windowIdOrObject2) {
-    const isPrivate = x => isNaN(x) ? x.incognito : metaWindows[x].incognito;
-    return isPrivate(windowIdOrObject1) == isPrivate(windowIdOrObject2);
+    return tabs;
 }

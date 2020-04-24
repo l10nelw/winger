@@ -137,8 +137,8 @@ li button {
     border-radius: 50%;
 }
 
-button:hover,
-button:focus {
+li button:hover,
+li button:focus {
     opacity: 1;
     background-color: var(--bgc-rowbtn-focus);
 }
@@ -213,9 +213,19 @@ footer img {
     background-color: #3a3;
 }
 
+#help:hover,
+#help:focus {
+    background-color: #4b4;
+}
+
 #settings {
     color: white;
     background-color: #06f;
+}
+
+#settings:hover,
+#settings:focus{
+    background-color: #28f;
 }
 
 

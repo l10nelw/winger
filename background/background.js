@@ -15,6 +15,7 @@ const WindowParts = [Title];
 
 init();
 setIconTitle();
+browser.runtime.onInstalled.addListener(onExtInstalled);
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onRemoved.addListener(onWindowRemoved);
 browser.windows.onFocusChanged.addListener(onWindowFocused);
@@ -30,6 +31,10 @@ async function init() {
 async function setIconTitle() {
     const [{ name }, [{ shortcut }]] = await Promise.all([browser.management.getSelf(), browser.commands.getAll()]);
     browser.browserAction.setTitle({ title: `${name} (${shortcut})` });
+}
+
+function onExtInstalled(details) {
+    if (details.reason === 'install') WindowTab.openHelp();
 }
 
 async function onWindowCreated(windowObject, isInit) {
@@ -68,12 +73,8 @@ async function onRequest(request) {
             selectedTabCount: (await WindowTab.getSelectedTabs()).length,
         };
     }
-
-    // From popup/popup.js
-    if (request.action) {
-        WindowTab.doAction(request);
-        return;
-    }
+    if (request.action) return WindowTab.doAction(request);
+    if (request.help) return WindowTab.openHelp();
 
     // From popup/editmode.js
     if (request.giveName) {

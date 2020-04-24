@@ -6,14 +6,15 @@
 - Some DOM nodes have custom properties (expandos), prefixed with '_', to concisely store and pass around data.
 */
 
-import { hasClass, getModifiers, isInput } from '../utils.js';
+import { hasClass, getModifiers } from '../utils.js';
 import init from './init.js';
+import * as Key from './key.js';
 import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
 
-const $body = document.body;
+export const $body = document.body;
+const $omnibox = Omnibox.$omnibox;
 const supportBtns = { help, settings };
-let $enterKeyDownInput = null;
 
 // Action attribute utilities
 const actionAttr = 'data-action';
@@ -22,22 +23,23 @@ export const unsetActionAttr = $el => $el && $el.removeAttribute(actionAttr);
 export const getActionElements = ($scope = $body, suffix = '') => $scope.querySelectorAll(`[${actionAttr}]${suffix}`);
 
 // Populated by init()
-export let SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows;
+export let SETTINGS, $otherWindowsList, $currentWindowRow, $otherWindowRows, $allWindowRows;
 let modifierHints;
 
 (async () => {
-    ({ SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints } = await init());
+    ({ SETTINGS, $otherWindowsList, $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints } = await init());
     $body.addEventListener('click', onClick);
     $body.addEventListener('contextmenu', onRightClick);
     $body.addEventListener('keydown', onKeyDown);
     $body.addEventListener('keyup', onKeyUp);
+    $body.addEventListener('focusout', onFocusOut);
 })();
 
 function onClick(event) {
     const $target = event.target;
     const id = $target.id;
     if (id in supportBtns) supportBtns[id](); // Closes popup
-    if (EditMode.handleClick($target)) return; // Handled by EditMode
+    if (EditMode.handleClick($target)) return;
     requestAction(event, $target);
 }
 
@@ -47,36 +49,31 @@ function onRightClick(event) {
 
 function onKeyDown(event) {
     let key = event.key;
-    const $target = event.target;
-    if (!EditMode.$active) {
-        if (key === 'Control') key = 'Ctrl';
-        Omnibox.info(modifierHints[key]);
-    }
-    if (key === 'Enter' && isInput($target)) {
-        $enterKeyDownInput = $target;
-    }
+    Key.enterCheck.down(key, event.target);
+    if (EditMode.$active) return;
+    if (key === 'Control') key = 'Ctrl';
+    Omnibox.info(modifierHints[key]);
 }
 
 function onKeyUp(event) {
     const key = event.key;
     const $target = event.target;
-    if (!EditMode.$active) Omnibox.info();
-    if (key === 'Enter' && $target === $enterKeyDownInput) {
-        // Indicate that Enter has been keyed down and up both within the same input.
-        // Guards against cases where input receives the keyup after the keydown was invoked elsewhere (usually a button).
-        $target._enter = true;
-        $enterKeyDownInput = null;
-    }
-    if ($target == Omnibox.$omnibox) {
-        Omnibox.handleKeyUp(event);
-    } else
+    Key.enterCheck.up(key, $target);
+    if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
+    Omnibox.info();
+    if (Key.navigateByArrow(key, $target)) return;
+    if ($target == $omnibox) return Omnibox.handleKeyUp(key, event);
     if (hasClass('otherRow', $target) && ['Enter', ' '].includes(key)) {
-        requestAction(event, $target);
+        return requestAction(event, $target);
     }
 }
 
+function onFocusOut(event) {
+    if (event.target == $omnibox) Omnibox.info();
+}
+
 export function help() {
-    browser.tabs.create({ url: '/help/help.html' });
+    browser.runtime.sendMessage({ help: true });
     window.close();
 }
 

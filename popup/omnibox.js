@@ -2,22 +2,22 @@ import * as Popup from './popup.js';
 import * as EditMode from './editmode.js';
 
 export const $omnibox = document.getElementById('omnibox');
-const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
+
+const nonCompletingKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
 const commands = {
     help:     Popup.help,
     settings: Popup.settings,
     edit:     EditMode.activate,
 };
 
-export function handleKeyUp(event) {
-    const str = $omnibox.value;
-    const key = event.key;
+export function handleKeyUp(key, event) {
     const enter = key === 'Enter' && $omnibox._enter;
     if (enter) $omnibox._enter = false;
+    const str = $omnibox.value;
     if (str[0] === '/') {
         // Handle slash command
         let command;
-        if (!controlKeys.includes(key)) {
+        if (!nonCompletingKeys.includes(key)) {
             command = completeCommand(str);
         }
         if (enter) {
@@ -71,8 +71,4 @@ export function info(str = '') {
 
 export function disable(yes) {
     $omnibox.disabled = yes;
-}
-
-export function focus() {
-    $omnibox.focus();
 }

@@ -3,30 +3,39 @@ import * as Popup from './popup.js';
 import * as Count from './count.js'; // Runs './status.js'
 import * as Tooltip from './tooltip.js';
 
-// Mutated by removeElements(), used by createRow()
-const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
-const rowElementSelectors = new Set(['.send', '.bring', '.input', '.tabCount', '.edit']);
-
-const $body = document.body;
+const $currentWindowList = document.getElementById('currentWindow');
+const $otherWindowsList = document.getElementById('otherWindows');
 
 export default async function init() {
     const { SETTINGS, metaWindows, currentWindowId, sortedWindowIds, selectedTabCount } =
         await browser.runtime.sendMessage({ popup: true });
 
     removeElements(SETTINGS);
-    const [$currentWindow, $otherWindows] = populate(metaWindows, currentWindowId, sortedWindowIds);
-    const $currentWindowRow = $currentWindow.querySelector('li');
-    const $otherWindowRows = [...$otherWindows.querySelectorAll('li')];
+    populate(metaWindows, currentWindowId, sortedWindowIds);
+    const $currentWindowRow = $currentWindowList.firstElementChild;
+    const $otherWindowRows = [...$otherWindowsList.children];
     const $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
     const modifierHints = createModifierHints(SETTINGS, selectedTabCount);
 
     Count.init($allWindowRows);
     Tooltip.init(selectedTabCount);
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
-    lockHeight($otherWindows);
+    alignWithScrollbar($currentWindowList, $otherWindowsList);
+    lockHeight($otherWindowsList);
 
-    return { SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints };
+    return {
+        SETTINGS,
+        $otherWindowsList,
+        $currentWindowRow,
+        $otherWindowRows,
+        $allWindowRows,
+        modifierHints,
+    };
 }
+
+// Mutated by removeElements(), used by createRow()
+const $rowTemplate = document.getElementById('rowTemplate').content.firstElementChild;
+const rowElementSelectors = new Set(['.send', '.bring', '.input', '.tabCount', '.edit']);
 
 function removeElements(SETTINGS) {
     const elements = {
@@ -34,8 +43,8 @@ function removeElements(SETTINGS) {
         popup_bring:    [$rowTemplate, '.bring'],
         popup_send:     [$rowTemplate, '.send'],
         popup_edit:     [$rowTemplate, '.edit'],
-        popup_help:     [$body, '#help'],
-        popup_settings: [$body, '#settings'],
+        popup_help:     [Popup.$body, '#help'],
+        popup_settings: [Popup.$body, '#settings'],
     }
     const $document = document.documentElement;
     const styles = getComputedStyle($document);
@@ -56,34 +65,33 @@ function removeElements(SETTINGS) {
 }
 
 function populate(metaWindows, currentWindowId, sortedWindowIds) {
-    const $currentWindow = document.getElementById('currentWindow');
-    const $otherWindows  = document.getElementById('otherWindows');
     for (const windowId of sortedWindowIds) {
         const metaWindow = metaWindows[windowId];
         const $row = createRow(metaWindow);
         if (windowId == currentWindowId) {
             changeClass('otherRow', 'currentRow', $row);
             [$row, $row.$bring, $row.$send].forEach(Popup.unsetActionAttr);
+            delete $row.$bring;
+            delete $row.$send;
             $row.tabIndex = -1;
             $row.title = '';
-            $currentWindow.appendChild($row);
+            $currentWindowList.appendChild($row);
         } else {
-            $otherWindows.appendChild($row);
+            $otherWindowsList.appendChild($row);
         }
     }
-    return [$currentWindow, $otherWindows];
 }
 
 function createRow({ id, incognito, givenName, defaultName }) {
     const $row = document.importNode($rowTemplate, true);
 
     // Add references to row elements, and in each, a reference to the row
-    rowElementSelectors.forEach(selector => {
+    for (const selector of rowElementSelectors) {
         const $el = $row.querySelector(selector);
         const property = selector.replace('.', '$');
         $el.$row = $row;
         $row[property] = $el;
-    });
+    }
 
     // Add data
     $row._id = id;
@@ -114,4 +122,9 @@ function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
 function lockHeight($el) {
     $el.style.height = ``;
     $el.style.height = `${$el.offsetHeight}px`;
+}
+
+function alignWithScrollbar($aligningEl, $scrollingEl) {
+    const scrollbarWidth = $scrollingEl.offsetWidth - $scrollingEl.clientWidth;
+    if (scrollbarWidth) $aligningEl.style.marginInlineEnd = `${scrollbarWidth}px`;
 }
