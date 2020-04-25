@@ -48,24 +48,21 @@ function onRightClick(event) {
 }
 
 function onKeyDown(event) {
-    let key = event.key;
-    Key.enterCheck.down(key, event.target);
+    let { key, target } = event;
+    Key.enterCheck.down(key, target);
     if (EditMode.$active) return;
+    if (Key.navigateByArrow(key, target)) return;
     if (key === 'Control') key = 'Ctrl';
     Omnibox.info(modifierHints[key]);
 }
 
 function onKeyUp(event) {
-    const key = event.key;
-    const $target = event.target;
-    Key.enterCheck.up(key, $target);
-    if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
+    const { key, target } = event;
+    Key.enterCheck.up(key, target);
+    if (EditMode.$active) return EditMode.handleKeyUp(key, target);
     Omnibox.info();
-    if (Key.navigateByArrow(key, $target)) return;
-    if ($target == $omnibox) return Omnibox.handleKeyUp(key, event);
-    if (hasClass('otherRow', $target) && ['Enter', ' '].includes(key)) {
-        return requestAction(event, $target);
-    }
+    if (target == $omnibox) return Omnibox.handleKeyUp(key, event);
+    if (hasClass('otherRow', target) && ['Enter', ' '].includes(key)) return requestAction(event, target);
 }
 
 function onFocusOut(event) {
