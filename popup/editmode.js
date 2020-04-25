@@ -11,7 +11,6 @@ import * as Tooltip from './tooltip.js';
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
 let $activeInput;
 let $disabledActions;
-let $rows, lastIndex; // 'Constants' for row.shiftActive() defined in general.activate()
 const $editMode = document.getElementById('editMode');
 
 const omniboxHint = `ENTER/↑/↓: Save, ESC: Cancel`;
@@ -19,18 +18,17 @@ let altTooltip = `Save and exit Edit Mode`;
 
 
 export function handleClick($target) {
-    let handled = false;
     if (hasClass('edit', $target)) {
         // If target is edit button, toggle row's activation
         const $row = $target.$row;
-        $row != $active ? activate($row) : done();
-        handled = true;
-    } else if ($active) {
+        $row !== $active ? activate($row) : done();
+        return true;
+    }
+    if ($active) {
         // Otherwise when in Edit Mode, return focus to active row
         $active.$input.focus();
-        handled = true;
+        return true;
     }
-    return handled;
 }
 
 export function activate($row = Popup.$currentWindowRow) {
@@ -60,8 +58,6 @@ const general = {
         this.toggle(true);
         Omnibox.showAllRows();
         Omnibox.$omnibox.value = '';
-        $rows = Popup.$allWindowRows;
-        lastIndex = $rows.length - 1;
     },
 
     deactivate() {
@@ -100,8 +96,10 @@ const row = {
     },
 
     shiftActive(down) {
+        const $rows = Popup.$allWindowRows;
         const thisIndex = $rows.indexOf($active);
-        if (thisIndex == -1) return;
+        if (thisIndex === -1) return;
+        const lastIndex = $rows.length - 1;
         let newIndex = thisIndex + down;
         if (newIndex < 0) {
             newIndex = lastIndex;
@@ -134,11 +132,11 @@ const keyEffects = {
 
 };
 
-export async function handleKeyUp(key, $target) {
+export function handleKeyUp(key, $target) {
     if ($target !== $activeInput) return;
     if (key in keyEffects) {
         // If input receives a keystroke with an effect assigned, perform effect
-        await keyEffects[key]();
+        keyEffects[key]();
     } else
     if ($activeInput.value !== $activeInput._invalid) {
         // If input content is changed, remove any error indicator
