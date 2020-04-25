@@ -7,6 +7,7 @@ import { hasClass, toggleClass } from '../utils.js';
 import * as Popup from './popup.js';
 import * as Omnibox from './omnibox.js';
 import * as Tooltip from './tooltip.js';
+import * as Status from './status.js';
 
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
 let $activeInput;
@@ -63,6 +64,7 @@ const general = {
     deactivate() {
         this.toggle(false);
         Omnibox.$omnibox.focus();
+        Status.show();
         $active = null;
     },
 
@@ -80,6 +82,7 @@ const row = {
     },
 
     activate($row) {
+        showTitleInStatus($row);
         $active = $row;
         $activeInput = $active.$input;
         $activeInput._original = $activeInput.value;
@@ -110,6 +113,11 @@ const row = {
     },
 
 };
+
+async function showTitleInStatus($row) {
+    $row._title = $row._title || (await browser.tabs.query({ windowId: $row._id, active: true }))[0].title;
+    Status.show(`Active tab: ${$row._title}`);
+}
 
 const keyEffects = {
 
