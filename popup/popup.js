@@ -96,7 +96,7 @@ export function requestAction(event, $action = event.target) {
     browser.runtime.sendMessage({
         action,
         windowId,
-        reopen: hasClass('reopenTabs', $row),
+        originWindowId: $currentWindowRow._id,
         modifiers: getModifiers(event),
     });
     window.close();
