@@ -4,10 +4,11 @@ import { SETTINGS } from './settings.js';
 const isPrivate = x => isNaN(x) ? x.incognito : metaWindows[x].incognito;
 const samePrivateStatus = (windowIdOrObject1, windowIdOrObject2) => isPrivate(windowIdOrObject1) === isPrivate(windowIdOrObject2);
 
-const unpinTab    = tabId => browser.tabs.update(tabId, { pinned: false });
-const pinTab      = tabId => browser.tabs.update(tabId, { pinned: true });
-const activateTab = tabId => browser.tabs.update(tabId, { active: true });
-const selectTab   = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
+const unpinTab  = tabId => browser.tabs.update(tabId, { pinned: false });
+const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
+const focusTab  = tabId => browser.tabs.update(tabId, { active: true });
+const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
+
 const getUrlFromReader = readerUrl => decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));
 
 export const openHelp = () => openExtPage('help/help.html');
@@ -73,9 +74,9 @@ async function moveTabs(windowId, tabs) {
 
     if (pinnedTabIds) pinnedTabIds.forEach(pinTab);
 
-    if (SETTINGS.keep_moved_active_tab_active) {
-        const activeTab = tabs.find(tab => tab.active);
-        if (activeTab) activateTab(activeTab.id);
+    if (SETTINGS.keep_moved_focused_tab_focused) {
+        const focusedTab = tabs.find(tab => tab.active);
+        if (focusedTab) focusTab(focusedTab.id);
     }
     if (SETTINGS.keep_moved_tabs_selected) {
         tabIds.forEach(selectTab);
@@ -94,7 +95,7 @@ async function reopenTabs(windowId, tabs) {
             windowId,
             url,
             pinned: tab.pinned,
-            active: SETTINGS.keep_moved_active_tab_active ? tab.active : null,
+            active: SETTINGS.keep_moved_focused_tab_focused ? tab.active : null,
             discarded: tab.discarded,
             title: tab.discarded ? tab.title : null,
             openInReaderMode: tab.isInReaderMode,

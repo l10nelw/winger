@@ -14,7 +14,7 @@ const DEFAULT = {
 
     // show_badge: true,
 
-    keep_moved_active_tab_active: true,
+    keep_moved_focused_tab_focused: true,
     keep_moved_tabs_selected: false,
     move_pinned_tabs: false,
 };
