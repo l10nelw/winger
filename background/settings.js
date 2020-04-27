@@ -9,8 +9,8 @@ const DEFAULT = {
     bring_modifier: 'Shift',
     send_modifier: 'Ctrl',
 
-    // enable_tab_menu: true,
-    // enable_link_menu: true,
+    enable_link_menu: true,
+    enable_tab_menu: true,
 
     // show_badge: true,
 

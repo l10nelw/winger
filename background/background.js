@@ -9,9 +9,10 @@ import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
 // import * as Badge from './badge.js';
-// import * as Menu from './menu.js';
+import * as Menu from './menu.js';
 import * as Title from './title.js';
-const WindowParts = [Title];
+const WindowParts = [Title, Menu];
+// Object.assign(window, { WindowTab }); // for debugging
 
 init();
 setIconTitle();
@@ -46,15 +47,15 @@ async function onWindowCreated(windowObject, isInit) {
 
 function onWindowRemoved(windowId) {
     Metadata.remove(windowId);
-    // Menu.remove(windowId);
+    Menu.remove(windowId);
 }
 
 function onWindowFocused(windowId) {
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windows[windowId].lastFocused = Date.now();
-    // Menu.show(Metadata.focusedWindow.id);
+    Menu.show(Metadata.focusedWindow.id);
     Metadata.focusedWindow.id = windowId;
-    // Menu.hide(windowId);
+    Menu.hide(windowId);
 }
 
 function isWindowBeingCreated(windowId) {
