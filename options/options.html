@@ -7,9 +7,9 @@
         padding: 0 1rem;
       }
       label {
-        display: inline-flex;
+        display: flex;
         align-items: flex-start;
-        margin-bottom: .25rem;
+        margin-bottom: .5rem;
       }
       [type="checkbox"] {
         margin-right: .5rem;
@@ -21,21 +21,19 @@
 
       <h2>Behaviour</h2>
       <h3>Moving tabs (send &amp; bring)</h3>
-      <p>
-        <label><input type="checkbox" name="keep_moved_focused_tab_focused"> <span>When a focused tab is moved, make it the destination window's new focused tab</span></label><br>
-        <label><input type="checkbox" name="keep_moved_tabs_selected"> <span>When multiple selected tabs are moved, keep them selected in the destination window</span></label><br>
-        <label><input type="checkbox" name="move_pinned_tabs"> <span>Allow pinned tabs to be moved</span></label><br>
-      </p>
+
+      <label><input type="checkbox" name="keep_moved_focused_tab_focused"> <span>When a focused tab is moved, make it the destination window's new focused tab</span></label>
+      <label><input type="checkbox" name="keep_moved_tabs_selected"> <span>When multiple selected tabs are moved, keep them selected in the destination window</span></label>
+      <label><input type="checkbox" name="move_pinned_tabs"> <span>Allow pinned tabs to be moved</span></label>
 
       <h2>Appearance</h2>
       <h3>Show these elements in the popup</h3>
-      <p>
-        <label><input type="checkbox" name="popup_send"> <span>Send buttons</span></label><br>
-        <label><input type="checkbox" name="popup_bring"> <span>Bring buttons</span></label><br>
-        <label><input type="checkbox" name="popup_edit"> <span>Edit buttons</span></label><br>
-        <label><input type="checkbox" name="popup_help"> <span>Help button</span></label><br>
-        <label><input type="checkbox" name="popup_settings"> <span>Settings button</span></label><br>
-      </p>
+
+      <label><input type="checkbox" name="popup_send"> <span>Send buttons</span></label>
+      <label><input type="checkbox" name="popup_bring"> <span>Bring buttons</span></label>
+      <label><input type="checkbox" name="popup_edit"> <span>Edit buttons</span></label>
+      <label><input type="checkbox" name="popup_help"> <span>Help button</span></label>
+      <label><input type="checkbox" name="popup_settings"> <span>Settings button</span></label>
 
       <h2>Keyboard shortcut</h2>
       <p>The keyboard shortcut to open the popup can be changed in Firefox's centralized extension shortcuts page.</p>
