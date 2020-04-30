@@ -1,12 +1,13 @@
 import * as Settings from '../background/settings.js';
 
-const $body = document.body;
-const $form = $body.querySelector('form');
+const $form = document.body.querySelector('form');
+const relevantProp = $field => $field.type === 'checkbox' ? 'checked' : 'value';
 let SETTINGS;
+
 (async () => {
     SETTINGS = await Settings.retrieve();
-    for (const fieldName in SETTINGS) {
-        setFieldValue(fieldName, SETTINGS[fieldName]);
+    for (const $field of $form.elements) {
+        loadSetting($field);
     }
     $form.onchange = onFieldChange;
 })();
@@ -17,21 +18,11 @@ function onFieldChange(event) {
     browser.runtime.reload();
 }
 
-function saveSetting($target) {
-    const fieldName = $target.name;
-    browser.storage.local.set({ [fieldName]: getFieldValue(fieldName) });
+function saveSetting($field) {
+    const value = $field[relevantProp($field)];
+    browser.storage.local.set({ [$field.name]: value });
 }
 
-function setFieldValue(fieldName, value) {
-    const $field = $form[fieldName];
-    if ($field) $field[relevantFieldProp($field)] = value;
-}
-
-function getFieldValue(fieldName) {
-    const $field = $form[fieldName];
-    return $field[relevantFieldProp($field)];
-}
-
-function relevantFieldProp($field) {
-    return $field.type == 'checkbox' ? 'checked' : 'value';
+function loadSetting($field) {
+    $field[relevantProp($field)] = SETTINGS[$field.name];
 }
