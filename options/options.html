@@ -14,6 +14,12 @@
       [type="checkbox"] {
         margin-right: .5rem;
       }
+      :disabled + span {
+        opacity: .5;
+      }
+      .indented {
+        margin-left: 2rem;
+      }
     </style>
   </head>
   <body>
@@ -24,7 +30,11 @@
 
       <label><input type="checkbox" name="keep_moved_focused_tab_focused"> <span>When a focused tab is moved, make it the destination window's new focused tab</span></label>
       <label><input type="checkbox" name="keep_moved_tabs_selected"> <span>When multiple selected tabs are moved, keep them selected in the destination window</span></label>
-      <label><input type="checkbox" name="move_pinned_tabs"> <span>Allow pinned tabs to be moved</span></label>
+      <label><input type="checkbox" name="move_pinned_tabs" data-enables="move_pinned_tabs_if_all_pinned"> <span>Allow pinned tabs to be moved</span></label>
+      <label class="indented">
+        <input type="checkbox" name="move_pinned_tabs_if_all_pinned">
+        <span>Only if every selected tab is a pinned tab<br><small>(If selected tabs are a mix of pinned and unpinned, only the unpinned are moved)</small></span>
+      </label>
 
       <h2>Appearance</h2>
       <h3>Show these elements in the popup</h3>

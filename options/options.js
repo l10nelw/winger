@@ -8,13 +8,15 @@ let SETTINGS;
     SETTINGS = await Settings.retrieve();
     for (const $field of $form.elements) {
         loadSetting($field);
+        setRelatedFieldAccess($field);
     }
     $form.onchange = onFieldChange;
 })();
 
 function onFieldChange(event) {
-    const $target = event.target;
-    saveSetting($target);
+    const $field = event.target;
+    saveSetting($field);
+    setRelatedFieldAccess($field);
     browser.runtime.reload();
 }
 
@@ -25,4 +27,9 @@ function saveSetting($field) {
 
 function loadSetting($field) {
     $field[relevantProp($field)] = SETTINGS[$field.name];
+}
+
+function setRelatedFieldAccess($field) {
+    const $related = $form[$field.dataset.enables];
+    if ($related) $related.disabled = !$field.checked;
 }

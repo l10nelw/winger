@@ -17,6 +17,7 @@ const DEFAULT = {
     keep_moved_focused_tab_focused: true,
     keep_moved_tabs_selected: false,
     move_pinned_tabs: false,
+    move_pinned_tabs_if_all_pinned: true,
 };
 
 export let SETTINGS;

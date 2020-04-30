@@ -62,11 +62,8 @@ async function sendTabs(windowId, tabs, reopen) {
 }
 
 async function moveTabs(windowId, tabs) {
-    let pinnedTabIds;
-    if (SETTINGS.move_pinned_tabs) {
-        pinnedTabIds = tabs.filter(tab => tab.pinned).map(tab => tab.id);
-        await Promise.all(pinnedTabIds.map(unpinTab));
-    }
+    const pinnedTabIds = filterMovablePinnedTabs(tabs)?.map(tab => tab.id);
+    if (pinnedTabIds) await Promise.all(pinnedTabIds.map(unpinTab));
 
     const tabIds = tabs.map(tab => tab.id);
     const movedTabs = await browser.tabs.move(tabIds, { windowId, index: -1 });
@@ -85,7 +82,7 @@ async function moveTabs(windowId, tabs) {
 }
 
 async function reopenTabs(windowId, tabs) {
-    if (!SETTINGS.move_pinned_tabs) {
+    if (!filterMovablePinnedTabs(tabs)) {
         tabs = tabs.filter(tab => !tab.pinned);
     }
 
@@ -103,11 +100,22 @@ async function reopenTabs(windowId, tabs) {
         if (newTab) browser.tabs.remove(tab.id);
         return newTab;
     }
-    tabs = (await Promise.all(tabs.map(reopenTab))).filter(tab => tab);
+
+    tabs = await Promise.all(tabs.map(reopenTab));
+    tabs = tabs.filter(tab => tab);
     if (!tabs.length) return;
 
     if (SETTINGS.keep_moved_tabs_selected) {
         tabs.forEach(tab => { if (!tab.active) selectTab(tab.id) });
     }
     return tabs;
+}
+
+function filterMovablePinnedTabs(tabs) {
+    if (!SETTINGS.move_pinned_tabs) return;
+    const pinnedTabs = tabs.filter(tab => tab.pinned);
+    const pinnedTabCount = pinnedTabs.length;
+    if (!pinnedTabCount) return;
+    if (SETTINGS.move_pinned_tabs_if_all_pinned && tabs.length !== pinnedTabCount) return;
+    return pinnedTabs;
 }
