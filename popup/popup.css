@@ -78,9 +78,9 @@ input, .tabCount {
     font-size: small;
 }
 
-#editMode:not(:checked) ~ ul > .otherRow:hover,
-#editMode:not(:checked) ~ ul > .otherRow:focus,
-#editMode:not(:checked) ~ ul > .otherRow:focus-within {
+body[data-editmode="false"] .otherRow:hover,
+body[data-editmode="false"] .otherRow:focus,
+body[data-editmode="false"] .otherRow:focus-within {
     background-color: var(--bgc-base-focus);
 }
 
@@ -161,7 +161,7 @@ li button:focus {
     background-color: lightgreen;
 }
 
-#editMode:checked ~ ul button:not(.edit) {
+body[data-editmode="true"] li button:not(.edit) {
     background-color: transparent;
     opacity: .25;
 }
@@ -187,7 +187,7 @@ li button:focus {
     text-overflow: ellipsis;
 }
 
-#editMode:checked ~ #status {
+body[data-editmode="true"] #status {
     font-style: italic;
 }
 

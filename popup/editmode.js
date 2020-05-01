@@ -12,7 +12,6 @@ import * as Status from './status.js';
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
 let $activeInput;
 let $disabledActions;
-const $editMode = document.getElementById('editMode');
 
 const omniboxHint = `ENTER/↑/↓: Save, ESC: Cancel`;
 let altTooltip = `Save and exit Edit Mode`;
@@ -50,7 +49,7 @@ const general = {
         const tabIndex = yes ? -1 : 0;
         $disabledActions = $disabledActions || [...Popup.getActionElements(Popup.$body, ':not(.edit)')];
         $disabledActions.forEach($action => $action.tabIndex = tabIndex);
-        $editMode.checked = yes;
+        document.body.dataset.editmode = yes;
         Omnibox.disable(yes);
         Omnibox.info(yes ? omniboxHint : '');
     },
