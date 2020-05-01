@@ -1,4 +1,5 @@
 const $$ = selector => document.body.querySelectorAll(selector);
+$$('.js-version').forEach($el => $el.textContent = browser.runtime.getManifest().version);
 browser.commands.getAll().then(commands => {
     $$('.js-shortcut').forEach($el => $el.textContent = commands[0].shortcut);
 }).then(() => {
