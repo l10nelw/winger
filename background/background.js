@@ -12,8 +12,8 @@ import * as WindowTab from './windowtab.js';
 import * as Menu from './menu.js';
 import * as Title from './title.js';
 const WindowParts = [Title, Menu];
-// Object.assign(window, { WindowTab }); // for debugging
 
+// Object.assign(window, { WindowTab }); // for debugging
 init();
 setIconTitle();
 browser.runtime.onInstalled.addListener(onExtInstalled);
@@ -30,7 +30,8 @@ async function init() {
 }
 
 async function setIconTitle() {
-    const [{ name }, [{ shortcut }]] = await Promise.all([browser.management.getSelf(), browser.commands.getAll()]);
+    const { name } = browser.runtime.getManifest();
+    const [{ shortcut }] = await browser.commands.getAll();
     browser.browserAction.setTitle({ title: `${name} (${shortcut})` });
 }
 
