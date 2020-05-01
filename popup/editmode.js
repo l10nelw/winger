@@ -116,7 +116,7 @@ const row = {
 
 async function showTitleInStatus($row) {
     $row._title = $row._title || (await browser.tabs.query({ windowId: $row._id, active: true }))[0].title;
-    Status.show(`Active tab: ${$row._title}`);
+    Status.show($row._title);
 }
 
 const keyEffects = {
