@@ -10,14 +10,15 @@ let SETTINGS;
         loadSetting($field);
         setRelatedFieldAccess($field);
     }
-    $form.onchange = onFieldChange;
 })();
+
+$form.onchange = onFieldChange;
+$form.onsubmit = browser.runtime.reload;
 
 function onFieldChange(event) {
     const $field = event.target;
     saveSetting($field);
     setRelatedFieldAccess($field);
-    browser.runtime.reload();
 }
 
 function saveSetting($field) {
