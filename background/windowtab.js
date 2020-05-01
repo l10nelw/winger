@@ -62,7 +62,9 @@ async function sendTabs(windowId, tabs, reopen) {
 }
 
 async function moveTabs(windowId, tabs) {
-    const pinnedTabIds = filterMovablePinnedTabs(tabs)?.map(tab => tab.id);
+    const pinnedTabs = movablePinnedTabs(tabs);
+    const pinnedTabIds = pinnedTabs ? pinnedTabs.map(tab => tab.id) : null;
+    // const pinnedTabIds = movablePinnedTabs(tabs)?.map(tab => tab.id);  // Addon Validator does not support "?."
     if (pinnedTabIds) await Promise.all(pinnedTabIds.map(unpinTab));
 
     const tabIds = tabs.map(tab => tab.id);
@@ -82,7 +84,7 @@ async function moveTabs(windowId, tabs) {
 }
 
 async function reopenTabs(windowId, tabs) {
-    if (!filterMovablePinnedTabs(tabs)) {
+    if (!movablePinnedTabs(tabs)) {
         tabs = tabs.filter(tab => !tab.pinned);
     }
 
@@ -111,7 +113,7 @@ async function reopenTabs(windowId, tabs) {
     return tabs;
 }
 
-function filterMovablePinnedTabs(tabs) {
+function movablePinnedTabs(tabs) {
     if (!SETTINGS.move_pinned_tabs) return;
     const pinnedTabs = tabs.filter(tab => tab.pinned);
     const pinnedTabCount = pinnedTabs.length;
