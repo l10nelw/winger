@@ -22,7 +22,7 @@ function onClick(info, tab) {
 
 function openLink(url, windowId, modifiers) {
     browser.tabs.create({ windowId, url });
-    if (modifiers.includes(SETTINGS.bring_modifier)) WindowTab.focusWindow(windowId);
+    if (modifiers.includes(SETTINGS.bring_modifier)) WindowTab.switchWindow(windowId);
 }
 
 async function moveTab(tab, windowId, originWindowId, modifiers) {
