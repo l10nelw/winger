@@ -77,7 +77,7 @@ const row = {
         $activeInput.readOnly = !yes;
         $activeInput.tabIndex = yes ? 0 : -1;
         const $edit = $active.$edit;
-        [$edit.title, altTooltip] = [altTooltip, $edit.title];
+        if ($edit) [$edit.title, altTooltip] = [altTooltip, $edit.title];
     },
 
     activate($row) {
@@ -90,7 +90,7 @@ const row = {
     },
 
     deactivate() {
-        $activeInput.setSelectionRange(0, 0); // In case the input has a very long name, this ensures the beginning is visible.
+        $activeInput.setSelectionRange(0, 0); // Ensures the beginning is visible in case of a very long name
         const displayName = Popup.getDisplayName($activeInput);
         const $actions = [$active, ...Popup.getActionElements($active)];
         $actions.forEach($action => $action.title = Tooltip.updateName($action.title, displayName));
