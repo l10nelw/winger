@@ -30,7 +30,7 @@
   },
   "commands": {
     "_execute_browser_action": {
-      "description": "Open the popup panel",
+      "description": "Open the pop-up panel",
       "suggested_key": {
         "default": "Ctrl+E"
       }
