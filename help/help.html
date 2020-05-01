@@ -25,6 +25,9 @@
         font-size: larger;
         font-weight: bold;
       }
+      img {
+        vertical-align: middle;
+      }
 
       .button {
         background-color: #ccc;
@@ -133,7 +136,7 @@
           <h3>&bull; Select multiple tabs</h3>
           <div class="left-mark-border pl-1 mx-1">
             <p><kbd>Ctrl</kbd>+click on each tab you want to select, one by one.</p>
-            <p><kbd>Shift</kbd>+click on a tab to select all the tabs between it and the current tab, inclusive.</p>
+            <p><kbd>Shift</kbd>+click on a tab to select all the tabs between it and the currently focused tab, inclusive.</p>
           </div>
         </section>
 
@@ -150,7 +153,7 @@
               <p>(<kbd class="js-cmdOnMac">Ctrl+W</kbd> closes the current tab.)</p>
             </section>
             <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1 js-hideOnMac">
-              <h4>Standard close shortcuts on Windows and Linux</h4>
+              <h4>Standard close window shortcuts on Windows and Linux</h4>
               <ul>
                 <li><kbd>Alt+F4</kbd></li>
                 <li><kbd>Alt+Space, C</kbd></li>
@@ -189,7 +192,7 @@
         <section class="col mx-1">
           <h3>&bull; Switch Window</h3>
           <p><img src="switch.png" alt=""></p>
-          <p>Click on a row to <strong>switch</strong> to the corresponding window.</p>
+          <p>Click on a row to <strong>switch</strong> (change focus) to the corresponding window.</p>
         </section>
 
         <section class="col mx-1">
@@ -222,8 +225,8 @@
           will <strong>close tabs</strong> in the current window <strong>and reopen them</strong> in the destination window. Buttons that will perform this
           are shown purple.</p>
         <ul>
-          <li><p>Page state, such as unsubmitted form data and scroll position, will be lost in the process.</p></li>
-          <li><p>This will not work for some special tabs, such as some <code>about:</code> pages.</p></li>
+          <li>Page state, such as unsubmitted form data and scroll position, will be lost in the process.</li>
+          <li>This will not work for some tabs, such as <code>file://</code> pages and certain <code>about:</code> pages.</li>
         </ul>
       </section>
 
@@ -244,8 +247,9 @@
             <li><kbd>Esc</kbd> to close the panel, exiting Edit mode and cancelling any changes to the currently edited name.</li>
           </ul>
           <p>Names must be unique and may not begin with a forward slash ("/").</p>
-          <p class="small">Note: WinMan assigns every window a default name (Window 1, Window 2 and so on), visible when a window has no
-            user-given name. Unlike given names, default names are temporary and are not guaranteed to persist across browser sessions.</p>
+          <p>In Edit mode, the status bar will show the title of the targeted window's focused tab to help you identify the window.</p>
+          <p class="small">Note: WinMan assigns every window a default name (Window 1, Window 2 and so on), visible when a window has no user-given name. Unlike
+            given names, default names are temporary and are not guaranteed to persist across browser sessions.</p>
         </div>
 
         <p class="col"><img src="popup-edit.png" class="light-border" alt="WinMan panel in Edit mode"></p>
@@ -258,10 +262,11 @@
 
       <section class="mb-2">
         <p>Press <kbd class="js-shortcut js-cmdOnMac"></kbd> to open the panel. You can always check what the keyboard shortcut is by hovering your pointer over
-          the WinMan button.</p>
-        <p>You can use the <kbd>Up</kbd>, <kbd>Down</kbd>, <kbd>Left</kbd> and <kbd>Right</kbd> arrows to navigate the panel, and <kbd>Enter</kbd> or
-          <kbd>Space</kbd> to activate a row or button.</p>
-        <p>You should also use WinMan's <strong>omnibox</strong> &ndash; a multi-purpose, multi-talented input field &ndash; to vastly accelerate operating WinMan by keyboard.</p>
+          the WinMan button. <img src="../icons/winman.svg" height="15" alt="WinMan icon"></p>
+        <p>You can use the arrow keys to navigate the panel: <kbd>Up</kbd> and <kbd>Down</kbd> to select rows, <kbd>Left</kbd> and <kbd>Right</kbd> to select buttons.
+          Press <kbd>Enter</kbd> or <kbd>Space</kbd> to activate a row or button.</p>
+        <p>You should also use WinMan's <strong>omnibox</strong> &ndash; a multi-purpose, multi-talented input field &ndash; to vastly accelerate operating WinMan
+          by keyboard.</p>
       </section>
 
       <section class="row mb-2">
@@ -269,16 +274,19 @@
           <h3>Primary omnibox powers</h3>
           <ul>
             <li>Press <kbd>Enter</kbd> to <strong>switch</strong> to <em>the first window listed below the omnibox</em>.</li>
-            <li>Start typing in a window name, or part of it, to <strong>filter</strong> the list of other windows &ndash; and consequently change the first
-              listed window.</li>
+            <li>Start typing in a window name, or part of it, to <strong>filter</strong> the list of other windows (which may change the first
+              listed window).</li>
           </ul>
           <p>Remember that holding <kbd>Ctrl</kbd> or <kbd>Shift</kbd> while doing a <em>switch</em> changes it to a <strong>send</strong> or
-            <strong>bring</strong> respectively. (Don't worry, the omnibox will remind you which does what.)</p>
-          <p>Thus, to quickly <strong>switch</strong> OR <strong>send tabs</strong> OR <strong>bring tabs</strong> to a window via keyboard:</p>
+            <strong>bring</strong> respectively. Don't worry; when empty, the omnibox will remind you which does what.</p>
+          <p>Thus, to swiftly <strong>switch</strong> OR <strong>send tabs</strong> OR <strong>bring tabs</strong> to a window via keyboard:</p>
           <ol>
             <li><kbd class="js-shortcut js-cmdOnMac"></kbd> to open the panel.</li>
             <li>If the window row is already <em>immediately below the omnibox</em>, skip to the next step. Otherwise, start typing its name until it is.</li>
-            <li><kbd>Enter</kbd> OR <kbd>Ctrl+Enter</kbd> OR <kbd>Shift+Enter</kbd>.</li>
+            <li>
+              <kbd>Enter</kbd> OR <kbd>Ctrl+Enter</kbd> OR <kbd>Shift+Enter</kbd>.<br>
+              Alternatively, use arrow keys to select the desired row or button.
+            </li>
           </ol>
           <p>Try it a couple of times; it's easier done than said. 😄</p>
         </div>

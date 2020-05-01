@@ -4,8 +4,6 @@ import { addClass, toggleClass } from '../utils.js';
 const $status = document.getElementById('status');
 let defaultText;
 
-$status.textContent = ' ';
-
 // Show text in status bar. If no text given, show last updated defaultText.
 export function show(text) {
     defaultText = defaultText || tabCountText();

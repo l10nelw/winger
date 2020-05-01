@@ -1,37 +1,48 @@
 import * as Settings from '../background/settings.js';
 
-const $body = document.body;
-const $form = $body.querySelector('form');
-let SETTINGS;
+const $form = document.body.querySelector('form');
+const $fields = [...$form.querySelectorAll('input')];
+const $submitBtns = [...$form.querySelectorAll('button')];
+const relevantProp = $field => $field.type === 'checkbox' ? 'checked' : 'value';
+const getFormValuesString = () => $fields.map($field => $field[relevantProp($field)]).join();
+let SETTINGS, formData;
+
 (async () => {
     SETTINGS = await Settings.retrieve();
-    for (const fieldName in SETTINGS) {
-        setFieldValue(fieldName, SETTINGS[fieldName]);
+    for (const $field of $fields) {
+        loadSetting($field);
+        setRelatedFieldAccess($field);
     }
-    $form.onchange = onFieldChange;
+    formData = getFormValuesString();
 })();
 
+$form.onchange = onFieldChange;
+$form.onsubmit = onFormSubmit;
+
 function onFieldChange(event) {
-    const $target = event.target;
-    saveSetting($target);
+    setRelatedFieldAccess(event.target);
+    updateSubmitBtns();
+}
+
+function onFormSubmit() {
+    $fields.forEach(saveSetting);
     browser.runtime.reload();
 }
 
-function saveSetting($target) {
-    const fieldName = $target.name;
-    browser.storage.local.set({ [fieldName]: getFieldValue(fieldName) });
+function loadSetting($field) {
+    $field[relevantProp($field)] = SETTINGS[$field.name];
 }
 
-function setFieldValue(fieldName, value) {
-    const $field = $form[fieldName];
-    if ($field) $field[relevantFieldProp($field)] = value;
+function saveSetting($field) {
+    browser.storage.local.set({ [$field.name]: $field[relevantProp($field)] });
 }
 
-function getFieldValue(fieldName) {
-    const $field = $form[fieldName];
-    return $field[relevantFieldProp($field)];
+function setRelatedFieldAccess($field) {
+    const $related = $form[$field.dataset.enables];
+    if ($related) $related.disabled = !$field.checked;
 }
 
-function relevantFieldProp($field) {
-    return $field.type == 'checkbox' ? 'checked' : 'value';
+function updateSubmitBtns() {
+    const isFormUnchanged = formData === getFormValuesString();
+    $submitBtns.forEach($btn => $btn.disabled = isFormUnchanged);
 }

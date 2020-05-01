@@ -1,9 +1,14 @@
+import { windows as metaWindows } from './metadata.js';
 import { SETTINGS } from './settings.js';
 
-const unpinTab    = tabId => browser.tabs.update(tabId, { pinned: false });
-const pinTab      = tabId => browser.tabs.update(tabId, { pinned: true });
-const activateTab = tabId => browser.tabs.update(tabId, { active: true });
-const selectTab   = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
+const isPrivate = x => isNaN(x) ? x.incognito : metaWindows[x].incognito;
+const samePrivateStatus = (windowIdOrObject1, windowIdOrObject2) => isPrivate(windowIdOrObject1) === isPrivate(windowIdOrObject2);
+
+const unpinTab  = tabId => browser.tabs.update(tabId, { pinned: false });
+const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
+const focusTab  = tabId => browser.tabs.update(tabId, { active: true });
+const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
+
 const getUrlFromReader = readerUrl => decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));
 
 export const openHelp = () => openExtPage('help/help.html');
@@ -31,7 +36,8 @@ async function openExtPage(pathname) {
 }
 
 // Select actionFunction to execute based on `action` and optionally `reopen` and `modifiers`, given `windowId`.
-export async function doAction({ action, windowId, tabs, reopen, modifiers }) {
+export async function doAction({ action, windowId, originWindowId, modifiers, tabs }) {
+    const reopen = !samePrivateStatus(windowId, originWindowId);
     tabs = tabs || await getSelectedTabs();
     action = modifyAction(action, modifiers);
     actionFunctions[action](windowId, tabs, reopen);
@@ -56,11 +62,8 @@ async function sendTabs(windowId, tabs, reopen) {
 }
 
 async function moveTabs(windowId, tabs) {
-    let pinnedTabIds;
-    if (SETTINGS.move_pinned_tabs) {
-        pinnedTabIds = tabs.filter(tab => tab.pinned).map(tab => tab.id);
-        await Promise.all(pinnedTabIds.map(unpinTab));
-    }
+    const pinnedTabIds = filterMovablePinnedTabs(tabs)?.map(tab => tab.id);
+    if (pinnedTabIds) await Promise.all(pinnedTabIds.map(unpinTab));
 
     const tabIds = tabs.map(tab => tab.id);
     const movedTabs = await browser.tabs.move(tabIds, { windowId, index: -1 });
@@ -68,9 +71,9 @@ async function moveTabs(windowId, tabs) {
 
     if (pinnedTabIds) pinnedTabIds.forEach(pinTab);
 
-    if (SETTINGS.keep_moved_active_tab_active) {
-        const activeTab = tabs.find(tab => tab.active);
-        if (activeTab) activateTab(activeTab.id);
+    if (SETTINGS.keep_moved_focused_tab_focused) {
+        const focusedTab = tabs.find(tab => tab.active);
+        if (focusedTab) focusTab(focusedTab.id);
     }
     if (SETTINGS.keep_moved_tabs_selected) {
         tabIds.forEach(selectTab);
@@ -79,7 +82,7 @@ async function moveTabs(windowId, tabs) {
 }
 
 async function reopenTabs(windowId, tabs) {
-    if (!SETTINGS.move_pinned_tabs) {
+    if (!filterMovablePinnedTabs(tabs)) {
         tabs = tabs.filter(tab => !tab.pinned);
     }
 
@@ -89,7 +92,7 @@ async function reopenTabs(windowId, tabs) {
             windowId,
             url,
             pinned: tab.pinned,
-            active: SETTINGS.keep_moved_active_tab_active ? tab.active : null,
+            active: SETTINGS.keep_moved_focused_tab_focused ? tab.active : null,
             discarded: tab.discarded,
             title: tab.discarded ? tab.title : null,
             openInReaderMode: tab.isInReaderMode,
@@ -97,11 +100,22 @@ async function reopenTabs(windowId, tabs) {
         if (newTab) browser.tabs.remove(tab.id);
         return newTab;
     }
-    tabs = (await Promise.all(tabs.map(reopenTab))).filter(tab => tab);
+
+    tabs = await Promise.all(tabs.map(reopenTab));
+    tabs = tabs.filter(tab => tab);
     if (!tabs.length) return;
 
     if (SETTINGS.keep_moved_tabs_selected) {
         tabs.forEach(tab => { if (!tab.active) selectTab(tab.id) });
     }
     return tabs;
+}
+
+function filterMovablePinnedTabs(tabs) {
+    if (!SETTINGS.move_pinned_tabs) return;
+    const pinnedTabs = tabs.filter(tab => tab.pinned);
+    const pinnedTabCount = pinnedTabs.length;
+    if (!pinnedTabCount) return;
+    if (SETTINGS.move_pinned_tabs_if_all_pinned && tabs.length !== pinnedTabCount) return;
+    return pinnedTabs;
 }

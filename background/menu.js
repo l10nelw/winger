@@ -10,35 +10,35 @@ export function init() {
     if (contexts.length) browser.menus.onClicked.addListener(onClick);
 }
 
-function onClick(info, tabObject) {
+function onClick(info, tab) {
     const windowId = parseInt(info.menuItemId);
-    const modifiers = info.modifiers;
     const url = info.linkUrl;
     if (url) {
-        onClickLinkContext(url, windowId, modifiers);
+        openLink(url, windowId, info.modifiers);
     } else {
-        onClickTabContext(tabObject, windowId, modifiers);
+        moveTab(tab, windowId, tab.windowId, info.modifiers);
     }
 }
 
-function onClickLinkContext(url, windowId, modifiers) {
+function openLink(url, windowId, modifiers) {
     browser.tabs.create({ windowId, url });
     if (modifiers.includes(SETTINGS.bring_modifier)) WindowTab.focusWindow(windowId);
 }
 
-async function onClickTabContext(tabObject, windowId, modifiers) {
-    let tabObjects = await WindowTab.getSelectedTabs();
-    if (tabObjects.length == 1) {
-        // If no more than the active tab is selected, send only the target tab.
-        tabObjects = [tabObject];
-    } else if (!tabObjects.includes(tabObject)) {
-        // If target tab is not among the selected tabs, include it.
-        tabObjects.push(tabObject);
+async function moveTab(tab, windowId, originWindowId, modifiers) {
+    let tabs = await WindowTab.getSelectedTabs();
+    if (tabs.length === 1) {
+        // If there is no multiple tab selection, select only the target tab
+        tabs = [tab];
+    } else if (!tabs.some(t => t.id === tab.id)) {
+        // If target tab is not among the selected tabs, include it
+        tabs.push(tab);
+        tabs.sort((a, b) => a.index - b.index);
     }
-    WindowTab.goalAction(windowId, modifiers, false, true, tabObjects);
+    WindowTab.doAction({ action: 'send', windowId, originWindowId, modifiers, tabs });
 }
 
-const menuTitle = windowId => metaWindows[windowId].displayName;
+const menuTitle = windowId => `Send to ${metaWindows[windowId].displayName}`;
 export const create = windowId => browser.menus.create({ id: `${windowId}`, title: menuTitle(windowId), contexts });
 export const remove = windowId => browser.menus.remove(`${windowId}`);
 export const hide   = windowId => browser.menus.update(`${windowId}`, { visible: false });

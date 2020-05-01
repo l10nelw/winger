@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "WinMan",
   "description": "Window Manager: name windows, switch windows and move tabs between windows",
-  "version": "1.1.1",
+  "version": "1.2",
   "icons": {
     "48": "icons/winman.svg",
     "96": "icons/winman.svg"
@@ -10,7 +10,8 @@
   "permissions": [
     "sessions",
     "storage",
-    "tabs"
+    "tabs",
+    "menus"
   ],
   "background": {
     "page": "background/background.html"
@@ -29,9 +30,9 @@
   },
   "commands": {
     "_execute_browser_action": {
-      "description": "Open the popup panel",
+      "description": "Open the pop-up panel",
       "suggested_key": {
-        "default": "Ctrl+E"
+        "default": "Alt+W"
       }
     }
   },
