@@ -35,22 +35,18 @@ const rowElementSelectors = new Set(['.send', '.bring', '.input', '.tabCount', '
 
 function removeElements(SETTINGS) {
     const elements = {
-        // Keys are from SETTINGS
-        popup_bring:    [$rowTemplate, '.bring'],
-        popup_send:     [$rowTemplate, '.send'],
-        popup_edit:     [$rowTemplate, '.edit'],
-        popup_help:     [$body, '#help'],
-        popup_settings: [$body, '#settings'],
+        // SETTINGS_key: [$scope, selector]
+        popup_bring:     [$rowTemplate, '.bring'],
+        popup_send:      [$rowTemplate, '.send'],
+        popup_edit:      [$rowTemplate, '.edit'],
+        popup_help:      [$footer, '#help'],
+        popup_settings:  [$footer, '#settings'],
     }
-
     for (const element in elements) {
         if (SETTINGS[element]) continue; // If element enabled, leave it alone
-        const [$parent, selector] = elements[element];
-        const $el = $parent.querySelector(selector);
-        $el.remove();
-        if ($parent === $rowTemplate) {
-            rowElementSelectors.delete(selector);
-        }
+        const [$scope, selector] = elements[element];
+        $scope.querySelector(selector).remove();
+        rowElementSelectors.delete(selector);
     }
     $footer.hidden = false;
 }
