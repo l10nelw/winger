@@ -1,10 +1,8 @@
 :root {
-    --width-body-rem: 21;
-    --width-btn-rem: 2;
-    --height-row-rem: 2.5;
-    --width-body: calc(var(--width-body-rem) * 1rem);
-    --width-btn: calc(var(--width-btn-rem) * 1rem);
-    --height-row: calc(var(--height-row-rem) * 1rem);
+    --width-btn: 30px;
+    --width-input: 200px;
+    --width-tabcount: 40px;
+    --height-row: 36px;
     --bgc-base: #eee;
     --bgc-base-focus: #ddd;
     --bgc-rowbtn: #d0d0d0;
@@ -22,7 +20,6 @@
 /* --- Container --- */
 
 body {
-    width: var(--width-body);
     overflow: hidden;
     background-color: var(--bgc-base);
 }
@@ -54,26 +51,21 @@ ul {
 /* --- Row --- */
 
 li {
+    width: auto;
     display: flex;
     align-items: center;
     list-style: none;
     border-bottom: 1px solid var(--borderc-base);
 }
 
-input, .tabCount {
-    height: var(--height-row);
-}
-
-.nameColumn {
-    flex: 1 1 auto;
+li > * {
+    flex: 0 0 auto;
 }
 
 .tabCount {
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    min-width: 3rem;
+    min-width: var(--width-tabcount);
     padding: 0 .8rem;
+    text-align: end;
     color: var(--fgc-muted);
     font-size: small;
 }
@@ -90,9 +82,10 @@ body[data-editmode="false"] .otherRow:focus-within {
 /* --- Input field --- */
 
 .input {
-    width: 100%;
+    height: var(--height-row);
+    width: var(--width-input);
     margin-left: .25rem;
-    padding: 0 .25rem;
+    padding: 0 6px;
     text-align: start;
 }
 
@@ -107,8 +100,13 @@ input:-moz-read-only::placeholder {
     cursor: default;
 }
 
-.currentRow:not(.editModeRow) .input {
+.currentRow .input {
     font-weight: bold;
+}
+
+.currentRow.editModeRow .input {
+    padding: 0;
+    font-weight: normal;
 }
 
 .inputError {
@@ -125,7 +123,6 @@ input:-moz-read-only::placeholder {
 /* --- Button --- */
 
 li button {
-    flex: 0 0 auto;
     width: var(--width-btn);
     height: var(--width-btn);
     opacity: .7;

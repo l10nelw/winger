@@ -1,5 +1,5 @@
-import { hasClass, addClass, changeClass, toggleClass, isButton } from '../utils.js';
-import { $currentWindowList, $otherWindowsList, $body, $footer, unsetActionAttr } from './popup.js';
+import { hasClass, addClass, changeClass, toggleClass } from '../utils.js';
+import { $currentWindowList, $otherWindowsList, $footer, unsetActionAttr } from './popup.js';
 import * as Count from './count.js'; // Runs './status.js'
 import * as Tooltip from './tooltip.js';
 
@@ -42,10 +42,6 @@ function removeElements(SETTINGS) {
         popup_help:     [$body, '#help'],
         popup_settings: [$body, '#settings'],
     }
-    const $document = document.documentElement;
-    const styles = getComputedStyle($document);
-    const buttonWidth = styles.getPropertyValue('--width-btn-rem');
-    let popupWidth = styles.getPropertyValue('--width-body-rem');
 
     for (const element in elements) {
         if (SETTINGS[element]) continue; // If element enabled, leave it alone
@@ -54,11 +50,9 @@ function removeElements(SETTINGS) {
         $el.remove();
         if ($parent === $rowTemplate) {
             rowElementSelectors.delete(selector);
-            if (isButton($el)) popupWidth -= buttonWidth; // Reduce popup width if a row button is removed
         }
     }
     $footer.hidden = false;
-    $document.style.setProperty('--width-body-rem', popupWidth);
 }
 
 function populate(metaWindows, currentWindowId, sortedWindowIds) {
