@@ -57,6 +57,7 @@ function removeElements(SETTINGS) {
             if (isButton($el)) popupWidth -= buttonWidth; // Reduce popup width if a row button is removed
         }
     }
+    $footer.hidden = false;
     $document.style.setProperty('--width-body-rem', popupWidth);
 }
 
