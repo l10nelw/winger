@@ -13,6 +13,9 @@ import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
 
 export const $body = document.body;
+export const $currentWindowList = document.getElementById('currentWindow');
+export const $otherWindowsList = document.getElementById('otherWindows');
+export const $footer = $body.querySelector('footer');
 const $omnibox = Omnibox.$omnibox;
 const supportBtns = { help, settings };
 
@@ -23,11 +26,11 @@ export const unsetActionAttr = $el => $el && $el.removeAttribute(actionAttr);
 export const getActionElements = ($scope = $body, suffix = '') => $scope.querySelectorAll(`[${actionAttr}]${suffix}`);
 
 // Populated by init()
-export let SETTINGS, $otherWindowsList, $currentWindowRow, $otherWindowRows, $allWindowRows;
+export let SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows;
 let modifierHints;
 
 (async () => {
-    ({ SETTINGS, $otherWindowsList, $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints } = await init());
+    ({ SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints } = await init());
     $body.addEventListener('click', onClick);
     $body.addEventListener('contextmenu', onRightClick);
     $body.addEventListener('keydown', onKeyDown);

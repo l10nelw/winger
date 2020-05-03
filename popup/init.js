@@ -1,10 +1,7 @@
 import { hasClass, addClass, changeClass, toggleClass, isButton } from '../utils.js';
-import * as Popup from './popup.js';
+import { $currentWindowList, $otherWindowsList, $body, $footer, unsetActionAttr } from './popup.js';
 import * as Count from './count.js'; // Runs './status.js'
 import * as Tooltip from './tooltip.js';
-
-const $currentWindowList = document.getElementById('currentWindow');
-const $otherWindowsList = document.getElementById('otherWindows');
 
 export default async function init() {
     const { SETTINGS, metaWindows, currentWindowId, sortedWindowIds, selectedTabCount } =
@@ -25,7 +22,6 @@ export default async function init() {
 
     return {
         SETTINGS,
-        $otherWindowsList,
         $currentWindowRow,
         $otherWindowRows,
         $allWindowRows,
@@ -43,8 +39,8 @@ function removeElements(SETTINGS) {
         popup_bring:    [$rowTemplate, '.bring'],
         popup_send:     [$rowTemplate, '.send'],
         popup_edit:     [$rowTemplate, '.edit'],
-        popup_help:     [Popup.$body, '#help'],
-        popup_settings: [Popup.$body, '#settings'],
+        popup_help:     [$body, '#help'],
+        popup_settings: [$body, '#settings'],
     }
     const $document = document.documentElement;
     const styles = getComputedStyle($document);
@@ -70,7 +66,7 @@ function populate(metaWindows, currentWindowId, sortedWindowIds) {
         const $row = createRow(metaWindow);
         if (windowId == currentWindowId) {
             changeClass('otherRow', 'currentRow', $row);
-            [$row, $row.$bring, $row.$send].forEach(Popup.unsetActionAttr);
+            [$row, $row.$bring, $row.$send].forEach(unsetActionAttr);
             delete $row.$bring;
             delete $row.$send;
             $row.tabIndex = -1;

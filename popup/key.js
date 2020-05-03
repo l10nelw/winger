@@ -1,8 +1,6 @@
 import { isInput, isButton } from '../utils.js';
-import { $currentWindowRow, $otherWindowsList, getActionAttr, getActionElements } from './popup.js';
+import { $currentWindowRow, $otherWindowsList, $footer, getActionAttr, getActionElements } from './popup.js';
 import { $omnibox } from './omnibox.js';
-
-const $footer = document.body.querySelector('footer');
 
 const button = {
     list: null, // List of an otherRow's button references.
