@@ -1,85 +1,79 @@
 import { isInput, isButton } from '../utils.js';
-import { $currentWindowRow, $otherWindowsList, $footer, getActionAttr, getActionElements } from './popup.js';
+import { $currentWindowRow, $otherWindowsList, $footer, getActionAttr } from './popup.js';
 import { $omnibox } from './omnibox.js';
 
-const button = {
-    list: null, // List of an otherRow's button references.
-    current: null, // Currrent button reference ("$action").
-    getReference($el) {
-        const action = isButton($el) && getActionAttr($el);
-        if (action) return `$${action}`;
+const isRow = $el => $el.tagName === 'LI';
+const isFocusable = $el => $el.tabIndex !== -1 && !$el.hidden;
+
+const element = {
+     // Current button reference ("$action" or null) to remember the last focused row button while navigating rows.
+    button: null,
+    // Set this.button to a reference if element is button, to null if row, or make no change.
+    setButton($el) {
+        const action = getActionAttr($el);
+        if (action) this.button = isButton($el) ? `$${action}` : null;
     },
-    makeList() {
-        this.list = this.list || [...getActionElements($otherWindowsList.firstElementChild)].map(this.getReference);
-    },
-    set($el) {
-        this.current = this.getReference($el);
-    },
-    // Shift the current button reference left or right.
-    offset(amount) {
-        const list = this.list;
-        const i = list.indexOf(this.current) + amount;
-        this.current = i === -2 ? list[list.length-1] : i >= 0 && i < list.length && list[i];
-        // No btn +1 = first btn. No btn -1 = last btn. Btn +1/-1 = next btn or no btn.
-    },
-    // Return the appropriate button element in the currentWindowRow.
+    // Return the appropriate button in currentWindowRow, else return row itself.
     currentWindow() {
-        let $btn = $currentWindowRow[this.current];
+        let $btn = $currentWindowRow[this.button];
         if ($btn) return $btn;
-        for (const btn of this.list) {
-            $btn = $currentWindowRow[btn];
-            if ($btn) return $btn;
+        $btn = $currentWindowRow.firstElementChild;
+        while ($btn && !isFocusable($btn)) {
+            $btn = $btn.nextElementSibling;
         }
+        return $btn || $currentWindowRow;
     },
-    // Take and return the same row element, unless a button element should be returned instead.
-    orRow($row) {
-        if ($row) return $row[this.current] || $row;
-    }
+    isCurrentWindow($el) {
+        return $el.$row === $currentWindowRow || $el === $currentWindowRow;
+    },
+    footer() {
+        return $footer.firstElementChild || $footer;
+    },
+    isFooter($el) {
+        return $el.parentElement === $footer || $el === $footer;
+    },
+    // Take and return the same row, unless a button can be returned instead.
+    rowOrButton($row) {
+        if ($row) return $row[this.button] || $row;
+    },
 };
 
-const getNextElement = {
+const navigator = {
     ArrowDown($el) {
-        if ($el === $omnibox) return button.orRow($otherWindowsList.firstElementChild);
-        if ($el.$row === $currentWindowRow) return $omnibox;
-        if ($el.parentElement === $footer) return button.currentWindow() || $omnibox;
-        // $el is in $otherWindowsList:
-        const $nextRow = ($el.$row || $el).nextElementSibling;
-        button.set($el);
-        return button.orRow($nextRow) || $footer.firstElementChild;
+        if (element.isFooter($el)) return element.currentWindow();
+        if (element.isCurrentWindow($el)) return $omnibox;
+        if ($el === $omnibox) return element.rowOrButton($otherWindowsList.firstElementChild);
+        const $next = ($el.$row || $el).nextElementSibling;
+        return element.rowOrButton($next) || element.footer();
     },
     ArrowUp($el) {
-        if ($el === $omnibox) return button.currentWindow() || $footer.firstElementChild;
-        if ($el.$row === $currentWindowRow) return $footer.firstElementChild;
-        if ($el.parentElement === $footer) return $otherWindowsList.lastElementChild;
-        // $el is in $otherWindowsList:
-        const $nextRow = ($el.$row || $el).previousElementSibling;
-        button.set($el);
-        return button.orRow($nextRow) || $omnibox;
+        if ($el === $omnibox) return element.currentWindow();
+        if (element.isCurrentWindow($el)) return element.footer();
+        if (element.isFooter($el)) return element.rowOrButton($otherWindowsList.lastElementChild);
+        const $next = ($el.$row || $el).previousElementSibling;
+        return element.rowOrButton($next) || $omnibox;
     },
     ArrowRight($el) {
-        if ($el === $omnibox) return;
-        if ($el.parentElement === $footer) return $el.nextElementSibling || $footer.firstElementChild;
-        button.offset(1);
-        if ($el.$row === $currentWindowRow) return button.currentWindow();
-        // $el is in $otherWindowsList:
-        return button.orRow($el.$row || $el);
+        if ($el === $omnibox) return $omnibox;
+        if (element.isFooter($el)) return $el.nextElementSibling || $footer.firstElementChild;
+        const $next = isRow($el) ? $el.firstElementChild : ($el.nextElementSibling || $el.parentElement);
+        element.setButton($next);
+        return $next;
     },
     ArrowLeft($el) {
-        if ($el === $omnibox) return;
-        if ($el.parentElement === $footer) return $el.previousElementSibling || $footer.lastElementChild;
-        button.offset(-1);
-        if ($el.$row === $currentWindowRow) return button.currentWindow();
-        // $el is in $otherWindowsList:
-        return button.orRow($el.$row || $el);
+        if ($el === $omnibox) return $omnibox;
+        if (element.isFooter($el)) return $el.previousElementSibling || $footer.lastElementChild;
+        const $next = isRow($el) ? $el.lastElementChild : ($el.previousElementSibling || $el.parentElement);
+        element.setButton($next);
+        return $next;
     },
 };
 
 export function navigateByArrow(key, $el) {
-    if (!(key in getNextElement)) return;
-    button.makeList();
-    const $next = getNextElement[key]($el);
-    if (!$next) return;
-    $next.focus();
+    if (!(key in navigator)) return;
+    const navigatorKey = navigator[key];
+    do { $el = navigatorKey($el) } while (!isFocusable($el));
+    $el.focus();
     return true;
 }
 

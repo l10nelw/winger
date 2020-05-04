@@ -60,39 +60,47 @@ function removeElements(SETTINGS) {
 function populate(metaWindows, currentWindowId, sortedWindowIds) {
     for (const windowId of sortedWindowIds) {
         const metaWindow = metaWindows[windowId];
-        const $row = createRow(metaWindow);
-        if (windowId == currentWindowId) {
-            changeClass('otherRow', 'currentRow', $row);
-            [$row, $row.$bring, $row.$send].forEach(unsetActionAttr);
-            delete $row.$bring;
-            delete $row.$send;
-            $row.tabIndex = -1;
-            $row.title = '';
-            $currentWindowList.appendChild($row);
+        if (windowId === currentWindowId) {
+            $currentWindowList.appendChild(createRow(metaWindow, true));
         } else {
-            $otherWindowsList.appendChild($row);
+            $otherWindowsList.appendChild(createRow(metaWindow));
         }
     }
 }
 
-function createRow({ id, incognito, givenName, defaultName }) {
+function createRow({ id, incognito, givenName, defaultName }, isCurrent) {
     const $row = document.importNode($rowTemplate, true);
 
     // Add references to row elements, and in each, a reference to the row
     for (const selector of rowElementSelectors) {
         const $el = $row.querySelector(selector);
+        if (isCurrent && hasClass('tabAction', $el)) {
+            disableElement($el);
+            continue;
+        }
         const property = selector.replace('.', '$');
         $el.$row = $row;
         $row[property] = $el;
     }
 
     // Add data
+    if (isCurrent) {
+        changeClass('otherRow', 'currentRow', $row);
+        disableElement($row);
+    }
     $row._id = id;
     $row.$input.value = givenName;
     $row.$input.placeholder = defaultName;
     toggleClass('private', $row, incognito);
 
     return $row;
+}
+
+function disableElement($el) {
+    $el.disabled = true;
+    $el.tabIndex = -1;
+    $el.title = '';
+    unsetActionAttr($el);
 }
 
 function createModifierHints(SETTINGS, selectedTabCount) {
