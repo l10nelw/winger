@@ -1,5 +1,6 @@
 import { hasClass, addClass, changeClass, toggleClass } from '../utils.js';
 import { $currentWindowList, $otherWindowsList, $footer, unsetActionAttr } from './popup.js';
+import { $omnibox } from './omnibox.js';
 import * as Count from './count.js'; // Runs './status.js'
 import * as Tooltip from './tooltip.js';
 
@@ -17,6 +18,12 @@ export default async function init() {
     Count.init($allWindowRows);
     Tooltip.init(selectedTabCount);
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
+
+    $omnibox.hidden = false;
+    $otherWindowsList.hidden = false;
+    $footer.hidden = false;
+
+    $omnibox.focus();
     alignWithScrollbar($currentWindowList, $otherWindowsList);
     lockHeight($otherWindowsList);
 
@@ -48,7 +55,6 @@ function removeElements(SETTINGS) {
         $scope.querySelector(selector).remove();
         rowElementSelectors.delete(selector);
     }
-    $footer.hidden = false;
 }
 
 function populate(metaWindows, currentWindowId, sortedWindowIds) {
@@ -106,12 +112,12 @@ function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
     }
 }
 
+function alignWithScrollbar($toAlign, $scrolling) {
+    const scrollbarWidth = $scrolling.offsetWidth - $scrolling.clientWidth;
+    if (scrollbarWidth) $toAlign.style.marginInlineEnd = `${scrollbarWidth}px`;
+}
+
 function lockHeight($el) {
     $el.style.height = ``;
     $el.style.height = `${$el.offsetHeight}px`;
-}
-
-function alignWithScrollbar($aligningEl, $scrollingEl) {
-    const scrollbarWidth = $scrollingEl.offsetWidth - $scrollingEl.clientWidth;
-    if (scrollbarWidth) $aligningEl.style.marginInlineEnd = `${scrollbarWidth}px`;
 }
