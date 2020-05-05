@@ -1,6 +1,7 @@
+/* * { outline: 1px solid red; } */
 :root {
     --width-btn: 30px;
-    --width-input: 200px;
+    --width-input: 180px;
     --width-tabcount: 40px;
     --height-row: 36px;
     --bgc-base: #eee;
@@ -53,6 +54,7 @@ ul {
 li {
     width: auto;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     list-style: none;
     border-bottom: 1px solid var(--borderc-base);
