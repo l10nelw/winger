@@ -31,26 +31,29 @@
 
       <h2>Behaviour</h2>
       <h3>Moving tabs (send &amp; bring)</h3>
-      <label><input type="checkbox" name="keep_moved_focused_tab_focused"> <span>When a focused tab is moved, make it the destination window's new focused tab</span></label>
-      <label><input type="checkbox" name="keep_moved_tabs_selected"> <span>When multiple selected tabs are moved, keep them selected in the destination window</span></label>
-      <label><input type="checkbox" name="move_pinned_tabs" data-enables="move_pinned_tabs_if_all_pinned"> <span>Allow pinned tabs to be moved</span></label>
+      <label><input class="setting" type="checkbox" name="keep_moved_focused_tab_focused"> <span>When a focused tab is moved, make it the destination window's new focused tab</span></label>
+      <label><input class="setting" type="checkbox" name="keep_moved_tabs_selected"> <span>When multiple selected tabs are moved, keep them selected in the destination window</span></label>
+      <label><input class="setting" type="checkbox" name="move_pinned_tabs" data-enabler> <span>Allow pinned tabs to be moved</span></label>
       <label class="indented">
-        <input type="checkbox" name="move_pinned_tabs_if_all_pinned">
+        <input class="setting" type="checkbox" data-enabled-by="move_pinned_tabs" name="move_pinned_tabs_if_all_pinned">
         <span>Only if every selected tab is a pinned tab<br><small>(If there are unpinned tabs in a multiple tab selection, pinned ones will not move)</small></span>
       </label>
       <div class="btnRow"><button disabled>Apply Settings</button></div>
 
       <h2>Appearance</h2>
-      <label><input type="checkbox" name="popup_send"> <span>Show Send buttons</span></label>
-      <label><input type="checkbox" name="popup_bring"> <span>Show Bring buttons</span></label>
-      <label><input type="checkbox" name="popup_edit"> <span>Show Edit buttons</span></label>
-      <label><input type="checkbox" name="popup_help"> <span>Show Help button</span></label>
-      <label><input type="checkbox" name="popup_settings"> <span>Show Settings button</span></label>
+      <label><input type="checkbox" name="popup_rowbtns" data-toggler> <span>Show all window row buttons</span></label>
+      <div class="indented">
+        <label><input class="setting" type="checkbox" data-toggled-by="popup_rowbtns" name="popup_send"> <span>Show Send buttons</span></label>
+        <label><input class="setting" type="checkbox" data-toggled-by="popup_rowbtns" name="popup_bring"> <span>Show Bring buttons</span></label>
+        <label><input class="setting" type="checkbox" data-toggled-by="popup_rowbtns" name="popup_edit"> <span>Show Edit buttons</span></label>
+      </div>
+      <label><input class="setting" type="checkbox" name="popup_help"> <span>Show Help button</span></label>
+      <label><input class="setting" type="checkbox" name="popup_settings"> <span>Show Settings button</span></label>
       <div class="btnRow"><button disabled>Apply Settings</button></div>
 
       <h2>Context menus</h2>
-      <label><input type="checkbox" name="enable_link_menu"> <span>Enable link context menu</span></label>
-      <label><input type="checkbox" name="enable_tab_menu"> <span>Enable tab context menu</span></label>
+      <label><input class="setting" type="checkbox" name="enable_link_menu"> <span>Enable link context menu</span></label>
+      <label><input class="setting" type="checkbox" name="enable_tab_menu"> <span>Enable tab context menu</span></label>
       <div class="btnRow"><button disabled>Apply Settings</button></div>
 
       <h2>Keyboard shortcut</h2>
