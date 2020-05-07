@@ -6,9 +6,9 @@
 - Some DOM nodes have custom properties (expandos), prefixed with '_', to concisely store and pass around data.
 */
 
-import { hasClass, getModifiers } from '../utils.js';
+import { isInput, hasClass, getModifiers } from '../utils.js';
 import init from './init.js';
-import * as Key from './key.js';
+import navigateByArrow from './navigation.js';
 import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
 
@@ -52,9 +52,9 @@ function onRightClick(event) {
 
 function onKeyDown(event) {
     let { key, target: $target } = event;
-    Key.enterCheck.down(key, $target);
+    inputEnterCheck.down(key, $target);
     if (EditMode.$active) return;
-    if (Key.navigateByArrow(key, $target)) return;
+    if (navigateByArrow(key, $target)) return;
     if (showModifierHint(key)) return;
     if (['Tab', 'Enter', ' '].includes(key)) return;
     Omnibox.focus();
@@ -62,7 +62,7 @@ function onKeyDown(event) {
 
 function onKeyUp(event) {
     const { key, target: $target } = event;
-    Key.enterCheck.up(key, $target);
+    inputEnterCheck.up(key, $target);
     if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
     if (hasClass('otherRow', $target) && (key === 'Enter' || key === ' ')) return requestAction(event, $target);
     Omnibox.info();
@@ -72,6 +72,23 @@ function onKeyUp(event) {
 function onFocusOut(event) {
     if (event.target == $omnibox) Omnibox.info();
 }
+
+// Flag if Enter has been keyed down and up both within the same input. A handler should then check and reset the flag (_enter).
+// Guards against cases where input receives the keyup after the keydown was invoked elsewhere (usually a button).
+const inputEnterCheck = {
+    $input: null,
+    down(key, $target) {
+        if (key === 'Enter' && isInput($target)) {
+            this.$input = $target;
+        }
+    },
+    up(key, $target) {
+        if (key === 'Enter' && $target === this.$input) {
+            $target._enter = true;
+            this.$input = null;
+        }
+    }
+};
 
 function showModifierHint(key) {
     if (key === 'Control') key = 'Ctrl';
