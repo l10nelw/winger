@@ -39,7 +39,7 @@ let modifierHints;
 })();
 
 function onClick(event) {
-    const $target = event.target;
+    const { target: $target } = event;
     const id = $target.id;
     if (id in supportBtns) supportBtns[id](); // Closes popup
     if (EditMode.handleClick($target)) return;
@@ -51,25 +51,32 @@ function onRightClick(event) {
 }
 
 function onKeyDown(event) {
-    let { key, target } = event;
-    Key.enterCheck.down(key, target);
+    let { key, target: $target } = event;
+    Key.enterCheck.down(key, $target);
     if (EditMode.$active) return;
-    if (Key.navigateByArrow(key, target)) return;
-    if (key === 'Control') key = 'Ctrl';
-    Omnibox.info(modifierHints[key]);
+    if (Key.navigateByArrow(key, $target)) return;
+    if (showModifierHint(key)) return;
+    if (['Tab', 'Enter', ' '].includes(key)) return;
+    Omnibox.focus();
 }
 
 function onKeyUp(event) {
-    const { key, target } = event;
-    Key.enterCheck.up(key, target);
-    if (EditMode.$active) return EditMode.handleKeyUp(key, target);
+    const { key, target: $target } = event;
+    Key.enterCheck.up(key, $target);
+    if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
+    if (hasClass('otherRow', $target) && (key === 'Enter' || key === ' ')) return requestAction(event, $target);
     Omnibox.info();
-    if (target == $omnibox) return Omnibox.handleKeyUp(key, event);
-    if (hasClass('otherRow', target) && ['Enter', ' '].includes(key)) return requestAction(event, target);
+    Omnibox.handleKeyUp(key, event);
 }
 
 function onFocusOut(event) {
     if (event.target == $omnibox) Omnibox.info();
+}
+
+function showModifierHint(key) {
+    if (key === 'Control') key = 'Ctrl';
+    const hint = modifierHints[key];
+    return Omnibox.info(hint);
 }
 
 export function help() {

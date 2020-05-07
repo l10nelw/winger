@@ -67,8 +67,13 @@ export function showAllRows() {
 
 export function info(str = '') {
     $omnibox.placeholder = str;
+    return str;
 }
 
 export function disable(yes) {
     $omnibox.disabled = yes;
+}
+
+export function focus() {
+    $omnibox.focus();
 }
