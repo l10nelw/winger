@@ -1,8 +1,7 @@
 import { isButton } from '../utils.js';
-import { $currentWindowRow, $otherWindowsList, $footer, getActionAttr } from './popup.js';
+import { $currentWindowRow, $otherWindowsList, $footer, isRow, getActionAttr } from './popup.js';
 import { $omnibox } from './omnibox.js';
 
-const isRow = $el => $el.tagName === 'LI';
 const isFocusable = $el => $el.tabIndex !== -1 && !$el.hidden;
 
 export default function navigateByArrow(key, $el) {

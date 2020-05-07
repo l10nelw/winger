@@ -19,6 +19,8 @@ export const $footer = $body.querySelector('footer');
 const $omnibox = Omnibox.$omnibox;
 const supportBtns = { help, settings };
 
+export const isRow = $el => $el && $el._id;
+
 // Action attribute utilities
 const actionAttr = 'data-action';
 export const getActionAttr = $el => $el && $el.getAttribute(actionAttr);
@@ -64,7 +66,7 @@ function onKeyUp(event) {
     const { key, target: $target } = event;
     inputEnterCheck.up(key, $target);
     if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
-    if (hasClass('otherRow', $target) && (key === 'Enter' || key === ' ')) return requestAction(event, $target);
+    if (isRow($target) && (key === 'Enter' || key === ' ')) return requestAction(event, $target);
     Omnibox.info();
     Omnibox.handleKeyUp(key, event);
 }
