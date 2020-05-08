@@ -2,7 +2,7 @@
 :root {
     --width-btn: 30px;
     --width-input: 180px;
-    --width-tabcount: 40px;
+    --width-tabcount: 20px;
     --height-row: 36px;
     --bgc-base: #eee;
     --bgc-base-focus: #ddd;
@@ -65,10 +65,10 @@ li > * {
 }
 
 .tabCount {
-    min-width: var(--width-tabcount);
-    padding: 0 .8rem;
-    text-align: end;
+    width: var(--width-tabcount);
+    margin: 0 .8rem;
     color: var(--fgc-muted);
+    text-align: end;
     font-size: small;
 }
 
