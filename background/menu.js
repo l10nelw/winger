@@ -39,7 +39,7 @@ async function moveTab(tab, windowId, originWindowId, modifiers) {
 }
 
 const menuTitle = windowId => `Send to ${metaWindows[windowId].displayName}`;
-export const create = windowId => browser.menus.create({ id: `${windowId}`, title: menuTitle(windowId), contexts });
+export const create = windowId => contexts.length && browser.menus.create({ id: `${windowId}`, title: menuTitle(windowId), contexts });
 export const remove = windowId => browser.menus.remove(`${windowId}`);
 export const hide   = windowId => browser.menus.update(`${windowId}`, { visible: false });
 export const show   = windowId => browser.menus.update(`${windowId}`, { visible: true });
