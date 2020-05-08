@@ -1,3 +1,4 @@
+import { hasClass } from '../utils.js';
 import * as Settings from '../background/settings.js';
 
 const $form = document.body.querySelector('form');
@@ -20,27 +21,28 @@ let toggleGroups = {};
 })();
 
 $form.onchange = onFieldChange;
-$form.onsubmit = saveSettings;
+$form.onsubmit = applySettings;
 
 function onFieldChange(event) {
     const $field = event.target;
     enableFields($field);
     toggleFields($field);
     toggleToggler({ $field });
+    saveSetting($field);
     enableSubmitBtns();
 }
 
-async function saveSettings() {
-    const settings = {};
-    for (const $field of $fields) {
-        settings[$field.name] = $field[relevantProp($field)];
-    }
-    await browser.storage.local.set(settings);
+function applySettings() {
     browser.runtime.reload();
 }
 
 function loadSetting($field) {
     $field[relevantProp($field)] = SETTINGS[$field.name];
+}
+
+function saveSetting($field) {
+    if (hasClass('setting', $field))
+        browser.storage.local.set({ [$field.name]: $field[relevantProp($field)] });
 }
 
 // For a $field with the data-enabler attribute: enable/disable fields that are enabled by it.
@@ -70,6 +72,7 @@ function toggleFields($toggler) {
     const check = $toggler.checked;
     for (const $target of toggleGroups[$toggler.name]) {
         $target.checked = check;
+        saveSetting($target);
     }
 }
 
