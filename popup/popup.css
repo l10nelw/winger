@@ -1,7 +1,8 @@
 /* * { outline: 1px solid red; } */
 :root {
+    --width-body: 235px;
     --width-btn: 30px;
-    --width-input: 180px;
+    --width-input: 190px;
     --width-tabcount: 20px;
     --height-row: 36px;
     --bgc-base: #eee;
@@ -21,6 +22,7 @@
 /* --- Container --- */
 
 body {
+    width: var(--width-body);
     overflow: hidden;
     background-color: var(--bgc-base);
 }
