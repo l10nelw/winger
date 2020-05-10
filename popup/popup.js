@@ -10,6 +10,7 @@ import { isInput, hasClass, getModifiers } from '../utils.js';
 import init from './init.js';
 import navigateByArrow from './navigation.js';
 import * as Omnibox from './omnibox.js';
+import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
 
 export const $body = document.body;
@@ -17,7 +18,6 @@ export const $currentWindowList = document.getElementById('currentWindow');
 export const $otherWindowsList = document.getElementById('otherWindows');
 export const $footer = $body.querySelector('footer');
 const $omnibox = Omnibox.$omnibox;
-const supportBtns = { help, settings };
 
 export const isRow = $el => $el && $el._id;
 
@@ -43,7 +43,7 @@ let modifierHints;
 function onClick(event) {
     const { target: $target } = event;
     const id = $target.id;
-    if (id in supportBtns) supportBtns[id](); // Closes popup
+    if (id in Toolbar) return Toolbar[id]();
     if (EditMode.handleClick($target)) return;
     requestAction(event, $target);
 }
@@ -96,16 +96,6 @@ function showModifierHint(key) {
     if (key === 'Control') key = 'Ctrl';
     const hint = modifierHints[key];
     return Omnibox.info(hint);
-}
-
-export function help() {
-    browser.runtime.sendMessage({ help: true });
-    window.close();
-}
-
-export function settings() {
-    browser.runtime.openOptionsPage();
-    window.close();
 }
 
 // Given a $row or any of its child elements, get the displayName.

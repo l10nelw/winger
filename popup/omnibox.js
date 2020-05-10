@@ -1,12 +1,13 @@
 import * as Popup from './popup.js';
+import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
 
 export const $omnibox = document.getElementById('omnibox');
 
 const nonCompletingKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
 const commands = {
-    help:     Popup.help,
-    settings: Popup.settings,
+    help:     Toolbar.help,
+    settings: Toolbar.settings,
     edit:     EditMode.activate,
 };
 
