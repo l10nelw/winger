@@ -53,6 +53,10 @@ ul {
 
 /* --- Row --- */
 
+input {
+    height: var(--height-row);
+}
+
 li {
     width: auto;
     display: flex;
@@ -86,7 +90,6 @@ body[data-editmode="false"] .otherRow:focus-within {
 /* --- Input field --- */
 
 .input {
-    height: var(--height-row);
     width: var(--width-input);
     margin-left: .25rem;
     padding: 0 6px;
