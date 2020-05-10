@@ -206,11 +206,11 @@ body[data-editmode="true"] #status {
 
 footer {
     display: flex;
+    height: calc(var(--height-row) + 1px); /* Fix mystery extra 1px on Windows */
 }
 
 footer button {
     flex: 1 1 auto;
-    height: var(--height-row);
     border: none;
     text-align: center;
 }
