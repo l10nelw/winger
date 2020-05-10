@@ -16,14 +16,14 @@ const navigator = {
     ArrowDown($el) {
         if (isFooter($el)) return currentWindow();
         if (isCurrentWindow($el)) return $omnibox;
-        if ($el === $omnibox) return rowOrButton($otherWindowsList.firstElementChild);
+        if ($el === $omnibox) return rowOrButton($otherWindowsList.firstElementChild) || footer();
         const $next = ($el.$row || $el).nextElementSibling;
         return rowOrButton($next) || footer();
     },
     ArrowUp($el) {
         if ($el === $omnibox) return currentWindow();
         if (isCurrentWindow($el)) return footer();
-        if (isFooter($el)) return rowOrButton($otherWindowsList.lastElementChild);
+        if (isFooter($el)) return rowOrButton($otherWindowsList.lastElementChild) || $omnibox;
         const $next = ($el.$row || $el).previousElementSibling;
         return rowOrButton($next) || $omnibox;
     },
