@@ -3,7 +3,6 @@
 }
 
 body {
-  display: flex;
   /* background-color: black;
   color: white; */
   max-width: 80rem;
@@ -11,14 +10,17 @@ body {
   padding: 1rem;
 }
 
+#content {
+  display: flex;
+}
+
 aside {
-    width: 20rem;
+  width: 20rem;
 }
 
 .sticky-top {
-  /* border: 1px solid red; */
   position: sticky;
-  top: 0;
+  top: .5rem;
 }
 
 h1, h2, h3, h4, p {
