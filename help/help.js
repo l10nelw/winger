@@ -28,17 +28,14 @@ async function insertShortcut() {
 
 function doOSSpecific() {
     const isOS = str => navigator.userAgent.indexOf(str) !== -1;
+    const isMac = isOS('Mac OS X');
+    const isWin = isOS('Windows');
+    
     const addCSS = rule => document.styleSheets[0].insertRule(rule);
-
-    if (isOS('Mac OS X')) {
+    addCSS(`.js-${isMac ? 'hide' : 'show'}OnMac { visibility: hidden }`);
+    addCSS(`.js-${isWin ? 'hide' : 'show'}OnWin { visibility: hidden }`);
+    
+    if (isMac) {
         $$('.js-cmdOnMac').forEach($el => $el.textContent = $el.textContent.replace('Ctrl', 'Cmd'));
-        addCSS(`.js-hideOnMac { visibility: hidden }`);
-    } else {
-        addCSS(`.js-showOnMac { visibility: hidden }`);
-    }
-
-    if (isOS('Windows')) {
-    } else {
-        addCSS(`.js-showOnWin { visibility: hidden }`);
     }
 }
