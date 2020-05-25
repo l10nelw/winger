@@ -23,8 +23,7 @@ let toggleGroups = {};
 $form.onchange = onFieldChange;
 $form.onsubmit = applySettings;
 
-function onFieldChange(event) {
-    const $field = event.target;
+function onFieldChange({ target: $field }) {
     enableFields($field);
     toggleFields($field);
     toggleToggler({ $field });
