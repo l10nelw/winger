@@ -59,7 +59,7 @@ function onKeyDown(event) {
     if (navigateByArrow(key, $target)) return;
     if (showModifierHint(key)) return;
     if (['Tab', 'Enter', ' '].includes(key)) return;
-    Omnibox.focus();
+    if (document.activeElement !== $omnibox) Omnibox.focus();
 }
 
 function onKeyUp(event) {
