@@ -1,4 +1,4 @@
-import { windows as metaWindows } from './metadata.js';
+import { lastDetach, windows as metaWindows } from './metadata.js';
 import { SETTINGS } from './settings.js';
 
 const isPrivate = x => isNaN(x) ? x.incognito : metaWindows[x].incognito;
@@ -120,4 +120,14 @@ function movablePinnedTabs(tabs) {
     if (!pinnedTabCount) return;
     if (SETTINGS.move_pinned_tabs_if_all_pinned && tabs.length !== pinnedTabCount) return;
     return pinnedTabs;
+}
+
+export async function maximizeTearOffWindow(windowId) {
+    if (!lastDetach.tabId) return;
+    const tab = await browser.tabs.get(lastDetach.tabId).catch(() => null);
+    if (tab && tab.windowId === windowId) { // If detached tab is now in this window
+        const { state } = await browser.windows.get(lastDetach.oldWindowId);
+        if (state === 'maximized') browser.windows.update(windowId, { state });
+    }
+    lastDetach.set();
 }

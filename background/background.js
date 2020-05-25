@@ -12,14 +12,15 @@ import * as WindowTab from './windowtab.js';
 import * as Menu from './menu.js';
 import * as Title from './title.js';
 const WindowParts = [Title, Menu];
-
 // Object.assign(window, { WindowTab }); // for debugging
+
 init();
 setIconTitle();
 browser.runtime.onInstalled.addListener(onExtInstalled);
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onRemoved.addListener(onWindowRemoved);
 browser.windows.onFocusChanged.addListener(onWindowFocused);
+browser.tabs.onDetached.addListener(onTabDetached);
 browser.runtime.onMessage.addListener(onRequest);
 
 async function init() {
@@ -43,6 +44,7 @@ async function onWindowCreated(windowObject, isInit) {
     if (!isInit) await Metadata.add(windowObject);
     const windowId = windowObject.id;
     WindowParts.forEach(part => part.create(windowId));
+    WindowTab.maximizeTearOffWindow(windowId);
     if (windowObject.focused) onWindowFocused(windowId);
 }
 
@@ -61,6 +63,10 @@ function onWindowFocused(windowId) {
 
 function isWindowBeingCreated(windowId) {
     return !(windowId in Metadata.windows);
+}
+
+function onTabDetached(tabId, { oldWindowId }) {
+    Metadata.lastDetach.set(tabId, oldWindowId);
 }
 
 async function onRequest(request) {

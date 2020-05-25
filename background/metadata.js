@@ -1,10 +1,17 @@
-export let windows = {};
-export let focusedWindow = { id: null };
+export const windows = {};
+export const focusedWindow = { id: null };
+export const lastDetach = {
+    set(tabId = null, oldWindowId = null) {
+        this.tabId = tabId;
+        this.oldWindowId = oldWindowId;
+    }
+};
 const invalidCharsNameRegex = /^\//;
 let lastWindowNumber = 0;
 
 // Perform equivalent of add() for every open window all at once.
 export async function init(windowObjects) {
+    lastDetach.set();
     let windowIds = [];
     for (const windowObject of windowObjects) {
         const windowId = windowObject.id;
