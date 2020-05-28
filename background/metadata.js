@@ -102,21 +102,3 @@ function nameExists(windowId, name) {
     }
     return 0;
 }
-
-// Sort windows by sortMethod, return windowIds.
-export function sortedWindowIds(sortBy = 'lastFocused') {
-    let metaWindows = Object.values(windows);
-    metaWindows.sort(sortMethod[sortBy]);
-    const windowIds = metaWindows.map(metaWindow => metaWindow.id);
-    return windowIds;
-}
-
-const sortMethod = {
-    age: (a, b) => a.created - b.created,
-    lastFocused: (a, b) => b.lastFocused - a.lastFocused,
-    alphabetical: (a, b) => {
-        if (a.displayName > b.displayName) return 1;
-        if (a.displayName < b.displayName) return -1;
-        return 0;
-    }
-}

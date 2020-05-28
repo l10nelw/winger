@@ -5,12 +5,13 @@ import * as Count from './count.js'; // Runs './status.js'
 import * as Tooltip from './tooltip.js';
 
 export default async function init() {
-    const { SETTINGS, metaWindows, currentWindowId, sortedWindowIds, selectedTabCount } =
-        await browser.runtime.sendMessage({ popup: true });
+    const { SETTINGS, metaWindows, currentWindowId, selectedTabCount } = await browser.runtime.sendMessage({ popup: true });
 
     row.removeElements(SETTINGS);
     footer.removeElements(SETTINGS);
-    populate(metaWindows, currentWindowId, sortedWindowIds);
+
+    metaWindows.sort((a, b) => b.lastFocused - a.lastFocused);
+    populate(metaWindows, currentWindowId);
     const $currentWindowRow = $currentWindowList.firstElementChild;
     const $otherWindowRows = [...$otherWindowsList.children];
     const $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
@@ -36,6 +37,16 @@ export default async function init() {
         $allWindowRows,
         modifierHints,
     };
+}
+
+function populate(metaWindows, currentWindowId) {
+    for (const metaWindow of metaWindows) {
+        if (metaWindow.id === currentWindowId) {
+            $currentWindowList.appendChild(row.create(metaWindow, true));
+        } else {
+            $otherWindowsList.appendChild(row.create(metaWindow));
+        }
+    }
 }
 
 const row = {
@@ -111,17 +122,6 @@ const footer = {
         }
     },
 };
-
-function populate(metaWindows, currentWindowId, sortedWindowIds) {
-    for (const windowId of sortedWindowIds) {
-        const metaWindow = metaWindows[windowId];
-        if (windowId === currentWindowId) {
-            $currentWindowList.appendChild(row.create(metaWindow, true));
-        } else {
-            $otherWindowsList.appendChild(row.create(metaWindow));
-        }
-    }
-}
 
 function createModifierHints(SETTINGS, selectedTabCount) {
     const { bring_modifier, send_modifier } = SETTINGS;

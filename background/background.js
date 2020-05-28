@@ -74,10 +74,9 @@ async function onRequest(request) {
     // From popup/popup.js
     if (request.popup) {
         return {
-            SETTINGS: Settings.SETTINGS,
-            metaWindows: Metadata.windows,
-            currentWindowId: Metadata.focusedWindow.id,
-            sortedWindowIds: Metadata.sortedWindowIds(),
+            SETTINGS:         Settings.SETTINGS,
+            metaWindows:      Object.values(Metadata.windows),
+            currentWindowId:  Metadata.focusedWindow.id,
             selectedTabCount: (await WindowTab.getSelectedTabs()).length,
         };
     }
