@@ -1,4 +1,4 @@
-import { hasClass, addClass, changeClass, toggleClass } from '../utils.js';
+import { hasClass, addClass, toggleClass } from '../utils.js';
 import { $currentWindowList, $otherWindowsList, $footer, unsetActionAttr } from './popup.js';
 import { $omnibox } from './omnibox.js';
 import * as Count from './count.js'; // Runs './status.js'
@@ -78,7 +78,7 @@ const row = {
 
         // Add data
         if (isCurrent) {
-            changeClass('otherRow', 'currentRow', $row);
+            $row.classList.replace('otherRow', 'currentRow');
             this.disableElement($row);
         }
         $row._id = id;
