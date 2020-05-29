@@ -26,10 +26,9 @@ export function handleKeyUp(key, event) {
             if (command) commands[command]();
         }
     } else {
-        const $firstMatchRow = filterRows(str);
-        if (enter && $firstMatchRow) {
-            Popup.requestAction(event, $firstMatchRow);
-        }
+        filterRows(str);
+        const $firstRow = Popup.$otherWindowRows.find($row => !$row.hidden);
+        if (enter && $firstRow) Popup.requestAction(event, $firstRow);
     }
 }
 
@@ -45,25 +44,37 @@ function completeCommand(str) {
     }
 }
 
-// Hide rows whose names do not contain str, case-insensitive. Returns first matching row or null.
+// Hide rows whose names do not contain str, case-insensitive. Shown rows are sorted by name length, shortest first.
 function filterRows(str) {
-    let $firstMatchRow;
-    if (str) {
-        str = str.toUpperCase();
-        for (const $row of Popup.$otherWindowRows) {
-            const isMatch = Popup.getDisplayName($row).toUpperCase().includes(str);
-            $row.hidden = !isMatch;
-            $firstMatchRow = $firstMatchRow || (isMatch ? $row : null); // if not already found, it's this row
+    if (!str) return showAllRows();
+    str = str.toUpperCase();
+    let $filteredRows = [];
+    for (const $row of Popup.$otherWindowRows) {
+        const name = Popup.getDisplayName($row).toUpperCase();
+        const isMatch = name.includes(str);
+        $row.hidden = !isMatch;
+        if (isMatch) {
+            $row._nameLength = name.length;
+            $filteredRows.push($row);
         }
-    } else {
-        showAllRows();
-        $firstMatchRow = Popup.$otherWindowRows[0];
     }
-    return $firstMatchRow;
+    // Sort filtered rows and move them to the end of the list
+    $filteredRows.sort(($a, $b) => $a._nameLength - $b._nameLength);
+    for (const $row of $filteredRows) {
+        Popup.$otherWindowsList.appendChild($row);
+    }
 }
 
+// Restore hidden rows and original sort order.
+// Compare 'live' $otherWindowsList.children against correctly sorted $otherWindowRows.
 export function showAllRows() {
-    Popup.$otherWindowRows.forEach($row => $row.hidden = false);
+    Popup.$otherWindowRows.forEach(($correctRow, index) => {
+        $correctRow.hidden = false;
+        const $row = Popup.$otherWindowsList.children[index];
+        if ($row !== $correctRow) {
+            Popup.$otherWindowsList.insertBefore($correctRow, $row);
+        }
+    });
 }
 
 export function info(str = '') {

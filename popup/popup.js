@@ -67,8 +67,10 @@ function onKeyUp(event) {
     inputEnterCheck.up(key, $target);
     if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
     if (isRow($target) && (key === 'Enter' || key === ' ')) return requestAction(event, $target);
-    Omnibox.info();
-    Omnibox.handleKeyUp(key, event);
+    if ($target === $omnibox) {
+        Omnibox.info();
+        Omnibox.handleKeyUp(key, event);
+    }
 }
 
 function onFocusOut(event) {
