@@ -1,4 +1,4 @@
-import * as Popup from './popup.js';
+import { $otherWindowsList, $otherWindowRows, getDisplayName, requestAction } from './popup.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
 
@@ -27,8 +27,8 @@ export function handleKeyUp(key, event) {
         }
     } else {
         filterRows(str);
-        const $firstRow = Popup.$otherWindowRows.find($row => !$row.hidden);
-        if (enter && $firstRow) Popup.requestAction(event, $firstRow);
+        const $firstRow = $otherWindowRows.find($row => !$row.hidden);
+        if (enter && $firstRow) requestAction(event, $firstRow);
     }
 }
 
@@ -49,8 +49,8 @@ function filterRows(str) {
     if (!str) return showAllRows();
     str = str.toUpperCase();
     let $filteredRows = [];
-    for (const $row of Popup.$otherWindowRows) {
-        const name = Popup.getDisplayName($row).toUpperCase();
+    for (const $row of $otherWindowRows) {
+        const name = getDisplayName($row).toUpperCase();
         const isMatch = name.includes(str);
         $row.hidden = !isMatch;
         if (isMatch) {
@@ -61,18 +61,18 @@ function filterRows(str) {
     // Sort filtered rows and move them to the end of the list
     $filteredRows.sort(($a, $b) => $a._nameLength - $b._nameLength);
     for (const $row of $filteredRows) {
-        Popup.$otherWindowsList.appendChild($row);
+        $otherWindowsList.appendChild($row);
     }
 }
 
 // Restore hidden rows and original sort order.
 // Compare 'live' $otherWindowsList.children against correctly sorted $otherWindowRows.
 export function showAllRows() {
-    Popup.$otherWindowRows.forEach(($correctRow, index) => {
+    $otherWindowRows.forEach(($correctRow, index) => {
         $correctRow.hidden = false;
-        const $row = Popup.$otherWindowsList.children[index];
+        const $row = $otherWindowsList.children[index];
         if ($row !== $correctRow) {
-            Popup.$otherWindowsList.insertBefore($correctRow, $row);
+            $otherWindowsList.insertBefore($correctRow, $row);
         }
     });
 }
