@@ -97,7 +97,8 @@ const inputEnterCheck = {
 function showModifierHint(key) {
     if (key === 'Control') key = 'Ctrl';
     const hint = modifierHints[key];
-    return Omnibox.info(hint);
+    Omnibox.info(hint);
+    return hint;
 }
 
 // Given a $row or any of its child elements, get the displayName.

@@ -86,7 +86,6 @@ export function clear() {
 
 export function info(str = '') {
     $omnibox.placeholder = str;
-    return str;
 }
 
 export function disable(yes) {
