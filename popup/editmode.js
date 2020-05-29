@@ -55,9 +55,9 @@ const general = {
     },
 
     activate() {
-        this.toggle(true);
+        Omnibox.clear();
         Omnibox.showAllRows();
-        Omnibox.$omnibox.value = '';
+        this.toggle(true);
     },
 
     deactivate() {

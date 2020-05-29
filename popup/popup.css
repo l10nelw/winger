@@ -124,7 +124,9 @@ input:-moz-read-only::placeholder {
     color: var(--fgc-private);
 }
 
-
+.slashCommand {
+    background-color: yellow;
+}
 
 
 /* --- Button --- */

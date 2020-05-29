@@ -1,6 +1,7 @@
 import { $otherWindowsList, $otherWindowRows, getDisplayName, requestAction } from './popup.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
+import { toggleClass } from '../utils.js';
 
 export const $omnibox = document.getElementById('omnibox');
 
@@ -15,14 +16,15 @@ export function handleKeyUp(key, event) {
     const enter = key === 'Enter' && $omnibox._enter;
     if (enter) $omnibox._enter = false;
     const str = $omnibox.value;
-    if (str[0] === '/') {
-        // Handle slash command
+    const isSlashed = str[0] === '/';
+    toggleClass('slashCommand', $omnibox, isSlashed);
+    if (isSlashed) {
         let command;
         if (!nonCompletingKeys.includes(key)) {
             command = completeCommand(str);
         }
         if (enter) {
-            $omnibox.value = '';
+            clear();
             if (command) commands[command]();
         }
     } else {
@@ -75,6 +77,11 @@ export function showAllRows() {
             $otherWindowsList.insertBefore($correctRow, $row);
         }
     });
+}
+
+export function clear() {
+    $omnibox.value = omnibox.placeholder = '';
+    toggleClass('slashCommand', $omnibox, false);
 }
 
 export function info(str = '') {
