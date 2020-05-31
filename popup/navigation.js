@@ -1,12 +1,12 @@
-import { isButton } from '../utils.js';
-import { $currentWindowRow, $otherWindowsList, $footer, isRow, getActionAttr } from './popup.js';
+import { $currentWindowRow, $otherWindowsList, $toolbar, isRow, getActionAttr } from './popup.js';
 import { $omnibox } from './omnibox.js';
+import { isButton } from '../utils.js';
 
 const isFocusable = $el => $el.tabIndex !== -1 && !$el.hidden;
 
 export default function navigateByArrow(key, $el) {
-    if (!(key in navigator)) return;
     const navigatorKey = navigator[key];
+    if (!navigatorKey) return;
     do { $el = navigatorKey($el) } while (!isFocusable($el));
     $el.focus();
     return true;
@@ -14,29 +14,29 @@ export default function navigateByArrow(key, $el) {
 
 const navigator = {
     ArrowDown($el) {
-        if (isFooter($el)) return currentWindow();
+        if (isToolbar($el)) return currentWindow();
         if (isCurrentWindow($el)) return $omnibox;
-        if ($el === $omnibox) return rowOrButton($otherWindowsList.firstElementChild) || footer();
+        if ($el === $omnibox) return rowOrButton($otherWindowsList.firstElementChild) || toolbar();
         const $next = ($el.$row || $el).nextElementSibling;
-        return rowOrButton($next) || footer();
+        return rowOrButton($next) || toolbar();
     },
     ArrowUp($el) {
         if ($el === $omnibox) return currentWindow();
-        if (isCurrentWindow($el)) return footer();
-        if (isFooter($el)) return rowOrButton($otherWindowsList.lastElementChild) || $omnibox;
+        if (isCurrentWindow($el)) return toolbar();
+        if (isToolbar($el)) return rowOrButton($otherWindowsList.lastElementChild) || $omnibox;
         const $next = ($el.$row || $el).previousElementSibling;
         return rowOrButton($next) || $omnibox;
     },
     ArrowRight($el) {
         if ($el === $omnibox) return $omnibox;
-        if (isFooter($el)) return $el.nextElementSibling || $footer.firstElementChild;
+        if (isToolbar($el)) return $el.nextElementSibling || $toolbar.firstElementChild;
         const $next = isRow($el) ? $el.firstElementChild : ($el.nextElementSibling || $el.parentElement);
         setButton($next);
         return $next;
     },
     ArrowLeft($el) {
         if ($el === $omnibox) return $omnibox;
-        if (isFooter($el)) return $el.previousElementSibling || $footer.lastElementChild;
+        if (isToolbar($el)) return $el.previousElementSibling || $toolbar.lastElementChild;
         const $next = isRow($el) ? $el.lastElementChild : ($el.previousElementSibling || $el.parentElement);
         setButton($next);
         return $next;
@@ -51,7 +51,7 @@ function setButton($el) {
     if (action) button = isButton($el) ? `$${action}` : null;
 }
 
-// Take and return the same row, unless a button can be returned instead.
+// Take and return the same row (otherWindow), unless a button can be returned instead.
 function rowOrButton($row) {
     if ($row) return $row[button] || $row;
 }
@@ -67,14 +67,14 @@ function currentWindow() {
     return $btn || $currentWindowRow;
 }
 
-function footer() {
-    return $footer.firstElementChild || $footer;
+function toolbar() {
+    return $toolbar.firstElementChild || $toolbar;
 }
 
 function isCurrentWindow($el) {
     return $el.$row === $currentWindowRow || $el === $currentWindowRow;
 }
 
-function isFooter($el) {
-    return $el.parentElement === $footer || $el === $footer;
+function isToolbar($el) {
+    return $el.parentElement === $toolbar || $el === $toolbar;
 }

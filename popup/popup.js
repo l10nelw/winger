@@ -14,9 +14,8 @@ import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
 
 export const $body = document.body;
-export const $currentWindowList = document.getElementById('currentWindow');
 export const $otherWindowsList = document.getElementById('otherWindows');
-export const $footer = $body.querySelector('footer');
+export const $toolbar = $body.querySelector('footer');
 const $omnibox = Omnibox.$omnibox;
 
 export const isRow = $el => $el && $el._id;

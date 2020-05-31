@@ -1,8 +1,10 @@
 import { hasClass, addClass, toggleClass } from '../utils.js';
-import { $currentWindowList, $otherWindowsList, $footer, unsetActionAttr } from './popup.js';
+import { $otherWindowsList, $toolbar, unsetActionAttr } from './popup.js';
 import { $omnibox } from './omnibox.js';
 import * as Count from './count.js'; // Runs './status.js'
 import * as Tooltip from './tooltip.js';
+
+const $currentWindowList = document.getElementById('currentWindow');
 
 export default async function init() {
     const { SETTINGS, metaWindows, currentWindowId, selectedTabCount } = await browser.runtime.sendMessage({ popup: true });
@@ -24,7 +26,7 @@ export default async function init() {
 
     $omnibox.hidden = false;
     $otherWindowsList.hidden = false;
-    $footer.hidden = false;
+    $toolbar.hidden = false;
 
     $omnibox.focus();
     alignWithScrollbar($currentWindowList, $otherWindowsList);
@@ -118,7 +120,7 @@ const footer = {
         }
         for (const [element, selector] of Object.entries(elements)) {
             if (SETTINGS[element]) continue;
-            $footer.querySelector(selector).remove();
+            $toolbar.querySelector(selector).remove();
         }
     },
 };
