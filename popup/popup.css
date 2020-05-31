@@ -89,11 +89,14 @@ body[data-editmode="false"] .otherRow:focus-within {
 
 /* --- Input field --- */
 
+input {
+    padding: 0 6px;
+    text-align: start;
+}
+
 .input {
     width: var(--width-input);
     margin-left: .25rem;
-    padding: 0 6px;
-    text-align: start;
 }
 
 input:disabled::placeholder,
@@ -107,13 +110,8 @@ input:-moz-read-only::placeholder {
     cursor: default;
 }
 
-.currentRow .input {
+.currentRow:not(.editModeRow) .input {
     font-weight: bold;
-}
-
-.currentRow.editModeRow .input {
-    padding: 0;
-    font-weight: normal;
 }
 
 .inputError {
@@ -125,8 +123,11 @@ input:-moz-read-only::placeholder {
 }
 
 .slashCommand {
-    background-color: yellow;
+    background-color: var(--bgc-slashinput);
+    border: none;
 }
+
+
 
 
 /* --- Button --- */
