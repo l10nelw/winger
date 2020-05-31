@@ -29,7 +29,7 @@ export function handleKeyUp(key, event) {
         }
     } else {
         filterRows(str);
-        const $firstRow = $otherWindowsList.children.find($row => !$row.hidden);
+        const $firstRow = [...$otherWindowsList.children].find($row => !$row.hidden);
         if (enter && $firstRow) requestAction(event, $firstRow);
     }
 }
