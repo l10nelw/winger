@@ -8,10 +8,11 @@ import * as Settings from './settings.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
-// import * as Badge from './badge.js';
+import * as Badge from './badge.js';
 import * as Menu from './menu.js';
 import * as Title from './title.js';
-const WindowParts = [Title, Menu];
+const WindowParts = [Badge, Menu, Title];
+
 // Object.assign(window, { WindowTab }); // for debugging
 
 init();
