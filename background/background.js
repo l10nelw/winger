@@ -1,6 +1,6 @@
 /*
 - Data created and used by this webextension pertaining to a window are 'metadata' and an object collecting them is a
-  'metawindow'. The metawindows live in Metadata.windows as the webextension's source-of-truth.
+  'metawindow'. The metawindows live in Metadata.windowMap as the webextension's source-of-truth.
 - Window objects returned by the WebExtensions API are named windowObject to avoid confusion with the global window object.
 */
 
@@ -56,14 +56,14 @@ function onWindowRemoved(windowId) {
 
 function onWindowFocused(windowId) {
     if (isWindowBeingCreated(windowId)) return;
-    Metadata.windows[windowId].lastFocused = Date.now();
+    Metadata.windowMap[windowId].lastFocused = Date.now();
     Menu.show(Metadata.focusedWindow.id);
     Metadata.focusedWindow.id = windowId;
     Menu.hide(windowId);
 }
 
 function isWindowBeingCreated(windowId) {
-    return !(windowId in Metadata.windows);
+    return !(windowId in Metadata.windowMap);
 }
 
 function onTabDetached(tabId, { oldWindowId }) {
@@ -76,7 +76,7 @@ async function onRequest(request) {
     if (request.popup) {
         return {
             SETTINGS:         Settings.SETTINGS,
-            metaWindows:      Object.values(Metadata.windows),
+            metaWindows:      Object.values(Metadata.windowMap),
             currentWindowId:  Metadata.focusedWindow.id,
             selectedTabCount: (await WindowTab.getSelectedTabs()).length,
         };

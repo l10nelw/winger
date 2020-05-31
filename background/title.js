@@ -1,4 +1,4 @@
-import { windows as metaWindows } from './metadata.js';
+import { windowMap } from './metadata.js';
 
 export function init() {}
 
@@ -8,5 +8,5 @@ export function update(windowId) {
 export { update as create };
 
 function windowTitle(windowId) {
-    return `${metaWindows[windowId].displayName} - `;
+    return `${windowMap[windowId].displayName} - `;
 }
