@@ -29,7 +29,7 @@ export function handleKeyUp(key, event) {
         }
     } else {
         filterRows(str);
-        const $firstRow = $otherWindowRows.find($row => !$row.hidden);
+        const $firstRow = [...$otherWindowsList.children].find($row => !$row.hidden);
         if (enter && $firstRow) requestAction(event, $firstRow);
     }
 }
@@ -62,9 +62,7 @@ function filterRows(str) {
     }
     // Sort filtered rows and move them to the end of the list
     $filteredRows.sort(($a, $b) => $a._nameLength - $b._nameLength);
-    for (const $row of $filteredRows) {
-        $otherWindowsList.appendChild($row);
-    }
+    $filteredRows.forEach($otherWindowsList.appendChild);
 }
 
 // Restore hidden rows and original sort order.
