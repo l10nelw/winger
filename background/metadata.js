@@ -38,21 +38,12 @@ function createMetaWindow({ id, incognito }) {
 
 async function nameMetaWindows(windowIds) {
     await Promise.all(windowIds.map(restoreGivenName));
-    setDefaultAndDisplayNames(windowIds);
+    windowIds.forEach(windowId => windowMap[windowId].defaultName = createDefaultName(windowId));
 }
 
 async function restoreGivenName(windowId) {
     const givenName = await browser.sessions.getWindowValue(windowId, 'givenName');
     windowMap[windowId].givenName = givenName || '';
-}
-
-function setDefaultAndDisplayNames(windowIds) {
-    for (const windowId of windowIds) {
-        const metaWindow = windowMap[windowId];
-        const name = createDefaultName(windowId);
-        metaWindow.defaultName = name;
-        metaWindow.displayName = metaWindow.givenName || name;
-    }
 }
 
 function createDefaultName(windowId) {
@@ -67,15 +58,18 @@ export function remove(windowId) {
     delete windowMap[windowId];
 }
 
+export function getName(windowId) {
+    const metaWindow = windowMap[windowId];
+    return metaWindow.givenName || metaWindow.defaultName;
+}
+
 // Validate and store givenName for target window.
-// Automatically sets displayName.
 // Returns 0 if successful, otherwise returns output of isInvalidName().
 export function giveName(windowId, name = '') {
     const metaWindow = windowMap[windowId];
     const error = isInvalidName(windowId, name);
     if (error) return error;
     metaWindow.givenName = name;
-    metaWindow.displayName = name || metaWindow.defaultName;
     browser.sessions.setWindowValue(windowId, 'givenName', name);
     return 0;
 }
