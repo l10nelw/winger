@@ -1,5 +1,5 @@
 import { SETTINGS } from './settings.js';
-import { windowMap } from './metadata.js';
+import { getName } from './metadata.js';
 
 export function init() {
     if (!SETTINGS.show_badge) return;
@@ -9,7 +9,6 @@ export function init() {
 
 export function update(windowId) {
     if (!SETTINGS.show_badge) return;
-    const text = `${windowMap[windowId].displayName}`;
-    browser.browserAction.setBadgeText({ windowId, text });
+    browser.browserAction.setBadgeText({ windowId, text: getName(windowId) });
 }
 export { update as create };

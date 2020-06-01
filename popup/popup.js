@@ -100,8 +100,8 @@ function showModifierHint(key) {
     return hint;
 }
 
-// Given a $row or any of its child elements, get the displayName.
-export function getDisplayName($rowElement) {
+// Given a $row or any of its child elements, get the givenName or defaultName.
+export function getName($rowElement) {
     const $input = hasClass('input', $rowElement) && $rowElement || $rowElement.$input || $rowElement.$row.$input;
     return $input.value || $input.placeholder;
 }
