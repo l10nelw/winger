@@ -1,9 +1,9 @@
 /*
 - A window is represented in the popup as a 'row', which is represented by an HTML list item (<li>).
-- All relevant data are embedded and managed within the popup's DOM structure. No separate, representative dataset
-  to be maintained in parallel with the DOM (apart from Metadata in the background).
+- All relevant data are embedded and managed within the popup's DOM structure. No separate, representative dataset to
+  be maintained in parallel with the DOM (apart from Metadata in the background).
 - A variable prefixed with '$' references a DOM node or a collection of DOM nodes.
-- Some DOM nodes have custom properties (expandos), prefixed with '_', to concisely store and pass around data.
+- Some DOM nodes have custom properties (expandos) prefixed with '_' or '$', to store and pass around data.
 */
 
 import { isInput, hasClass, getModifiers } from '../utils.js';
