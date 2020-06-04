@@ -27,6 +27,10 @@ export async function add(windowObject) {
     await nameMetaWindows([windowId]);
 }
 
+export function remove(windowId) {
+    delete windowMap[windowId];
+}
+
 function createMetaWindow({ id, incognito }) {
     return {
         id,
@@ -52,10 +56,6 @@ function createDefaultName(windowId) {
         name = `Window ${++lastWindowNumber}`;
     } while (nameExists(windowId, name));
     return name;
-}
-
-export function remove(windowId) {
-    delete windowMap[windowId];
 }
 
 export function getName(windowId) {
