@@ -17,12 +17,12 @@ const WindowParts = [Badge, Menu, Title];
 
 init();
 setIconTitle();
-browser.runtime.onInstalled.addListener(onExtInstalled);
-browser.windows.onCreated.addListener(onWindowCreated);
-browser.windows.onRemoved.addListener(onWindowRemoved);
-browser.windows.onFocusChanged.addListener(onWindowFocused);
-browser.tabs.onDetached.addListener(onTabDetached);
-browser.runtime.onMessage.addListener(onRequest);
+browser.runtime.onInstalled.addListener    (onExtInstalled);
+browser.windows.onCreated.addListener      (onWindowCreated);
+browser.windows.onRemoved.addListener      (onWindowRemoved);
+browser.windows.onFocusChanged.addListener (onWindowFocused);
+browser.tabs.onDetached.addListener        (onTabDetached);
+browser.runtime.onMessage.addListener      (onRequest);
 
 async function init() {
     const [windowObjects,] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
@@ -58,8 +58,8 @@ function onWindowFocused(windowId) {
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windowMap[windowId].lastFocused = Date.now();
     Menu.show(Metadata.focusedWindow.id);
-    Metadata.focusedWindow.id = windowId;
     Menu.hide(windowId);
+    Metadata.focusedWindow.id = windowId;
 }
 
 function isWindowBeingCreated(windowId) {
