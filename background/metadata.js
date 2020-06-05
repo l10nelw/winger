@@ -6,6 +6,7 @@ export const lastDetach = {
         this.oldWindowId = oldWindowId;
     }
 };
+export const defaultNameHead = 'Window ';
 const invalidCharsNameRegex = /^\//;
 let lastWindowNumber = 0;
 
@@ -54,7 +55,7 @@ async function restoreGivenName(windowId) {
 function createDefaultName(windowId) {
     let name;
     do {
-        name = `Window ${++lastWindowNumber}`;
+        name = defaultNameHead + (++lastWindowNumber);
     } while (nameExists(windowId, name));
     return name;
 }
