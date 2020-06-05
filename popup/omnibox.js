@@ -62,7 +62,7 @@ function filterRows(str) {
     }
     // Sort filtered rows and move them to the end of the list
     $filteredRows.sort(($a, $b) => $a._nameLength - $b._nameLength);
-    $filteredRows.forEach($otherWindowsList.appendChild);
+    $filteredRows.forEach($row => $otherWindowsList.appendChild($row));
 }
 
 // Restore hidden rows and original sort order.
