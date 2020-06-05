@@ -28,7 +28,7 @@ async function init() {
     const [windowObjects,] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
     WindowParts.forEach(part => part.init());
     await Metadata.init(windowObjects);
-    windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
+    windowObjects.forEach(onWindowCreated);
 }
 
 async function setIconTitle() {
@@ -41,8 +41,8 @@ function onExtInstalled(details) {
     if (details.reason === 'install') WindowTab.openHelp();
 }
 
-async function onWindowCreated(windowObject, isInit) {
-    if (!isInit) await Metadata.add(windowObject);
+async function onWindowCreated(windowObject) {
+    await Metadata.add(windowObject);
     const windowId = windowObject.id;
     WindowParts.forEach(part => part.create(windowId));
     WindowTab.maximizeTearOffWindow(windowId);

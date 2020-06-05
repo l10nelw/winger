@@ -23,6 +23,7 @@ export async function init(windowObjects) {
 
 export async function add(windowObject) {
     const windowId = windowObject.id;
+    if (windowId in windowMap) return;
     windowMap[windowId] = createMetaWindow(windowObject);
     await nameMetaWindows([windowId]);
 }
