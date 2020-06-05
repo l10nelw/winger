@@ -26,7 +26,7 @@ browser.runtime.onMessage.addListener      (onRequest);
 
 async function init() {
     const [windowObjects,] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
-    WindowParts.forEach(part => part.init());
+    WindowParts.forEach(part => part.init && part.init());
     await Metadata.init(windowObjects);
     windowObjects.forEach(onWindowCreated);
 }
