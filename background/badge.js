@@ -14,7 +14,6 @@ export function update(windowId) {
     browser.browserAction.setBadgeTextColor({ windowId, color: textColor });
     browser.browserAction.setBadgeText({ windowId, text });
 }
-export { update as create };
 
 const defaultTextIndex = defaultNameHead.length;
 const defaultText = metaWindow => '#' + metaWindow.defaultName.slice(defaultTextIndex);

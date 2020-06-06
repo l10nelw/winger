@@ -11,7 +11,6 @@ import * as WindowTab from './windowtab.js';
 import * as Badge from './badge.js';
 import * as Menu from './menu.js';
 import * as Title from './title.js';
-const WindowParts = [Badge, Menu, Title];
 
 // Object.assign(window, { WindowTab }); // for debugging
 
@@ -26,7 +25,7 @@ browser.runtime.onMessage.addListener      (onRequest);
 
 async function init() {
     const [windowObjects,] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
-    WindowParts.forEach(part => part.init && part.init());
+    Menu.init();
     await Metadata.init(windowObjects);
     windowObjects.forEach(onWindowCreated);
 }
@@ -44,7 +43,9 @@ function onExtInstalled(details) {
 async function onWindowCreated(windowObject) {
     await Metadata.add(windowObject);
     const windowId = windowObject.id;
-    WindowParts.forEach(part => part.create(windowId));
+    Menu.create(windowId);
+    Badge.update(windowId);
+    Title.update(windowId);
     WindowTab.maximizeTearOffWindow(windowId);
     if (windowObject.focused) onWindowFocused(windowId);
 }
@@ -62,9 +63,7 @@ function onWindowFocused(windowId) {
     Metadata.focusedWindow.id = windowId;
 }
 
-function isWindowBeingCreated(windowId) {
-    return !(windowId in Metadata.windowMap);
-}
+const isWindowBeingCreated = windowId => !(windowId in Metadata.windowMap);
 
 function onTabDetached(tabId, { oldWindowId }) {
     Metadata.lastDetach.set(tabId, oldWindowId);
@@ -88,7 +87,7 @@ async function onRequest(request) {
     if (request.giveName) {
         const windowId = request.windowId;
         const error = await Metadata.giveName(windowId, request.name);
-        if (!error) WindowParts.forEach(part => part.update(windowId));
+        if (!error) [Badge, Menu, Title].forEach(module => module.update(windowId));
         return error;
     }
 }
