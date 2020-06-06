@@ -194,7 +194,7 @@ body[data-editmode="true"] li button:not(.edit) {
 /* --- Status bar --- */
 
 #status {
-    padding: .25rem .5rem;
+    border: .25rem solid transparent;
     color: var(--fgc-muted);
     white-space: nowrap;
     overflow: hidden;
@@ -219,7 +219,7 @@ footer {
 }
 
 footer button {
-    height: calc(var(--height-row) + 1px); /* Fix mystery extra 1px on Windows */
+    height: var(--height-row);
     flex: 1 1 auto;
     border: none;
     text-align: center;
