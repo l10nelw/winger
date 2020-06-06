@@ -14,10 +14,10 @@ const DEFAULT = {
     popup_help: true,
     popup_settings: true,
 
+    show_badge: true,
+
     enable_link_menu: true,
     enable_tab_menu: true,
-
-    show_badge: true,
 
 };
 
