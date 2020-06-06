@@ -12,7 +12,7 @@ import * as Badge from './badge.js';
 import * as Menu from './menu.js';
 import * as Title from './title.js';
 
-// Object.assign(window, { WindowTab }); // for debugging
+// Object.assign(window, { Metadata }); // for debugging
 
 init();
 setIconTitle();
