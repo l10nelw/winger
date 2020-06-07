@@ -1,8 +1,8 @@
 /* * { outline: 1px solid red; } */
 :root {
-    --width-body: 250px;
+    --width-body: 220px;
     --width-btn: 30px;
-    --width-input: 190px;
+    --width-input: 160px;
     --width-tabcount: 20px;
     --height-row: 36px;
     --bgc-base: #eee;

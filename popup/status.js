@@ -22,5 +22,5 @@ function tabCountText() {
     const windows = count.windows;
     const is1tab = tabs == 1;
     const is1window = windows == 1;
-    return `${tabs} ${is1tab ? 'tab' : 'tabs'} ${is1window ? 'in' : 'across'} ${windows} ${is1window ? 'window' : 'windows'}`;
+    return `${tabs} ${is1tab ? 'tab' : 'tabs'} ${windows} ${is1window ? 'window' : 'windows'}`;
 }
