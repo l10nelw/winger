@@ -1,7 +1,7 @@
-import { lastDetach, windows as metaWindows } from './metadata.js';
+import { lastDetach, windowMap } from './metadata.js';
 import { SETTINGS } from './settings.js';
 
-const isPrivate = x => isNaN(x) ? x.incognito : metaWindows[x].incognito;
+const isPrivate = x => isNaN(x) ? x.incognito : windowMap[x].incognito;
 const samePrivateStatus = (windowIdOrObject1, windowIdOrObject2) => isPrivate(windowIdOrObject1) === isPrivate(windowIdOrObject2);
 
 const unpinTab  = tabId => browser.tabs.update(tabId, { pinned: false });

@@ -1,19 +1,19 @@
 import { SETTINGS } from './settings.js';
-import { windows as metaWindows } from './metadata.js';
+import { defaultNameHead, windowMap } from './metadata.js';
 
-let show;
-
-export function init() {
-    show = SETTINGS.show_badge;
-    if (show) {
-        browser.browserAction.setBadgeTextColor({ color: 'black' });
-        browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
-    }
-}
+// [bgColor, textColor]
+const unnamedWindowColors = ['black', 'white'];
+const namedWindowColors   = ['white', 'black'];
 
 export function update(windowId) {
-    if (!show) return;
-    const text = `${metaWindows[windowId].displayName}`;
+    if (!SETTINGS.show_badge) return;
+    const metaWindow = windowMap[windowId];
+    const name = metaWindow.givenName;
+    const [bgColor, textColor, text] = name && [...namedWindowColors, name] || [...unnamedWindowColors, defaultText(metaWindow)];
+    browser.browserAction.setBadgeBackgroundColor({ windowId, color: bgColor });
+    browser.browserAction.setBadgeTextColor({ windowId, color: textColor });
     browser.browserAction.setBadgeText({ windowId, text });
 }
-export { update as create };
+
+const defaultTextIndex = defaultNameHead.length;
+const defaultText = metaWindow => '#' + metaWindow.defaultName.slice(defaultTextIndex);

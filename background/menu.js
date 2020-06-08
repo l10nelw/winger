@@ -1,5 +1,5 @@
 import { SETTINGS } from './settings.js';
-import { windows as metaWindows } from './metadata.js';
+import { getName } from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
 let contexts = [];
@@ -38,7 +38,7 @@ async function moveTab(tab, windowId, originWindowId, modifiers) {
     WindowTab.doAction({ action: 'send', windowId, originWindowId, modifiers, tabs });
 }
 
-const menuTitle = windowId => `Send to ${metaWindows[windowId].displayName}`;
+const menuTitle = windowId => `Send to ${getName(windowId)}`;
 export const create = windowId => contexts.length && browser.menus.create({ id: `${windowId}`, title: menuTitle(windowId), contexts });
 export const remove = windowId => browser.menus.remove(`${windowId}`);
 export const hide   = windowId => browser.menus.update(`${windowId}`, { visible: false });

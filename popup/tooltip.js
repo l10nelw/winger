@@ -9,7 +9,7 @@ export function init(tabCount) {
     function memoisedRowName($row) {
         let name = rowNames.get($row);
         if (!name) {
-            name = Popup.getDisplayName($row);
+            name = Popup.getName($row);
             rowNames.set($row, name);
         }
         return name;

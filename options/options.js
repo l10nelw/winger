@@ -1,4 +1,4 @@
-import { hasClass } from '../utils.js';
+import { hasClass, addToGroup } from '../utils.js';
 import * as Settings from '../background/settings.js';
 
 const $form = document.body.querySelector('form');
@@ -57,12 +57,7 @@ function enableFields($field) {
 // For a $field with the data-toggled-by attribute: group it with others that share the same toggler.
 function addToggleGroup($field) {
     if (!('toggledBy' in $field.dataset)) return;
-    const toggler = $field.dataset.toggledBy;
-    if (toggler in toggleGroups) {
-        toggleGroups[toggler].push($field);
-    } else {
-        toggleGroups[toggler] = [$field];
-    }
+    addToGroup($field, $field.dataset.toggledBy, toggleGroups);
 }
 
 // For a $field with the data-toggler attribute: check/uncheck fields that are toggled by it.

@@ -12,3 +12,13 @@ export const toggleClass = (cls, $el, force) => $el && $el.classList.toggle(cls,
 // Element type
 export const isButton = $el => $el.tagName === 'BUTTON';
 export const isInput = $el => $el.tagName === 'INPUT';
+
+// Add item to groupMap according to groupId.
+// The groupMap should be an existing object that maps a groupId to an array of member items.
+export function addToGroup(item, groupId, groupMap) {
+    if (groupId in groupMap) {
+        groupMap[groupId].push(item);
+    } else {
+        groupMap[groupId] = [item];
+    }
+}

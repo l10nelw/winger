@@ -1,4 +1,4 @@
-import { $otherWindowsList, $otherWindowRows, getDisplayName, requestAction } from './popup.js';
+import { $otherWindowsList, $otherWindowRows, getName, requestAction } from './popup.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
 import { toggleClass } from '../utils.js';
@@ -52,7 +52,7 @@ function filterRows(str) {
     str = str.toUpperCase();
     let $filteredRows = [];
     for (const $row of $otherWindowRows) {
-        const name = getDisplayName($row).toUpperCase();
+        const name = getName($row).toUpperCase();
         const isMatch = name.includes(str);
         $row.hidden = !isMatch;
         if (isMatch) {
@@ -62,7 +62,7 @@ function filterRows(str) {
     }
     // Sort filtered rows and move them to the end of the list
     $filteredRows.sort(($a, $b) => $a._nameLength - $b._nameLength);
-    $filteredRows.forEach($otherWindowsList.appendChild);
+    $filteredRows.forEach($row => $otherWindowsList.appendChild($row));
 }
 
 // Restore hidden rows and original sort order.
