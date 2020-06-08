@@ -52,13 +52,13 @@ function onRightClick(event) {
 }
 
 function onKeyDown(event) {
-    let { key, target: $target } = event;
+    const { key, target: $target } = event;
     inputEnterCheck.down(key, $target);
     if (EditMode.$active) return;
     if (navigateByArrow(key, $target)) return;
     if (showModifierHint(key)) return;
     if (['Tab', 'Enter', ' '].includes(key)) return;
-    if (document.activeElement !== $omnibox) Omnibox.focus();
+    if ($target !== $omnibox) $omnibox.focus();
 }
 
 function onKeyUp(event) {
