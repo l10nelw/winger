@@ -38,6 +38,7 @@ ul {
     max-height: 30rem;
     overflow-x: hidden;
     overflow-y: auto;
+    scrollbar-width: thin;
 
     /* Scroll shadows */
     background:
