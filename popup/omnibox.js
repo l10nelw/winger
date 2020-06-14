@@ -1,7 +1,7 @@
 import { $otherWindowsList, $otherWindowRows, getName, requestAction } from './popup.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
-import { toggleClass } from '../utils.js';
+import { removeClass, toggleClass } from '../utils.js';
 
 export const $omnibox = document.getElementById('omnibox');
 
@@ -79,7 +79,7 @@ export function showAllRows() {
 
 export function clear() {
     $omnibox.value = omnibox.placeholder = '';
-    toggleClass('slashCommand', $omnibox, false);
+    removeClass('slashCommand', $omnibox);
 }
 
 export function info(str = '') {

@@ -7,6 +7,7 @@ export const getModifiers =
 // Forgiving* shorthands for element class methods. (*Silently does nothing if $el is undefined)
 export const hasClass = (cls, $el) => $el && $el.classList.contains(cls);
 export const addClass = (cls, $el) => $el && $el.classList.add(cls);
+export const removeClass = (cls, $el) => $el && $el.classList.remove(cls);
 export const toggleClass = (cls, $el, force) => $el && $el.classList.toggle(cls, force);
 
 // Element type
