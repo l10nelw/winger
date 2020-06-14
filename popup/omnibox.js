@@ -1,7 +1,7 @@
-import { $otherWindowsList, $otherWindowRows, getName, requestAction } from './popup.js';
+import { $currentWindowRow, $otherWindowsList, $otherWindowRows, getName, requestAction } from './popup.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
-import { removeClass, toggleClass } from '../utils.js';
+import { getScrollbarWidth, hasClass, addClass, removeClass, toggleClass } from '../utils.js';
 
 export const $omnibox = document.getElementById('omnibox');
 
@@ -49,6 +49,7 @@ function completeCommand(str) {
 // Hide rows whose names do not contain str, case-insensitive. Shown rows are sorted by name length, shortest first.
 function filterRows(str) {
     if (!str) return showAllRows();
+
     str = str.toUpperCase();
     let $filteredRows = [];
     for (const $row of $otherWindowRows) {
@@ -60,13 +61,19 @@ function filterRows(str) {
             $filteredRows.push($row);
         }
     }
+    
     // Sort filtered rows and move them to the end of the list
     $filteredRows.sort(($a, $b) => $a._nameLength - $b._nameLength);
     $filteredRows.forEach($row => $otherWindowsList.appendChild($row));
+
+    // Add offset if scrollbar disappears
+    if (hasClass('scrollbarOffset', $currentWindowRow) && !getScrollbarWidth($otherWindowsList)) {
+        addClass('scrollbarOffset', $otherWindowsList);
+    }
 }
 
-// Restore hidden rows and original sort order.
-// Compare 'live' $otherWindowsList.children against correctly sorted $otherWindowRows.
+// Reverse all changes by filterRows(): hidden rows, sort order, scrollbar offset.
+// Restore sort order by comparing 'live' $otherWindowsList.children against correctly sorted $otherWindowRows.
 export function showAllRows() {
     $otherWindowRows.forEach(($correctRow, index) => {
         $correctRow.hidden = false;
@@ -75,6 +82,7 @@ export function showAllRows() {
             $otherWindowsList.insertBefore($correctRow, $row);
         }
     });
+    removeClass('scrollbarOffset', $otherWindowsList);
 }
 
 export function clear() {

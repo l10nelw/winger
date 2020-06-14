@@ -1,4 +1,4 @@
-import { hasClass, addClass, toggleClass } from '../utils.js';
+import { getScrollbarWidth, hasClass, addClass, toggleClass } from '../utils.js';
 import { $otherWindowsList, $toolbar, unsetActionAttr } from './popup.js';
 import { $omnibox } from './omnibox.js';
 import * as Count from './count.js'; // Runs './status.js'
@@ -29,7 +29,7 @@ export default async function init() {
     $toolbar.hidden = false;
 
     $omnibox.focus();
-    alignWithScrollbar($currentWindowList, $otherWindowsList);
+    alignWithScrollbar($currentWindowRow, $otherWindowsList);
     lockHeight($otherWindowsList);
 
     return {
@@ -153,8 +153,10 @@ function resizeBody(buttonCount) {
 };
 
 function alignWithScrollbar($toAlign, $scrolling) {
-    const scrollbarWidth = $scrolling.offsetWidth - $scrolling.clientWidth;
-    if (scrollbarWidth) $toAlign.style.marginInlineEnd = `${scrollbarWidth}px`;
+    const scrollbarWidth = getScrollbarWidth($scrolling);
+    if (!scrollbarWidth) return;
+    document.styleSheets[0].insertRule(`.scrollbarOffset { margin-right: ${scrollbarWidth}px }`);
+    addClass('scrollbarOffset', $toAlign);
 }
 
 function lockHeight($el) {
