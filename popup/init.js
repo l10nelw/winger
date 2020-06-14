@@ -10,7 +10,7 @@ export default async function init() {
     const { SETTINGS, metaWindows, currentWindowId, selectedTabCount } = await browser.runtime.sendMessage({ popup: true });
 
     row.removeElements(SETTINGS);
-    footer.removeElements(SETTINGS);
+    toolbar.removeElements(SETTINGS);
 
     metaWindows.sort((a, b) => b.lastFocused - a.lastFocused);
     populate(metaWindows, currentWindowId);
@@ -111,7 +111,7 @@ const row = {
 
 };
 
-const footer = {
+const toolbar = {
     removeElements(SETTINGS) {
         const elements = {
             // setting:     selector
