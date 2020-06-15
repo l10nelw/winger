@@ -28,7 +28,7 @@ export function handleKeyUp(key, event) {
             if (command) commands[command]();
         }
     } else {
-        filterRows(str);
+        showFilteredRows(str);
         const $firstRow = [...$otherWindowsList.children].find($row => !$row.hidden);
         if (enter && $firstRow) requestAction(event, $firstRow);
     }
@@ -46,22 +46,14 @@ function completeCommand(str) {
     }
 }
 
-// Hide rows whose names do not contain str, case-insensitive. Shown rows are sorted by name length, shortest first.
-function filterRows(str) {
+// Show only rows whose names contain str, and sort them by name length, shortest first.
+function showFilteredRows(str) {
     if (!str) return showAllRows();
 
-    str = str.toUpperCase();
-    let $filteredRows = [];
-    for (const $row of $otherWindowRows) {
-        const name = getName($row).toUpperCase();
-        const isMatch = name.includes(str);
-        $row.hidden = !isMatch;
-        if (isMatch) {
-            $row._nameLength = name.length;
-            $filteredRows.push($row);
-        }
-    }
-    
+    // Show/hide rows and add name-length values to them
+    const $filteredRows = filterRows(str);
+    if (!$filteredRows.length) return;
+
     // Sort filtered rows and move them to the end of the list
     $filteredRows.sort(($a, $b) => $a._nameLength - $b._nameLength);
     $filteredRows.forEach($row => $otherWindowsList.appendChild($row));
@@ -72,7 +64,24 @@ function filterRows(str) {
     }
 }
 
-// Reverse all changes by filterRows(): hidden rows, sort order, scrollbar offset.
+// Hide rows whose names do not contain str, case-insensitive.
+// The rest are shown, given name-length expandos and returned as an array.
+function filterRows(str) {
+    str = str.toUpperCase();
+    const $filteredRows = [];
+    for (const $row of $otherWindowRows) {
+        const name = getName($row).toUpperCase();
+        const isMatch = name.includes(str);
+        $row.hidden = !isMatch;
+        if (isMatch) {
+            $row._nameLength = name.length;
+            $filteredRows.push($row);
+        }
+    }
+    return $filteredRows;
+}
+
+// Reverse all changes by showFilteredRows(): hidden rows, sort order, scrollbar offset.
 // Restore sort order by comparing 'live' $otherWindowsList.children against correctly sorted $otherWindowRows.
 export function showAllRows() {
     $otherWindowRows.forEach(($correctRow, index) => {
