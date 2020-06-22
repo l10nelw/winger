@@ -1,4 +1,4 @@
-export const sum = array => array.reduce((a, b) => a + b, 0);
+export const sum = (a, b) => a + b;
 
 export const getScrollbarWidth = $el => $el.offsetWidth - $el.clientWidth;
 

@@ -6,7 +6,7 @@ export const count = { tabs: 0, windows: 0 };
 
 export async function init($allWindowRows) {
     const tabCounts = await Promise.all($allWindowRows.map(getAndShow));
-    count.tabs = sum(tabCounts);
+    count.tabs = tabCounts.reduce(sum);
     count.windows = $allWindowRows.length;
     Status.update();
 
