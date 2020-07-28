@@ -1,8 +1,7 @@
 import { lastDetach, windowMap } from './metadata.js';
 import { SETTINGS } from './settings.js';
 
-const isPrivate = x => isNaN(x) ? x.incognito : windowMap[x].incognito;
-const samePrivateStatus = (windowIdOrObject1, windowIdOrObject2) => isPrivate(windowIdOrObject1) === isPrivate(windowIdOrObject2);
+const isSamePrivateStatus = (windowId1, windowId2) => windowMap[windowId1].incognito === windowMap[windowId2].incognito;
 
 const unpinTab  = tabId => browser.tabs.update(tabId, { pinned: false });
 const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
@@ -15,10 +14,10 @@ export const openHelp = () => openExtPage('help/help.html');
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
 export const switchWindow = windowId => browser.windows.update(windowId, { focused: true });
 
-const actionFunctions = {
+const actionMap = {
     bring:  bringTabs,
     send:   sendTabs,
-    switch: switchWindow
+    switch: switchWindow,
 };
 
 // Open extension page or switch to tab if already open
@@ -35,12 +34,12 @@ async function openExtPage(pathname) {
     }
 }
 
-// Select actionFunction to execute based on `action` and optionally `reopen` and `modifiers`, given `windowId`.
-export async function doAction({ action, windowId, originWindowId, modifiers, tabs }) {
-    const reopen = !samePrivateStatus(windowId, originWindowId);
+// Given `windowId`, select action to execute based on `action` and `modifiers`.
+export async function doAction({ windowId, originWindowId, action, modifiers, tabs }) {
+    const reopen = !isSamePrivateStatus(windowId, originWindowId);
     tabs = tabs || await getSelectedTabs();
     action = modifyAction(action, modifiers);
-    actionFunctions[action](windowId, tabs, reopen);
+    actionMap[action](windowId, tabs, reopen);
 }
 
 function modifyAction(action, modifiers) {
@@ -62,9 +61,9 @@ async function sendTabs(windowId, tabs, reopen) {
 }
 
 async function moveTabs(windowId, tabs) {
+    // const pinnedTabIds = movablePinnedTabs(tabs)?.map(tab => tab.id);  // Addon Validator does not support "?."
     const pinnedTabs = movablePinnedTabs(tabs);
     const pinnedTabIds = pinnedTabs ? pinnedTabs.map(tab => tab.id) : null;
-    // const pinnedTabIds = movablePinnedTabs(tabs)?.map(tab => tab.id);  // Addon Validator does not support "?."
     if (pinnedTabIds) await Promise.all(pinnedTabIds.map(unpinTab));
 
     const tabIds = tabs.map(tab => tab.id);
