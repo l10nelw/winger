@@ -14,6 +14,7 @@
     --borderc-focus: #4a90d9;
     --borderc-error: red;
     --bgc-slashinput: #ff6;
+    --bgc-editdone: lightgreen;
     --bgc-private: darkorchid;
     --fgc-private: purple;
 }
@@ -173,7 +174,7 @@ li button:focus {
 
 .editModeRow .edit {
     background-image: url("../icons/check.svg");
-    background-color: lightgreen;
+    background-color: var(--bgc-editdone);
 }
 
 body[data-editmode="true"] li button:not(.edit) {

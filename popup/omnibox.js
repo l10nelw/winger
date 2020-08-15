@@ -55,7 +55,7 @@ function showFilteredRows(str) {
     if (!$filteredRows.length) return;
 
     // Sort filtered rows and move them to the end of the list
-    $filteredRows.sort(($a, $b) => $a._nameLength - $b._nameLength);
+    $filteredRows.sort(compareNameLength);
     $filteredRows.forEach($row => $otherWindowsList.appendChild($row));
 
     // Add offset if scrollbar disappears
@@ -63,6 +63,8 @@ function showFilteredRows(str) {
         addClass('scrollbarOffset', $otherWindowsList);
     }
 }
+
+const compareNameLength = ($a, $b) => $a._nameLength - $b._nameLength;
 
 // Hide rows whose names do not contain str, case-insensitive.
 // The rest are shown, given name-length expandos and returned as an array.

@@ -14,7 +14,7 @@
       [type="checkbox"] {
         margin-right: .5rem;
       }
-      :disabled + span {
+      input:disabled + span {
         opacity: .5;
       }
       .indented {
@@ -30,7 +30,7 @@
     <form>
 
       <h2>Behaviour</h2>
-      <h3>Moving tabs (send &amp; bring)</h3>
+      <h3>Moving tabs (Send &amp; Bring)</h3>
       <label><input class="setting" type="checkbox" name="keep_moved_focused_tab_focused"> <span>When a focused tab is moved, make it the destination window's new focused tab</span></label>
       <label><input class="setting" type="checkbox" name="keep_moved_tabs_selected"> <span>When multiple selected tabs are moved, keep them selected in the destination window</span></label>
       <label><input class="setting" type="checkbox" name="move_pinned_tabs" data-enabler> <span>Allow pinned tabs to be moved</span></label>

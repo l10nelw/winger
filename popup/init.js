@@ -119,8 +119,7 @@ const toolbar = {
             popup_settings: '#settings',
         }
         for (const [element, selector] of Object.entries(elements)) {
-            if (SETTINGS[element]) continue;
-            $toolbar.querySelector(selector).remove();
+            if (!SETTINGS[element]) $toolbar.querySelector(selector).remove();
         }
     },
 };
