@@ -3,7 +3,99 @@
   <head>
     <meta charset="utf-8">
     <title>WinMan Quick Guide</title>
-    <link rel="stylesheet" href="help.css">
+    <style>
+      :root {
+        --border-theme-color: #ccc;
+      }
+
+      body {
+        /* background-color: black;
+        color: white; */
+        max-width: 70rem;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      h1, h2, h3, h4, p {
+        margin-top: 0;
+      }
+      h1, h2 {
+        margin-bottom: 2rem;
+      }
+      kbd {
+        font-size: larger;
+        font-weight: bold;
+      }
+      img {
+        vertical-align: middle;
+      }
+
+      .button {
+        background-color: #ccc;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .button img {
+        width: 90%;
+      }
+
+      .row { display: flex; }
+      .equal-col > .col { flex: 1; }
+
+      .collapse-box {
+        display: block;
+        padding: 1rem;
+        border: 3px solid var(--border-theme-color);
+        border-radius: 1rem;
+        cursor: pointer;
+      }
+      .collapse-head {
+        transition: color .2s;
+      }
+      .collapse-arrow {
+        transition: all .2s;
+      }
+      .collapse-hide:checked ~ .collapse-body {
+        display: none;
+      }
+      .collapse-hide:checked ~ .collapse-head {
+        color: var(--border-theme-color);
+      }
+      .collapse-hide:checked ~ .collapse-head > .collapse-arrow {
+        transform: rotate(.5turn);
+        border-bottom-color: var(--border-theme-color);
+      }
+      .arrow-up {
+        width: 0;
+        height: 0;
+        border-top: none;
+        border-bottom: 12px solid black;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        margin: 0 5px;
+      }
+
+      .light-border { border: 1px solid #ccc; }
+      .left-mark-border { border-left: 3px solid var(--border-theme-color); }
+
+      .lastchild-mb-0 > :last-child { margin-bottom: 0; }
+      .m-0 { margin: 0; }
+      .mr-1 { margin-right: 1rem; }
+      .mx-1 { margin-left: 1rem; margin-right: 1rem; }
+      .mb-1 { margin-bottom: 1rem; }
+      .mb-2 { margin-bottom: 2rem; }
+      .mb-5 { margin-bottom: 5rem; }
+      .pt-2 { padding-top: 2rem; }
+      .pl-1 { padding-left: 1rem; }
+      .ai-center { align-items: center; }
+      .center { text-align: center; }
+      .small { font-size: small; }
+      .unbold { font-weight: normal; }
+    </style>
   </head>
   <body>
 
@@ -12,225 +104,210 @@
       <h1>WinMan (Window Manager) <small class="js-version"></small><br>Quick Guide</h1>
     </header>
 
-    <div id="content">
-      <div><aside class="sticky-top"></aside></div>
-      <main>
+    <label class="collapse-box mb-5">
+      <input type="checkbox" class="collapse-hide" hidden>
+      <div class="row ai-center collapse-head">
+        <h2 class="col m-0" style="flex: 1">First, a few things you should know how to do on your browser...</h2>
+        <div class="col collapse-arrow arrow-up"></div>
+      </div>
+      <div class="collapse-body pt-2">
 
-        <section class="mb-5">
-          <h2>Introduction</h2>
-          <p>You either installed WinMan because you already have more than one browser window open and need help managing them, or you are looking for a way to
-            wrangle your hundreds of tabs but never considered using multiple windows before.</p>
+        <section class="mb-2">
+          <h3>&bull; Create a new window</h3>
+          <div class="row equal-col">
+            <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
+              <h4 class="js-cmdOnMac">Ctrl+N</h4>
+              <p>Opens a fresh new window.</p>
+              <p><kbd class="js-cmdOnMac">Ctrl+Shift+P</kbd> opens a new private window.</p>
+            </section>
+            <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
+              <h4>Tear off tab(s)</h4>
+              <p>With your pointer, drag-and-drop a tab off the tabs row to create a new window containing the selected tab(s).</p>
+            </section>
+            <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
+              <h4>Shift+click a link</h4>
+              <p>Opens the link in a new window.</p>
+              <p>(<kbd>Ctrl</kbd>+click opens it in a new tab.)</p>
+            </section>
+          </div>
         </section>
 
-        <label class="collapse-box mb-5">
-          <input type="checkbox" class="collapse-hide" hidden>
-          <div class="row ai-center collapse-head">
-            <h2 class="col m-0" style="flex: 1">First, a few things you should know how to do on your browser...</h2>
-            <div class="col collapse-arrow arrow-up"></div>
-          </div>
-          <div class="collapse-body pt-2">
-    
-            <section class="mb-2">
-              <h3>&bull; Create a new window</h3>
-              <div class="row equal-col">
-                <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
-                  <h4 class="js-cmdOnMac">Ctrl+N</h4>
-                  <p>Opens a fresh new window.</p>
-                  <p><kbd class="js-cmdOnMac">Ctrl+Shift+P</kbd> opens a new private window.</p>
-                </section>
-                <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
-                  <h4>Tear off tab(s)</h4>
-                  <p>With your pointer, drag-and-drop a tab off the tabs row to create a new window containing the selected tab(s).</p>
-                </section>
-                <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
-                  <h4>Shift+click a link</h4>
-                  <p>Opens the link in a new window.</p>
-                  <p>(<kbd>Ctrl</kbd>+click opens it in a new tab.)</p>
-                </section>
-              </div>
-            </section>
-    
-            <section class="mb-2">
-              <h3>&bull; Select multiple tabs</h3>
-              <div class="left-mark-border pl-1 mx-1">
-                <p><kbd>Ctrl</kbd>+click on each tab you want to select, one by one.</p>
-                <p><kbd>Shift</kbd>+click on a tab to select all the tabs between it and the currently focused tab, inclusive.</p>
-              </div>
-            </section>
-    
-            <section class="mb-2">
-              <h3>&bull; Close a window <span class="small unbold">(Not the same as quitting the browser, which closes all windows.)</span></h3>
-              <div class="row equal-col">
-                <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
-                  <h4>Click the &times;</h4>
-                  <p>The standard close button at the top of every window.</p>
-                </section>
-                <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
-                  <h4 class="js-cmdOnMac">Ctrl+Shift+W</h4>
-                  <p>Closes the current window.</p>
-                  <p>(<kbd class="js-cmdOnMac">Ctrl+W</kbd> closes the current tab.)</p>
-                </section>
-                <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1 js-hideOnMac">
-                  <h4>Standard close window shortcuts on Windows and Linux</h4>
-                  <ul>
-                    <li><kbd>Alt+F4</kbd></li>
-                    <li><kbd>Alt+Space, C</kbd></li>
-                  </ul>
-                </section>
-              </div>
-            </section>
-    
-          </div>
-        </label>
-    
-        <section class="mb-5">
-          <h2 class="center">The WinMan Panel</h2>
-          <div class="row ai-center">
-            <p class="button mr-1" style="border-radius: 8px"><img src="../icons/winman.svg" alt="WinMan icon"></p>
-            <p>Click on the WinMan toolbar button to open the pop-up panel.</p>
-          </div>
-          <div class="row">
-            <div class="col"><img src="popup.png" class="light-border" alt="WinMan panel"></div>
-            <div class="col mx-1">
-              <p>Every window is represented by a row, showing its name and how many tabs it contains.</p>
-              <p>The topmost row represents the currently focused window (<strong>current window</strong>).</p>
-              <p>The input field below it is the WinMan <strong>omnibox</strong>.</p>
-              <p>Below the omnibox is a list of <strong>other windows</strong>, sorted by most recently focused (seen). So the first row below
-                the omnibox represents the previously focused window.</p>
-              <p>Below the list is the status bar showing the total number of tabs and windows open.</p>
-              <p>And at the very bottom are supportive function buttons.</p>
-            </div>
+        <section class="mb-2">
+          <h3>&bull; Select multiple tabs</h3>
+          <div class="left-mark-border pl-1 mx-1">
+            <p><kbd>Ctrl</kbd>+click on each tab you want to select, one by one.</p>
+            <p><kbd>Shift</kbd>+click on a tab to select all the tabs between it and the currently focused tab, inclusive.</p>
           </div>
         </section>
-    
-        <section class="mb-5">
-          <h2 class="center">Basic Actions</h2>
-          <div class="row equal-col mb-1">
-    
-            <section class="col mx-1">
-              <h3>&bull; Switch Window</h3>
-              <p><img src="switch.png" alt=""></p>
-              <p>Click on a row to <strong>switch</strong> (change focus) to the corresponding window.</p>
+
+        <section class="mb-2">
+          <h3>&bull; Close a window <span class="small unbold">(Not the same as quitting the browser, which closes all windows.)</span></h3>
+          <div class="row equal-col">
+            <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
+              <h4>Click the &times;</h4>
+              <p>The standard close button at the top of every window.</p>
             </section>
-    
-            <section class="col mx-1">
-              <h3>&bull; Send Tab</h3>
-              <div class="row">
-                <p class="col button mr-1"><img src="../icons/send.svg" alt=""></p>
-                <p class="col">The <strong>send</strong> button "sends" the selected tab(s) to the corresponding window while staying on the current window.</p>
-              </div>
-              <p>Holding <kbd>Ctrl</kbd> while doing a <em>switch</em> changes it into a <strong>send</strong>.
-                Thus, you can also <kbd>Ctrl</kbd>-click a row to send tabs to that window.</p>
+            <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
+              <h4 class="js-cmdOnMac">Ctrl+Shift+W</h4>
+              <p>Closes the current window.</p>
+              <p>(<kbd class="js-cmdOnMac">Ctrl+W</kbd> closes the current tab.)</p>
             </section>
-    
-            <section class="col mx-1">
-              <h3>&bull; Bring Tab</h3>
-              <div class="row">
-                <p class="col button mr-1"><img src="../icons/bring.svg" alt=""></p>
-                <p class="col">The <strong>bring</strong> button switches to the corresponding window while "bringing" the selected tab(s) along. Essentially
-                  <em>switch</em> and <em>send</em> combined.</p>
-              </div>
-              <p>Holding <kbd>Shift</kbd> while doing a <em>switch</em> changes it into a <strong>bring</strong>.
-                Thus, you can also <kbd>Shift</kbd>-click a row to bring tabs to that window.</p>
-            </section>
-    
-          </div>
-    
-          <section class="small mx-1">
-            <h3>Private window behaviour</h3>
-            <p>Private windows are marked with purple names.</p>
-            <p>Tabs cannot be moved between normal and private windows. However, WinMan can perform a close equivalent: <em>send</em> and <em>bring</em> actions
-              will <strong>close tabs</strong> in the current window <strong>and reopen them</strong> in the destination window. Buttons that will perform this
-              are shown purple.</p>
-            <ul>
-              <li>Page state, such as unsubmitted form data and scroll position, will be lost in the process.</li>
-              <li>This will not work for some tabs, such as <code>file://</code> pages and certain <code>about:</code> pages.</li>
-            </ul>
-          </section>
-    
-        </section>
-    
-        <section class="mb-5">
-          <h2 class="center">Edit Mode</h2>
-          <div class="row">
-    
-            <p class="col button"><img src="../icons/edit.svg" style="width: 60%" alt=""></p>
-    
-            <div class="col mx-1">
-              <p>The <strong>edit</strong> button lets you name/rename the corresponding window.</p>
-              <p>When invoked the panel enters <em>Edit mode</em>, during which you can type in a name and use the following keys:</p>
+            <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1 js-hideOnMac">
+              <h4>Standard close window shortcuts on Windows and Linux</h4>
               <ul>
-                <li><kbd>Enter</kbd> to save the currently edited name and exit Edit mode.</li>
-                <li><kbd>Up</kbd> or <kbd>Down</kbd> to save the currently edited name and edit another window name.</li>
-                <li><kbd>Esc</kbd> to close the panel, exiting Edit mode and cancelling any changes to the currently edited name.</li>
+                <li><kbd>Alt+F4</kbd></li>
+                <li><kbd>Alt+Space, C</kbd></li>
               </ul>
-              <p>The status bar will show the title of the targeted window's focused tab to help you identify the window.</p>
-              <p>Names must be unique and may not begin with a forward slash ("/").</p>
-              <p>Tip 1: You can use emojis in names.</p>
-              <p>Tip 2: .</p>
-              <p class="small">Note: WinMan assigns every window a default name (Window 1, Window 2 and so on), visible when a window has no user-given name. Unlike
-                given names, default names are temporary and are not guaranteed to persist across browser sessions.</p>
-            </div>
-    
-            <p class="col"><img src="popup-edit.png" class="light-border" alt="WinMan panel in Edit mode"></p>
-    
+            </section>
           </div>
         </section>
-    
-        <section class="mb-5">
-          <h2 class="center">Keyboard Navigation<br>& The Omnibox</h2>
-    
-          <section class="mb-2">
-            <p>Press <kbd class="js-shortcut js-cmdOnMac"></kbd> to open the panel. You can always check what the keyboard shortcut is by hovering your pointer over
-              the WinMan button. <img src="../icons/winman.svg" height="15" alt="WinMan icon"></p>
-            <p>You can use the arrow keys to navigate the panel: <kbd>Up</kbd> and <kbd>Down</kbd> to select rows, <kbd>Left</kbd> and <kbd>Right</kbd> to select buttons.
-              Press <kbd>Enter</kbd> or <kbd>Space</kbd> to activate a row or button.</p>
-            <p>You should also use WinMan's <strong>omnibox</strong> &ndash; a multi-purpose, multi-talented input field &ndash; to vastly accelerate operating WinMan
-              by keyboard.</p>
-          </section>
-    
-          <section class="row mb-2">
-            <div class="col mr-1">
-              <h3>Primary omnibox powers</h3>
-              <ul>
-                <li>Press <kbd>Enter</kbd> to <strong>switch</strong> to <em>the first window listed below the omnibox</em>.</li>
-                <li>Start typing in a window name, or part of it, to <strong>filter</strong> the list of other windows (which may change the first
-                  listed window).</li>
-              </ul>
-              <p>Remember that holding <kbd>Ctrl</kbd> or <kbd>Shift</kbd> while doing a <em>switch</em> changes it to a <strong>send</strong> or
-                <strong>bring</strong> respectively. Don't worry; when empty, the omnibox will remind you which does what.</p>
-              <p>Thus, to swiftly <strong>switch</strong> OR <strong>send tabs</strong> OR <strong>bring tabs</strong> to a window via keyboard:</p>
-              <ol>
-                <li><kbd class="js-shortcut js-cmdOnMac"></kbd> to open the panel.</li>
-                <li>If the window row is already <em>immediately below the omnibox</em>, skip to the next step. Otherwise, start typing its name until it is.</li>
-                <li>
-                  <kbd>Enter</kbd> OR <kbd>Ctrl+Enter</kbd> OR <kbd>Shift+Enter</kbd>.<br>
-                  Alternatively, use arrow keys to select the desired row or button.
-                </li>
-              </ol>
-              <p>Try it a couple of times; it's easier done than said. 😄</p>
-            </div>
-            <p class="col"><img src="popup-filter.png" class="light-border" alt="WinMan panel filtering windows"></p>
-          </section>
-    
-          <section class="mb-1">
-            <h3>Slash commands</h3>
-            <p>Other actions can be performed by typing one of these slash commands in the omnibox, followed by <kbd>Enter</kbd>. Slash commands auto-complete as you type,
-              saving you some keystrokes.</p>
-            <ul>
-              <li><kbd>/help</kbd>, <kbd>/h</kbd> or just <kbd>/</kbd> &mdash; Open this help page</li>
-              <li><kbd>/edit</kbd> or <kbd>/e</kbd> &mdash; Enter Edit mode to rename windows</li>
-              <li><kbd>/settings</kbd> or <kbd>/s</kbd> &mdash; Open WinMan settings</li>
-            </ul>
-          </section>
-    
-        </section>
-    
-      </main>
-    </div>
 
-    <footer class="center">
-      <h2>Enjoy using WinMan!</h2>
+      </div>
+    </label>
+
+    <section class="mb-5">
+      <h2 class="center">The WinMan Panel</h2>
+      <div class="row ai-center">
+        <p class="button mr-1" style="border-radius: 8px"><img src="../icons/winman.svg" alt="WinMan icon"></p>
+        <p>Click on the WinMan toolbar button to open the pop-up panel.</p>
+      </div>
+      <div class="row">
+        <div class="col"><img src="popup.png" class="light-border" alt="WinMan panel"></div>
+        <div class="col mx-1">
+          <p>Every window is represented by a row, showing its name and how many tabs it contains.</p>
+          <p>The topmost row represents the currently focused window (<strong>current window</strong>).</p>
+          <p>The input field below it is the WinMan <strong>omnibox</strong>.</p>
+          <p>Below the omnibox is a list of <strong>other windows</strong>, sorted by most recently focused (seen). So the first row below
+            the omnibox represents the previously focused window.</p>
+          <p>Below the list is the status bar showing the total number of tabs and windows open.</p>
+          <p>And at the very bottom are supportive function buttons.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h2 class="center">Basic Actions</h2>
+      <div class="row equal-col mb-1">
+
+        <section class="col mx-1">
+          <h3>&bull; Switch Window</h3>
+          <p><img src="switch.png" alt=""></p>
+          <p>Click on a row to <strong>switch</strong> (change focus) to the corresponding window.</p>
+        </section>
+
+        <section class="col mx-1">
+          <h3>&bull; Send Tab</h3>
+          <div class="row">
+            <p class="col button mr-1"><img src="../icons/send.svg" alt=""></p>
+            <p class="col">The <strong>send</strong> button "sends" the selected tab(s) to the corresponding window while staying on the current window.</p>
+          </div>
+          <p>Holding <kbd>Ctrl</kbd> while doing a <em>switch</em> changes it into a <strong>send</strong>.
+            Thus, you can also <kbd>Ctrl</kbd>-click a row to send tabs to that window.</p>
+        </section>
+
+        <section class="col mx-1">
+          <h3>&bull; Bring Tab</h3>
+          <div class="row">
+            <p class="col button mr-1"><img src="../icons/bring.svg" alt=""></p>
+            <p class="col">The <strong>bring</strong> button switches to the corresponding window while "bringing" the selected tab(s) along. Essentially
+              <em>switch</em> and <em>send</em> combined.</p>
+          </div>
+          <p>Holding <kbd>Shift</kbd> while doing a <em>switch</em> changes it into a <strong>bring</strong>.
+            Thus, you can also <kbd>Shift</kbd>-click a row to bring tabs to that window.</p>
+        </section>
+
+      </div>
+
+      <section class="small mx-1">
+        <h3>Private window behaviour</h3>
+        <p>Private windows are marked with purple names.</p>
+        <p>Tabs cannot be moved between normal and private windows. However, WinMan can perform a close equivalent: <em>send</em> and <em>bring</em> actions
+          will <strong>close tabs</strong> in the current window <strong>and reopen them</strong> in the destination window. Buttons that will perform this
+          are shown purple.</p>
+        <ul>
+          <li>Page state, such as unsubmitted form data and scroll position, will be lost in the process.</li>
+          <li>This will not work for some tabs, such as <code>file://</code> pages and certain <code>about:</code> pages.</li>
+        </ul>
+      </section>
+
+    </section>
+
+    <section class="mb-5">
+      <h2 class="center">Edit Mode</h2>
+      <div class="row">
+
+        <p class="col button"><img src="../icons/edit.svg" style="width: 60%" alt=""></p>
+
+        <div class="col mx-1">
+          <p>The <strong>edit</strong> button lets you name/rename the corresponding window.</p>
+          <p>When invoked the panel enters <em>Edit mode</em>, during which you can type in a name and use the following keys:</p>
+          <ul>
+            <li><kbd>Enter</kbd> to save the currently edited name and exit Edit mode.</li>
+            <li><kbd>Up</kbd> or <kbd>Down</kbd> to save the currently edited name and edit another window name.</li>
+            <li><kbd>Esc</kbd> to close the panel, exiting Edit mode and cancelling any changes to the currently edited name.</li>
+          </ul>
+          <p>The status bar will show the title of the targeted window's focused tab to help you identify the window.</p>
+          <p>Names must be unique and may not begin with a forward slash ("/").</p>
+          <p class="small">Note: WinMan assigns every window a default name (Window 1, Window 2 and so on), visible when a window has no user-given name. Unlike
+            given names, default names are temporary and are not guaranteed to persist across browser sessions.</p>
+        </div>
+
+        <p class="col"><img src="popup-edit.png" class="light-border" alt="WinMan panel in Edit mode"></p>
+
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h2 class="center">Keyboard Navigation<br>& The Omnibox</h2>
+
+      <section class="mb-2">
+        <p>Press <kbd class="js-shortcut js-cmdOnMac"></kbd> to open the panel. You can always check what the keyboard shortcut is by hovering your pointer over
+          the WinMan button. <img src="../icons/winman.svg" height="15" alt="WinMan icon"></p>
+        <p>You can use the arrow keys to navigate the panel: <kbd>Up</kbd> and <kbd>Down</kbd> to select rows, <kbd>Left</kbd> and <kbd>Right</kbd> to select buttons.
+          Press <kbd>Enter</kbd> or <kbd>Space</kbd> to activate a row or button.</p>
+        <p>You should also use WinMan's <strong>omnibox</strong> &ndash; a multi-purpose, multi-talented input field &ndash; to vastly accelerate operating WinMan
+          by keyboard.</p>
+      </section>
+
+      <section class="row mb-2">
+        <div class="col mr-1">
+          <h3>Primary omnibox powers</h3>
+          <ul>
+            <li>Press <kbd>Enter</kbd> to <strong>switch</strong> to <em>the first window listed below the omnibox</em>.</li>
+            <li>Start typing in a window name, or part of it, to <strong>filter</strong> the list of other windows (which may change the first
+              listed window).</li>
+          </ul>
+          <p>Remember that holding <kbd>Ctrl</kbd> or <kbd>Shift</kbd> while doing a <em>switch</em> changes it to a <strong>send</strong> or
+            <strong>bring</strong> respectively. Don't worry; when empty, the omnibox will remind you which does what.</p>
+          <p>Thus, to swiftly <strong>switch</strong> OR <strong>send tabs</strong> OR <strong>bring tabs</strong> to a window via keyboard:</p>
+          <ol>
+            <li><kbd class="js-shortcut js-cmdOnMac"></kbd> to open the panel.</li>
+            <li>If the window row is already <em>immediately below the omnibox</em>, skip to the next step. Otherwise, start typing its name until it is.</li>
+            <li>
+              <kbd>Enter</kbd> OR <kbd>Ctrl+Enter</kbd> OR <kbd>Shift+Enter</kbd>.<br>
+              Alternatively, use arrow keys to select the desired row or button.
+            </li>
+          </ol>
+          <p>Try it a couple of times; it's easier done than said. 😄</p>
+        </div>
+        <p class="col"><img src="popup-filter.png" class="light-border" alt="WinMan panel filtering windows"></p>
+      </section>
+
+      <section class="mb-1">
+        <h3>Slash commands</h3>
+        <p>Other actions can be performed by typing one of these slash commands in the omnibox, followed by <kbd>Enter</kbd>. Slash commands auto-complete as you type,
+          saving you some keystrokes.</p>
+        <ul>
+          <li><kbd>/help</kbd>, <kbd>/h</kbd> or just <kbd>/</kbd> &mdash; Open this help page</li>
+          <li><kbd>/edit</kbd> or <kbd>/e</kbd> &mdash; Enter Edit mode to rename windows</li>
+          <li><kbd>/settings</kbd> or <kbd>/s</kbd> &mdash; Open WinMan settings</li>
+        </ul>
+      </section>
+
+    </section>
+
+    <footer>
+      <h2 class="center">Enjoy using WinMan!</h2>
       <p class="small">Last updated v1.2.1</p>
     </footer>
 
