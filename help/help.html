@@ -114,6 +114,14 @@
       <div class="collapse-body pt-2">
 
         <section class="mb-2">
+          <h3>&bull; Select multiple tabs</h3>
+          <div class="left-mark-border pl-1 mx-1">
+            <p><kbd>Ctrl</kbd>+click on each tab you want to select, one by one.</p>
+            <p><kbd>Shift</kbd>+click on a tab to select all the tabs between it and the currently focused tab, inclusive.</p>
+          </div>
+        </section>
+
+        <section class="mb-2">
           <h3>&bull; Create a new window</h3>
           <div class="row equal-col">
             <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
@@ -123,7 +131,7 @@
             </section>
             <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
               <h4>Tear off tab(s)</h4>
-              <p>With your pointer, drag-and-drop a tab off the tabs row to create a new window containing the selected tab(s).</p>
+              <p>With your mouse, drag-and-drop a tab off the tabs row to create a new window containing the selected tab(s).</p>
             </section>
             <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
               <h4>Shift+click a link</h4>
@@ -134,19 +142,11 @@
         </section>
 
         <section class="mb-2">
-          <h3>&bull; Select multiple tabs</h3>
-          <div class="left-mark-border pl-1 mx-1">
-            <p><kbd>Ctrl</kbd>+click on each tab you want to select, one by one.</p>
-            <p><kbd>Shift</kbd>+click on a tab to select all the tabs between it and the currently focused tab, inclusive.</p>
-          </div>
-        </section>
-
-        <section class="mb-2">
           <h3>&bull; Close a window <span class="small unbold">(Not the same as quitting the browser, which closes all windows.)</span></h3>
           <div class="row equal-col">
             <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
               <h4>Click the &times;</h4>
-              <p>The standard close button at the top of every window.</p>
+              <p>The close button at the top of every window.</p>
             </section>
             <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
               <h4 class="js-cmdOnMac">Ctrl+Shift+W</h4>
@@ -154,10 +154,10 @@
               <p>(<kbd class="js-cmdOnMac">Ctrl+W</kbd> closes the current tab.)</p>
             </section>
             <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1 js-hideOnMac">
-              <h4>Standard close window shortcuts on Windows and Linux</h4>
+              <h4>Shortcuts on Windows and Linux</h4>
               <ul>
                 <li><kbd>Alt+F4</kbd></li>
-                <li><kbd>Alt+Space, C</kbd></li>
+                <li><kbd>Alt+Space C</kbd></li>
               </ul>
             </section>
           </div>
@@ -202,11 +202,11 @@
         <div class="col mx-1">
           <p>Every window is represented by a row, showing its name and how many tabs it contains.</p>
           <p>The topmost row represents the currently focused window (<strong>current window</strong>).</p>
-          <p>The input field below it is the WinMan <strong>omnibox</strong>.</p>
-          <p>Below the omnibox is a list of <strong>other windows</strong>, sorted by most recently focused (seen). So the first row below
-            the omnibox represents the previously focused window.</p>
-          <p>Below the list is the status bar showing the total number of tabs and windows open.</p>
-          <p>And at the very bottom are supportive function buttons.</p>
+          <p>Below it is the panel's <strong>omnibox</strong>.</p>
+          <p>If there are <strong>other windows</strong>, they are listed below the omnibox; the first row representing the most recently focused (last seen)
+            window, followed by the next most recently focused window, and so on.</p>
+          <p>Below the list is the <strong>status bar</strong> showing the total number of tabs and windows open.</p>
+          <p>Lastly at the bottom is the panel's <strong>toolbar</strong>.</p>
         </div>
       </div>
     </section>
@@ -234,7 +234,7 @@
             <p class="col">The <strong>send</strong> button "sends" the selected tab(s) to the corresponding window while staying on the current window.</p>
           </div>
           <p>Holding <kbd>Ctrl</kbd> while doing a <em>switch</em> changes it into a <strong>send</strong>.
-            Thus, you can also <kbd>Ctrl</kbd>-click a row to send tabs to that window.</p>
+            Thus, you can also <kbd>Ctrl</kbd>+click a row to send tabs to that window.</p>
         </section>
 
         <section class="col mx-1">
@@ -245,7 +245,7 @@
               <em>switch</em> and <em>send</em> combined.</p>
           </div>
           <p>Holding <kbd>Shift</kbd> while doing a <em>switch</em> changes it into a <strong>bring</strong>.
-            Thus, you can also <kbd>Shift</kbd>-click a row to bring tabs to that window.</p>
+            Thus, you can also <kbd>Shift</kbd>+click a row to bring tabs to that window.</p>
         </section>
 
       </div>
@@ -272,10 +272,10 @@
 
         <div class="col mx-1">
           <p>The <strong>edit</strong> button lets you name/rename the corresponding window.</p>
-          <p>When invoked the panel enters <em>Edit mode</em>, during which you can type in a name and use the following keys:</p>
+          <p>When invoked, the panel enters <em>Edit mode</em>, during which you can type in a name and then use the following keys:</p>
           <ul>
-            <li><kbd>Enter</kbd> to save the currently edited name and exit Edit mode.</li>
-            <li><kbd>Up</kbd> or <kbd>Down</kbd> to save the currently edited name and edit another window name.</li>
+            <li><kbd>Enter</kbd> to <em>save</em> the currently edited name and exit Edit mode.</li>
+            <li><kbd>Up</kbd> or <kbd>Down</kbd> to <em>save</em> the currently edited name and edit another window name.</li>
             <li><kbd>Esc</kbd> to close the panel, exiting Edit mode and cancelling any changes to the currently edited name.</li>
           </ul>
           <p>The status bar will show the title of the targeted window's focused tab to help you identify the window.</p>
@@ -384,7 +384,7 @@
 
     <footer>
       <h2 class="center">Enjoy using WinMan!</h2>
-      <p class="small">Last updated v1.2.1</p>
+      <p class="small">Last updated v1.3</p>
     </footer>
 
     <script src="help.js"></script>
