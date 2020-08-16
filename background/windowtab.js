@@ -3,10 +3,11 @@ import { SETTINGS } from './settings.js';
 
 const isSamePrivateStatus = (windowId1, windowId2) => windowMap[windowId1].incognito === windowMap[windowId2].incognito;
 
-const unpinTab  = tabId => browser.tabs.update(tabId, { pinned: false });
-const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
-const focusTab  = tabId => browser.tabs.update(tabId, { active: true });
-const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
+const unpinTab    = tabId => browser.tabs.update(tabId, { pinned: false });
+const pinTab      = tabId => browser.tabs.update(tabId, { pinned: true });
+const focusTab    = tabId => browser.tabs.update(tabId, { active: true });
+const selectTab   = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
+const deselectTab = tabId => browser.tabs.update(tabId, { highlighted: false });
 
 const getUrlFromReader = readerUrl => decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));
 
@@ -129,4 +130,8 @@ export async function maximizeTearOffWindow(windowId) {
         if (state === 'maximized') browser.windows.update(windowId, { state });
     }
     lastDetach.set();
+    if (!SETTINGS.keep_moved_tabs_selected) {
+        const tabsToDeselect = await browser.tabs.query({ windowId, active: false, highlighted: true });
+        tabsToDeselect.forEach(tab => deselectTab(tab.id));
+    }
 }
