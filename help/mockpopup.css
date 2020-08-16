@@ -1,0 +1,139 @@
+:root {
+    --width-btn: 30px;
+    --width-input: 160px;
+    --width-tabcount: 20px;
+    --height-row: 36px;
+    --bgc-base: #eee;
+    --bgc-base-focus: #ddd;
+    --bgc-rowbtn: #d0d0d0;
+    --fgc-base: black;
+    --fgc-muted: #555;
+    --borderc-base: #ccc;
+    --borderc-focus: #4a90d9;
+    --bgc-slashinput: #ff6;
+    --bgc-editdone: lightgreen;
+    --bgc-private: darkorchid;
+    --fgc-private: purple;
+}
+
+.popup {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    font-size: .95rem;
+    display: inline-block;
+    margin: 0;
+    background-color: var(--bgc-base);
+    color: var(--fgc-base);
+    border: 1px solid var(--borderc-base);
+    cursor: default;
+    user-select: none;
+}
+
+.popup-row,
+.popup-input {
+    height: var(--height-row);
+    display: flex;
+    align-items: center;
+}
+
+.popup-row {
+    border-bottom: 1px solid var(--borderc-base);
+}
+
+.popup-input {
+    padding-left: 3px;
+    background-color: white;
+    border: 2px solid var(--borderc-focus);
+    border-radius: 3px;
+}
+.popup-input:not(.disabled)::after {
+    content: "|";
+    font-weight: 100;
+}
+.popup-input.disabled {
+    background-color: var(--bgc-base-focus);
+    color: var(--fgc-muted);
+    border: 1px solid var(--borderc-base);
+}
+
+.popup-name {
+    width: var(--width-input);
+    margin-left: .25rem;
+    padding: 0 .25rem;
+}
+
+.popup-tabCount {
+    width: var(--width-tabcount);
+    margin: 0 .8rem;
+    color: var(--fgc-muted);
+    text-align: end;
+}
+
+.popup-btn {
+    width: var(--width-btn);
+    height: var(--width-btn);
+    opacity: .7;
+    background-size: 90%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    border-radius: 50%;
+}
+.popup-btn.send {
+    background-image: url("../icons/send.svg");
+    background-color: var(--bgc-rowbtn);
+}
+.popup-btn.bring {
+    background-image: url("../icons/bring.svg");
+    background-color: var(--bgc-rowbtn);
+}
+.popup-btn.edit {
+    background-image: url("../icons/edit.svg");
+    background-size: 60%;
+    background-color: var(--bgc-rowbtn);
+    justify-self: end;
+}
+
+.popup-btn.edit.done {
+    background-image: url("../icons/check.svg");
+    background-color: var(--bgc-editdone);
+}
+.popup-btn.faded {
+    background-color: transparent;
+    opacity: .25;
+}
+
+.popup-status {
+    border: .25rem solid transparent;
+    color: var(--fgc-muted);
+}
+
+.popup-tool {
+    height: var(--height-row);
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.popup-tool img {
+    margin-right: .2rem;
+}
+
+.popup-tool.help {
+    background-color: #3a3;
+}
+
+.popup-tool.settings {
+    background-color: #06f;
+}
+
+
+/* Utilities */
+
+.popup small,
+.popup .small {
+    font-size: smaller;
+}
+.invisible { visibility: hidden; }
+.no-border { border: none; }
