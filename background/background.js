@@ -15,7 +15,6 @@ import * as Title from './title.js';
 // Object.assign(window, { Metadata }); // for debugging
 
 init();
-setIconTitle();
 browser.runtime.onInstalled.addListener    (onExtInstalled);
 browser.windows.onCreated.addListener      (onWindowCreated);
 browser.windows.onRemoved.addListener      (onWindowRemoved);
@@ -28,12 +27,6 @@ async function init() {
     Menu.init();
     await Metadata.init(windowObjects);
     windowObjects.forEach(onWindowCreated);
-}
-
-async function setIconTitle() {
-    const { name } = browser.runtime.getManifest();
-    const [{ shortcut }] = await browser.commands.getAll();
-    browser.browserAction.setTitle({ title: `${name} (${shortcut})` });
 }
 
 function onExtInstalled(details) {

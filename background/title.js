@@ -1,7 +1,18 @@
 import { getName } from './metadata.js';
 
 export function update(windowId) {
-    browser.windows.update(windowId, { titlePreface: windowTitle(windowId) });
+    const titlePreface = `${getName(windowId)} - `;
+    updateTitlebar(windowId, titlePreface);
+    updateIconTooltip(windowId, titlePreface);
 }
 
-const windowTitle = windowId => `${getName(windowId)} - `;
+function updateTitlebar(windowId, titlePreface) {
+    browser.windows.update(windowId, { titlePreface });
+}
+
+async function updateIconTooltip(windowId, titlePreface) {
+    const { name } = browser.runtime.getManifest();
+    const [{ shortcut }] = await browser.commands.getAll();
+    const title = `${titlePreface}${name} (${shortcut})`;
+    browser.browserAction.setTitle({ windowId, title });
+}
