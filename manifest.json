@@ -1,11 +1,11 @@
 {
   "manifest_version": 2,
-  "name": "WinMan",
-  "description": "Window Manager: name windows, switch windows and move tabs between windows",
+  "name": "Winger",
+  "description": "Window Manager: Name windows, switch windows, move tabs between windows.",
   "version": "1.3",
   "icons": {
-    "48": "icons/winman.svg",
-    "96": "icons/winman.svg"
+    "48": "icons/winger.svg",
+    "96": "icons/winger.svg"
   },
   "permissions": [
     "sessions",
@@ -18,8 +18,8 @@
   },
   "browser_action": {
     "default_icon": {
-      "48": "icons/winman.svg",
-      "96": "icons/winman.svg"
+      "48": "icons/winger.svg",
+      "96": "icons/winger.svg"
     },
     "default_popup": "popup/popup.html",
     "browser_style": true
