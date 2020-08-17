@@ -37,6 +37,7 @@ let modifierHints;
     $body.addEventListener('keydown', onKeyDown);
     $body.addEventListener('keyup', onKeyUp);
     $body.addEventListener('focusout', onFocusOut);
+    $currentWindowRow.$input.addEventListener('dblclick', onDoubleClick);
 })();
 
 function onClick(event) {
@@ -50,6 +51,7 @@ function onClick(event) {
 function onRightClick(event) {
     if (!hasClass('allowRightClick', event.target)) event.preventDefault();
 }
+
 
 function onKeyDown(event) {
     const { key, target: $target } = event;
@@ -74,6 +76,10 @@ function onKeyUp(event) {
 
 function onFocusOut(event) {
     if (event.target == $omnibox) Omnibox.info();
+}
+
+function onDoubleClick() {
+    if (!EditMode.$active) EditMode.activate();
 }
 
 // Flag if Enter has been keyed down and up both within the same input. A handler should then check and reset the flag (_enter).
