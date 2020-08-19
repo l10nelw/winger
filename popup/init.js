@@ -12,7 +12,6 @@ export default async function init() {
     row.removeElements(SETTINGS);
     toolbar.removeElements(SETTINGS);
 
-    metaWindows.sort((a, b) => b.lastFocused - a.lastFocused);
     populate(metaWindows, currentWindowId);
     const $currentWindowRow = $currentWindowList.firstElementChild;
     const $otherWindowRows = [...$otherWindowsList.children];

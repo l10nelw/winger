@@ -68,7 +68,7 @@ async function onRequest(request) {
     if (request.popup) {
         return {
             SETTINGS:         Settings.SETTINGS,
-            metaWindows:      Object.values(Metadata.windowMap),
+            metaWindows:      Metadata.sortedMetaWindows(),
             currentWindowId:  Metadata.focusedWindow.id,
             selectedTabCount: (await WindowTab.getSelectedTabs()).length,
         };

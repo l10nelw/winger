@@ -10,6 +10,9 @@ export const defaultNameHead = 'Window ';
 const invalidCharsNameRegex = /^\//;
 let lastWindowNumber = 0;
 
+export const sortedMetaWindows = () => Object.values(windowMap).sort(compareLastFocused);
+const compareLastFocused = (a, b) => b.lastFocused - a.lastFocused;
+
 // Perform equivalent of add() for every open window all at once.
 export async function init(windowObjects) {
     lastDetach.set();
