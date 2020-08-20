@@ -62,9 +62,7 @@ async function sendTabs(windowId, tabs, reopen) {
 }
 
 async function moveTabs(windowId, tabs) {
-    // const pinnedTabIds = movablePinnedTabs(tabs)?.map(tab => tab.id);  // Addon Validator does not support "?."
-    const pinnedTabs = movablePinnedTabs(tabs);
-    const pinnedTabIds = pinnedTabs ? pinnedTabs.map(tab => tab.id) : null;
+    const pinnedTabIds = movablePinnedTabs(tabs)?.map(tab => tab.id);
     if (pinnedTabIds) await Promise.all(pinnedTabIds.map(unpinTab));
 
     const tabIds = tabs.map(tab => tab.id);
@@ -127,7 +125,7 @@ function movablePinnedTabs(tabs) {
 export async function handleTornOffWindow(windowId) {
     if (!lastDetach.tabId) return;
     const tab = await browser.tabs.get(lastDetach.tabId).catch(() => null);
-    if (tab && tab.windowId === windowId) { // If detached tab is now in this window
+    if (tab?.windowId === windowId) { // If detached tab is now in this window
         const { state } = await browser.windows.get(lastDetach.oldWindowId);
         if (state === 'maximized') browser.windows.update(windowId, { state });
     }

@@ -18,12 +18,12 @@ export const $otherWindowsList = document.getElementById('otherWindows');
 export const $toolbar = $body.querySelector('footer');
 const $omnibox = Omnibox.$omnibox;
 
-export const isRow = $el => $el && $el._id;
+export const isRow = $el => $el?._id;
 
 // Action attribute utilities
 const actionAttr = 'data-action';
-export const getActionAttr = $el => $el && $el.getAttribute(actionAttr);
-export const unsetActionAttr = $el => $el && $el.removeAttribute(actionAttr);
+export const getActionAttr = $el => $el?.getAttribute(actionAttr);
+export const unsetActionAttr = $el => $el?.removeAttribute(actionAttr);
 export const getActionElements = ($scope = $body, suffix = '') => $scope.querySelectorAll(`[${actionAttr}]${suffix}`);
 
 // Populated by init()
