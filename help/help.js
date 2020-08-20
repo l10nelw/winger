@@ -1,3 +1,4 @@
+
 const $body = document.body;
 const $ = (selector, $scope = $body) => $scope.querySelector(selector);
 const $$ = (selector, $scope = $body) => $scope.querySelectorAll(selector);
@@ -6,6 +7,7 @@ insertVersion();
 insertShortcut();
 doOSSpecific();
 updateMockPopups();
+handleCollapse();
 
 function insertVersion() {
     const { version } = browser.runtime.getManifest();
@@ -42,4 +44,11 @@ function updateMockPopups() {
         const windowCount = $tabCounts.length;
         $status.textContent = statusText.replace('#', tabCount).replace('#', windowCount);
     });
+}
+
+async function handleCollapse() {
+    const { help_collapse } = await browser.storage.local.get('help_collapse');
+    const $collapse = document.getElementById('collapse');
+    $collapse.checked = help_collapse;
+    $collapse.onchange = () => browser.storage.local.set({ help_collapse: $collapse.checked });
 }
