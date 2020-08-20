@@ -9,8 +9,8 @@ import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
 import * as Badge from './badge.js';
-import * as Menu from './menu.js';
 import * as Title from './title.js';
+import * as Menu from './menu.js';
 
 // Object.assign(window, { Metadata }); // for debugging
 
@@ -23,10 +23,17 @@ browser.tabs.onDetached.addListener        (onTabDetached);
 browser.runtime.onMessage.addListener      (onRequest);
 
 async function init() {
-    const [windowObjects,] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
-    Menu.init();
+    const [windowObjects, SETTINGS] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
+
     await Metadata.init(windowObjects);
     windowObjects.forEach(onWindowCreated);
+
+    if (SETTINGS.enable_tab_menu)  Menu.init('tab');
+    if (SETTINGS.enable_link_menu) Menu.init('link');
+    if (SETTINGS.enable_tab_menu || SETTINGS.enable_link_menu) {
+        browser.menus.onShown.addListener   (onMenuShow);
+        browser.menus.onClicked.addListener (onMenuClick);
+    }
 }
 
 function onExtInstalled(details) {
@@ -36,7 +43,6 @@ function onExtInstalled(details) {
 async function onWindowCreated(windowObject) {
     await Metadata.add(windowObject);
     const windowId = windowObject.id;
-    Menu.create(windowId);
     Badge.update(windowId);
     Title.update(windowId);
     WindowTab.handleTornOffWindow(windowId);
@@ -45,14 +51,11 @@ async function onWindowCreated(windowObject) {
 
 function onWindowRemoved(windowId) {
     Metadata.remove(windowId);
-    Menu.remove(windowId);
 }
 
 function onWindowFocused(windowId) {
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windowMap[windowId].lastFocused = Date.now();
-    Menu.show(Metadata.focusedWindow.id);
-    Menu.hide(windowId);
     Metadata.focusedWindow.id = windowId;
 }
 
@@ -80,7 +83,24 @@ async function onRequest(request) {
     if (request.giveName) {
         const windowId = request.windowId;
         const error = await Metadata.giveName(windowId, request.name);
-        if (!error) [Badge, Menu, Title].forEach(module => module.update(windowId));
+        if (!error) {
+            Badge.update(windowId);
+            Title.update(windowId);
+        }
         return error;
     }
+}
+
+function onMenuShow(info, tab) {
+    const context = info.contexts.includes('link') ? 'link' : 'tab';
+    Menu.populate(context, tab.windowId);
+    browser.menus.refresh();
+}
+
+function onMenuClick(info, tab) {
+    const windowId = parseInt(info.menuItemId);
+    if (!windowId) return;
+    const url = info.linkUrl;
+    url ? Menu.openLink(url, windowId, info.modifiers)
+        : Menu.moveTab(tab, windowId, tab.windowId, info.modifiers);
 }

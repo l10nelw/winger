@@ -1,31 +1,38 @@
 import { SETTINGS } from './settings.js';
-import { getName } from './metadata.js';
+import { sortedMetaWindows, getName } from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
-let contexts = [];
-
-export function init() {
-    if (SETTINGS.enable_tab_menu) contexts.push('tab');
-    if (SETTINGS.enable_link_menu) contexts.push('link');
-    if (contexts.length) browser.menus.onClicked.addListener(onClick);
+const contextTitle = {
+    tab:  'Send Tab(s) to &Window...',
+    link: 'Open Link in &Window...',
 }
 
-function onClick(info, tab) {
-    const windowId = parseInt(info.menuItemId);
-    const url = info.linkUrl;
-    if (url) {
-        openLink(url, windowId, info.modifiers);
-    } else {
-        moveTab(tab, windowId, tab.windowId, info.modifiers);
+// Create parent menu item for a context.
+export function init(context) {
+    const contexts = [context];
+    browser.menus.create({ contexts, id: context, title: contextTitle[context] });
+    browser.menus.create({ contexts, parentId: context, id: `-${context}`, title: '-' }); // Dummy to avoid menu resizing onShown
+}
+
+// Clear and populate a context's submenu with other-windows sorted by lastFocsued.
+export function populate(context, currentWindowId) {
+    browser.menus.remove(`-${context}`); // Remove dummy if it exists
+    const createProps = { contexts: [context], parentId: context };
+    const metaWindows = sortedMetaWindows();
+    for (const { id: windowId } of metaWindows) {
+        const menuId = `${windowId}-${context}`;
+        browser.menus.remove(menuId);
+        if (windowId == currentWindowId) continue;
+        browser.menus.create({ ...createProps, id: menuId, title: getName(windowId) });
     }
 }
 
-function openLink(url, windowId, modifiers) {
+export function openLink(url, windowId, modifiers) {
     browser.tabs.create({ windowId, url });
     if (modifiers.includes(SETTINGS.bring_modifier)) WindowTab.switchWindow(windowId);
 }
 
-async function moveTab(tab, windowId, originWindowId, modifiers) {
+export async function moveTab(tab, windowId, originWindowId, modifiers) {
     let tabs = await WindowTab.getSelectedTabs();
     if (tabs.length === 1) {
         // If there is no multiple tab selection, select only the target tab
@@ -37,10 +44,3 @@ async function moveTab(tab, windowId, originWindowId, modifiers) {
     }
     WindowTab.doAction({ action: 'send', windowId, originWindowId, modifiers, tabs });
 }
-
-const menuTitle = windowId => `Send to ${getName(windowId)}`;
-export const create = windowId => contexts.length && browser.menus.create({ id: `${windowId}`, title: menuTitle(windowId), contexts });
-export const remove = windowId => browser.menus.remove(`${windowId}`);
-export const hide   = windowId => browser.menus.update(`${windowId}`, { visible: false });
-export const show   = windowId => browser.menus.update(`${windowId}`, { visible: true });
-export const update = windowId => browser.menus.update(`${windowId}`, { title: menuTitle(windowId) });
