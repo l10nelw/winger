@@ -39,7 +39,7 @@ async function onWindowCreated(windowObject) {
     Menu.create(windowId);
     Badge.update(windowId);
     Title.update(windowId);
-    WindowTab.maximizeTearOffWindow(windowId);
+    WindowTab.handleTornOffWindow(windowId);
     if (windowObject.focused) onWindowFocused(windowId);
 }
 

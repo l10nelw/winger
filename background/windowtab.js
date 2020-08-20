@@ -21,7 +21,7 @@ const actionMap = {
     switch: switchWindow,
 };
 
-// Open extension page or switch to tab if already open
+// Open extension page or switch to tab if already open.
 async function openExtPage(pathname) {
     const url = browser.runtime.getURL(pathname);
     const openedPages = await browser.tabs.query({ url });
@@ -122,16 +122,18 @@ function movablePinnedTabs(tabs) {
     return pinnedTabs;
 }
 
-export async function maximizeTearOffWindow(windowId) {
+// Maximize new window created by detached tab(s).
+// Honour SETTINGS.keep_moved_tabs_selected.
+export async function handleTornOffWindow(windowId) {
     if (!lastDetach.tabId) return;
     const tab = await browser.tabs.get(lastDetach.tabId).catch(() => null);
     if (tab && tab.windowId === windowId) { // If detached tab is now in this window
         const { state } = await browser.windows.get(lastDetach.oldWindowId);
         if (state === 'maximized') browser.windows.update(windowId, { state });
     }
-    lastDetach.set();
     if (!SETTINGS.keep_moved_tabs_selected) {
         const tabsToDeselect = await browser.tabs.query({ windowId, active: false, highlighted: true });
         tabsToDeselect.forEach(tab => deselectTab(tab.id));
     }
+    lastDetach.set();
 }
