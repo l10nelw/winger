@@ -114,9 +114,10 @@ const row = {
 };
 
 async function showTitleInStatus($row) {
-    $row._title = $row._title || (await browser.tabs.query({ windowId: $row._id, active: true }))[0].title;
+    $row._title = $row._title || (await getFocusedTab($row._id)).title;
     Status.show($row._title);
 }
+const getFocusedTab = async windowId => (await browser.tabs.query({ windowId, active: true }))[0];
 
 const keyEffects = {
 
