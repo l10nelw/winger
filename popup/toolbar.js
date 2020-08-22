@@ -1,5 +1,5 @@
-export function help() {
-    browser.runtime.sendMessage({ help: true });
+export async function help() {
+    await browser.runtime.sendMessage({ help: true });
     window.close();
 }
 
