@@ -1,16 +1,6 @@
 import { lastDetach, windowMap } from './metadata.js';
 import { SETTINGS } from './settings.js';
 
-const isSamePrivateStatus = (windowId1, windowId2) => windowMap[windowId1].incognito === windowMap[windowId2].incognito;
-
-const unpinTab    = tabId => browser.tabs.update(tabId, { pinned: false });
-const pinTab      = tabId => browser.tabs.update(tabId, { pinned: true });
-const focusTab    = tabId => browser.tabs.update(tabId, { active: true });
-const selectTab   = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
-const deselectTab = tabId => browser.tabs.update(tabId, { highlighted: false });
-
-const getUrlFromReader = readerUrl => decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));
-
 export const openHelp = () => openExtPage('help/help.html');
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
 export const switchWindow = windowId => browser.windows.update(windowId, { focused: true });
@@ -35,6 +25,22 @@ async function openExtPage(pathname) {
     }
 }
 
+// Maximize new window created by detached tab(s).
+// Honour SETTINGS.keep_moved_tabs_selected.
+export async function handleTornOffWindow(windowId) {
+    if (!lastDetach.tabId) return;
+    const tab = await browser.tabs.get(lastDetach.tabId).catch(() => null);
+    if (tab?.windowId === windowId) { // If detached tab is now in this window
+        const { state } = await browser.windows.get(lastDetach.oldWindowId);
+        if (state === 'maximized') browser.windows.update(windowId, { state });
+    }
+    if (!SETTINGS.keep_moved_tabs_selected) {
+        const tabsToDeselect = await browser.tabs.query({ windowId, active: false, highlighted: true });
+        tabsToDeselect.forEach(tab => deselectTab(tab.id));
+    }
+    lastDetach.set();
+}
+
 // Given `windowId`, select action to execute based on `action` and `modifiers`.
 export async function doAction({ windowId, originWindowId, action, modifiers, tabs }) {
     const reopen = !isSamePrivateStatus(windowId, originWindowId);
@@ -57,8 +63,7 @@ async function bringTabs(windowId, tabs, reopen) {
 }
 
 async function sendTabs(windowId, tabs, reopen) {
-    const tabAction = reopen ? reopenTabs : moveTabs;
-    return await tabAction(windowId, tabs);
+    return await (reopen ? reopenTabs : moveTabs)(windowId, tabs);
 }
 
 async function moveTabs(windowId, tabs) {
@@ -120,18 +125,10 @@ function movablePinnedTabs(tabs) {
     return pinnedTabs;
 }
 
-// Maximize new window created by detached tab(s).
-// Honour SETTINGS.keep_moved_tabs_selected.
-export async function handleTornOffWindow(windowId) {
-    if (!lastDetach.tabId) return;
-    const tab = await browser.tabs.get(lastDetach.tabId).catch(() => null);
-    if (tab?.windowId === windowId) { // If detached tab is now in this window
-        const { state } = await browser.windows.get(lastDetach.oldWindowId);
-        if (state === 'maximized') browser.windows.update(windowId, { state });
-    }
-    if (!SETTINGS.keep_moved_tabs_selected) {
-        const tabsToDeselect = await browser.tabs.query({ windowId, active: false, highlighted: true });
-        tabsToDeselect.forEach(tab => deselectTab(tab.id));
-    }
-    lastDetach.set();
-}
+const unpinTab    = tabId => browser.tabs.update(tabId, { pinned: false });
+const pinTab      = tabId => browser.tabs.update(tabId, { pinned: true });
+const focusTab    = tabId => browser.tabs.update(tabId, { active: true });
+const selectTab   = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
+const deselectTab = tabId => browser.tabs.update(tabId, { highlighted: false });
+const isSamePrivateStatus = (windowId1, windowId2) => windowMap[windowId1].incognito === windowMap[windowId2].incognito;
+const getUrlFromReader = readerUrl => decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));
