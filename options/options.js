@@ -1,7 +1,8 @@
 import { hasClass, addToGroup } from '../utils.js';
 import * as Settings from '../background/settings.js';
 
-const $form = document.body.querySelector('form');
+const $body = document.body;
+const $form = $body.querySelector('form');
 const $fields = [...$form.querySelectorAll('.setting')];
 const $submitBtns = [...$form.querySelectorAll('button')];
 const relevantProp = $field => $field.type === 'checkbox' ? 'checked' : 'value';
@@ -22,6 +23,7 @@ let toggleGroups = {};
 
 $form.onchange = onFieldChange;
 $form.onsubmit = applySettings;
+checkPrivateAccess();
 
 function onFieldChange({ target: $field }) {
     enableFields($field);
@@ -94,4 +96,10 @@ function toggleToggler({ $field, name }) {
 function enableSubmitBtns() {
     const isFormUnchanged = formData === getFormValuesString();
     $submitBtns.forEach($btn => $btn.disabled = isFormUnchanged);
+}
+
+async function checkPrivateAccess() {
+    const isAllowed = await browser.extension.isAllowedIncognitoAccess();
+    const $toShow = $body.querySelectorAll(`.private-allowed-${isAllowed ? 'yes' : 'no'}`);
+    $toShow.forEach($el => $el.hidden = false);
 }
