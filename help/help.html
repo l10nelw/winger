@@ -163,15 +163,43 @@
       </div>
 
       <section class="small mx-1">
-        <h3>Private window behaviour</h3>
-        <p>Private windows are marked with purple names.</p>
-        <p>Tabs cannot be moved between normal and private windows. However, Winger can perform a close equivalent: <em>send</em> and <em>bring</em> actions
-          will <strong>close tabs</strong> in the current window <strong>and reopen them</strong> in the destination window. Buttons that will perform this
-          are shown purple.</p>
-        <ul>
-          <li>Page state, such as unsubmitted form data and scroll position, will be lost in the process.</li>
-          <li>This will not work for some tabs, such as <code>file://</code> pages and certain <code>about:</code> pages.</li>
-        </ul>
+        <div class="row">
+          <div class="col">
+            <h3>Private window behaviour</h3>
+            <p>Private windows are marked with <span class="fg-private">purple</span> names.</p>
+            <p>Tabs technically cannot be moved between normal and private windows. However, Winger can perform a close equivalent: <em>send</em> and <em>bring</em> will <strong>close</strong> tabs in the current window and <strong>reopen</strong> them in the destination window. Buttons that will perform this are shown <span class="bg-private">purple</span>.</p>
+            <ul>
+              <li>This will not work for certain types of tabs, such as <code>file://</code> pages and some <code>about:</code> pages.</li>
+              <li>Page state, such as unsubmitted form data and scroll position, will be lost in the process.</li>
+            </ul>
+          </div>
+          <div class="col mx-1">
+            <p>
+              <figure class="popup" role="img" aria-label="">
+                <div class="popup-row">
+                  <span class="popup-btn send"></span><span class="popup-btn bring"></span>
+                  <span class="popup-name private">Window 1</span><small class="popup-tabCount">20</small>
+                </div>
+              </figure>
+            </p>
+            <p>
+              <figure class="popup" role="img" aria-label="">
+                <div class="popup-row">
+                  <span class="popup-btn reopen send"></span><span class="popup-btn reopen bring"></span>
+                  <span class="popup-name">Window 1</span><small class="popup-tabCount">20</small>
+                </div>
+              </figure>
+            </p>
+            <p>
+              <figure class="popup" role="img" aria-label="">
+                <div class="popup-row">
+                  <span class="popup-btn reopen send"></span><span class="popup-btn reopen bring"></span>
+                  <span class="popup-name private">Window 1</span><small class="popup-tabCount">20</small>
+                </div>
+              </figure>
+            </p>
+          </div>
+        </div>
       </section>
 
     </section>

@@ -54,12 +54,15 @@
     color: var(--fgc-muted);
     border: 1px solid var(--borderc-base);
 }
-
 .popup-name {
     width: var(--width-input);
     margin-left: .25rem;
     padding: 0 .25rem;
 }
+.popup-name.private {
+    color: var(--fgc-private);
+}
+
 
 .popup-tabCount {
     width: var(--width-tabcount);
@@ -100,6 +103,9 @@
 .popup-btn.faded {
     background-color: transparent;
     opacity: .25;
+}
+.popup-btn.reopen {
+    background-color: var(--bgc-private);
 }
 
 .popup-status {
