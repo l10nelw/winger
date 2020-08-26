@@ -1,14 +1,19 @@
-import { getShortcut } from '../utils.js';
+import { getShortcut, hasClass } from '../utils.js';
 
 const $body = document.body;
 const $ = (selector, $scope = $body) => $scope.querySelector(selector);
 const $$ = (selector, $scope = $body) => $scope.querySelectorAll(selector);
+$body.onclick = onClick;
 
 insertVersion();
 insertShortcut();
 doOSSpecific();
 updateMockPopups();
 handleCollapse();
+
+function onClick({ target }) {
+    if (hasClass('settingsBtn', target)) browser.runtime.openOptionsPage();
+}
 
 function insertVersion() {
     const { version } = browser.runtime.getManifest();

@@ -83,6 +83,10 @@ img {
   margin: 0 5px;
 }
 
+button.settingsBtn {
+  padding: 0;
+}
+
 .light-border { border: 1px solid #ccc; }
 .left-mark-border { border-left: 3px solid var(--borderc-base); }
 

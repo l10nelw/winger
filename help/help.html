@@ -161,47 +161,52 @@
         </section>
 
       </div>
+    </section>
 
-      <section class="small mx-1">
-        <div class="row">
-          <div class="col">
-            <h3>Private window behaviour</h3>
-            <p>Private windows are marked with <span class="fg-private">purple</span> names.</p>
-            <p>Tabs technically cannot be moved between normal and private windows. However, Winger can perform a close equivalent: <em>send</em> and <em>bring</em> will <strong>close</strong> tabs in the current window and <strong>reopen</strong> them in the destination window. Buttons that will perform this are shown <span class="bg-private">purple</span>.</p>
-            <ul>
-              <li>This will not work for certain types of tabs, such as <code>file://</code> pages and some <code>about:</code> pages.</li>
-              <li>Page state, such as unsubmitted form data and scroll position, will be lost in the process.</li>
-            </ul>
-          </div>
-          <div class="col mx-1">
-            <p>
-              <figure class="popup" role="img" aria-label="">
-                <div class="popup-row">
-                  <span class="popup-btn send"></span><span class="popup-btn bring"></span>
-                  <span class="popup-name private">Window 1</span><small class="popup-tabCount">20</small>
-                </div>
-              </figure>
-            </p>
-            <p>
-              <figure class="popup" role="img" aria-label="">
-                <div class="popup-row">
-                  <span class="popup-btn reopen send"></span><span class="popup-btn reopen bring"></span>
-                  <span class="popup-name">Window 1</span><small class="popup-tabCount">20</small>
-                </div>
-              </figure>
-            </p>
-            <p>
-              <figure class="popup" role="img" aria-label="">
-                <div class="popup-row">
-                  <span class="popup-btn reopen send"></span><span class="popup-btn reopen bring"></span>
-                  <span class="popup-name private">Window 1</span><small class="popup-tabCount">20</small>
-                </div>
-              </figure>
-            </p>
-          </div>
+    <section class="small mx-1 mb-1">
+      <h3>Private windows</h3>
+      <div class="row">
+        <div class="col">
+          <p>Note: Ensure that Winger is allowed private window access. Check <button type="button" class="settingsBtn">⚙️ Settings</button>.</p>
+          <p>Private windows are marked with <span class="fg-private">purple</span> names.</p>
+          <p>Tabs technically cannot be moved between normal and private windows. However, Winger can perform a close equivalent: <em>send</em> and <em>bring</em> will <strong>close</strong> tabs in the current window and <strong>reopen</strong> them in the destination window. Buttons that will perform this are shown <span class="bg-private">purple</span>.</p>
+          <ul>
+            <li>This will not work for certain types of tabs, such as <code>file://</code> pages and some <code>about:</code> pages.</li>
+            <li>Page state, such as unsubmitted form data and scroll position, will be lost in the process.</li>
+          </ul>
         </div>
-      </section>
+        <div class="col mx-1">
+          <p>
+            <figure class="popup" role="img" aria-label="A private window row">
+              <div class="popup-row">
+                <span class="popup-btn send"></span><span class="popup-btn bring"></span>
+                <span class="popup-name private">Window 1</span><small class="popup-tabCount">20</small>
+              </div>
+            </figure>
+          </p>
+          <p>
+            <figure class="popup" role="img" aria-label="A window row with reopen buttons">
+              <div class="popup-row">
+                <span class="popup-btn reopen send"></span><span class="popup-btn reopen bring"></span>
+                <span class="popup-name">Window 1</span><small class="popup-tabCount">20</small>
+              </div>
+            </figure>
+          </p>
+          <p>
+            <figure class="popup" role="img" aria-label="A private window row with reopen buttons">
+              <div class="popup-row">
+                <span class="popup-btn reopen send"></span><span class="popup-btn reopen bring"></span>
+                <span class="popup-name private">Window 1</span><small class="popup-tabCount">20</small>
+              </div>
+            </figure>
+          </p>
+        </div>
+      </div>
+    </section>
 
+    <section class="small mx-1 mb-5">
+      <h3>Pinned tabs</h3>
+      <p>The <em>send</em> and <em>bring</em> actions can be made to work on pinned tabs, if enabled in <button type="button" class="settingsBtn">⚙️ Settings</button>.</p>
     </section>
 
     <section class="mb-5">
@@ -327,6 +332,6 @@
       <p class="small">Last updated v1.3</p>
     </footer>
 
-    <script src="help.js"></script>
+    <script src="help.js" type="module"></script>
 </body>
 </html>
