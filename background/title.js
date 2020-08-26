@@ -1,4 +1,5 @@
 import { getName } from './metadata.js';
+import { getShortcut } from '../utils.js';
 
 export function update(windowId) {
     const titlePreface = `${getName(windowId)} - `;
@@ -11,8 +12,6 @@ function updateTitlebar(windowId, titlePreface) {
 }
 
 async function updateIconTooltip(windowId, titlePreface) {
-    const { name } = browser.runtime.getManifest();
-    const [{ shortcut }] = await browser.commands.getAll();
-    const title = `${titlePreface}${name} (${shortcut})`;
+    const title = `${titlePreface}${browser.runtime.getManifest().name} (${await getShortcut()})`;
     browser.browserAction.setTitle({ windowId, title });
 }

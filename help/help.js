@@ -1,3 +1,4 @@
+import { getShortcut } from '../utils.js';
 
 const $body = document.body;
 const $ = (selector, $scope = $body) => $scope.querySelector(selector);
@@ -15,7 +16,7 @@ function insertVersion() {
 }
 
 async function insertShortcut() {
-    const [{ shortcut }] = await browser.commands.getAll();
+    const shortcut = await getShortcut();
     $$('.js-shortcut').forEach($el => $el.textContent = shortcut);
 }
 

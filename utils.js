@@ -6,6 +6,8 @@ export const getScrollbarWidth = $el => $el.offsetWidth - $el.clientWidth;
 export const getModifiers =
     event => ['altKey', 'ctrlKey', 'shiftKey'].filter(m => event[m]).map(m => m[0].toUpperCase() + m.slice(1, -3));
 
+export const getShortcut = async () => (await browser.commands.getAll())[0].shortcut;
+
 // Forgiving* shorthands for element class methods. (*Silently does nothing if $el is undefined)
 export const hasClass = (cls, $el) => $el?.classList.contains(cls);
 export const addClass = (cls, $el) => $el?.classList.add(cls);
