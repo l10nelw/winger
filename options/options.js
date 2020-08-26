@@ -1,4 +1,4 @@
-import { hasClass, addToGroup } from '../utils.js';
+import { getShortcut, hasClass, addToGroup } from '../utils.js';
 import * as Settings from '../background/settings.js';
 
 const $body = document.body;
@@ -23,6 +23,7 @@ let toggleGroups = {};
 
 $form.onchange = onFieldChange;
 $form.onsubmit = applySettings;
+insertShortcut();
 checkPrivateAccess();
 
 function onFieldChange({ target: $field }) {
@@ -96,6 +97,16 @@ function toggleToggler({ $field, name }) {
 function enableSubmitBtns() {
     const isFormUnchanged = formData === getFormValuesString();
     $submitBtns.forEach($btn => $btn.disabled = isFormUnchanged);
+}
+
+async function insertShortcut() {
+    const shortcut = await getShortcut();
+    if (shortcut) $body.querySelector('.shortcut').textContent = shortcut;
+    const $defaultShortcutText = $body.querySelector('.default-shortcut-text');
+    const defaultShortcut = browser.runtime.getManifest().commands._execute_browser_action.suggested_key.default;
+    if (shortcut == defaultShortcut) return;
+    $defaultShortcutText.querySelector('.default-shortcut').textContent = defaultShortcut;
+    $defaultShortcutText.hidden = false;
 }
 
 async function checkPrivateAccess() {
