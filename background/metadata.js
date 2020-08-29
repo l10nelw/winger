@@ -1,5 +1,6 @@
 export const windowMap = {};
 export const focusedWindow = { id: null };
+export let count = 0;
 export const lastDetach = {
     set(tabId = null, oldWindowId = null) {
         this.tabId = tabId;
@@ -21,6 +22,7 @@ export async function init(windowObjects) {
         const windowId = windowObject.id;
         windowIds.push(windowId);
         windowMap[windowId] = createMetaWindow(windowObject);
+        count++;
     }
     await nameMetaWindows(windowIds);
 }
@@ -29,11 +31,13 @@ export async function add(windowObject) {
     const windowId = windowObject.id;
     if (windowId in windowMap) return;
     windowMap[windowId] = createMetaWindow(windowObject);
+    count++;
     await nameMetaWindows([windowId]);
 }
 
 export function remove(windowId) {
     delete windowMap[windowId];
+    count--;
 }
 
 function createMetaWindow({ id, incognito }) {

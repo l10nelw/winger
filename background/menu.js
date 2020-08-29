@@ -7,24 +7,31 @@ const contextTitle = {
     link: 'Open Link in &Window...',
 }
 
-// Create parent menu item for a context.
-export function init(context) {
-    const contexts = [context];
-    browser.menus.create({ contexts, id: context, title: contextTitle[context] });
-    browser.menus.create({ contexts, parentId: context, id: `-${context}`, title: '-' }); // Dummy to avoid menu resizing onShown
+// Create a parent menu item for each context in array `menusEnabled`.
+export function init(menusEnabled) {
+    for (const context of menusEnabled) {
+        const contexts = [context];
+        browser.menus.create({ contexts, id: context, title: contextTitle[context] });
+        browser.menus.create({ contexts, parentId: context, id: `-${context}`, title: '-' }); // Dummy to avoid menu resizing onShown
+    }
 }
 
-// Clear and populate a context's submenu with other-windows sorted by lastFocsued.
+// Clear and populate `context` menu with other-window menu items, sorted by lastFocsued.
 export function populate(context, currentWindowId) {
-    browser.menus.remove(`-${context}`); // Remove dummy if it exists
-    const createProps = { contexts: [context], parentId: context };
-    const metaWindows = sortedMetaWindows();
-    for (const { id: windowId } of metaWindows) {
+    const props = { contexts: [context], parentId: context };
+    for (const { id: windowId } of sortedMetaWindows()) {
         const menuId = `${windowId}-${context}`;
         browser.menus.remove(menuId);
         if (windowId == currentWindowId) continue;
-        browser.menus.create({ ...createProps, id: menuId, title: getName(windowId) });
+        browser.menus.create({ ...props, id: menuId, title: getName(windowId) });
     }
+    browser.menus.remove(`-${context}`); // Remove dummy if it exists
+}
+
+// Show or hide all menus.
+export function show(menusEnabled, visible = true) {
+    const props = { visible };
+    menusEnabled.forEach(context => browser.menus.update(context, props));
 }
 
 export function openLink(url, windowId, modifiers) {

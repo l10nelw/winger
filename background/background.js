@@ -14,6 +14,7 @@ import * as Menu from './menu.js';
 
 // Object.assign(window, { Metadata }); // for debugging
 
+const menusEnabled = [];
 init();
 browser.runtime.onInstalled.addListener    (onExtInstalled);
 browser.windows.onCreated.addListener      (onWindowCreated);
@@ -26,13 +27,15 @@ async function init() {
     const [windowObjects, SETTINGS] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
 
     await Metadata.init(windowObjects);
-    windowObjects.forEach(onWindowCreated);
+    windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
 
-    if (SETTINGS.enable_tab_menu)  Menu.init('tab');
-    if (SETTINGS.enable_link_menu) Menu.init('link');
-    if (SETTINGS.enable_tab_menu || SETTINGS.enable_link_menu) {
+    if (SETTINGS.enable_tab_menu)  menusEnabled.push('tab');
+    if (SETTINGS.enable_link_menu) menusEnabled.push('link');
+    if (menusEnabled.length) {
+        Menu.init(menusEnabled);
         browser.menus.onShown.addListener   (onMenuShow);
         browser.menus.onClicked.addListener (onMenuClick);
+        setMenuVisibility();
     }
 }
 
@@ -40,17 +43,23 @@ function onExtInstalled(details) {
     if (details.reason === 'install') WindowTab.openHelp();
 }
 
-async function onWindowCreated(windowObject) {
+async function onWindowCreated(windowObject, isInit) {
     await Metadata.add(windowObject);
     const windowId = windowObject.id;
     Badge.update(windowId);
     Title.update(windowId);
     WindowTab.handleTornOffWindow(windowId);
     if (windowObject.focused) onWindowFocused(windowId);
+    if (!isInit) setMenuVisibility();
 }
 
 function onWindowRemoved(windowId) {
     Metadata.remove(windowId);
+    setMenuVisibility();
+}
+
+function setMenuVisibility() {
+    Menu.show(menusEnabled, Metadata.count > 1);
 }
 
 function onWindowFocused(windowId) {
