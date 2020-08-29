@@ -6,7 +6,8 @@
 - Some DOM nodes have custom properties (expandos) prefixed with '_' or '$', to store and pass around data.
 */
 
-import { isInput, hasClass, getModifiers } from '../utils.js';
+import { isInput, hasClass } from '../utils.js';
+import * as Modifier from '../modifier.js';
 import init from './init.js';
 import navigateByArrow from './navigation.js';
 import * as Omnibox from './omnibox.js';
@@ -124,7 +125,7 @@ export async function requestAction(event, $action = event.target) {
         action,
         windowId,
         originWindowId: $currentWindowRow._id,
-        modifiers: getModifiers(event),
+        modifiers: Modifier.get(event),
     });
     window.close();
 }

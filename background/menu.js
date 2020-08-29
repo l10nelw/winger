@@ -1,3 +1,4 @@
+import * as Modifier from '../modifier.js';
 import { SETTINGS } from './settings.js';
 import { sortedMetaWindows, getName } from './metadata.js';
 import * as WindowTab from './windowtab.js';
@@ -36,7 +37,7 @@ export function show(menusEnabled, visible = true) {
 
 export function openLink(url, windowId, modifiers) {
     browser.tabs.create({ windowId, url });
-    if (modifiers.includes(SETTINGS.bring_modifier)) WindowTab.switchWindow(windowId);
+    if (modifiers.includes(Modifier.BRING)) WindowTab.switchWindow(windowId);
 }
 
 export async function moveTab(tab, windowId, originWindowId, modifiers) {

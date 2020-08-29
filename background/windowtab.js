@@ -1,3 +1,4 @@
+import * as Modifier from '../modifier.js';
 import { lastDetach, windowMap } from './metadata.js';
 import { SETTINGS } from './settings.js';
 
@@ -51,8 +52,8 @@ export async function doAction({ windowId, originWindowId, action, modifiers, ta
 
 function modifyAction(action, modifiers) {
     if (!modifiers.length) return action;
-    return modifiers.includes(SETTINGS.bring_modifier) ? 'bring' :
-           modifiers.includes(SETTINGS.send_modifier)  ? 'send' :
+    return modifiers.includes(Modifier.BRING) ? 'bring' :
+           modifiers.includes(Modifier.SEND)  ? 'send' :
            action;
 }
 

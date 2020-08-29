@@ -3,6 +3,7 @@ import { $otherWindowsList, $toolbar, unsetActionAttr } from './popup.js';
 import { $omnibox } from './omnibox.js';
 import * as Count from './count.js'; // Runs './status.js'
 import * as Tooltip from './tooltip.js';
+import * as Modifier from '../modifier.js';
 
 const $currentWindowList = document.getElementById('currentWindow');
 
@@ -16,7 +17,7 @@ export default async function init() {
     const $currentWindowRow = $currentWindowList.firstElementChild;
     const $otherWindowRows = [...$otherWindowsList.children];
     const $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
-    const modifierHints = createModifierHints(SETTINGS, selectedTabCount);
+    const modifierHints = createModifierHints(selectedTabCount);
 
     Count.init($allWindowRows);
     Tooltip.init(selectedTabCount);
@@ -123,12 +124,12 @@ const toolbar = {
     },
 };
 
-function createModifierHints(SETTINGS, selectedTabCount) {
-    const { bring_modifier, send_modifier } = SETTINGS;
+function createModifierHints(selectedTabCount) {
+    const { BRING, SEND } = Modifier;
     const tabWord = selectedTabCount === 1 ? 'tab' : 'tabs';
     return {
-        [bring_modifier]: `${bring_modifier.toUpperCase()}: Bring ${tabWord} to...`,
-        [send_modifier]:  `${send_modifier.toUpperCase()}: Send ${tabWord} to...`,
+        [BRING]: `${BRING.toUpperCase()}: Bring ${tabWord} to...`,
+        [SEND]:  `${SEND.toUpperCase()}: Send ${tabWord} to...`,
     };
 }
 

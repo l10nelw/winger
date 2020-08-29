@@ -1,8 +1,5 @@
 const DEFAULT = {
 
-    bring_modifier: 'Shift',
-    send_modifier: 'Ctrl',
-
     keep_moved_focused_tab_focused: true,
     keep_moved_tabs_selected: false,
     move_pinned_tabs: false,
