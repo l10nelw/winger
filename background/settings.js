@@ -1,20 +1,20 @@
 const DEFAULT = {
 
     keep_moved_focused_tab_focused: true,
-    keep_moved_tabs_selected: false,
+    keep_moved_tabs_selected: true,
     move_pinned_tabs: false,
     move_pinned_tabs_if_all_pinned: true,
 
-    popup_bring: true,
-    popup_send: true,
-    popup_edit: true,
-    popup_help: true,
-    popup_settings: true,
+    show_popup_bring: true,
+    show_popup_send: true,
+    show_popup_edit: true,
+    show_popup_help: true,
+    show_popup_settings: true,
 
-    show_badge: true,
+    show_badge: false,
 
-    enable_link_menu: true,
     enable_tab_menu: true,
+    enable_link_menu: true,
 
 };
 

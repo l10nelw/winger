@@ -60,9 +60,9 @@ const row = {
     removeElements(SETTINGS) {
         const elements = {
             // setting:  selector
-            popup_bring: '.bring',
-            popup_send:  '.send',
-            popup_edit:  '.edit',
+            show_popup_bring: '.bring',
+            show_popup_send:  '.send',
+            show_popup_edit:  '.edit',
         };
         for (const [element, selector] of Object.entries(elements)) {
             if (SETTINGS[element]) {
@@ -115,8 +115,8 @@ const toolbar = {
     removeElements(SETTINGS) {
         const elements = {
             // setting:     selector
-            popup_help:     '#help',
-            popup_settings: '#settings',
+            show_popup_help:     '#help',
+            show_popup_settings: '#settings',
         }
         for (const [element, selector] of Object.entries(elements)) {
             if (!SETTINGS[element]) $toolbar.querySelector(selector).remove();
