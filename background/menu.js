@@ -1,5 +1,4 @@
 import * as Modifier from '../modifier.js';
-import { SETTINGS } from './settings.js';
 import { sortedMetaWindows, getName } from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
