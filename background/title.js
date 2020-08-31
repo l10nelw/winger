@@ -1,17 +1,13 @@
 import { getName } from './metadata.js';
 import { getShortcut } from '../utils.js';
 
-export function update(windowId) {
+export async function update(windowId) {
     const titlePreface = `${getName(windowId)} - `;
-    updateTitlebar(windowId, titlePreface);
-    updateIconTooltip(windowId, titlePreface);
-}
 
-function updateTitlebar(windowId, titlePreface) {
+    // Titlebar
     browser.windows.update(windowId, { titlePreface });
-}
 
-async function updateIconTooltip(windowId, titlePreface) {
+    // Button tooltip
     const title = `${titlePreface}${browser.runtime.getManifest().name} (${await getShortcut()})`;
     browser.browserAction.setTitle({ windowId, title });
 }
