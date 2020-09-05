@@ -21,7 +21,7 @@
         margin-left: 2rem;
       }
       .btnRow {
-        margin: 1rem 0;
+        margin: 2rem 0;
         text-align: center;
       }
     </style>
@@ -30,14 +30,15 @@
     <form>
 
       <h2>Behaviour</h2>
-      <h3>Moving tabs (Send &amp; Bring)</h3>
+      <h3>Moving tabs between windows (send &amp; bring)</h3>
       <label><input class="setting" type="checkbox" name="keep_moved_focused_tab_focused"> <span>When a focused tab is moved, make it the destination window's new focused tab</span></label>
       <label><input class="setting" type="checkbox" name="keep_moved_tabs_selected"> <span>When multiple selected tabs are moved, keep them selected in the destination window</span></label>
       <label><input class="setting" type="checkbox" name="move_pinned_tabs" data-enabler> <span>Allow pinned tabs to be moved</span></label>
       <label class="indented">
-        <input class="setting" type="checkbox" data-enabled-by="move_pinned_tabs" name="move_pinned_tabs_if_all_pinned">
-        <span>Only if every selected tab is a pinned tab<br><small>(If there are unpinned tabs in a multiple tab selection, pinned ones will not move)</small></span>
+        <input class="setting" type="checkbox" data-enabled-by="move_pinned_tabs" name="move_pinned_tabs_if_all_pinned"> <span>Only if all selected tabs are pinned</span>
       </label>
+      <h3>Other</h3>
+      <label><input class="setting" type="checkbox" name="maximize_tearoff"> <span>When tearing off tabs from a maximized window, maximize the new window as well</span></label>
       <div class="btnRow"><button disabled>Apply Settings</button></div>
 
       <h2>Pop-up panel</h2>

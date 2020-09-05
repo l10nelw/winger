@@ -20,7 +20,6 @@ browser.runtime.onInstalled.addListener    (onExtInstalled);
 browser.windows.onCreated.addListener      (onWindowCreated);
 browser.windows.onRemoved.addListener      (onWindowRemoved);
 browser.windows.onFocusChanged.addListener (onWindowFocused);
-browser.tabs.onDetached.addListener        (onTabDetached);
 browser.runtime.onMessage.addListener      (onRequest);
 
 async function init() {
@@ -28,6 +27,10 @@ async function init() {
 
     await Metadata.init(windowObjects);
     windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
+
+    if (SETTINGS.maximize_tearoff) {
+        browser.tabs.onDetached.addListener (onTabDetached);
+    }
 
     if (SETTINGS.enable_tab_menu)  menusEnabled.push('tab');
     if (SETTINGS.enable_link_menu) menusEnabled.push('link');
@@ -44,13 +47,15 @@ function onExtInstalled(details) {
 }
 
 async function onWindowCreated(windowObject, isInit) {
-    await Metadata.add(windowObject);
+    if (!isInit) {
+        await Metadata.add(windowObject);
+        setMenuVisibility();
+    }
     const windowId = windowObject.id;
     Badge.update(windowId);
     Title.update(windowId);
     WindowTab.handleTornOffWindow(windowId);
     if (windowObject.focused) onWindowFocused(windowId);
-    if (!isInit) setMenuVisibility();
 }
 
 function onWindowRemoved(windowId) {
@@ -58,20 +63,10 @@ function onWindowRemoved(windowId) {
     setMenuVisibility();
 }
 
-function setMenuVisibility() {
-    Menu.show(menusEnabled, Metadata.count > 1);
-}
-
 function onWindowFocused(windowId) {
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windowMap[windowId].lastFocused = Date.now();
     Metadata.focusedWindow.id = windowId;
-}
-
-const isWindowBeingCreated = windowId => !(windowId in Metadata.windowMap);
-
-function onTabDetached(tabId, { oldWindowId }) {
-    Metadata.lastDetach.set(tabId, oldWindowId);
 }
 
 async function onRequest(request) {
@@ -100,6 +95,10 @@ async function onRequest(request) {
     }
 }
 
+function onTabDetached(tabId, { oldWindowId }) {
+    Metadata.lastDetach.set(tabId, oldWindowId);
+}
+
 function onMenuShow(info, tab) {
     const context = info.contexts.includes('link') ? 'link' : 'tab';
     Menu.populate(context, tab.windowId);
@@ -113,3 +112,6 @@ function onMenuClick(info, tab) {
     url ? Menu.openLink(url, windowId, info.modifiers)
         : Menu.moveTab(tab, windowId, tab.windowId, info.modifiers);
 }
+
+const setMenuVisibility = () => Menu.show(menusEnabled, Metadata.count > 1);
+const isWindowBeingCreated = windowId => !(windowId in Metadata.windowMap);

@@ -4,6 +4,7 @@ const DEFAULT = {
     keep_moved_tabs_selected: true,
     move_pinned_tabs: false,
     move_pinned_tabs_if_all_pinned: true,
+    maximize_tearoff: true,
 
     show_popup_bring: true,
     show_popup_send: true,
