@@ -63,14 +63,14 @@
       <label><input class="setting" type="checkbox" name="enable_link_menu"> <span>Enable link context menu</span></label>
       <div class="btnRow"><button disabled>Apply Settings</button></div>
 
-      <h2>Keyboard shortcut</h2>
-      <p>The keyboard shortcut to open the pop-up panel is currently <span class="shortcut">[none]</span>. <span class="default-shortcut-text" hidden>(Default: <span class="default-shortcut">Alt+W</span>)</span></p>
-      <p>If desired, it can be changed in Firefox's centralized extension shortcuts page: Click the ⚙️&nbsp;button above this page, click <strong>Manage Extension Shortcuts</strong>, and look for the Winger shortcut.</p>
-
       <h2>Private windows</h2>
-      <p class="private-allowed-yes" hidden>Private windows are currently visible to Winger (recommended).</p>
-      <p class="private-allowed-no" hidden>Private windows are currently not visible to Winger. It is recommended to allow Winger access to private windows.</p>
-      <p>To change access to private windows, go to the <strong>Details</strong> tab at the top this page and choose an option for <strong>Run in Private Windows</strong>.</p>
+      <p class="private-allowed-yes" hidden>Private windows are currently <strong>accessible</strong> to Winger. Winger can list and interact with them.</p>
+      <p class="private-allowed-no" hidden>Private windows are currently <strong>not accessible</strong> to Winger. As far as Winger is concerned, they do not exist.</p>
+      <p>To change access to private windows, go to the <em>Details</em> tab at the top this page and choose an option for <em>Run in Private Windows</em>.</p>
+
+      <h2>Keyboard shortcut</h2>
+      <p>The keyboard shortcut to open the pop-up panel is currently <strong class="shortcut">[none]</strong>. <span class="default-shortcut-text" hidden>(Default: <span class="default-shortcut">Alt+W</span>)</span></p>
+      <p>It can be changed in Firefox's extension shortcuts manager: Click the ⚙️&nbsp;button above this page, click <em>Manage Extension Shortcuts</em>, and look for the Winger shortcut.</p>
 
     </form>
     <script src="options.js" type="module"></script>
