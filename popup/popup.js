@@ -115,13 +115,13 @@ export function getName($rowElement) {
 
 // Gather action parameters from event and $action element. If action and windowId found, send parameters to
 // background to request action execution.
-export async function requestAction(event, $action = event.target) {
+export function requestAction(event, $action = event.target) {
     const $row = $action.$row || $action;
     const windowId = $row._id;
     if (!windowId) return;
     const action = getActionAttr($action) || getActionAttr($row);
     if (!action) return;
-    await browser.runtime.sendMessage({
+    browser.runtime.sendMessage({
         action,
         windowId,
         originWindowId: $currentWindowRow._id,
