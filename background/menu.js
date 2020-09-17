@@ -7,9 +7,9 @@ const contextTitle = {
     link: 'Open Link in &Window...',
 }
 
-// Create a parent menu item for each context in array `menusEnabled`.
-export function init(menusEnabled) {
-    for (const context of menusEnabled) {
+// Create a parent menu item for each context in contextsEnabled.
+export function init(contextsEnabled) {
+    for (const context of contextsEnabled) {
         const contexts = [context];
         browser.menus.create({ contexts, id: context, title: contextTitle[context] });
         browser.menus.create({ contexts, parentId: context, id: `-${context}`, title: '-' }); // Dummy to avoid menu resizing onShown
@@ -28,10 +28,10 @@ export function populate(context, currentWindowId) {
     browser.menus.remove(`-${context}`); // Remove dummy if it exists
 }
 
-// Show or hide all menus.
-export function show(menusEnabled, visible = true) {
+// Show or hide all menus in contextsEnabled.
+export function show(contextsEnabled, visible = true) {
     const props = { visible };
-    menusEnabled.forEach(context => browser.menus.update(context, props));
+    contextsEnabled.forEach(context => browser.menus.update(context, props));
 }
 
 export function openLink(url, windowId, modifiers) {

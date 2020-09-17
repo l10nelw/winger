@@ -100,6 +100,7 @@ function onTabDetached(tabId, { oldWindowId }) {
 }
 
 function onMenuShow(info, tab) {
+    if (!tab) return;
     const context = info.contexts.includes('link') ? 'link' : 'tab';
     Menu.populate(context, tab.windowId);
     browser.menus.refresh();
