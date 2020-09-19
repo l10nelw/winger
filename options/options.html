@@ -30,18 +30,18 @@
     <form>
 
       <h2>Behaviour</h2>
-      <h3>Moving tabs between windows (send &amp; bring)</h3>
+      <h3>Moving tabs between windows (Send &amp; Bring)</h3>
       <label><input class="setting" type="checkbox" name="keep_moved_focused_tab_focused"> <span>When a focused tab is moved, make it the destination window's new focused tab</span></label>
       <label><input class="setting" type="checkbox" name="keep_moved_tabs_selected"> <span>When multiple selected tabs are moved, keep them selected in the destination window</span></label>
       <label><input class="setting" type="checkbox" name="move_pinned_tabs" data-enabler> <span>Allow pinned tabs to be moved</span></label>
       <label class="indented">
         <input class="setting" type="checkbox" data-enabled-by="move_pinned_tabs" name="move_pinned_tabs_if_all_pinned"> <span>Only if all selected tabs are pinned</span>
       </label>
-      <h3>Other</h3>
+      <h3>Tearing off tabs</h3>
       <label><input class="setting" type="checkbox" name="maximize_tearoff"> <span>When tearing off tabs from a maximized window, maximize the new window as well</span></label>
       <div class="btnRow"><button disabled>Apply Settings</button></div>
 
-      <h2>Pop-up panel</h2>
+      <h2>Pop-up Panel</h2>
       <label><input type="checkbox" name="popup_rowbtns" data-toggler> <span>Show all window row buttons</span></label>
       <div class="indented">
         <label><input class="setting" type="checkbox" data-toggled-by="popup_rowbtns" name="show_popup_send"> <span>Show Send</span></label>
@@ -55,20 +55,20 @@
       </div>
       <div class="btnRow"><button disabled>Apply Settings</button></div>
 
-      <h2>Button badge</h2>
+      <h2>Button Badge</h2>
       <label><input class="setting" type="checkbox" name="show_badge"> <span>Show window name on the Winger button<br><small>(Limited to the first few characters)</small></span></label>
 
-      <h2>Context menus</h2>
+      <h2>Context Menus</h2>
       <label><input class="setting" type="checkbox" name="enable_tab_menu"> <span>Enable tab context menu</span></label>
       <label><input class="setting" type="checkbox" name="enable_link_menu"> <span>Enable link context menu</span></label>
       <div class="btnRow"><button disabled>Apply Settings</button></div>
 
-      <h2>Private windows</h2>
+      <h2>Private Windows</h2>
       <p class="private-allowed-yes" hidden>Private windows are currently <strong>accessible</strong> to Winger. Winger can list and interact with them.</p>
       <p class="private-allowed-no" hidden>Private windows are currently <strong>not accessible</strong> to Winger. As far as Winger is concerned, they do not exist.</p>
       <p>To change access to private windows, go to the <em>Details</em> tab at the top this page and choose an option for <em>Run in Private Windows</em>.</p>
 
-      <h2>Keyboard shortcut</h2>
+      <h2>Keyboard Shortcut</h2>
       <p>The keyboard shortcut to open the pop-up panel is currently <strong class="shortcut">[none]</strong>. <span class="default-shortcut-text" hidden>(Default: <span class="default-shortcut">Alt+W</span>)</span></p>
       <p>It can be changed in Firefox's extension shortcuts manager: Click the ⚙️&nbsp;button above this page, click <em>Manage Extension Shortcuts</em>, and look for the Winger shortcut.</p>
 
