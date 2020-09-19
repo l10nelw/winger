@@ -18,73 +18,76 @@
       <p class="small">Last updated v1.3</p>
     </header>
 
-    <label class="collapse-box mb-5" tabindex="0">
+    <label class="collapse-box bordered-box mb-5" tabindex="0">
       <input type="checkbox" id="collapse" class="collapse-hide" checked hidden>
       <div class="row ai-center collapse-head">
-        <h2 class="col flex-grow center m-0">First, a few things you should know how to do on your browser</h2>
+        <h2 class="col flex-grow center m-0">First Things First...</h2>
         <div class="col collapse-arrow arrow-up"></div>
       </div>
-      <div class="collapse-body pt-2">
-        <section class="mb-2">
-          <h3>&bull; Select multiple tabs</h3>
-          <div class="left-mark-border pl-1 mx-1">
-            <p><kbd>Ctrl</kbd>+click on each tab you want to select, one by one.</p>
-            <p><kbd>Shift</kbd>+click on a tab to select all the tabs between it and the currently focused tab, inclusive.</p>
-          </div>
-        </section>
-        <section class="mb-2">
-          <h3>&bull; Create a new window</h3>
-          <div class="row equal-col">
-            <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
-              <h4 class="js-cmdOnMac">Ctrl+N</h4>
-              <p>Opens a new window.</p>
-              <p><kbd class="js-cmdOnMac">Ctrl+Shift+P</kbd> opens a new private window.</p>
-            </section>
-            <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
-              <h4>Tear off tab(s)</h4>
-              <p>With your mouse, drag-and-drop a tab off the tabs row to create a new window containing the selected tab(s).</p>
-            </section>
-            <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
-              <h4>Shift+click a link</h4>
-              <p>Opens the link in a new window.</p>
-              <p>(<kbd>Ctrl</kbd>+click opens it in a new tab.)</p>
-            </section>
-          </div>
-        </section>
-        <section class="mb-2">
-          <h3>&bull; Close a window <span class="small unbold">(Not the same as quitting the browser, which closes all windows.)</span></h3>
-          <div class="row equal-col">
-            <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
-              <h4>Click the &times;</h4>
-              <p>The close button at the top of every window.</p>
-            </section>
-            <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1">
-              <h4 class="js-cmdOnMac">Ctrl+Shift+W</h4>
-              <p>Closes the current window.</p>
-              <p>(<kbd class="js-cmdOnMac">Ctrl+W</kbd> closes the current tab.)</p>
-            </section>
-            <section class="col left-mark-border lastchild-mb-0 pl-1 mx-1 js-hideOnMac">
-              <h4>Shortcuts on Windows and Linux</h4>
-              <ul>
-                <li><kbd>Alt+F4</kbd></li>
-                <li><kbd>Alt+Space C</kbd></li>
-              </ul>
-            </section>
-          </div>
-        </section>
+      <div class="collapse-body mx-1 pt-2">
+        <article class="mb-2">
+          <h3 class="mb-2">A few things you should know how to do on your browser:</h3>
+          <section class="mb-2">
+            <h4>&bull; Select multiple tabs</h4>
+            <div class="bordered-left pl-1 mx-1">
+              <p><kbd class="bold">Ctrl+</kbd>click on each tab you want to select, one by one.</p>
+              <p><kbd class="bold">Shift+</kbd>click on a tab to select all the tabs between it and the currently focused tab, inclusive.</p>
+            </div>
+          </section>
+          <section class="mb-2">
+            <h4>&bull; Create a window</h4>
+            <div class="row equal-col">
+              <div class="col bordered-left lastchild-mb-0 pl-1 mx-1">
+                <p><kbd class="bold js-cmdOnMac">Ctrl+N</kbd> to open a new window.</p>
+                <p><kbd class="bold js-cmdOnMac">Ctrl+Shift+P</kbd> to open a new private window.</p>
+              </div>
+              <div class="col bordered-left lastchild-mb-0 pl-1 mx-1">
+                <p><strong>Tear off tab(s):</strong> With your mouse, drag-and-drop a tab off the tabs row to create a new window containing the selected tab(s).</p>
+              </div>
+              <div class="col bordered-left lastchild-mb-0 pl-1 mx-1">
+                <p><kbd class="bold">Shift+</kbd>click a link to open the link in a new window.</p>
+                <p>(<kbd>Ctrl+</kbd>click opens it in a new tab.)</p>
+              </div>
+            </div>
+          </section>
+          <section class="mb-2">
+            <h4 style="display: inline-block">&bull; Close a window</h4>
+            <span class="small unbold">(Not the same as quitting the browser, which closes all windows.)</span>
+            <div class="row equal-col">
+              <div class="col bordered-left lastchild-mb-0 pl-1 mx-1">
+                <p><strong>Click the &times;</strong> button at the top of a window to close it.</p>
+              </div>
+              <div class="col bordered-left lastchild-mb-0 pl-1 mx-1">
+                <p><kbd class="bold js-cmdOnMac">Ctrl+Shift+W</kbd> to close the current browser window.</p>
+                <p>(<kbd class="js-cmdOnMac">Ctrl+W</kbd> closes the current tab.)</p>
+              </div>
+              <div class="col bordered-left lastchild-mb-0 pl-1 mx-1 js-hideOnMac">
+                <p>Common shortcuts to close any window:</p>
+                <ul class="pt-0">
+                  <li><kbd class="bold">Alt+F4</kbd></li>
+                  <li><kbd class="bold">Alt+Space C</kbd></li>
+                </ul>
+              </div>
+            </div>
+          </section>
+        </article>
+        <article class="mb-2">
+          <h3>Your browser settings:</h3>
+          <p class="mx-1">If you want your open windows and window names to persist across browser sessions, go to Firefox <em>Preferences</em> and ensure <em>Restore previous session</em> is enabled.</p>
+        </article>
       </div>
     </label>
 
-    <section class="mb-5">
+    <article class="mb-5">
       <h2 class="center">The Winger Panel</h2>
-      <div class="row ai-center mb-1">
+      <section class="row ai-center mb-1">
         <p class="button mr-1" style="border-radius: 8px"><img src="../icons/winger.svg" alt="Winger icon"></p>
         <div>
-          <p>Click on the Winger button on your browser toolbar, or press <kbd class="js-shortcut js-cmdOnMac"></kbd>, to open the pop-up panel.</p>
-          <p class="small">Tip: You can move browser toolbar buttons onto the tabs row (via Customize Firefox) &ndash; a reasonable spot for tab- and window-related actions!</p>
+          <p>Click on the Winger button on your browser toolbar, or press <kbd class="bold js-shortcut js-cmdOnMac"></kbd>, to open the pop-up panel.</p>
+          <p class="small">Tip: You can move browser toolbar buttons onto the tabs row (right-click the toolbar, click <em>Customize...</em> to enter <em>Customize Firefox</em> mode) &ndash; a reasonable spot for tab- and window-related actions!</p>
         </div>
-      </div>
-      <div class="row">
+      </section>
+      <section class="row">
         <div class="col">
           <figure class="popup mb-1" role="img" aria-label="Winger panel">
             <div class="popup-row">
@@ -112,17 +115,17 @@
           </figure>
         </div>
         <div class="col mx-1">
-          <p>Every window is represented by a row, showing its name and how many tabs it contains.</p>
+          <p>Every window is represented by a row, showing its <strong>name</strong> and <strong>tab count</strong>.</p>
           <p>The topmost row represents the currently focused window (<strong>current window</strong>).</p>
           <p>Below it is the panel <strong>omnibox</strong>.</p>
           <p>If there are <strong>other windows</strong>, they are listed below the omnibox; the first row representing the most recently focused (last seen) window, followed by the next most recently focused window, and so on.</p>
           <p>Below the list is the <strong>status bar</strong> showing the total number of tabs and windows open.</p>
           <p>Lastly at the bottom is the panel <strong>toolbar</strong>.</p>
         </div>
-      </div>
-    </section>
+      </section>
+    </article>
 
-    <section class="mb-5">
+    <article class="mb-5">
       <h2 class="center">Basic Actions</h2>
       <div class="row equal-col mb-1">
         <section class="col mx-1">
@@ -142,7 +145,7 @@
             <p class="col button mr-1"><img src="../icons/send.svg" alt=""></p>
             <p class="col">The <strong>send</strong> button "sends" the selected tab(s) to the corresponding window without leaving the current window.</p>
           </div>
-          <p>Holding <kbd>Ctrl</kbd> while doing a <em>switch</em> turns it into a <strong>send</strong>. Thus, you can also <kbd>Ctrl</kbd>+click a row to send tabs to that window.</p>
+          <p>Holding <kbd class="bold">Ctrl</kbd> while doing a <em>switch</em> turns it into a <strong>send</strong>. Thus, you can also <kbd>Ctrl+</kbd>click a row to send tabs to that window.</p>
         </section>
         <section class="col mx-1">
           <h3>&bull; Bring Tab</h3>
@@ -150,7 +153,7 @@
             <p class="col button mr-1"><img src="../icons/bring.svg" alt=""></p>
             <p class="col">The <strong>bring</strong> button switches to the corresponding window while "bringing" the selected tab(s) along. Essentially <em>switch</em> and <em>send</em> combined.</p>
           </div>
-          <p>Holding <kbd>Shift</kbd> while doing a <em>switch</em> turns it into a <strong>bring</strong>. Thus, you can also <kbd>Shift</kbd>+click a row to bring tabs to that window.</p>
+          <p>Holding <kbd class="bold">Shift</kbd> while doing a <em>switch</em> turns it into a <strong>bring</strong>. Thus, you can also <kbd>Shift+</kbd>click a row to bring tabs to that window.</p>
         </section>
       </div>
       <section class="small mx-1 mb-1">
@@ -197,9 +200,9 @@
         <h3>Pinned tabs</h3>
         <p><em>Send</em> and <em>bring</em> can work on pinned tabs if enabled in <button type="button" class="settingsBtn">⚙️ Settings</button>.</p>
       </section>
-    </section>
+    </article>
 
-    <section class="mb-5">
+    <article class="mb-5">
       <h2 class="center">Name Windows</h2>
       <div class="row">
         <section class="col flex-grow mr-1 mb-2">
@@ -216,9 +219,9 @@
             <div class="col">
               <p>When the panel is in <strong>Edit Mode</strong>, you can type in a new name and then use the following keys:</p>
               <ul>
-                <li><p><kbd>Enter</kbd> to <em>save</em> the currently edited name and exit Edit Mode.</p></li>
-                <li><p><kbd>Up</kbd> or <kbd>Down</kbd> to <em>save</em> the currently edited name and edit another window name.</p></li>
-                <li><p><kbd>Esc</kbd> to close the panel, exiting Edit Mode without saving any changes to the currently edited name.</p></li>
+                <li><p><kbd class="bold">Enter</kbd> to <em>save</em> the currently edited name and exit Edit Mode.</p></li>
+                <li><p><kbd class="bold">Up</kbd> or <kbd class="bold">Down</kbd> to <em>save</em> the currently edited name and edit another window name.</p></li>
+                <li><p><kbd class="bold">Esc</kbd> to close the panel, exiting Edit Mode without saving any changes to the currently edited name.</p></li>
               </ul>
               <p>Names must be unique and may not begin with a forward slash ("/").</p>
             </div>
@@ -269,30 +272,34 @@
           </ul>
         </section>
       </div>
-    </section>
+    </article>
 
-    <section class="mb-5">
+    <article class="mb-5">
       <h2 class="center">Keyboard Navigation<br>& The Omnibox</h2>
       <section class="mb-2">
-        <p>Press <kbd class="js-shortcut js-cmdOnMac"></kbd> to open the panel. You can always check what the keyboard shortcut is by hovering your pointer over the Winger button. <img src="../icons/winger.svg" height="15" alt="Winger icon"></p>
-        <p>You can use the arrow keys to navigate the panel: <kbd>Up</kbd> and <kbd>Down</kbd> to select rows, <kbd>Left</kbd> and <kbd>Right</kbd> to select buttons. Press <kbd>Enter</kbd> or <kbd>Space</kbd> to activate a row or button.</p>
+        <p>Press <kbd class="bold js-shortcut js-cmdOnMac"></kbd> to open the panel. You can always check what the keyboard shortcut is by hovering your pointer over the Winger button. <img src="../icons/winger.svg" height="15" alt="Winger icon"></p>
+        <p>You can use the arrow keys to navigate the panel: <kbd class="bold">Up</kbd> and <kbd class="bold">Down</kbd> to select rows, <kbd class="bold">Left</kbd> and <kbd class="bold">Right</kbd> to select buttons. Press <kbd class="bold">Enter</kbd> or <kbd class="bold">Space</kbd> to activate a row or button.</p>
         <p>You should also use Winger's <strong>omnibox</strong> &ndash; a multi-purpose, multi-talented input field &ndash; to vastly accelerate operating Winger by keyboard.</p>
       </section>
       <section class="row mb-2">
         <div class="col mr-1">
           <h3>Primary omnibox powers</h3>
-          <ul class="pl-1" style="list-style-type: '&bigstar; '">
-            <li><p>Press <kbd>Enter</kbd> to <strong>switch</strong> to the first window listed below the omnibox.</p></li>
-            <li><p>Start typing in a window name to <strong>filter</strong> the list of other windows (which can change the first listed window). Filtering becomes more evidently useful the more windows you have.</p></li>
+          <ul class="pl-1 mb-2" style="list-style-type: '&bigstar; '">
+            <li><p>Start typing in a window name to <strong>filter</strong> the list of other windows.</p></li>
+            <li>
+              <p>Press <kbd class="bold">Enter</kbd> to <strong>switch</strong> to the first window listed below the omnibox.</p>
+              <div class="bordered-left pl-1">
+                <p><kbd>Ctrl</kbd>+<em>switch</em> performs a <strong>send</strong> and <kbd>Shift</kbd>+<em>switch</em> performs a <strong>bring</strong>.</p>
+                <p class="small">Tip: Pressing either of these modifier keys while the omnibox is empty will hint what it does.</p>
+              </div>
+            </li>
           </ul>
-          <p>Remember that <kbd>Ctrl</kbd>+<em>switch</em> invokes a <strong>send</strong> action and <kbd>Shift</kbd>+<em>switch</em> invokes a <strong>bring</strong> action.</p>
-          <p class="small">Tip: Pressing either of these modifier keys while the omnibox is empty will hint what it does.</p>
           <p>Thus in summary, to swiftly <strong>switch</strong> OR <strong>send tabs</strong> OR <strong>bring tabs</strong> to a window via keyboard:</p>
           <ol>
-            <li><p><kbd class="js-shortcut js-cmdOnMac"></kbd> to open the panel.</p></li>
+            <li><p><kbd class="bold js-shortcut js-cmdOnMac"></kbd> to open the panel.</p></li>
             <li><p>If the desired window row is not already immediately below the omnibox, start typing its name until it is.</p></li>
             <li>
-              <p><kbd>Enter</kbd> OR <kbd>Ctrl+Enter</kbd> OR <kbd>Shift+Enter</kbd>.</p>
+              <p><kbd class="bold">Enter</kbd> OR <kbd class="bold">Ctrl+Enter</kbd> OR <kbd class="bold">Shift+Enter</kbd>.</p>
               <p>Alternatively, use arrow keys to select the desired row or button.</p>
             </li>
           </ol>
@@ -318,32 +325,54 @@
           </figure>
         </div>
       </section>
-      <section class="mb-2">
-        <h3>Slash commands</h3>
-        <p>Certain actions can be performed by typing one of these slash commands in the omnibox, followed by <kbd>Enter</kbd>. Slash commands auto-complete as you type, saving you some keystrokes.</p>
-        <dl class="pl-1">
-          <dt><kbd>/help</kbd> or <kbd>/h</kbd> or just <kbd>/</kbd></dt>
-          <dd class="mb-1">Open this help page</dd>
-          <dt><kbd>/edit</kbd> or <kbd>/e</kbd></dt>
-          <dd class="mb-1">Enter Edit Mode to rename windows</dd>
-          <dt><kbd>/settings</kbd> or <kbd>/s</kbd></dt>
-          <dd class="mb-1">Open Winger settings</dd>
-        </dl>
-      </section>
-      <section class="small">
-        <h3>Customise the panel</h3>
-        <p>Once you get comfortable with the omnibox, you could remove any buttons you don't use</p>
-      </section>
-    </section>
+      <div class="row">
+        <section class="col mb-2">
+          <h3>Slash commands</h3>
+          <p>Certain actions can be performed by typing one of these slash commands in the omnibox, followed by <kbd class="bold">Enter</kbd>. Slash commands auto-complete as you type, saving you some keystrokes.</p>
+          <dl class="pl-1">
+            <dt><kbd class="bold">/help</kbd> or <kbd class="bold">/h</kbd> or just <kbd class="bold">/</kbd></dt>
+            <dd class="mb-1">Open this help page</dd>
+            <dt><kbd class="bold">/edit</kbd> or <kbd class="bold">/e</kbd></dt>
+            <dd class="mb-1">Enter Edit Mode to rename windows</dd>
+            <dt><kbd class="bold">/settings</kbd> or <kbd class="bold">/s</kbd></dt>
+            <dd class="mb-1">Open Winger settings</dd>
+          </dl>
+        </section>
+        <section class="col bordered-box small mx-1">
+          <h3>Customise the panel <button type="button" class="settingsBtn">⚙️ Settings</button></h3>
+          <p>Once you get comfortable enough with the omnibox, you could choose to remove any buttons that you no longer use.</p>
+          <p>Remove them all for a minimalist panel!</p>
+          <div class="center">
+            <figure class="popup" role="img" aria-label="Winger panel" style="text-align: start">
+              <div class="popup-row">
+                <strong class="popup-name">news</strong><small class="popup-tabCount">9</small>
+              </div>
+              <div class="popup-input"></div>
+              <div class="popup-row">
+                <span class="popup-name">client 🤩</span><small class="popup-tabCount">4</small>
+              </div>
+              <div class="popup-row">
+                <span class="popup-name">🧁 baking</span><small class="popup-tabCount">13</small>
+              </div>
+              <div class="popup-row">
+                <span class="popup-name">Project A</span><small class="popup-tabCount">20</small>
+              </div>
+              <div class="popup-status center small"># tabs # windows</div>
+            </figure>
+          </div>
+        </section>
 
-    <section class="row equal-col mb-5">
+      </div>
+    </article>
+
+    <article class="row equal-col mb-5">
      <section class="col mx-1">
        <h2 class="center">Feedback & Suggestions</h2>
      </section>
      <section class="col mx-1">
       <h2 class="center">Support Winger</h2>
      </section>
-    </section>
+    </article>
 
     <footer>
       <h2 class="center">Enjoy using Winger!</h2>

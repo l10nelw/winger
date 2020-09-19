@@ -27,7 +27,6 @@ h1, h2 {
 }
 kbd {
   font-size: larger;
-  font-weight: bold;
 }
 img {
   vertical-align: middle;
@@ -52,9 +51,6 @@ img {
 
 .collapse-box {
   display: block;
-  padding: 1rem;
-  border: 3px solid var(--borderc-base);
-  border-radius: 1rem;
   cursor: pointer;
 }
 .collapse-head {
@@ -84,11 +80,19 @@ img {
 }
 
 button.settingsBtn {
-  padding: 0;
+  border-radius: 2px;
+  padding: 2px 5px;
+  line-height: 1;
 }
 
-.light-border { border: 1px solid #ccc; }
-.left-mark-border { border-left: 3px solid var(--borderc-base); }
+.bordered-box {
+  border: 3px solid var(--borderc-base);
+  padding: 1rem;
+  border-radius: 1rem;
+}
+.bordered-left {
+  border-left: 3px solid var(--borderc-base);
+}
 
 .fg-private { color: var(--fgc-private); }
 .bg-private { background-color: var(--bgc-private); color: white; }
@@ -106,4 +110,5 @@ button.settingsBtn {
 .ai-center { align-items: center; }
 .center { text-align: center; }
 .small { font-size: small; }
+.bold { font-weight: bold; }
 .unbold { font-weight: normal; }
