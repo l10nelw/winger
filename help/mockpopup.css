@@ -20,12 +20,30 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     font-size: .9rem;
     display: inline-block;
+    position: relative;
     margin: 0;
     background-color: var(--bgc-base);
     color: var(--fgc-base);
     border: 1px solid var(--borderc-base);
     cursor: default;
     user-select: none;
+}
+
+.popup-point::before,
+.popup-point::after {
+    content: "";
+    position: absolute;
+    right: .25rem;
+    border-left: .7rem solid transparent;
+    border-right: .7rem solid transparent;
+}
+.popup-point::before {
+    top: -.7rem;
+    border-bottom: .7rem solid var(--borderc-base);
+}
+.popup-point::after {
+    top: calc(-.7rem + 1px);
+    border-bottom: .7rem solid var(--bgc-base);
 }
 
 .popup-row,
