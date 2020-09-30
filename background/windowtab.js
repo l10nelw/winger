@@ -12,15 +12,15 @@ const actionMap = {
     switch: switchWindow,
 };
 
-// Open extension page or switch to tab if already open.
+// Open extension page tab or if already open, switch to first tab found.
 async function openExtPage(pathname) {
     const url = browser.runtime.getURL(pathname);
-    const openedPages = await browser.tabs.query({ url });
-    if (openedPages.length) {
-        const tab = openedPages[0];
-        browser.tabs.reload(tab.id);
-        browser.tabs.update(tab.id, { active: true });
-        browser.windows.update(tab.windowId, { focused: true });
+    const openedTabs = await browser.tabs.query({ url });
+    if (openedTabs.length) {
+        const { id, windowId } = openedTabs[0];
+        browser.tabs.reload(id);
+        focusTab(id);
+        switchWindow(windowId);
     } else {
         browser.tabs.create({ url: `/${pathname}` });
     }
