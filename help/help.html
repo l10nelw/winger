@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>Winger Quick Guide</title>
+    <link rel="icon" type="image/svg" href="../icons/winger.svg">
     <link rel="stylesheet" href="mockpopup.css">
     <link rel="stylesheet" href="help.css">
   </head>
@@ -26,12 +27,16 @@
       </div>
       <div class="collapse-body mx-1 pt-2">
         <article class="mb-2">
-          <h3 class="mb-2">A few things you should know how to do on your browser:</h3>
+          <h3>Your browser settings:</h3>
+          <p class="mx-1">If you want your windows and window names to persist across browser sessions, go to Firefox <em>Preferences</em> and ensure <em>Restore previous session</em> is enabled.</p>
+        </article>
+        <article class="mb-2">
+          <h3 class="mb-2">Some basics of working with tabs/windows:</h3>
           <section class="mb-2">
             <h4>&bull; Select multiple tabs</h4>
             <div class="bordered-left pl-1 mx-1">
-              <p><kbd class="bold">Ctrl+</kbd>click on each tab you want to select, one by one.</p>
-              <p><kbd class="bold">Shift+</kbd>click on a tab to select all the tabs between it and the currently focused tab, inclusive.</p>
+              <p><strong><kbd>Ctrl+</kbd>click</strong> on each tab you want to select, one by one.</p>
+              <p><strong><kbd>Shift+</kbd>click</strong> on a tab to select all the tabs between it and the currently focused tab, inclusive.</p>
             </div>
           </section>
           <section class="mb-2">
@@ -42,10 +47,10 @@
                 <p><kbd class="bold js-cmdOnMac">Ctrl+Shift+P</kbd> to open a new private window.</p>
               </div>
               <div class="col bordered-left lastchild-mb-0 pl-1 mx-1">
-                <p><strong>Tear off tab(s):</strong> With your mouse, drag-and-drop a tab off the tabs row to create a new window containing the selected tab(s).</p>
+                <p><strong>Tear off tab(s):</strong> With your mouse, drag-and-drop a tab off the tab row to create a new window containing the selected tab(s).</p>
               </div>
               <div class="col bordered-left lastchild-mb-0 pl-1 mx-1">
-                <p><kbd class="bold">Shift+</kbd>click a link to open the link in a new window.</p>
+                <p><strong><kbd>Shift+</kbd>click a link</strong> to open the link in a new window.</p>
                 <p>(<kbd>Ctrl+</kbd>click opens it in a new tab.)</p>
               </div>
             </div>
@@ -59,7 +64,7 @@
               </div>
               <div class="col bordered-left lastchild-mb-0 pl-1 mx-1">
                 <p><kbd class="bold js-cmdOnMac">Ctrl+Shift+W</kbd> to close the current browser window.</p>
-                <p>(<kbd class="js-cmdOnMac">Ctrl+W</kbd> closes the current tab.)</p>
+                <p>(<kbd class="js-cmdOnMac">Ctrl+W</kbd> closes the selected tab(s).)</p>
               </div>
               <div class="col bordered-left lastchild-mb-0 pl-1 mx-1 js-hideOnMac">
                 <p>Common shortcuts to close any window:</p>
@@ -70,11 +75,16 @@
               </div>
             </div>
           </section>
+          <p class="small">And here's a sweet tip you might not have heard before:</p>
+          <section class="mb-2">
+            <h4>&bull; List all tabs in a window</h4>
+            <div class="bordered-left lastchild-mb-0 pl-1 mx-1">
+              <p>The <em>"List all tabs"</em> button appears whenever the tab row overflows. Click on it, or press <kbd class="bold">Ctrl+Shift+Tab</kbd>, to open a menu of tabs.</p>
+              <p>Each menu item can be right-clicked, just like a tab, to open its context menu. <small>This is as close as Firefox currently gets to native "vertical tabs"!</small></p>
+            </div>
+          </section>
         </article>
-        <article class="mb-2">
-          <h3>Your browser settings:</h3>
-          <p class="mx-1">If you want your open windows and window names to persist across browser sessions, go to Firefox <em>Preferences</em> and ensure <em>Restore previous session</em> is enabled.</p>
-        </article>
+
       </div>
     </label>
 
@@ -84,7 +94,7 @@
         <p class="button mr-1" style="border-radius: 8px"><img src="../icons/winger.svg" alt="Winger icon"></p>
         <div>
           <p>Click on the Winger button on your browser toolbar, or press <kbd class="bold js-shortcut js-cmdOnMac"></kbd>, to open the pop-up panel.</p>
-          <p class="small">Tip: You can move browser toolbar buttons onto the tabs row (right-click the toolbar, click <em>Customize...</em> to enter <em>Customize Firefox</em> mode) &ndash; a reasonable spot for tab- and window-related actions!</p>
+          <p class="small">Tip: You can move browser toolbar buttons onto the tab row &ndash; a reasonable spot for tab/window-related actions! To move buttons around, right-click the toolbar and click <em>Customize</em> to enter Customize Firefox mode.</p>
         </div>
       </section>
       <section class="row">
@@ -126,7 +136,7 @@
     </article>
 
     <article class="mb-5">
-      <h2 class="center">Basic Actions</h2>
+      <h2 class="center">Common Actions</h2>
       <div class="row equal-col mb-1">
         <section class="col mx-1">
           <h3>&bull; Switch Window</h3>
@@ -145,7 +155,7 @@
             <p class="col button mr-1"><img src="../icons/send.svg" alt=""></p>
             <p class="col">The <strong>send</strong> button "sends" the selected tab(s) to the corresponding window without leaving the current window.</p>
           </div>
-          <p>Holding <kbd class="bold">Ctrl</kbd> while doing a <em>switch</em> turns it into a <strong>send</strong>. Thus, you can also <kbd>Ctrl+</kbd>click a row to send tabs to that window.</p>
+          <p><kbd class="bold">Ctrl+</kbd><em>switch</em> performs a <strong>send</strong>. Thus, you can also <kbd>Ctrl+</kbd>click a row to send tabs to that window.</p>
         </section>
         <section class="col mx-1">
           <h3>&bull; Bring Tab</h3>
@@ -153,7 +163,7 @@
             <p class="col button mr-1"><img src="../icons/bring.svg" alt=""></p>
             <p class="col">The <strong>bring</strong> button switches to the corresponding window while "bringing" the selected tab(s) along. Essentially <em>switch</em> and <em>send</em> combined.</p>
           </div>
-          <p>Holding <kbd class="bold">Shift</kbd> while doing a <em>switch</em> turns it into a <strong>bring</strong>. Thus, you can also <kbd>Shift+</kbd>click a row to bring tabs to that window.</p>
+          <p><kbd class="bold">Shift+</kbd><em>switch</em> performs a <strong>bring</strong>. Thus, you can also <kbd>Shift+</kbd>click a row to bring tabs to that window.</p>
         </section>
       </div>
       <section class="small mx-1 mb-1">
@@ -206,14 +216,14 @@
       <h2 class="center">Name Windows</h2>
       <div class="row">
         <section class="col flex-grow mr-1 mb-2">
-          <p class="small mb-2">Winger assigns every window a default name (Window 1, Window 2 and so on), visible when a window has no user-given name.<br>
-            Unlike user-given names, default names are temporary and not guaranteed to persist across browser sessions.</p>
+          <p class="small mb-2">Winger assigns every window a default name (Window 1, Window 2 and so on), visible when a window has no user-given name.
+            <br>Unlike given names, default names are temporary and not guaranteed to persist across browser sessions.</p>
           <div class="col">
             <div class="row mb-1">
               <p class="col button mr-1"><img src="../icons/edit.svg" style="width: 60%" alt=""></p>
               <div class="col">
                 <p>The <strong>edit</strong> button lets you name/rename a window.</p>
-                <p>You can also edit the current window's name by double-clicking it.</p>
+                <p>You can also edit the current window's name by double-clicking it. <span title="New in v1.3">🆕</span></p>
               </div>
             </div>
             <div class="col">
@@ -258,7 +268,7 @@
         <section class="mb-2">
           <h3>Naming tips</h3>
           <ul>
-            <li><p>In Edit Mode, the status bar will show the title of the targeted window's active tab, to help you identify any windows that are not visible.</p></li>
+            <li><p>In Edit Mode, the status bar will show the title of the targeted window's active tab, to help you identify any windows that are not visible. <span title="New in v1.3">🆕</span></p></li>
             <li><p>You can include emojis in names. Windows and Mac have built-in emoji pickers (<kbd>Win+.</kbd> and <kbd>Cmd+Ctrl+Space</kbd> respectively). There are also Firefox extensions such as <a href="https://addons.mozilla.org/en-US/firefox/addon/awesome-emoji-picker/" target="_blank">Awesome Emoji Picker</a>.</p></li>
           </ul>
         </section>
@@ -266,8 +276,8 @@
           <h3>Where a window name appears</h3>
           <ul>
             <li><p>Title bar. Contents of the title bar also show up in your operating system's task manager or switcher (e.g. while Alt-Tabbing), even if you've set Firefox's title bars to be hidden.</p></li>
-            <li><p>Tooltip that appears when you hover your pointer over the Winger button.</p></li>
-            <li><p>Button badge on the Winger button (showing the first few characters of a name), if enabled in <button type="button" class="settingsBtn">⚙️ Settings</button>.</p></li>
+            <li><p>Tooltip that appears when you hover your pointer over the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon">. <span title="New in v1.3">🆕</span></p></li>
+            <li><p>Button badge on the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon"> (showing the first few characters of a name), if enabled in <button type="button" class="settingsBtn">⚙️ Settings</button>. <span title="New in v1.3">🆕</span></p></li>
             <li><p>And of course, open the panel any time to see the current window's name in bold.</p></li>
           </ul>
         </section>
@@ -277,7 +287,7 @@
     <article class="mb-5">
       <h2 class="center">Keyboard Navigation<br>& The Omnibox</h2>
       <section class="mb-2">
-        <p>Press <kbd class="bold js-shortcut js-cmdOnMac"></kbd> to open the panel. You can always check what the keyboard shortcut is by hovering your pointer over the Winger button. <img src="../icons/winger.svg" height="15" alt="Winger icon"></p>
+        <p>Press <kbd class="bold js-shortcut js-cmdOnMac"></kbd> to open the panel. You can always check what the keyboard shortcut is by hovering your pointer over the Winger button <img src="../icons/winger.svg" height="15" alt="Winger icon">.</p>
         <p>You can use the arrow keys to navigate the panel: <kbd class="bold">Up</kbd> and <kbd class="bold">Down</kbd> to select rows, <kbd class="bold">Left</kbd> and <kbd class="bold">Right</kbd> to select buttons. Press <kbd class="bold">Enter</kbd> or <kbd class="bold">Space</kbd> to activate a row or button.</p>
         <p>You should also use Winger's <strong>omnibox</strong> &ndash; a multi-purpose, multi-talented input field &ndash; to vastly accelerate operating Winger by keyboard.</p>
       </section>
@@ -289,7 +299,7 @@
             <li>
               <p>Press <kbd class="bold">Enter</kbd> to <strong>switch</strong> to the first window listed below the omnibox.</p>
               <div class="bordered-left pl-1">
-                <p><kbd>Ctrl</kbd>+<em>switch</em> performs a <strong>send</strong> and <kbd>Shift</kbd>+<em>switch</em> performs a <strong>bring</strong>.</p>
+                <p>Recall that <kbd>Ctrl</kbd>+<em>switch</em> performs a <strong>send</strong> and <kbd>Shift</kbd>+<em>switch</em> performs a <strong>bring</strong>.</p>
                 <p class="small">Tip: Pressing either of these modifier keys while the omnibox is empty will hint what it does.</p>
               </div>
             </li>
@@ -328,7 +338,7 @@
       <div class="row">
         <section class="col mb-2">
           <h3>Slash commands</h3>
-          <p>Certain actions can be performed by typing one of these slash commands in the omnibox, followed by <kbd class="bold">Enter</kbd>. Slash commands auto-complete as you type, saving you some keystrokes.</p>
+          <p>Certain actions can be performed by typing one of these slash commands in the omnibox, followed by <kbd class="bold">Enter</kbd>. Slash commands auto-complete as you type.</p>
           <dl class="pl-1">
             <dt><kbd class="bold">/help</kbd> or <kbd class="bold">/h</kbd> or just <kbd class="bold">/</kbd></dt>
             <dd class="mb-1">Open this help page</dd>
@@ -340,8 +350,8 @@
         </section>
         <section class="col bordered-box small mx-1">
           <h3>Customise the panel <button type="button" class="settingsBtn">⚙️ Settings</button></h3>
-          <p>Once you get comfortable enough with the omnibox, you could choose to remove any buttons that you no longer use.</p>
-          <p>Remove them all for a minimalist panel!</p>
+          <p>Once you get comfortable enough with the omnibox, you have the option of removing any buttons that you no longer use.</p>
+          <p>Remove them all if you like a minimalist panel!</p>
           <div class="center">
             <figure class="popup popup-point" role="img" aria-label="Winger panel" style="text-align: start">
               <div class="popup-row">
@@ -365,17 +375,33 @@
       </div>
     </article>
 
-    <article class="row equal-col mb-5">
-     <section class="col mx-1">
-       <h2 class="center">Feedback & Suggestions</h2>
-     </section>
-     <section class="col mx-1">
-      <h2 class="center">Support Winger</h2>
-     </section>
+    <article class="mb-5">
+      <h2 class="center">Context Menus</h2>
+      <p class="small">Winger commands are available in the following context menus once there are at least two windows open.</p>
+      <h3>Tab context menu</h3>
+      <div class="mx-1">
+        <p>Right-click on a tab to get the <em class="bold">Send Tab(s) to Window…</em> menu item, which opens a submenu of destination windows (sorted by recently focused).</p>
+        <p>Click a submenu item to <em>send</em> the tab to the chosen window. (As you might expect, <kbd>Shift+</kbd>click to <em>bring</em> the tab instead.)</p>
+        <p>If there are multiple tabs selected, the action will apply to them as well.</p>
+      </div>
+      <h3>Link context menu</h3>
+      <div class="mx-1">
+        <p>Right-click on a link in a page to get the similar <em class="bold">Open Link in Window…</em> menu item, which opens the same submenu.</p>
+        <p>Click a submenu item to open the link in the chosen window. (<kbd>Shift+</kbd>click will also <em>switch</em> to the window.)</p>
+      </div>
     </article>
 
-    <footer>
-      <h2 class="center">Enjoy using Winger!</h2>
+    <footer class="row equal-col mb-1">
+     <article class="col mx-1">
+       <h2 class="center">I Love Feedback</h2>
+      <p>Do leave a rating and review on <a href="https://addons.mozilla.org/en-US/firefox/addon/winger/">Winger's addon page</a>.</p>
+      <p>Submit suggestions, feature requests, bug reports and any other issues (including issues about this Quick Guide) to <a href="https://github.com/l10nelw/winger/issues/">Winger's GitHub page</a>.</p>
+       <p>Or just <a href="mailto:lionelster@gmail.com">drop me an email</a>.</p>
+     </article>
+     <article class="col bordered-left pl-2 mx-1">
+      <h2 class="center">Support Winger</h2>
+      <p>Winger is a labour of love, but a lot of labour nonetheless. If Winger has been useful to you, and you wish to support it and its continual development, please <a href="https://www.buymeacoffee.com/lionelw">☕ buy me a coffee</a>.</p>
+     </article>
     </footer>
 
     <script src="help.js" type="module"></script>
