@@ -11,8 +11,8 @@
 
     <header class="center mb-5">
       <img src="../icons/winger.svg" width="50" alt="Winger icon">
-      <h1 class="unbold">
-        <span style="font-size: 2.5rem"><b>Winger</b>: A <b>Win</b>dow Mana<b>ger</b></span>
+      <h1>
+        <span style="font-size: 2.5rem; font-weight: normal"><b>Winger</b>: A <b>Win</b>dow Mana<b>ger</b></span>
         <br><small class="js-version"></small>
         <br><b>Quick Guide</b>
       </h1>
@@ -57,7 +57,7 @@
           </section>
           <section class="mb-2">
             <h4 style="display: inline-block">&bull; Close a window</h4>
-            <span class="small unbold">(Not the same as quitting the browser, which closes all windows.)</span>
+            <small>(Not the same as quitting the browser, which closes all windows.)</small>
             <div class="row equal-col">
               <div class="col bordered-left lastchild-mb-0 pl-1 mx-1">
                 <p><strong>Click the &times;</strong> button at the top of a window to close it.</p>
@@ -80,7 +80,7 @@
             <h4>&bull; List all tabs in a window</h4>
             <div class="bordered-left lastchild-mb-0 pl-1 mx-1">
               <p>The <em>"List all tabs"</em> button appears whenever the tab row overflows. Click on it, or press <kbd class="bold">Ctrl+Shift+Tab</kbd>, to open a menu of tabs.</p>
-              <p>Each menu item can be right-clicked, just like a tab, to open its context menu. <small>This is as close as Firefox currently gets to native "vertical tabs"!</small></p>
+              <p>Each menu item can be right-clicked, just like a tab, to open its context menu. <small>This is as close as Firefox currently gets to native vertical tabs!</small></p>
             </div>
           </section>
         </article>
@@ -94,7 +94,7 @@
         <p class="button mr-1" style="border-radius: 8px"><img src="../icons/winger.svg" alt="Winger icon"></p>
         <div>
           <p>Click on the Winger button on your browser toolbar, or press <kbd class="bold js-shortcut js-cmdOnMac"></kbd>, to open the pop-up panel.</p>
-          <p class="small">Tip: You can move browser toolbar buttons onto the tab row &ndash; a reasonable spot for tab/window-related actions! To move buttons around, right-click the toolbar and click <em>Customize</em> to enter Customize Firefox mode.</p>
+          <p class="small">Tip: You can move browser toolbar buttons onto the tab row &ndash; a reasonable spot for tab/window-related actions. To move buttons around, right-click the toolbar and click <em>Customize</em> to enter Customize Firefox mode.</p>
         </div>
       </section>
       <section class="row">
@@ -223,7 +223,7 @@
               <p class="col button mr-1"><img src="../icons/edit.svg" style="width: 60%" alt=""></p>
               <div class="col">
                 <p>The <strong>edit</strong> button lets you name/rename a window.</p>
-                <p>You can also edit the current window's name by double-clicking it. <span title="New in v1.3">🆕</span></p>
+                <p>You can also edit the current window's name by double-clicking it. <span class="new">NEW</span></p>
               </div>
             </div>
             <div class="col">
@@ -268,7 +268,7 @@
         <section class="mb-2">
           <h3>Naming tips</h3>
           <ul>
-            <li><p>In Edit Mode, the status bar will show the title of the targeted window's active tab, to help you identify any windows that are not visible. <span title="New in v1.3">🆕</span></p></li>
+            <li><p>In Edit Mode, the status bar will show the title of the targeted window's active tab, to help you identify any windows that are not visible. <span class="new">NEW</span></p></li>
             <li><p>You can include emojis in names. Windows and Mac have built-in emoji pickers (<kbd>Win+.</kbd> and <kbd>Cmd+Ctrl+Space</kbd> respectively). There are also Firefox extensions such as <a href="https://addons.mozilla.org/en-US/firefox/addon/awesome-emoji-picker/" target="_blank">Awesome Emoji Picker</a>.</p></li>
           </ul>
         </section>
@@ -276,8 +276,8 @@
           <h3>Where a window name appears</h3>
           <ul>
             <li><p>Title bar. Contents of the title bar also show up in your operating system's task manager or switcher (e.g. while Alt-Tabbing), even if you've set Firefox's title bars to be hidden.</p></li>
-            <li><p>Tooltip that appears when you hover your pointer over the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon">. <span title="New in v1.3">🆕</span></p></li>
-            <li><p>Button badge on the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon"> (showing the first few characters of a name), if enabled in <button type="button" class="settingsBtn">⚙️ Settings</button>. <span title="New in v1.3">🆕</span></p></li>
+            <li><p>Tooltip that appears when you hover your pointer over the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon">. <span class="new">NEW</span></p></li>
+            <li><p>Button badge on the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon"> (showing the first few characters of a name), if enabled in <button type="button" class="settingsBtn">⚙️ Settings</button>. <span class="new">NEW</span></p></li>
             <li><p>And of course, open the panel any time to see the current window's name in bold.</p></li>
           </ul>
         </section>
@@ -291,8 +291,8 @@
         <p>You can use the arrow keys to navigate the panel: <kbd class="bold">Up</kbd> and <kbd class="bold">Down</kbd> to select rows, <kbd class="bold">Left</kbd> and <kbd class="bold">Right</kbd> to select buttons. Press <kbd class="bold">Enter</kbd> or <kbd class="bold">Space</kbd> to activate a row or button.</p>
         <p>You should also use Winger's <strong>omnibox</strong> &ndash; a multi-purpose, multi-talented input field &ndash; to vastly accelerate operating Winger by keyboard.</p>
       </section>
-      <section class="row mb-2">
-        <div class="col mr-1">
+      <section class="row w100 mb-2">
+        <div class="col flex-grow mr-1">
           <h3>Primary omnibox powers</h3>
           <ul class="pl-1 mb-2" style="list-style-type: '&bigstar; '">
             <li><p>Start typing in a window name to <strong>filter</strong> the list of other windows.</p></li>
@@ -400,7 +400,7 @@
      </article>
      <article class="col bordered-left pl-2 mx-1">
       <h2 class="center">Support Winger</h2>
-      <p>Winger is a labour of love, but a lot of labour nonetheless. If Winger has been useful to you, and you wish to support it and its continual development, please <a href="https://www.buymeacoffee.com/lionelw">☕ buy me a coffee</a>.</p>
+      <p>Winger is a labour of love, but a lot of labour nonetheless. If Winger has been useful to you, and you wish to support it and its continual development, you can <a href="https://www.buymeacoffee.com/lionelw" style="white-space: nowrap">☕ buy me a coffee</a>.</p>
      </article>
     </footer>
 
