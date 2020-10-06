@@ -1,12 +1,6 @@
 export const windowMap = {};
 export const focusedWindow = { id: null };
 export let count = 0;
-export const lastDetach = {
-    set(tabId = null, oldWindowId = null) {
-        this.tabId = tabId;
-        this.oldWindowId = oldWindowId;
-    }
-};
 export const defaultNameHead = 'Window ';
 const invalidCharsNameRegex = /^\//;
 let lastWindowNumber = 0;
@@ -16,7 +10,6 @@ const compareLastFocused = (a, b) => b.lastFocused - a.lastFocused;
 
 // Perform equivalent of add() for every open window all at once.
 export async function init(windowObjects) {
-    lastDetach.set();
     let windowIds = [];
     for (const windowObject of windowObjects) {
         const windowId = windowObject.id;

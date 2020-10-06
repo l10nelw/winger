@@ -1,5 +1,5 @@
 import * as Modifier from '../modifier.js';
-import { lastDetach, windowMap } from './metadata.js';
+import { windowMap } from './metadata.js';
 import { SETTINGS } from './settings.js';
 
 export const openHelp = () => openExtPage('help/help.html');
@@ -26,20 +26,10 @@ async function openExtPage(pathname) {
     }
 }
 
-// Maximize new window created by detached tab(s).
-// Honour SETTINGS.keep_moved_tabs_selected.
-export async function handleTornOffWindow(windowId) {
-    if (!lastDetach.tabId) return;
-    const tab = await browser.tabs.get(lastDetach.tabId).catch(() => null);
-    if (tab?.windowId === windowId) { // If detached tab is now in this window
-        const { state } = await browser.windows.get(lastDetach.oldWindowId);
-        if (state === 'maximized') browser.windows.update(windowId, { state });
-    }
-    if (!SETTINGS.keep_moved_tabs_selected) {
-        const tabsToDeselect = await browser.tabs.query({ windowId, active: false, highlighted: true });
-        tabsToDeselect.forEach(tab => deselectTab(tab.id));
-    }
-    lastDetach.set();
+export async function handleTabSelection(windowId) {
+    if (SETTINGS.keep_moved_tabs_selected) return;
+    const tabsToDeselect = await browser.tabs.query({ windowId, active: false, highlighted: true });
+    tabsToDeselect.forEach(tab => deselectTab(tab.id));
 }
 
 // Given `windowId`, select action to execute based on `action` and `modifiers`.

@@ -28,10 +28,6 @@ async function init() {
     await Metadata.init(windowObjects);
     windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
 
-    if (SETTINGS.maximize_tearoff) {
-        browser.tabs.onDetached.addListener (onTabDetached);
-    }
-
     if (SETTINGS.enable_tab_menu)  menusEnabled.push('tab');
     if (SETTINGS.enable_link_menu) menusEnabled.push('link');
     if (menusEnabled.length) {
@@ -54,7 +50,7 @@ async function onWindowCreated(windowObject, isInit) {
     const windowId = windowObject.id;
     Badge.update(windowId);
     Title.update(windowId);
-    WindowTab.handleTornOffWindow(windowId);
+    WindowTab.handleTabSelection(windowId);
     if (windowObject.focused) onWindowFocused(windowId);
 }
 
@@ -93,10 +89,6 @@ async function onRequest(request) {
         }
         return error;
     }
-}
-
-function onTabDetached(tabId, { oldWindowId }) {
-    Metadata.lastDetach.set(tabId, oldWindowId);
 }
 
 function onMenuShow(info, tab) {
