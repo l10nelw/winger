@@ -1,7 +1,7 @@
 import { getScrollbarWidth, hasClass, addClass, toggleClass } from '../utils.js';
 import { $otherWindowsList, $toolbar, unsetActionAttr } from './popup.js';
 import { $omnibox } from './omnibox.js';
-import * as Count from './count.js'; // Runs './status.js'
+import * as Status from './status.js';
 import * as Tooltip from './tooltip.js';
 import * as Modifier from '../modifier.js';
 
@@ -19,7 +19,7 @@ export default async function init() {
     const $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
     const modifierHints = createModifierHints(selectedTabCount);
 
-    Count.init($allWindowRows);
+    Status.init($allWindowRows);
     Tooltip.init(selectedTabCount);
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
     resizeBody(row.buttonCount);

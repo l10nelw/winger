@@ -1,8 +1,21 @@
-import { count } from './count.js';
-import { addClass, toggleClass } from '../utils.js';
+import { sum, addClass, toggleClass } from '../utils.js';
 
 const $status = document.getElementById('status');
+const count = { tabs: 0, windows: 0 };
 let defaultText;
+
+export async function init($allWindowRows) {
+    const tabCounts = await Promise.all($allWindowRows.map(getAndShow));
+    count.tabs = tabCounts.reduce(sum);
+    count.windows = $allWindowRows.length;
+    update();
+
+    async function getAndShow($row) {
+        const tabCount = (await browser.tabs.query({ windowId: $row._id })).length; // get
+        $row.$tabCount.textContent = tabCount; // show
+        return tabCount;
+    }
+}
 
 // Show text in status bar. If no text given, show last updated defaultText.
 export function show(text) {
