@@ -10,8 +10,8 @@ const $currentWindowList = document.getElementById('currentWindow');
 export default async function init() {
     const { SETTINGS, metaWindows, currentWindowId, selectedTabCount } = await browser.runtime.sendMessage({ popup: true });
 
-    row.removeElements(SETTINGS);
-    toolbar.removeElements(SETTINGS);
+    row.removeCells(SETTINGS);
+    toolbar.removeButtons(SETTINGS);
 
     populate(metaWindows, currentWindowId);
     const $currentWindowRow = $currentWindowList.firstElementChild;
@@ -54,22 +54,22 @@ function populate(metaWindows, currentWindowId) {
 const row = {
 
     $template: document.getElementById('rowTemplate').content.firstElementChild,
-    elementSelectors: new Set(['.send', '.bring', '.input', '.tabCount', '.edit']),
+    cellSelectors: new Set(['.send', '.bring', '.input', '.tabCount', '.edit']),
     buttonCount: 0,
 
-    removeElements(SETTINGS) {
-        const elements = {
-            // setting:  selector
+    removeCells(SETTINGS) {
+        const cellMap = {
+            // setting:       selector
             show_popup_bring: '.bring',
             show_popup_send:  '.send',
             show_popup_edit:  '.edit',
         };
-        for (const [element, selector] of Object.entries(elements)) {
-            if (SETTINGS[element]) {
+        for (const [cell, selector] of Object.entries(cellMap)) {
+            if (SETTINGS[cell]) {
                 this.buttonCount++;
             } else {
                 this.$template.querySelector(selector).remove();
-                this.elementSelectors.delete(selector);
+                this.cellSelectors.delete(selector);
             }
         }
     },
@@ -77,16 +77,13 @@ const row = {
     create({ id, incognito, givenName, defaultName }, isCurrent) {
         const $row = document.importNode(this.$template, true);
 
-        // Add references to row elements, and in each, a reference to the row
-        for (const selector of this.elementSelectors) {
-            const $el = $row.querySelector(selector);
-            if (isCurrent && hasClass('tabAction', $el)) {
-                this.disableElement($el);
-                continue;
-            }
-            const property = selector.replace('.', '$');
-            $el.$row = $row;
-            $row[property] = $el;
+        // Add references to row's cells, and in each, a reference to the row
+        for (const selector of this.cellSelectors) {
+            const $cell = $row.querySelector(selector);
+            const reference = selector.replace('.', '$');
+            $cell.$row = $row;
+            $row[reference] = $cell;
+            if (isCurrent && hasClass('tabAction', $cell)) this.disableElement($cell);
         }
 
         // Add data
@@ -112,14 +109,14 @@ const row = {
 };
 
 const toolbar = {
-    removeElements(SETTINGS) {
-        const elements = {
-            // setting:     selector
+    removeButtons(SETTINGS) {
+        const buttonMap = {
+            // setting:          selector
             show_popup_help:     '#help',
             show_popup_settings: '#settings',
         }
-        for (const [element, selector] of Object.entries(elements)) {
-            if (!SETTINGS[element]) $toolbar.querySelector(selector).remove();
+        for (const [button, selector] of Object.entries(buttonMap)) {
+            if (!SETTINGS[button]) $toolbar.querySelector(selector).remove();
         }
     },
 };
