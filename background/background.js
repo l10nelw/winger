@@ -8,9 +8,8 @@ import * as Settings from './settings.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
 
-import * as Badge from './badge.js';
 import * as Title from './title.js';
-import * as Menu from './menu.js';
+let Badge, Menu;
 
 // Object.assign(window, { Metadata }); // for debugging
 
@@ -25,12 +24,15 @@ browser.runtime.onMessage.addListener      (onRequest);
 async function init() {
     const [windowObjects, SETTINGS] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
 
+    if (SETTINGS.show_badge) Badge = await import('./badge.js');
+
     await Metadata.init(windowObjects);
     windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
 
     if (SETTINGS.enable_tab_menu)  menusEnabled.push('tab');
     if (SETTINGS.enable_link_menu) menusEnabled.push('link');
     if (menusEnabled.length) {
+        Menu = await import('./menu.js');
         Menu.init(menusEnabled);
         browser.menus.onShown.addListener   (onMenuShow);
         browser.menus.onClicked.addListener (onMenuClick);
@@ -48,8 +50,8 @@ async function onWindowCreated(windowObject, isInit) {
         setMenuVisibility();
     }
     const windowId = windowObject.id;
-    Badge.update(windowId);
     Title.update(windowId);
+    Badge?.update(windowId);
     WindowTab.handleTabSelection(windowId);
     if (windowObject.focused) onWindowFocused(windowId);
 }
@@ -84,8 +86,8 @@ async function onRequest(request) {
         const windowId = request.windowId;
         const error = await Metadata.giveName(windowId, request.name);
         if (!error) {
-            Badge.update(windowId);
             Title.update(windowId);
+            Badge?.update(windowId);
         }
         return error;
     }
