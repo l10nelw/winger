@@ -51,7 +51,7 @@ const general = {
         $disabledActions.forEach($action => $action.tabIndex = tabIndex);
         document.body.dataset.editmode = yes;
         Omnibox.disable(yes);
-        Omnibox.info(yes ? omniboxHint : '');
+        Omnibox.placeholder(yes && omniboxHint);
     },
 
     activate() {

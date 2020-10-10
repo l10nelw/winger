@@ -97,11 +97,11 @@ export function showAllRows() {
 }
 
 export function clear() {
-    $omnibox.value = omnibox.placeholder = '';
+    $omnibox.value = $omnibox.placeholder = '';
     removeClass('slashCommand', $omnibox);
 }
 
-export function info(str = '') {
+export function placeholder(str = '') {
     $omnibox.placeholder = str;
 }
 

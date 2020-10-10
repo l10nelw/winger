@@ -70,13 +70,13 @@ function onKeyUp(event) {
     if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
     if (isRow($target) && (key === 'Enter' || key === ' ')) return requestAction(event, $target);
     if ($target === $omnibox) {
-        Omnibox.info();
+        Omnibox.placeholder();
         Omnibox.handleKeyUp(key, event);
     }
 }
 
 function onFocusOut(event) {
-    if (event.target == $omnibox) Omnibox.info();
+    if (event.target === $omnibox) Omnibox.placeholder();
 }
 
 function onDoubleClick() {
@@ -103,7 +103,7 @@ const inputEnterCheck = {
 function showModifierHint(key) {
     if (key === 'Control') key = 'Ctrl';
     const hint = modifierHints[key];
-    Omnibox.info(hint);
+    Omnibox.placeholder(hint);
     return hint;
 }
 
