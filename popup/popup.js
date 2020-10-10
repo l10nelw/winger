@@ -58,7 +58,7 @@ function onKeyDown(event) {
     const { key, target: $target } = event;
     inputEnterCheck.down(key, $target);
     if (EditMode.$active) return;
-    if (navigateByArrow(key, $target)) return;
+    if (navigateByArrow($target, key)) return;
     if (showModifierHint(key)) return;
     if (['Tab', 'Enter', ' '].includes(key)) return;
     if ($target !== $omnibox) $omnibox.focus();

@@ -11,8 +11,8 @@ export const removeClass = (cls, $el) => $el?.classList.remove(cls);
 export const toggleClass = (cls, $el, force) => $el?.classList.toggle(cls, force);
 
 // Element type
-export const isButton = $el => $el.tagName === 'BUTTON';
-export const isInput = $el => $el.tagName === 'INPUT';
+export const isButton = $el => $el?.tagName === 'BUTTON';
+export const isInput = $el => $el?.tagName === 'INPUT';
 
 // Add item to groupMap according to groupId.
 // The groupMap should be an existing object that maps a groupId to an array of member items.
