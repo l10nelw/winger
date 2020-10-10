@@ -47,7 +47,7 @@ const general = {
 
     toggle(yes) {
         const tabIndex = yes ? -1 : 0;
-        $disabledActions = $disabledActions || [...Popup.getActionElements(Popup.$body, ':not(.edit)')];
+        $disabledActions ||= [...Popup.getActionElements(Popup.$body, ':not(.edit)')];
         $disabledActions.forEach($action => $action.tabIndex = tabIndex);
         document.body.dataset.editmode = yes;
         Omnibox.disable(yes);
