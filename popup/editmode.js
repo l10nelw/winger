@@ -1,6 +1,6 @@
 /*
-Edit Mode is activated on two levels, general and row (specific).
-General activation governs state that is sustained even while different rows change active status.
+Edit Mode is activated at two levels, general and row (specific).
+General activation governs state that persists while different rows change active status.
 */
 
 import { hasClass, toggleClass } from '../utils.js';
@@ -44,7 +44,6 @@ async function done() {
 }
 
 const general = {
-
     toggle(yes) {
         const tabIndex = yes ? -1 : 0;
         $disabledActions ||= [...Popup.getActionElements(Popup.$body, ':not(.edit)')];
@@ -53,24 +52,20 @@ const general = {
         Omnibox.disable(yes);
         Omnibox.placeholder(yes && omniboxHint);
     },
-
     activate() {
         Omnibox.clear();
         Omnibox.showAllRows();
         this.toggle(true);
     },
-
     deactivate() {
         this.toggle(false);
         Omnibox.focus();
         Status.show();
         $active = null;
     },
-
 };
 
 const row = {
-
     toggle(yes) {
         toggleClass('editModeRow', $active, yes);
         toggleClass('allowRightClick', $activeInput, yes);
@@ -79,7 +74,6 @@ const row = {
         const $edit = $active.$edit;
         if ($edit) [$edit.title, altTooltip] = [altTooltip, $edit.title];
     },
-
     activate($row) {
         showTitleInStatus($row);
         $active = $row;
@@ -88,7 +82,6 @@ const row = {
         $activeInput.select();
         this.toggle(true);
     },
-
     deactivate() {
         $activeInput.setSelectionRange(0, 0); // Ensures the beginning is visible in case of a very long name
         const name = Popup.getName($activeInput);
@@ -96,7 +89,6 @@ const row = {
         $actions.forEach($action => $action.title = Tooltip.updateName($action.title, name));
         this.toggle(false);
     },
-
     shiftActive(down) {
         const $rows = Popup.$allWindowRows;
         const thisIndex = $rows.indexOf($active);
@@ -110,7 +102,6 @@ const row = {
         }
         activate($rows[newIndex]);
     },
-
 };
 
 async function showTitleInStatus($row) {
