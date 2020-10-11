@@ -4,7 +4,7 @@ import * as WindowTab from './windowtab.js';
 
 let contextsEnabled;
 const contextTitle = {
-    tab:  'Send Tab(s) to &Window...',
+    tab:  'Send Tab to &Window...',
     link: 'Open Link in &Window...',
 }
 
@@ -60,15 +60,6 @@ function openLink(url, windowId, modifiers) {
 }
 
 async function moveTab(tab, windowId, modifiers, originWindowId) {
-    const tabId = tab.id;
-    let tabs = await WindowTab.getSelectedTabs();
-    if (tabs.length === 1) {
-        // If there is no multiple tab selection, select only the target tab
-        tabs = [tab];
-    } else if (!tabs.some(t => t.id === tabId)) {
-        // If target tab is not among the selected tabs, include it
-        tabs.push(tab);
-        tabs.sort((a, b) => a.index - b.index);
-    }
+    const tabs = tab.highlighted ? await WindowTab.getSelectedTabs() : [tab];
     WindowTab.doAction({ action: 'send', windowId, originWindowId, modifiers, tabs });
 }
