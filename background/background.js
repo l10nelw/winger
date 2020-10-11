@@ -13,7 +13,6 @@ let Badge, Menu;
 
 // Object.assign(window, { Metadata }); // for debugging
 
-const menusEnabled = [];
 init();
 browser.runtime.onInstalled.addListener    (onExtInstalled);
 browser.windows.onCreated.addListener      (onWindowCreated);
@@ -29,14 +28,12 @@ async function init() {
     await Metadata.init(windowObjects);
     windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
 
+    const menusEnabled = [];
     if (SETTINGS.enable_tab_menu)  menusEnabled.push('tab');
     if (SETTINGS.enable_link_menu) menusEnabled.push('link');
     if (menusEnabled.length) {
         Menu = await import('./menu.js');
         Menu.init(menusEnabled);
-        browser.menus.onShown.addListener   (onMenuShow);
-        browser.menus.onClicked.addListener (onMenuClick);
-        setMenuVisibility();
     }
 }
 
@@ -47,7 +44,7 @@ function onExtInstalled(details) {
 async function onWindowCreated(windowObject, isInit) {
     if (!isInit) {
         await Metadata.add(windowObject);
-        setMenuVisibility();
+        Menu?.update();
     }
     const windowId = windowObject.id;
     Title.update(windowId);
@@ -58,7 +55,7 @@ async function onWindowCreated(windowObject, isInit) {
 
 function onWindowRemoved(windowId) {
     Metadata.remove(windowId);
-    setMenuVisibility();
+    Menu?.update();
 }
 
 function onWindowFocused(windowId) {
@@ -93,20 +90,4 @@ async function onRequest(request) {
     }
 }
 
-function onMenuShow(info, tab) {
-    if (!tab) return;
-    const context = info.contexts.includes('link') ? 'link' : 'tab';
-    Menu.populate(context, tab.windowId);
-    browser.menus.refresh();
-}
-
-function onMenuClick(info, tab) {
-    const windowId = parseInt(info.menuItemId);
-    if (!windowId) return;
-    const url = info.linkUrl;
-    url ? Menu.openLink(url, windowId, info.modifiers)
-        : Menu.moveTab(tab, windowId, tab.windowId, info.modifiers);
-}
-
-const setMenuVisibility = () => Menu.show(menusEnabled, Metadata.count > 1);
 const isWindowBeingCreated = windowId => !(windowId in Metadata.windowMap);
