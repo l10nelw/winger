@@ -38,7 +38,7 @@ function onMenuClick(info, tab) {
 
 // Update menu visibility based on window count.
 export function update() {
-    const props = { visible: Metadata.count > 1 };
+    const props = { visible: Metadata.windowCount > 1 };
     contextsEnabled.forEach(context => browser.menus.update(context, props));
 }
 

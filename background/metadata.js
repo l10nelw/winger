@@ -1,6 +1,6 @@
 export const windowMap = {};
 export const focusedWindow = { id: null };
-export let count = 0;
+export let windowCount = 0;
 export const defaultNameHead = 'Window ';
 const invalidCharsNameRegex = /^\//;
 let lastWindowNumber = 0;
@@ -15,7 +15,7 @@ export async function init(windowObjects) {
         const windowId = windowObject.id;
         windowIds.push(windowId);
         windowMap[windowId] = createMetaWindow(windowObject);
-        count++;
+        windowCount++;
     }
     await nameMetaWindows(windowIds);
 }
@@ -24,13 +24,13 @@ export async function add(windowObject) {
     const windowId = windowObject.id;
     if (windowId in windowMap) return;
     windowMap[windowId] = createMetaWindow(windowObject);
-    count++;
+    windowCount++;
     await nameMetaWindows([windowId]);
 }
 
 export function remove(windowId) {
     delete windowMap[windowId];
-    count--;
+    windowCount--;
 }
 
 function createMetaWindow({ id, incognito }) {
