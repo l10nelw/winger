@@ -26,7 +26,7 @@ async function openExtPage(pathname) {
     }
 }
 
-export async function handleTabSelection(windowId) {
+export async function handleTearOff(windowId) {
     if (SETTINGS.keep_moved_tabs_selected) return;
     const tabsToDeselect = await browser.tabs.query({ windowId, active: false, highlighted: true });
     tabsToDeselect.forEach(tab => deselectTab(tab.id));
