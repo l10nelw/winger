@@ -1,23 +1,31 @@
-import { getShortcut, hasClass, addToGroup } from '../utils.js';
+import { getShortcut, hasClass, GroupMap } from '../utils.js';
 import * as Settings from '../background/settings.js';
 
 const $body = document.body;
 const $form = $body.querySelector('form');
-const $fields = [...$form.querySelectorAll('.setting')];
+const $settings = [...$form.querySelectorAll('.setting')];
 const $submitBtns = [...$form.querySelectorAll('button')];
 const relevantProp = $field => $field.type === 'checkbox' ? 'checked' : 'value';
-const getFormValuesString = () => $fields.map($field => $field[relevantProp($field)]).join();
+const getFormValuesString = () => $settings.map($field => $field[relevantProp($field)]).join();
+const enablerMap = new GroupMap(); // Fields that enable/disable other fields
+const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and change state according to those fields' states
 let SETTINGS, formData;
-let toggleGroups = {};
 
 (async () => {
     SETTINGS = await Settings.retrieve();
-    for (const $field of $fields) {
+    for (const $field of $settings) {
         loadSetting($field);
-        enableFields($field);
-        addToggleGroup($field);
+        const $enabler = $form[$field.dataset.enabledBy];
+        if ($enabler) {
+            enablerMap.group($field, $enabler);
+            $field.disabled = !$enabler.checked;
+        }
+        const $toggler = $form[$field.dataset.toggledBy];
+        if ($toggler) {
+            togglerMap.group($field, $toggler);
+        }
     }
-    for (const name in toggleGroups) toggleToggler({ name });
+    togglerMap.forEach(updateToggler);
     formData = getFormValuesString();
 })();
 
@@ -27,9 +35,9 @@ insertShortcut();
 checkPrivateAccess();
 
 function onFieldChange({ target: $field }) {
-    enableFields($field);
-    toggleFields($field);
-    toggleToggler({ $field });
+    activateEnabler($field);
+    activateToggler($field);
+    updateToggler($form[$field.dataset.toggledBy]);
     saveSetting($field);
     enableSubmitBtns();
 }
@@ -47,41 +55,29 @@ function saveSetting($field) {
         browser.storage.local.set({ [$field.name]: $field[relevantProp($field)] });
 }
 
-// For a $field with the data-enabler attribute: enable/disable fields that are enabled by it.
-function enableFields($field) {
-    if (!('enabler' in $field.dataset)) return;
-    const disable = !$field.checked;
-    const $targets = $form.querySelectorAll(`[data-enabled-by="${$field.name}"]`);
-    for (const $target of $targets) {
-        $target.disabled = disable;
-    }
+// Enable/disable fields that $enabler controls.
+function activateEnabler($enabler) {
+    const $targets = enablerMap.get($enabler);
+    if (!$targets) return;
+    const disable = !$enabler.checked;
+    $targets.forEach($target => $target.disabled = disable);
 }
 
-// For a $field with the data-toggled-by attribute: group it with others that share the same toggler.
-function addToggleGroup($field) {
-    if (!('toggledBy' in $field.dataset)) return;
-    addToGroup($field, $field.dataset.toggledBy, toggleGroups);
-}
-
-// For a $field with the data-toggler attribute: check/uncheck fields that are toggled by it.
-function toggleFields($toggler) {
-    if (!('toggler' in $toggler.dataset)) return;
+// Check/uncheck fields that $toggler controls.
+function activateToggler($toggler) {
+    const $targets = togglerMap.get($toggler);
+    if (!$targets) return;
     const check = $toggler.checked;
-    for (const $target of toggleGroups[$toggler.name]) {
+    $targets.forEach($target => {
         $target.checked = check;
         saveSetting($target);
-    }
+    });
 }
 
-// Given a $field with the data-toggled-by attribute, or given a toggler name:
-// set the state of the toggler based on the states of the associated group of fields.
-function toggleToggler({ $field, name }) {
-    if ($field) {
-        if (!('toggledBy' in $field.dataset)) return;
-        name = $field.dataset.toggledBy;
-    }
-    const $toggler = $form[name];
-    const $targets = toggleGroups[name];
+// Update $toggler state based on the states of the fields it controls.
+function updateToggler($toggler) {
+    const $targets = togglerMap.get($toggler);
+    if (!$targets) return;
     const $checked = $targets.filter($target => $target.checked);
     $toggler.indeterminate = false;
     if ($checked.length === 0) {
