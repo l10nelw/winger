@@ -13,6 +13,7 @@ const actionMap = {
 };
 
 export function init() {
+    if (!SETTINGS.keep_moved_focused_tab_focused) SETTINGS.keep_moved_tabs_selected = false;
     // Disable functions according to settings:
     if (SETTINGS.keep_moved_tabs_selected) deselectTearOff = () => null;
     if (!SETTINGS.move_pinned_tabs) movablePinnedTabs = () => null;
@@ -73,11 +74,9 @@ async function moveTabs(windowId, tabs) {
     if (pinnedTabIds) pinnedTabIds.forEach(pinTab);
 
     if (SETTINGS.keep_moved_focused_tab_focused) {
-        const focusedTab = tabs.find(tab => tab.active);
-        if (focusedTab) focusTab(focusedTab.id);
-    }
-    if (SETTINGS.keep_moved_tabs_selected) {
-        tabIds.forEach(selectTab);
+        const preMoveFocusedTab = tabs.find(tab => tab.active);
+        if (preMoveFocusedTab) focusTab(preMoveFocusedTab.id);
+        if (SETTINGS.keep_moved_tabs_selected) movedTabs.forEach(tab => selectTab(tab.id));
     }
     return movedTabs;
 }
