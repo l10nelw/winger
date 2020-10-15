@@ -26,10 +26,10 @@ async function openExtPage(pathname) {
     }
 }
 
-export async function handleTearOff(windowId) {
+export async function deselectTearOff(windowId) {
     if (SETTINGS.keep_moved_tabs_selected) return;
-    const tabsToDeselect = await browser.tabs.query({ windowId, active: false, highlighted: true });
-    tabsToDeselect.forEach(tab => deselectTab(tab.id));
+    const tabs = await browser.tabs.query({ windowId, active: true });
+    browser.tabs.highlight({ windowId, tabs: [tabs[0].index], populate: false }); // Select focused tab to deselect other tabs
 }
 
 // Given `windowId`, select action to execute based on `action` and `modifiers`.
@@ -116,10 +116,9 @@ function movablePinnedTabs(tabs) {
     return pinnedTabs;
 }
 
-const unpinTab    = tabId => browser.tabs.update(tabId, { pinned: false });
-const pinTab      = tabId => browser.tabs.update(tabId, { pinned: true });
-const focusTab    = tabId => browser.tabs.update(tabId, { active: true });
-const selectTab   = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
-const deselectTab = tabId => browser.tabs.update(tabId, { highlighted: false });
+const unpinTab  = tabId => browser.tabs.update(tabId, { pinned: false });
+const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
+const focusTab  = tabId => browser.tabs.update(tabId, { active: true });
+const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
 const isSamePrivateStatus = (windowId1, windowId2) => windowMap[windowId1].incognito === windowMap[windowId2].incognito;
 const getUrlFromReader = readerUrl => decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));

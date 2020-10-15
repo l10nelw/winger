@@ -49,7 +49,7 @@ async function onWindowCreated(windowObject, isInit) {
     const windowId = windowObject.id;
     Title.update(windowId);
     Badge?.update(windowId);
-    WindowTab.handleTearOff(windowId);
+    WindowTab.deselectTearOff(windowId);
     if (windowObject.focused) onWindowFocused(windowId);
 }
 
