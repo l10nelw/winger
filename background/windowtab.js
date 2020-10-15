@@ -12,6 +12,12 @@ const actionMap = {
     switch: switchWindow,
 };
 
+export function init() {
+    // Disable functions according to settings:
+    if (SETTINGS.keep_moved_tabs_selected) deselectTearOff = () => null;
+    if (!SETTINGS.move_pinned_tabs) movablePinnedTabs = () => null;
+}
+
 // Open extension page tab or if already open, switch to first tab found.
 async function openExtPage(pathname) {
     const url = browser.runtime.getURL(pathname);
@@ -27,7 +33,6 @@ async function openExtPage(pathname) {
 }
 
 export async function deselectTearOff(windowId) {
-    if (SETTINGS.keep_moved_tabs_selected) return;
     const tabs = await browser.tabs.query({ windowId, active: true });
     browser.tabs.highlight({ windowId, tabs: [tabs[0].index], populate: false }); // Select focused tab to deselect other tabs
 }
@@ -108,7 +113,6 @@ async function reopenTabs(windowId, tabs) {
 }
 
 function movablePinnedTabs(tabs) {
-    if (!SETTINGS.move_pinned_tabs) return;
     const pinnedTabs = tabs.filter(tab => tab.pinned);
     const pinnedTabCount = pinnedTabs.length;
     if (!pinnedTabCount) return;

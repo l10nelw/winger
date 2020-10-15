@@ -22,6 +22,7 @@ browser.runtime.onMessage.addListener      (onRequest);
 
 async function init() {
     const [windowObjects, SETTINGS] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
+    WindowTab.init(SETTINGS);
 
     if (SETTINGS.show_badge) Badge = await import('./badge.js');
 
