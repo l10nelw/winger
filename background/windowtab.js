@@ -85,28 +85,31 @@ async function reopenTabs(windowId, tabs) {
     if (!movablePinnedTabs(tabs)) {
         tabs = tabs.filter(tab => !tab.pinned);
     }
+    const focusedTabSetting = SETTINGS.keep_moved_focused_tab_focused;
 
     async function reopenTab(tab) {
         const url = tab.isInReaderMode ? getUrlFromReader(tab.url) : tab.url;
+        // Properties with null are simply not set:
         const newTab = await browser.tabs.create({
             windowId,
             url,
             pinned: tab.pinned,
-            active: SETTINGS.keep_moved_focused_tab_focused ? tab.active : null,
             discarded: tab.discarded,
-            title: tab.discarded ? tab.title : null,
             openInReaderMode: tab.isInReaderMode,
+            active: focusedTabSetting ? tab.active : null,
+            title: tab.discarded ? tab.title : null,
         }).catch(() => null);
         if (newTab) browser.tabs.remove(tab.id);
         return newTab;
     }
 
     tabs = await Promise.all(tabs.map(reopenTab));
-    tabs = tabs.filter(tab => tab);
-    if (!tabs.length) return;
+    tabs = tabs.filter(tab => tab); // Filter successful reopens
+    const tabCount = tabs.length;
+    if (!tabCount) return;
 
-    if (SETTINGS.keep_moved_tabs_selected) {
-        tabs.forEach(tab => { if (!tab.active) selectTab(tab.id) });
+    if (SETTINGS.keep_moved_tabs_selected && tabCount > 1) {
+        tabs.forEach(tab => selectTab(tab.id));
     }
     return tabs;
 }
