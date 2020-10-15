@@ -1,4 +1,3 @@
-import { SETTINGS } from './settings.js';
 import { defaultNameHead, windowMap } from './metadata.js';
 
 // [bgColor, textColor]
@@ -6,7 +5,6 @@ const unnamedWindowColors = ['black', 'white'];
 const namedWindowColors   = ['white', 'black'];
 
 export function update(windowId) {
-    if (!SETTINGS.show_badge) return;
     const metaWindow = windowMap[windowId];
     const name = metaWindow.givenName;
     const [bgColor, textColor, text] = name && [...namedWindowColors, name] || [...unnamedWindowColors, defaultText(metaWindow)];
