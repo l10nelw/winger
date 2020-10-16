@@ -25,7 +25,7 @@ let SETTINGS, formData;
             togglerMap.group($field, $toggler);
         }
     }
-    togglerMap.forEach(updateToggler);
+    for (const $toggler of togglerMap.keys()) updateToggler($toggler);
     formData = getFormValuesString();
 })();
 
