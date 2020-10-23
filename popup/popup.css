@@ -83,8 +83,7 @@ li > * {
 }
 
 body[data-editmode="false"] .otherRow:hover,
-body[data-editmode="false"] .otherRow:focus,
-body[data-editmode="false"] .otherRow:focus-within {
+body[data-editmode="false"] .otherRow:focus {
     background-color: var(--bgc-base-focus);
 }
 
@@ -201,6 +200,7 @@ body[data-editmode="true"] li button:not(.edit) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 95%;
 }
 
 body[data-editmode="true"] #status {
