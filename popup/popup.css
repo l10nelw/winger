@@ -200,7 +200,6 @@ body[data-editmode="true"] li button:not(.edit) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 95%;
 }
 
 body[data-editmode="true"] #status {
