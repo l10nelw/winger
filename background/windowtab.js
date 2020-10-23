@@ -69,9 +69,9 @@ async function moveTabs(windowId, tabs) {
 
     const tabIds = tabs.map(tab => tab.id);
     const movedTabs = await browser.tabs.move(tabIds, { windowId, index: -1 });
-    if (!movedTabs.length) return;
 
     if (pinnedTabIds) pinnedTabIds.forEach(pinTab);
+    if (!movedTabs.length) return;
 
     if (SETTINGS.keep_moved_focused_tab_focused) {
         const preMoveFocusedTab = tabs.find(tab => tab.active);
