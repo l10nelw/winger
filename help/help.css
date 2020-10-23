@@ -1,3 +1,7 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
   max-width: 80rem;
   margin: 0 auto;
@@ -29,6 +33,9 @@ h1 b, h2, h3, h4 {
 }
 h1, h2 {
   margin-bottom: 2rem;
+}
+ul {
+  list-style-type: disc;
 }
 kbd {
   font-family: 'Lucida Console', monospace;
@@ -108,6 +115,10 @@ button.settingsBtn {
   font-size: .5rem;
   cursor: default;
   user-select: none;
+}
+
+.star-list {
+  list-style-type: "★ ";
 }
 
 .fg-private { color: var(--fgc-private); }

@@ -27,7 +27,7 @@ async function insertShortcut() {
 
 function doOSSpecific() {
     const isOS = str => navigator.userAgent.indexOf(str) !== -1;
-    const isMac = isOS('Mac OS X');
+    const isMac = isOS('Mac OS');
     const isWin = isOS('Windows');
 
     const addCSS = rule => document.styleSheets[0].insertRule(rule);
@@ -35,7 +35,12 @@ function doOSSpecific() {
     addCSS(`.js-${isWin ? 'hide' : 'show'}OnWin { visibility: hidden }`);
 
     if (isMac) {
-        $$('.js-cmdOnMac').forEach($el => $el.textContent = $el.textContent.replace('Ctrl', 'Cmd'));
+        const replaceCtrlWithCmd = $el => {
+            const oldText = $el.textContent;
+            const newText = oldText.replace(/Ctrl/i, match => `${match[0]}md`);
+            if (newText !== oldText) $el.textContent = newText;
+        }
+        $$('kbd, .js-cmdOnMac').forEach(replaceCtrlWithCmd);
     }
 }
 
