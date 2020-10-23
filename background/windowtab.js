@@ -41,7 +41,7 @@ export async function deselectTearOff(windowId) {
 // Given `windowId`, select action to execute based on `action` and `modifiers`.
 export async function doAction({ windowId, originWindowId, action, modifiers, tabs }) {
     const reopen = !isSamePrivateStatus(windowId, originWindowId);
-    tabs ||= await getSelectedTabs();
+    tabs = tabs || await getSelectedTabs();
     action = modifyAction(action, modifiers);
     actionMap[action](windowId, tabs, reopen);
 }

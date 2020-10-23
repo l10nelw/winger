@@ -19,7 +19,7 @@ export async function init($allWindowRows) {
 
 // Show text in status bar. If no text given, show last updated defaultText.
 export function show(text) {
-    defaultText ||= tabCountText();
+    defaultText = defaultText || tabCountText();
     $status.textContent = text || defaultText;
     toggleClass('defaultStatus', $status, !text);
 }
