@@ -4,8 +4,8 @@ import * as WindowTab from './windowtab.js';
 
 let contextsEnabled;
 const contextTitle = {
-    tab:  'Send Tab to &Window...',
-    link: 'Open Link in &Window...',
+    tab:  'Send Tab to &Window',
+    link: 'Open Link in &Window',
 }
 
 // Create a parent menu item for each given context.
