@@ -101,8 +101,8 @@ export function clear() {
     removeClass('slashCommand', $omnibox);
 }
 
-export function placeholder(str = '') {
-    $omnibox.placeholder = str;
+export function placeholder(str) {
+    $omnibox.placeholder = str ? str : '';
 }
 
 export function disable(yes) {
