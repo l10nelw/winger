@@ -1,3 +1,5 @@
+import { onWindowNamed } from './background.js';
+
 export const windowMap = {};
 export const focusedWindow = { id: null };
 export let windowCount = 0;
@@ -73,6 +75,7 @@ export function giveName(windowId, name = '') {
     if (error) return error;
     metaWindow.givenName = name;
     browser.sessions.setWindowValue(windowId, 'givenName', name);
+    onWindowNamed(windowId);
     return 0;
 }
 

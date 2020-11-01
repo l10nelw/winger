@@ -48,8 +48,7 @@ async function onWindowCreated(windowObject, isInit) {
         Menu?.update();
     }
     const windowId = windowObject.id;
-    Title.update(windowId);
-    Badge?.update(windowId);
+    onWindowNamed(windowId);
     WindowTab.deselectTearOff(windowId);
     if (windowObject.focused) onWindowFocused(windowId);
 }
@@ -83,12 +82,13 @@ async function onRequest(request) {
     if (request.giveName) {
         const windowId = request.windowId;
         const error = await Metadata.giveName(windowId, request.name);
-        if (!error) {
-            Title.update(windowId);
-            Badge?.update(windowId);
-        }
         return error;
     }
+}
+
+export function onWindowNamed(windowId) {
+    Title.update(windowId);
+    Badge?.update(windowId);
 }
 
 const isWindowBeingCreated = windowId => !(windowId in Metadata.windowMap);
