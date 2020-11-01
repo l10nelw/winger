@@ -70,7 +70,7 @@ async function onRequest(request) {
     if (request.popup) {
         return {
             SETTINGS:         Settings.SETTINGS,
-            metaWindows:      Metadata.sortedMetaWindows(),
+            metaWindows:      Metadata.sorted(),
             currentWindowId:  Metadata.focusedWindow.id,
             selectedTabCount: (await WindowTab.getSelectedTabs()).length,
         };

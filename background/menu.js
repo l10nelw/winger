@@ -45,7 +45,7 @@ export function update() {
 // Clear and populate `context` menu with other-window menu items, sorted by lastFocsued.
 function populate(context, currentWindowId) {
     const props = { contexts: [context], parentId: context };
-    for (const { id: windowId } of Metadata.sortedMetaWindows()) {
+    for (const { id: windowId } of Metadata.sorted()) {
         const menuId = `${windowId}-${context}`;
         browser.menus.remove(menuId);
         if (windowId == currentWindowId) continue;
