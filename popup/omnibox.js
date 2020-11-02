@@ -16,7 +16,7 @@ export function handleKeyUp(key, event) {
     const enter = key === 'Enter' && $omnibox._enter;
     if (enter) $omnibox._enter = false;
     const str = $omnibox.value;
-    const isSlashed = str[0] === '/';
+    const isSlashed = str.startsWith('/');
     toggleClass('slashCommand', $omnibox, isSlashed);
     if (isSlashed) {
         let command;

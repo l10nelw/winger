@@ -2,9 +2,8 @@ import { onWindowNamed } from './background.js';
 
 export const windowMap = {};
 export const focusedWindow = { id: null };
-export let windowCount = 0;
 export const defaultNameHead = 'Window ';
-const invalidCharsNameRegex = /^\//;
+export let windowCount = 0;
 let lastWindowNumber = 0;
 
 export const sorted = () => Object.values(windowMap).sort(compareLastFocused);
@@ -84,7 +83,7 @@ export function giveName(windowId, name = '') {
 // Returns 0 if valid, otherwise returns -1 or id of conflicting window.
 function isInvalidName(windowId, name) {
     if (!name) return 0;
-    if (invalidCharsNameRegex.test(name)) return -1;
+    if (name.startsWith('/')) return -1;
     return nameExists(windowId, name);
 }
 
