@@ -1,8 +1,61 @@
+import * as Name from './name.js';
 import * as Metadata from './metadata.js';
 import { SETTINGS } from './settings.js';
 
-const ROOT_FOLDER = 'toolbar_____'; // menu________, unfiled_____
+const ROOT_ID = 'toolbar_____'; // menu________, unfiled_____
 const START_AFTER_SEPARATOR = true;
+
+
+/* --- LIST (& FIX) FOLDERS --- */
+
+// List of stashed-window folders, to be populated/cleared when popup opens/closes.
+// This keeps checkFolders() data available in this module throughout the popup's duration.
+export const list = [];
+
+list.populate = async () => {
+    list.push(...await checkFolders());
+    return list;
+}
+
+list.clear = () => list.length = 0;
+
+// Return an array of simplified folder objects { id, title, bookmarkCount } with unique names, representing stashed-windows.
+// Side-effect: Rename any folders with invalid names.
+async function checkFolders() {
+    const nodes = (await browser.bookmarks.getSubTree(ROOT_ID))[0].children;
+    const folders = [];
+    const names = new Set();
+    for (const node of nodes) {
+        switch (node.type) {
+            case 'folder':
+                const id = node.id;
+                const title = fixFolderName(id, node.title);
+                if (names.has(title)) continue; // Ignore folder if name already exists
+                const folder = {
+                    id,
+                    title,
+                    bookmarkCount: node.children.filter(isBookmark).length,
+                };
+                folders.push(folder);
+                names.add(title);
+                break;
+            case 'separator':
+                if (START_AFTER_SEPARATOR) {
+                    folders.length = 0;
+                    names.clear();
+                }
+        }
+    }
+    return folders;
+}
+
+// Rename folder if its name is invalid. Return name.
+function fixFolderName(id, name) {
+    const fixedName = Name.fix(name);
+    if (fixedName !== name) browser.bookmarks.update(id, { title: fixedName });
+    return fixedName;
+}
+
 
 export async function stash(windowId) {
     const title = Metadata.getName(windowId);
@@ -56,13 +109,4 @@ function openUrlPage(properties) {
     console.log('openUrlPage', properties);
 }
 
-export async function getFolders(parentId = ROOT_FOLDER) {
-    const nodes = await browser.bookmarks.getChildren(parentId);
-    let folders = [];
-    for (const node of nodes) {
-        const type = node.type;
-        if (type === 'folder') folders.push(node);
-        if (START_AFTER_SEPARATOR && type === 'separator') folders = [];
-    }
-    return folders;
-}
+const isBookmark = node => node.type === 'bookmark';
