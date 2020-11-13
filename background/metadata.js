@@ -10,21 +10,21 @@ export const sorted = () => Object.values(windowMap).sort(compareLastFocused);
 const compareLastFocused = (a, b) => b.lastFocused - a.lastFocused;
 
 // Perform equivalent of add() for every open window all at once.
-export async function init(windowObjects) {
+export async function init(windows) {
     let windowIds = [];
-    for (const windowObject of windowObjects) {
-        const windowId = windowObject.id;
+    for (const window of windows) {
+        const windowId = window.id;
         windowIds.push(windowId);
-        windowMap[windowId] = createMetaWindow(windowObject);
+        windowMap[windowId] = createMetaWindow(window);
         windowCount++;
     }
     await nameMetaWindows(windowIds);
 }
 
-export async function add(windowObject) {
-    const windowId = windowObject.id;
+export async function add(window) {
+    const windowId = window.id;
     if (windowId in windowMap) return;
-    windowMap[windowId] = createMetaWindow(windowObject);
+    windowMap[windowId] = createMetaWindow(window);
     windowCount++;
     await nameMetaWindows([windowId]);
 }

@@ -1,7 +1,6 @@
 /*
 - Data created and used by this webextension pertaining to a window are 'metadata' and an object collecting them is a
   'metawindow'. The metawindows live in Metadata.windowMap as the webextension's source-of-truth.
-- Window objects returned by the WebExtensions API are named windowObject to avoid confusion with the global window object.
 */
 
 import * as Settings from './settings.js';
@@ -21,13 +20,13 @@ browser.windows.onFocusChanged.addListener (onWindowFocused);
 browser.runtime.onMessage.addListener      (onRequest);
 
 async function init() {
-    const [windowObjects, SETTINGS] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
+    const [windows, SETTINGS] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
     WindowTab.init(SETTINGS);
 
     if (SETTINGS.show_badge) Badge = await import('./badge.js');
 
-    await Metadata.init(windowObjects);
-    windowObjects.forEach(windowObject => onWindowCreated(windowObject, true));
+    await Metadata.init(windows);
+    windows.forEach(window => onWindowCreated(window, true));
 
     const menusEnabled = [];
     if (SETTINGS.enable_tab_menu)  menusEnabled.push('tab');
@@ -42,15 +41,15 @@ function onExtInstalled(details) {
     if (details.reason === 'install') WindowTab.openHelp();
 }
 
-async function onWindowCreated(windowObject, isInit) {
+async function onWindowCreated(window, isInit) {
     if (!isInit) {
-        await Metadata.add(windowObject);
+        await Metadata.add(window);
         Menu?.update();
     }
-    const windowId = windowObject.id;
+    const windowId = window.id;
     onWindowNamed(windowId);
     WindowTab.deselectTearOff(windowId);
-    if (windowObject.focused) onWindowFocused(windowId);
+    if (window.focused) onWindowFocused(windowId);
 }
 
 function onWindowRemoved(windowId) {
