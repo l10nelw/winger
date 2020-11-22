@@ -54,7 +54,6 @@ function onWindowRemoved(windowId) {
 function onWindowFocused(windowId) {
     if (isWindowBeingCreated(windowId)) return;
     Metadata.windowMap[windowId].lastFocused = Date.now();
-    Metadata.focusedWindow.id = windowId;
 }
 
 async function onRequest(request) {
@@ -64,7 +63,6 @@ async function onRequest(request) {
         return {
             SETTINGS:         Settings.SETTINGS,
             metaWindows:      Metadata.sorted(),
-            currentWindowId:  Metadata.focusedWindow.id,
             selectedTabCount: (await WindowTab.getSelectedTabs()).length,
         };
     }

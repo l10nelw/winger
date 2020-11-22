@@ -8,12 +8,12 @@ import * as Modifier from '../modifier.js';
 const $currentWindowList = document.getElementById('currentWindow');
 
 export default async function init() {
-    const { SETTINGS, metaWindows, currentWindowId, selectedTabCount } = await browser.runtime.sendMessage({ popup: true });
+    const { SETTINGS, metaWindows, selectedTabCount } = await browser.runtime.sendMessage({ popup: true });
 
     row.removeCells(SETTINGS);
     toolbar.removeButtons(SETTINGS);
 
-    populate(metaWindows, currentWindowId);
+    populate(metaWindows);
     const $currentWindowRow = $currentWindowList.firstElementChild;
     const $otherWindowRows = [...$otherWindowsList.children];
     const $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
@@ -41,13 +41,11 @@ export default async function init() {
     };
 }
 
-function populate(metaWindows, currentWindowId) {
+function populate(metaWindows) {
+    const currentMetaWindow = metaWindows.shift();
+    $currentWindowList.appendChild(row.create(currentMetaWindow, true));
     for (const metaWindow of metaWindows) {
-        if (metaWindow.id === currentWindowId) {
-            $currentWindowList.appendChild(row.create(metaWindow, true));
-        } else {
-            $otherWindowsList.appendChild(row.create(metaWindow));
-        }
+        $otherWindowsList.appendChild(row.create(metaWindow));
     }
 }
 

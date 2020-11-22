@@ -2,7 +2,6 @@ import * as Title from './title.js';
 let Badge;
 
 export const windowMap = {};
-export const focusedWindow = { id: null };
 export const defaultNameHead = 'Window ';
 export let windowCount = 0;
 let lastWindowNumber = 0;
