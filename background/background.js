@@ -6,9 +6,7 @@
 import * as Settings from './settings.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
-
-import * as Title from './title.js';
-let Badge, Menu;
+let Menu;
 
 // Object.assign(window, { Metadata }); // for debugging
 
@@ -20,12 +18,9 @@ browser.windows.onFocusChanged.addListener (onWindowFocused);
 browser.runtime.onMessage.addListener      (onRequest);
 
 async function init() {
-    const [windows, SETTINGS] = await Promise.all([browser.windows.getAll(), Settings.retrieve()]);
+    const [windows, SETTINGS] = await Promise.all([ browser.windows.getAll(), Settings.retrieve() ]);
     WindowTab.init(SETTINGS);
-
-    if (SETTINGS.show_badge) Badge = await import('./badge.js');
-
-    await Metadata.init(windows);
+    await Metadata.init(SETTINGS, windows);
     windows.forEach(window => onWindowCreated(window, true));
 
     const menusEnabled = [];
@@ -47,7 +42,6 @@ async function onWindowCreated(window, isInit) {
         Menu?.update();
     }
     const windowId = window.id;
-    onWindowNamed(windowId);
     WindowTab.deselectTearOff(windowId);
     if (window.focused) onWindowFocused(windowId);
 }
@@ -78,16 +72,7 @@ async function onRequest(request) {
     if (request.help) return WindowTab.openHelp();
 
     // From popup/editmode.js
-    if (request.giveName) {
-        const windowId = request.windowId;
-        const error = await Metadata.giveName(windowId, request.name);
-        return error;
-    }
-}
-
-export function onWindowNamed(windowId) {
-    Title.update(windowId);
-    Badge?.update(windowId);
+    if (request.giveName) return Metadata.giveName(request.windowId, request.name);
 }
 
 const isWindowBeingCreated = windowId => !(windowId in Metadata.windowMap);

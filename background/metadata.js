@@ -1,4 +1,5 @@
-import { onWindowNamed } from './background.js';
+import * as Title from './title.js';
+let Badge;
 
 export const windowMap = {};
 export const focusedWindow = { id: null };
@@ -9,8 +10,10 @@ let lastWindowNumber = 0;
 export const sorted = () => Object.values(windowMap).sort(compareLastFocused);
 const compareLastFocused = (a, b) => b.lastFocused - a.lastFocused;
 
-// Perform equivalent of add() for every open window all at once.
-export async function init(windows) {
+export async function init(SETTINGS, windows) {
+    if (SETTINGS.show_badge) Badge = await import('./badge.js');
+
+    // Perform equivalent of add() for every open window all at once.
     let windowIds = [];
     for (const window of windows) {
         const windowId = window.id;
@@ -45,7 +48,10 @@ function createMetaWindow({ id, incognito }) {
 
 async function nameMetaWindows(windowIds) {
     await Promise.all(windowIds.map(restoreGivenName));
-    windowIds.forEach(windowId => windowMap[windowId].defaultName = createDefaultName(windowId));
+    for (const windowId of windowIds) {
+        windowMap[windowId].defaultName = createDefaultName(windowId);
+        onWindowNamed(windowId);
+    }
 }
 
 async function restoreGivenName(windowId) {
@@ -69,10 +75,9 @@ export function getName(windowId) {
 // Validate and store givenName for target window.
 // Returns 0 if successful, otherwise returns output of isInvalidName().
 export function giveName(windowId, name = '') {
-    const metaWindow = windowMap[windowId];
     const error = isInvalidName(windowId, name);
     if (error) return error;
-    metaWindow.givenName = name;
+    windowMap[windowId].givenName = name;
     browser.sessions.setWindowValue(windowId, 'givenName', name);
     onWindowNamed(windowId);
     return 0;
@@ -99,4 +104,9 @@ function nameExists(windowId, name) {
         }
     }
     return 0;
+}
+
+function onWindowNamed(windowId) {
+    Title.update(windowId);
+    Badge?.update(windowId);
 }
