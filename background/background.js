@@ -42,8 +42,8 @@ async function onWindowCreated(window, isInit) {
         Menu?.update();
     }
     const windowId = window.id;
-    WindowTab.deselectTearOff(windowId);
     if (window.focused) onWindowFocused(windowId);
+    WindowTab.selectFocusedTab(windowId);
 }
 
 function onWindowRemoved(windowId) {

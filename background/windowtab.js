@@ -15,7 +15,7 @@ const actionMap = {
 export function init() {
     if (!SETTINGS.keep_moved_focused_tab_focused) SETTINGS.keep_moved_tabs_selected = false;
     // Disable functions according to settings:
-    if (SETTINGS.keep_moved_tabs_selected) deselectTearOff = () => null;
+    if (SETTINGS.keep_moved_tabs_selected) selectFocusedTab = () => null;
     if (!SETTINGS.move_pinned_tabs) movablePinnedTabs = () => null;
 }
 
@@ -33,7 +33,7 @@ async function openExtPage(pathname) {
     }
 }
 
-export async function deselectTearOff(windowId) {
+export async function selectFocusedTab(windowId) {
     const tabs = await browser.tabs.query({ windowId, active: true });
     browser.tabs.highlight({ windowId, tabs: [tabs[0].index], populate: false }); // Select focused tab to deselect other tabs
 }
