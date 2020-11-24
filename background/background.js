@@ -37,13 +37,15 @@ function onExtInstalled(details) {
 }
 
 async function onWindowCreated(window, isInit) {
-    if (!isInit) {
-        await Metadata.add(window);
-        Menu?.update();
-    }
     const windowId = window.id;
     if (window.focused) onWindowFocused(windowId);
+
+    if (isInit) return;
+
+    await Metadata.add(window);
+    Menu?.update();
     WindowTab.selectFocusedTab(windowId);
+    Stash.unstash.onWindowCreated(windowId);
 }
 
 function onWindowRemoved(windowId) {
