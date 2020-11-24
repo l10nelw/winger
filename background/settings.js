@@ -16,6 +16,8 @@ const DEFAULT = {
     enable_tab_menu: true,
     enable_link_menu: true,
 
+    enable_stash: true,
+
 };
 
 export let SETTINGS;

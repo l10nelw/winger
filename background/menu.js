@@ -1,10 +1,12 @@
 import * as Modifier from '../modifier.js';
 import * as Metadata from './metadata.js';
+import * as Stash from './stash.js';
 import * as WindowTab from './windowtab.js';
 
 const contextTitle = {
-    tab:  'Send Tab to &Window',
-    link: 'Open Link in &Window',
+    tab:      'Send Tab to &Window',
+    link:     'Open Link in &Window',
+    bookmark: 'Open and Re&move',
 }
 
 const windowsSubmenu = {
@@ -72,6 +74,15 @@ function createMenuItem(context) {
 }
 
 async function onMenuShow(info, tab) {
+    const bookmarkId = info.bookmarkId;
+    if (bookmarkId) {
+        // Disable menu item if node is root or separator
+        const enabled = !bookmarkId.endsWith('_____') && (await browser.bookmarks.get(bookmarkId))[0].type !== 'separator';
+        browser.menus.update('bookmark', { enabled });
+        browser.menus.refresh();
+        return;
+    }
+
     // Populate windows submenu if applicable
     const contexts = info.contexts;
     const context =
@@ -85,6 +96,12 @@ async function onMenuShow(info, tab) {
 }
 
 function onMenuClick(info, tab) {
+    const bookmarkId = info.bookmarkId;
+    if (bookmarkId) {
+        Stash.unstash(bookmarkId);
+        return;
+    }
+
     // Windows submenu item
     const windowId = parseInt(info.menuItemId);
     if (!windowId) return;

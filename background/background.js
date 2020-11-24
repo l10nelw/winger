@@ -6,6 +6,7 @@
 import * as Settings from './settings.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
+import * as Stash from './stash.js';
 let Menu;
 
 // Object.assign(window, { Metadata }); // for debugging
@@ -26,6 +27,7 @@ async function init() {
     const menusEnabled = [];
     if (SETTINGS.enable_tab_menu)  menusEnabled.push('tab');
     if (SETTINGS.enable_link_menu) menusEnabled.push('link');
+    if (SETTINGS.enable_stash)     menusEnabled.push('bookmark');
     if (menusEnabled.length) {
         Menu = await import('./menu.js');
         Menu.init(menusEnabled);
