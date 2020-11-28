@@ -1,0 +1,57 @@
+:root {
+    --bgc-base: #eee;
+    --bgc-base-focus: #ddd;
+    --bgc-rowbtn: #d0d0d0;
+    --bgc-rowbtn-focus: #bbb;
+    --fgc-muted: #555;
+    --borderc-focus: #4a90d9;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    background-color: var(--bgc-base-focus);
+    margin: 1rem;
+    text-align: center;
+}
+
+header {
+    color: var(--fgc-muted);
+}
+header img {
+    vertical-align: middle;
+}
+h1 {
+    font-size: 1.75rem;
+    margin-top: .25rem;
+    margin-bottom: 1rem;
+}
+
+input {
+    display: inline-block;
+    width: 100%;
+    background-color: var(--bgc-base-focus);
+    margin-bottom: .5rem;
+    padding: 8px 0;
+    border: 1px solid var(--borderc-focus);
+    text-align: center;
+    font-size: large;
+}
+
+button {
+    display: inline-block;
+    min-width: 160px;
+    background-color: var(--bgc-rowbtn);
+    margin-bottom: 1rem;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: large;
+}
+button:hover,
+button:focus {
+    background-color: var(--bgc-rowbtn-focus);
+    color: black;
+}

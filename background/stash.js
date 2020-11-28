@@ -7,6 +7,12 @@ const START_AFTER_SEPARATOR = true;
 
 const isBookmark = node => node.type === 'bookmark';
 
+const unstashPagePath = browser.runtime.getURL('../stash/tab');
+const createUnstashPageUrl = ({ url, title }) => `${unstashPagePath}?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+const isUnstashPageUrl = url => url.startsWith(unstashPagePath);
+const getUrlFromUnstashPageUrl = url => decodeURIComponent((new URL(url)).searchParams.get('url'));
+
+
 /* --- LIST (& FIX) FOLDERS --- */
 
 // List of stashed-window folders, to be populated/cleared when popup opens/closes.
@@ -66,7 +72,8 @@ export async function stash(windowId) {
     const name = Metadata.getName(windowId);
     const [tabs, folder] = await Promise.all([ browser.tabs.query({ windowId }), getStashFolder(name) ]);
     const parentId = folder.id;
-    for (const { title, url } of tabs) {
+    for (let { title, url } of tabs) {
+        if (isUnstashPageUrl(url)) url = getUrlFromUnstashPageUrl(url);
         await browser.bookmarks.create({ title, url, parentId }); // Serial await necessary for bookmarks to be in order
     }
     browser.windows.remove(windowId);
@@ -147,15 +154,13 @@ async function turnBookmarkIntoTab({ url, title, id }, windowId, active) {
     const properties = (url === 'about:newtab')
         ? { windowId, active }
         : { windowId, active, discarded: !active, title: (active ? null : title), url }; // Only discarded tab can be given title
-    const creating = browser.tabs.create(properties).catch(() => openUrlPage(properties));
+    const creating = browser.tabs.create(properties).catch(() => openUnstashPage(properties));
     const removing = browser.bookmarks.remove(id);
     const [tab,] = await Promise.all([ creating, removing ]);
     return tab;
 }
 
-//TODO
-function openUrlPage(properties) {
-    browser.tabs.create({ windowId: properties.windowId });
-    console.log('openUrlPage', properties);
+function openUnstashPage(properties) {
+    properties.url = createUnstashPageUrl(properties);
+    browser.tabs.create(properties);
 }
-

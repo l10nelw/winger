@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="icon" type="image/svg" href="../icons/winger.svg">
+    <link rel="stylesheet" href="tab.css">
+  </head>
+  <body>
+    <header>
+      <small><img src="../icons/winger.svg" height="15" alt=""> Unstashed tab</small>
+      <h1></h1>
+    </header>
+    <main>
+      <input type="text" readonly>
+      <button data-text="✅ Copied!">📋 Copy URL</button>
+    </main>
+    <footer>
+      <p>For security reasons, this privileged URL must be entered in your browser's address bar manually.</p>
+      <p><strong>Copy</strong> it <small>(<kbd>Ctrl+C</kbd> or click the button)</small> and
+        <strong>paste it in the address bar</strong> <small>(<kbd>Ctrl+V Enter</kbd> or right-click > Paste & Go)</small>.</p>
+    </footer>
+    <script src="tab.js"></script>
+  </body>
+</html>
