@@ -128,13 +128,7 @@ unstash.createWindow = async folder => {
 unstash.onWindowCreated = async windowId => {
     if (windowId !== unstash._windowId) return;
 
-    // Name window
-    let name = unstash._title;
-    while (true) {
-        const error = Metadata.giveName(windowId, name);
-        if (!error) break;
-        name = Name.applyNumberPostfix(name);
-    }
+    Metadata.giveName(windowId, Name.uniquify(name, windowId));
 
     const folderId = unstash._folderId;
     const bookmarks = (await browser.bookmarks.getChildren(folderId)).filter(isBookmark);
