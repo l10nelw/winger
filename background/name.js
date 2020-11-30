@@ -1,5 +1,11 @@
+import { hasName } from './metadata.js';
+
 // const defaultPattern = /^Window \d+$/;
 const numberPostfix = / (\d+)$/;
+
+export function isInvalid(str) {
+    return str.startsWith('/');
+}
 
 // Add " 2" at the end of str, or increment an existing " number".
 export function applyNumberPostfix(str) {

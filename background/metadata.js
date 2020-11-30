@@ -1,3 +1,4 @@
+import { isInvalid } from './name.js';
 import * as Title from './title.js';
 let Badge;
 
@@ -62,7 +63,7 @@ function createDefaultName(windowId) {
     let name;
     do {
         name = defaultNameHead + (++lastWindowNumber);
-    } while (nameExists(windowId, name));
+    } while (hasName(name, windowId));
     return name;
 }
 
@@ -72,35 +73,24 @@ export function getName(windowId) {
 }
 
 // Validate and store givenName for target window.
-// Returns 0 if successful, otherwise returns output of isInvalidName().
+// Returns 0 if successful, otherwise returns -1 or id of conflicting window.
 export function giveName(windowId, name = '') {
-    const error = isInvalidName(windowId, name);
-    if (error) return error;
+    if (isInvalid(name)) return -1;
+    const conflictId = hasName(name, windowId);
+    if (conflictId) return conflictId;
     windowMap[windowId].givenName = name;
     browser.sessions.setWindowValue(windowId, 'givenName', name);
     onWindowNamed(windowId);
     return 0;
 }
 
-// Validate name for target window.
-// Valid if blank, or unique and has no disallowed characters.
-// Returns 0 if valid, otherwise returns -1 or id of conflicting window.
-function isInvalidName(windowId, name) {
-    if (!name) return 0;
-    if (name.startsWith('/')) return -1;
-    return nameExists(windowId, name);
-}
-
-// Check if name conflicts with other windows.
-// Name that is identical to target window's givenName or defaultName: not considered conflict.
+// Check if name conflicts with any windows, except with given excludeId.
 // Returns id of conflicting window, otherwise returns 0.
-function nameExists(windowId, name) {
+export function hasName(name, excludeId) {
     for (const id in windowMap) {
-        if (id == windowId) continue;
+        if (id == excludeId) continue;
         const metaWindow = windowMap[id];
-        if (metaWindow.givenName == name || metaWindow.defaultName == name) {
-            return metaWindow.id;
-        }
+        if (metaWindow.givenName === name || metaWindow.defaultName === name) return id;
     }
     return 0;
 }
