@@ -58,7 +58,7 @@ async function checkFolders() {
 
 // Rename folder if its name is invalid. Return name.
 function fixFolderName(id, name) {
-    const fixedName = Name.fix(name);
+    const fixedName = Name.validify(name);
     if (fixedName !== name) browser.bookmarks.update(id, { title: fixedName });
     return fixedName;
 }
