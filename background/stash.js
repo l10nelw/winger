@@ -112,36 +112,35 @@ export async function unstash(nodeId) {
             turnBookmarkIntoTab(node, currentWindow.id, true);
             break;
         case 'folder':
-            unstash.createWindow(node);
+            unstash.info = unstash.createWindow(node);
     }
 }
 
 // Create window and let onWindowCreated() in background.js trigger the rest of the unstash process.
 unstash.createWindow = async folder => {
     const window = await browser.windows.create();
-    unstash._windowId   = window.id;
-    unstash._blankTabId = window.tabs[0].id;
-    unstash._folderId   = folder.id;
-    unstash._title      = folder.title;
+    return {
+        windowId:   window.id,
+        blankTabId: window.tabs[0].id,
+        folderId:   folder.id,
+        name:       folder.title,
+    };
 }
 
 unstash.onWindowCreated = async windowId => {
-    if (windowId !== unstash._windowId) return;
+    const info = await unstash.info;
+    if (windowId !== info?.windowId) return;
+    delete unstash.info;
 
-    Metadata.giveName(windowId, Name.uniquify(name, windowId));
+    const name = Name.uniquify(info.name, windowId);
+    Metadata.giveName(windowId, name);
 
-    const folderId = unstash._folderId;
-    const bookmarks = (await browser.bookmarks.getChildren(folderId)).filter(isBookmark);
+    const bookmarks = (await browser.bookmarks.getChildren(info.folderId)).filter(isBookmark);
     if (bookmarks.length) {
         await Promise.all( bookmarks.map(b => turnBookmarkIntoTab(b, windowId)) ); // Populate window
-        browser.tabs.remove(unstash._blankTabId); // Remove initial blank tab
+        browser.tabs.remove(info.blankTabId); // Remove initial blank tab
     }
-    browser.bookmarks.remove(folderId).catch(() => null); // Remove folder if empty
-
-    unstash._windowId   = null;
-    unstash._blankTabId = null;
-    unstash._folderId   = null;
-    unstash._title      = null;
+    browser.bookmarks.remove(info.folderId).catch(() => null); // Remove folder if empty
 }
 
 async function turnBookmarkIntoTab({ url, title, id }, windowId, active) {
