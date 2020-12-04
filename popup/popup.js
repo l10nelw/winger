@@ -20,6 +20,7 @@ export const $toolbar = $body.querySelector('footer');
 const $omnibox = Omnibox.$omnibox;
 
 export const isRow = $el => $el?._id;
+const isClickKey = key => key === 'Enter' || key === ' ';
 
 // Action attribute utilities
 const actionAttr = 'data-action';
@@ -60,7 +61,7 @@ function onKeyDown(event) {
     if (EditMode.$active) return;
     if (navigateByArrow($target, key)) return;
     if (showModifierHint(key)) return;
-    if (['Tab', 'Enter', ' '].includes(key)) return;
+    if (key === 'Tab' || isClickKey(key)) return;
     if ($target !== $omnibox) $omnibox.focus();
 }
 
@@ -68,7 +69,7 @@ function onKeyUp(event) {
     const { key, target: $target } = event;
     inputEnterCheck.up(key, $target);
     if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
-    if (isRow($target) && (key === 'Enter' || key === ' ')) return requestAction(event, $target);
+    if (isRow($target) && isClickKey(key)) return requestAction(event, $target);
     if ($target === $omnibox) {
         Omnibox.placeholder();
         Omnibox.handleKeyUp(key, event);
