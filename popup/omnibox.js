@@ -1,4 +1,4 @@
-import { $currentWindowRow, $otherWindowsList, $otherWindowRows, getName, requestAction } from './popup.js';
+import { $currentWindowRow, $otherWindowsList, $otherWindowRows, getName, requestStash, requestAction } from './popup.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
 import { getScrollbarWidth, hasClass, addClass, removeClass, toggleClass } from '../utils.js';
@@ -10,6 +10,7 @@ const commands = {
     help:     Toolbar.help,
     settings: Toolbar.settings,
     edit:     EditMode.activate,
+    stash:    requestStash,
 };
 
 export function handleKeyUp(key, event) {

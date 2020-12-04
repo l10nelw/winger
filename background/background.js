@@ -70,6 +70,7 @@ async function onRequest(request) {
             selectedTabCount: (await WindowTab.getSelectedTabs()).length,
         };
     }
+    if (request.stash) return Stash.stash(request.stash);
     if (request.action) return WindowTab.doAction(request);
     if (request.help) return WindowTab.openHelp();
 

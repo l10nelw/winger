@@ -114,6 +114,10 @@ export function getName($rowElement) {
     return $input.value || $input.placeholder;
 }
 
+export function requestStash(windowId = $currentWindowRow._id) {
+    browser.runtime.sendMessage({ stash: windowId });
+}
+
 // Gather action parameters from event and $action element. If action and windowId found, send parameters to
 // background to request action execution.
 export function requestAction(event, $action = event.target) {
