@@ -1,4 +1,4 @@
-import { getShortcut, hasClass, GroupMap } from '../utils.js';
+import { getShortcut, hasClass, toggleClass, GroupMap } from '../utils.js';
 import * as Settings from '../background/settings.js';
 
 const $body = document.body;
@@ -17,12 +17,12 @@ let SETTINGS, formData;
     for (const $field of $settings) {
         loadSetting($field);
         const $enabler = $form[$field.dataset.enabledBy];
-        if ($enabler) {
+        if ($enabler) { // field has enabler
             enablerMap.group($field, $enabler);
-            $field.disabled = !$enabler.checked;
+            updateEnablerTarget($field, $enabler.disabled || !$enabler.checked);
         }
         const $toggler = $form[$field.dataset.toggledBy];
-        if ($toggler) {
+        if ($toggler) { // field has toggler
             togglerMap.group($field, $toggler);
         }
     }
@@ -60,8 +60,16 @@ function saveSetting($field) {
 function activateEnabler($enabler) {
     const $targets = enablerMap.get($enabler);
     if (!$targets) return;
-    const disable = !$enabler.checked;
-    $targets.forEach($target => $target.disabled = disable);
+    const disable = $enabler.disabled || !$enabler.checked; // Disable targets if enabler is unchecked or is itself disabled
+    for (const $target of $targets) {
+        updateEnablerTarget($target, disable);
+        activateEnabler($target); // In case $target is itself an enabler
+    }
+}
+
+function updateEnablerTarget($field, disable) {
+    $field.disabled = disable;
+    toggleClass('muted', $field.closest('label'), disable);
 }
 
 // Check/uncheck fields that $toggler controls.
