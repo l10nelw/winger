@@ -6,7 +6,7 @@ let Stash;
 const contextTitle = {
     tab:      'Send Tab to &Window',
     link:     'Open Link in &Window',
-    bookmark: 'Open and Re&move',
+    bookmark: '&Unstash',
 }
 
 const windowsSubmenu = {
@@ -21,8 +21,8 @@ const windowsSubmenu = {
         browser.menus.create({ contexts: [context], parentId: context, id, title: '-' });
     },
 
-    // Update menu state based on window count.
-    updateEnabled() {
+    // Update menu's enabled state based on window count.
+    updateAvailability() {
         const properties = { enabled: Metadata.windowCount > 1 };
         this.enabledContexts.forEach(context => browser.menus.update(context, properties));
     },
@@ -50,9 +50,9 @@ const windowsSubmenu = {
         WindowTab.doAction({ action: 'send', windowId, originWindowId, modifiers, tabs });
     },
 
-    _menuId: (context, windowId) => `${windowId || ''}-${context}`,
+    _menuId: (context, windowId = '') => `${windowId}-${context}`,
 
-};
+}
 
 // Create a menu item for each given context.
 export function init(contextList, StashModule) {
@@ -62,13 +62,13 @@ export function init(contextList, StashModule) {
         createMenuItem(context);
         if (windowsSubmenu.usedBy(context)) windowsSubmenu.init(context);
     }
-    windowsSubmenu.updateEnabled();
+    windowsSubmenu.updateAvailability();
     browser.menus.onShown.addListener   (onMenuShow);
     browser.menus.onClicked.addListener (onMenuClick);
 }
 
 export function update() {
-    windowsSubmenu.updateEnabled();
+    windowsSubmenu.updateAvailability();
 }
 
 function createMenuItem(context) {
