@@ -6,7 +6,8 @@ const $form = $body.querySelector('form');
 const $settings = [...$form.querySelectorAll('.setting')];
 const $submitBtns = [...$form.querySelectorAll('button')];
 const relevantProp = $field => $field.type === 'checkbox' ? 'checked' : 'value';
-const getFormValuesString = () => $settings.map($field => $field[relevantProp($field)]).join();
+const relevantValue = $field => $field[relevantProp($field)];
+const getFormValuesString = () => $settings.map(relevantValue).join();
 const enablerMap = new GroupMap(); // Fields that enable/disable other fields
 const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and change state according to those fields' states
 let SETTINGS, formData;
@@ -52,7 +53,7 @@ function loadSetting($field) {
 
 function saveSetting($field) {
     if (hasClass('setting', $field))
-        browser.storage.local.set({ [$field.name]: $field[relevantProp($field)] });
+        browser.storage.local.set({ [$field.name]: relevantValue($field) });
 }
 
 // Enable/disable fields that $enabler controls.
