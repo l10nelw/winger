@@ -22,6 +22,8 @@
         text-align: center;
       }
 
+      .block { display: block; }
+
       .ml-1 { margin-left: 1rem; }
 
       .special { color: darkblue; }
@@ -57,6 +59,21 @@
       <label><input class="setting" type="checkbox" name="enable_tab_menu"> <span>Enable tab context menu (Send Tab to Window)</span></label>
       <label><input class="setting" type="checkbox" name="enable_link_menu"> <span>Enable link context menu (Open Link in Window)</span></label>
 
+      <div class="btnRow"><button disabled>Apply Settings</button></div>
+
+      <h2>Stashing windows</h2>
+      <label class="block">
+        <span>Stash home:</span>
+        <select class="setting" data-enabled-by="enable_stash" name="stash_home">
+          <option value="toolbar_____" >Bookmarks Toolbar</option>
+          <option value="toolbar_____/">Bookmarks Toolbar/</option>
+          <option value="menu________" >Bookmarks Menu</option>
+          <option value="menu________/">Bookmarks Menu/</option>
+          <option value="unfiled_____" >Other Bookmarks</option>
+          <option value="unfiled_____/">Other Bookmarks/</option>
+        </select>
+      </label>
+      <input type="hidden" class="setting" data-enabled-by="enable_stash" name="stash_home_name" value="Stashed Windows">
       <div class="btnRow"><button disabled>Apply Settings</button></div>
 
       <h2>Button badge</h2>

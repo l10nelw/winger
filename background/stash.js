@@ -2,7 +2,7 @@ import * as Name from './name.js';
 import * as Metadata from './metadata.js';
 import { SETTINGS } from './settings.js';
 
-const ROOT_ID = 'toolbar_____'; // menu________, unfiled_____
+let HOME_ID;
 
 const isBookmark = node => node.type === 'bookmark';
 
@@ -10,6 +10,27 @@ const unstashPagePath = browser.runtime.getURL('../stash/tab');
 const createUnstashPageUrl = ({ url, title }) => `${unstashPagePath}?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
 const isUnstashPageUrl = url => url.startsWith(unstashPagePath);
 const getUrlFromUnstashPageUrl = url => decodeURIComponent((new URL(url)).searchParams.get('url'));
+
+export async function init() {
+    HOME_ID = await getHomeId();
+}
+
+// Identify the stash home's folder id based on settings.
+async function getHomeId() {
+    let id = SETTINGS.stash_home; // Id of a root folder; if followed by a '/', indicates that the home is a subfolder
+    if (id.endsWith('/')) {
+        id = id.slice(0, -1); // Strip '/'
+        const title = SETTINGS.stash_home_name;
+        const folder = await findFolderByTitle(title, id);
+        id = folder ? folder.id : (await browser.bookmarks.create({ title, parentId: id })).id; // If subfolder not found, create it
+    }
+    return id;
+}
+
+async function findFolderByTitle(title, parentId) {
+    const nodes = await browser.bookmarks.getChildren(parentId);
+    return nodes.find(node => node.title === title && node.type === 'folder');
+}
 
 
 /* --- LIST (& FIX) FOLDERS --- */
@@ -28,7 +49,7 @@ list.clear = () => list.length = 0;
 // Return array of simplified folder objects { id, title, bookmarkCount } with unique names, representing stashed-windows.
 // Side-effect: Rename any folders with invalid names.
 async function getAndFixFolders() {
-    const nodes = (await browser.bookmarks.getSubTree(ROOT_ID))[0].children;
+    const nodes = (await browser.bookmarks.getSubTree(HOME_ID))[0].children;
     const folders = [];
     const names = new Set();
     for (let i = nodes.length; i--;) { // Reverse loop
@@ -81,7 +102,7 @@ async function getStashFolder(title) {
         sameNameFolder = folders.find(folder => folder.title === title);
         if (!sameNameFolder) {
             // No conflict; create new folder and proceed
-            createFolderPromise = browser.bookmarks.create({ title, parentId: ROOT_ID });
+            createFolderPromise = browser.bookmarks.create({ title, parentId: HOME_ID });
             break;
         }
         if (!sameNameFolder.bookmarkCount) break; // Existing folder has no bookmarks; proceed

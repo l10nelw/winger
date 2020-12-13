@@ -1,4 +1,5 @@
 import { getShortcut, hasClass, toggleClass, GroupMap } from '../utils.js';
+import { validify } from '../background/name.js';
 import * as Settings from '../background/settings.js';
 
 const $body = document.body;
@@ -27,6 +28,7 @@ let SETTINGS, formData;
         }
     }
     for (const $toggler of togglerMap.keys()) updateToggler($toggler);
+    stash_updateHomeSelect();
     formData = getFormValuesString();
 })();
 
@@ -36,6 +38,7 @@ staticText_insertShortcut();
 staticText_checkPrivateAccess();
 
 function onFieldChange({ target: $field }) {
+    stash_updateHomeSelect();
     activateEnabler($field);
     activateToggler($field);
     updateToggler($form[$field.dataset.toggledBy]);
@@ -102,6 +105,17 @@ function updateToggler($toggler) {
 function enableSubmitBtns() {
     const isFormUnchanged = formData === getFormValuesString();
     $submitBtns.forEach($btn => $btn.disabled = isFormUnchanged);
+}
+
+// Add/update subfolder name in the stash home <select>.
+function stash_updateHomeSelect() {
+    const name = validify($form.stash_home_name.value);
+    $form.stash_home_name.value = name;
+    for (const $option of $form.stash_home.options) {
+        const text = $option.text;
+        const slash_i = text.indexOf('/');
+        if (slash_i > -1) $option.text = text.slice(0, slash_i + 1) + name;
+    }
 }
 
 async function staticText_insertShortcut() {
