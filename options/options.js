@@ -31,8 +31,8 @@ let SETTINGS, formData;
 
 $form.onchange = onFieldChange;
 $form.onsubmit = applySettings;
-insertShortcut();
-checkPrivateAccess();
+staticText_insertShortcut();
+staticText_checkPrivateAccess();
 
 function onFieldChange({ target: $field }) {
     activateEnabler($field);
@@ -95,7 +95,7 @@ function enableSubmitBtns() {
     $submitBtns.forEach($btn => $btn.disabled = isFormUnchanged);
 }
 
-async function insertShortcut() {
+async function staticText_insertShortcut() {
     const shortcut = await getShortcut();
     if (shortcut) $body.querySelector('.shortcut').textContent = shortcut;
     const $defaultShortcutText = $body.querySelector('.default-shortcut-text');
@@ -105,7 +105,7 @@ async function insertShortcut() {
     $defaultShortcutText.hidden = false;
 }
 
-async function checkPrivateAccess() {
+async function staticText_checkPrivateAccess() {
     const isAllowed = await browser.extension.isAllowedIncognitoAccess();
     const $toShow = $body.querySelectorAll(`.private-allowed-${isAllowed ? 'yes' : 'no'}`);
     $toShow.forEach($el => $el.hidden = false);
