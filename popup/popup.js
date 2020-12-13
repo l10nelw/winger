@@ -34,6 +34,7 @@ let modifierHints;
 
 (async () => {
     ({ SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints } = await init());
+    if (SETTINGS.enable_stash) Omnibox.commands.stash = requestStash;
     $body.addEventListener('click', onClick);
     $body.addEventListener('contextmenu', onRightClick);
     $body.addEventListener('keydown', onKeyDown);
@@ -114,7 +115,7 @@ export function getName($rowElement) {
     return $input.value || $input.placeholder;
 }
 
-export function requestStash(windowId = $currentWindowRow._id) {
+function requestStash(windowId = $currentWindowRow._id) {
     browser.runtime.sendMessage({ stash: windowId });
 }
 
