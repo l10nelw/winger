@@ -3,7 +3,6 @@ import * as Metadata from './metadata.js';
 import { SETTINGS } from './settings.js';
 
 const ROOT_ID = 'toolbar_____'; // menu________, unfiled_____
-const START_AFTER_SEPARATOR = true;
 
 const isBookmark = node => node.type === 'bookmark';
 
@@ -16,41 +15,33 @@ const getUrlFromUnstashPageUrl = url => decodeURIComponent((new URL(url)).search
 /* --- LIST (& FIX) FOLDERS --- */
 
 // List of stashed-window folders, to be populated/cleared when popup opens/closes.
-// This keeps checkFolders() data available in this module throughout the popup's duration.
+// This arragement keeps getAndFixFolders() data available in this module throughout the popup's duration.
 export const list = [];
 
 list.populate = async () => {
-    list.push(...await checkFolders());
+    list.push(...await getAndFixFolders());
     return list;
 }
 
 list.clear = () => list.length = 0;
 
-// Return an array of simplified folder objects { id, title, bookmarkCount } with unique names, representing stashed-windows.
+// Return array of simplified folder objects { id, title, bookmarkCount } with unique names, representing stashed-windows.
 // Side-effect: Rename any folders with invalid names.
-async function checkFolders() {
+async function getAndFixFolders() {
     const nodes = (await browser.bookmarks.getSubTree(ROOT_ID))[0].children;
     const folders = [];
     const names = new Set();
-    for (const node of nodes) {
-        switch (node.type) {
-            case 'folder':
-                const id = node.id;
-                const title = fixFolderName(id, node.title);
-                if (names.has(title)) continue; // Ignore folder if name already exists
-                const folder = {
-                    id,
-                    title,
-                    bookmarkCount: node.children.filter(isBookmark).length,
-                };
-                folders.push(folder);
-                names.add(title);
-                break;
-            case 'separator':
-                if (START_AFTER_SEPARATOR) {
-                    folders.length = 0;
-                    names.clear();
-                }
+    for (let i = nodes.length; i--;) { // Reverse loop
+        const node = nodes[i];
+        const type = node.type;
+        if (type === 'separator') break; // Stop at first separator from the end
+        if (type === 'folder') {
+            const id = node.id;
+            const title = fixFolderName(id, node.title);
+            if (names.has(title)) continue; // Ignore folder if name seen before
+            const bookmarkCount = node.children.filter(isBookmark).length;
+            folders.push({ id, title, bookmarkCount });
+            names.add(title);
         }
     }
     return folders;
@@ -82,7 +73,7 @@ export async function stash(windowId) {
 
 //For a given name (title), return matching folder or create folder and return its promise.
 async function getStashFolder(title) {
-    const folders = list.length ? list : await checkFolders();
+    const folders = list.length ? list : await getAndFixFolders();
     let sameNameFolder, createFolderPromise;
 
     // Name conflict check
