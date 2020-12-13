@@ -1,7 +1,7 @@
 import * as Modifier from '../modifier.js';
 import * as Metadata from './metadata.js';
-import * as Stash from './stash.js';
 import * as WindowTab from './windowtab.js';
+let Stash;
 
 const contextTitle = {
     tab:      'Send Tab to &Window',
@@ -55,7 +55,9 @@ const windowsSubmenu = {
 };
 
 // Create a menu item for each given context.
-export function init(contextList) {
+export function init(contextList, StashModule) {
+    Stash = StashModule;
+
     for (const context of contextList) {
         createMenuItem(context);
         if (windowsSubmenu.usedBy(context)) windowsSubmenu.init(context);
@@ -74,13 +76,15 @@ function createMenuItem(context) {
 }
 
 async function onMenuShow(info, tab) {
-    const bookmarkId = info.bookmarkId;
-    if (bookmarkId) {
-        // Disable menu item if node is root or separator
-        const enabled = !bookmarkId.endsWith('_____') && (await browser.bookmarks.get(bookmarkId))[0].type !== 'separator';
-        browser.menus.update('bookmark', { enabled });
-        browser.menus.refresh();
-        return;
+    if (Stash) {
+        const nodeId = info.bookmarkId;
+        if (nodeId) {
+            // Disable menu item if node is root folder or separator
+            const enabled = !isRootNode(nodeId) && (await getNode(nodeId)).type !== 'separator';
+            browser.menus.update('bookmark', { enabled });
+            browser.menus.refresh();
+            return;
+        }
     }
 
     // Populate windows submenu if applicable
@@ -96,10 +100,9 @@ async function onMenuShow(info, tab) {
 }
 
 function onMenuClick(info, tab) {
-    const bookmarkId = info.bookmarkId;
-    if (bookmarkId) {
-        Stash.unstash(bookmarkId);
-        return;
+    if (Stash) {
+        const nodeId = info.bookmarkId;
+        if (nodeId) return Stash.unstash(nodeId);
     }
 
     // Windows submenu item
@@ -109,3 +112,6 @@ function onMenuClick(info, tab) {
     url ? windowsSubmenu.openLink (url, windowId, info.modifiers)
         : windowsSubmenu.moveTab  (tab, windowId, info.modifiers, tab.windowId);
 }
+
+const isRootNode = nodeId => nodeId.endsWith('_____');
+const getNode = async nodeId => (await browser.bookmarks.get(nodeId))[0];

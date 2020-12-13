@@ -16,7 +16,7 @@ const DEFAULT = {
     enable_tab_menu: true,
     enable_link_menu: true,
 
-    enable_stash: true,
+    enable_stash: false,
     stash_home: 'toolbar_____',
     stash_home_name: 'Stashed Windows',
 

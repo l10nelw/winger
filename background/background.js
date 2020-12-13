@@ -6,8 +6,7 @@
 import * as Settings from './settings.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
-import * as Stash from './stash.js';
-let Menu;
+let Stash, Menu;
 
 // Object.assign(window, { Metadata }); // for debugging
 
@@ -20,7 +19,14 @@ browser.runtime.onMessage.addListener      (onRequest);
 
 async function init() {
     const [windows, SETTINGS] = await Promise.all([ browser.windows.getAll(), Settings.retrieve() ]);
+
     WindowTab.init(SETTINGS);
+
+    if (SETTINGS.enable_stash) {
+        Stash = await import('./stash.js');
+        Stash.init(SETTINGS);
+    }
+
     await Metadata.init(SETTINGS, windows);
     windows.forEach(window => onWindowCreated(window, true));
 
@@ -30,7 +36,7 @@ async function init() {
     if (SETTINGS.enable_stash)     menusEnabled.push('bookmark');
     if (menusEnabled.length) {
         Menu = await import('./menu.js');
-        Menu.init(menusEnabled);
+        Menu.init(menusEnabled, Stash);
     }
 }
 
@@ -46,8 +52,8 @@ async function onWindowCreated(window, isInit) {
 
     await Metadata.add(window);
     Menu?.update();
+    Stash?.unstash.onWindowCreated(windowId);
     WindowTab.selectFocusedTab(windowId);
-    Stash.unstash.onWindowCreated(windowId);
 }
 
 function onWindowRemoved(windowId) {

@@ -37,7 +37,8 @@ $form.onsubmit = applySettings;
 staticText_insertShortcut();
 staticText_checkPrivateAccess();
 
-function onFieldChange({ target: $field }) {
+async function onFieldChange({ target: $field }) {
+    await stash_onChecked($field);
     stash_updateHomeSelect();
     activateEnabler($field);
     activateToggler($field);
@@ -105,6 +106,13 @@ function updateToggler($toggler) {
 function enableSubmitBtns() {
     const isFormUnchanged = formData === getFormValuesString();
     $submitBtns.forEach($btn => $btn.disabled = isFormUnchanged);
+}
+
+async function stash_onChecked($field) {
+    if ($field !== $form.enable_stash) return;
+    const permission = { permissions: ['bookmarks'] };
+    if (!$field.checked) return browser.permissions.remove(permission);
+    $field.checked = await browser.permissions.request(permission);
 }
 
 // Add/update subfolder name in the stash home <select>.
