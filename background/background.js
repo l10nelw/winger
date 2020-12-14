@@ -11,6 +11,7 @@ let Stash, Menu;
 // Object.assign(window, { Metadata }); // for debugging
 
 init();
+Settings.needsRestart(false);
 browser.runtime.onInstalled.addListener    (onExtInstalled);
 browser.windows.onCreated.addListener      (onWindowCreated);
 browser.windows.onRemoved.addListener      (onWindowRemoved);

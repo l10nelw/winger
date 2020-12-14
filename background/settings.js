@@ -25,6 +25,11 @@ const DEFAULT = {
 export let SETTINGS;
 
 export async function retrieve() {
-    SETTINGS = SETTINGS || { ...await browser.storage.local.get(DEFAULT) };
+    SETTINGS = SETTINGS || await browser.storage.local.get(DEFAULT);
     return SETTINGS;
+}
+
+export async function needsRestart(value) {
+    if (value === undefined) return (await browser.storage.local.get('needs_restart')).needs_restart;
+    browser.storage.local.set({ needs_restart: value });
 }

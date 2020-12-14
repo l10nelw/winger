@@ -1,20 +1,22 @@
 import { getShortcut, hasClass, toggleClass, GroupMap } from '../utils.js';
 import { validify } from '../background/name.js';
-import * as Settings from '../background/settings.js';
+import { retrieve as retrieveSettings, needsRestart } from '../background/settings.js';
 
 const $body = document.body;
 const $form = $body.querySelector('form');
 const $settings = [...$form.querySelectorAll('.setting')];
 const $submitBtns = [...$form.querySelectorAll('button')];
-const relevantProp = $field => $field.type === 'checkbox' ? 'checked' : 'value';
-const relevantValue = $field => $field[relevantProp($field)];
-const getFormValuesString = () => $settings.map(relevantValue).join();
 const enablerMap = new GroupMap(); // Fields that enable/disable other fields
 const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and change state according to those fields' states
 let SETTINGS, formData;
 
+const relevantProp = $field => $field.type === 'checkbox' ? 'checked' : 'value';
+const relevantValue = $field => $field[relevantProp($field)];
+const getFormValuesString = () => $settings.map(relevantValue).join();
+
 (async () => {
-    SETTINGS = await Settings.retrieve();
+    SETTINGS = await retrieveSettings();
+
     for (const $field of $settings) {
         loadSetting($field);
         const $enabler = $form[$field.dataset.enabledBy];
@@ -29,7 +31,9 @@ let SETTINGS, formData;
     }
     for (const $toggler of togglerMap.keys()) updateToggler($toggler);
     stash_updateHomeSelect();
+
     formData = getFormValuesString();
+    updateSubmitBtns();
 })();
 
 $form.onchange = onFieldChange;
@@ -44,7 +48,7 @@ async function onFieldChange({ target: $field }) {
     activateToggler($field);
     updateToggler($form[$field.dataset.toggledBy]);
     saveSetting($field);
-    enableSubmitBtns();
+    updateSubmitBtns();
 }
 
 function applySettings() {
@@ -58,6 +62,13 @@ function loadSetting($field) {
 function saveSetting($field) {
     if (hasClass('setting', $field))
         browser.storage.local.set({ [$field.name]: relevantValue($field) });
+}
+
+ // Disable submit buttons if restart unneeded or form unchanged. Enable otherwise.
+async function updateSubmitBtns() {
+    const disable = await needsRestart() ? false : getFormValuesString() === formData;
+    for (const $btn of $submitBtns) $btn.disabled = disable;
+    needsRestart(!disable);
 }
 
 // Enable/disable fields that $enabler controls.
@@ -101,11 +112,6 @@ function updateToggler($toggler) {
     } else {
         $toggler.indeterminate = true;
     }
-}
-
-function enableSubmitBtns() {
-    const isFormUnchanged = formData === getFormValuesString();
-    $submitBtns.forEach($btn => $btn.disabled = isFormUnchanged);
 }
 
 async function stash_onChecked($field) {
