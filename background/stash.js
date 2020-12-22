@@ -5,6 +5,7 @@ import { SETTINGS } from './settings.js';
 let HOME_ID;
 
 const isBookmark = node => node.type === 'bookmark';
+const createFolder = (title, parentId = HOME_ID) => browser.bookmarks.create({ title, parentId });
 
 const unstashPagePath = browser.runtime.getURL('../stash/tab');
 const createUnstashPageUrl = ({ url, title }) => `${unstashPagePath}?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
@@ -17,14 +18,12 @@ export async function init() {
 
 // Identify the stash home's folder id based on settings.
 async function getHomeId() {
-    let id = SETTINGS.stash_home; // Id of a root folder; if followed by a '/', indicates that the home is a subfolder
-    if (id.endsWith('/')) {
-        id = id.slice(0, -1); // Strip '/'
-        const title = SETTINGS.stash_home_name;
-        const folder = await findFolderByTitle(title, id);
-        id = folder ? folder.id : (await browser.bookmarks.create({ title, parentId: id })).id; // If subfolder not found, create it
-    }
-    return id;
+    let rootId = SETTINGS.stash_home; // Id of a root folder; may be followed by an extra character to flag that home is a subfolder
+    if (rootId.endsWith('_')) return rootId;
+    rootId = rootId.slice(0, -1); // Remove extra character
+    const title = SETTINGS.stash_home_name;
+    const folder = await findFolderByTitle(title, rootId);
+    return folder ? folder.id : (await createFolder(title, rootId)).id;
 }
 
 async function findFolderByTitle(title, parentId) {
@@ -95,20 +94,19 @@ export async function stash(windowId) {
 //For a given name (title), return matching folder or create folder and return its promise.
 async function getStashFolder(title) {
     const folders = list.length ? list : await getAndFixFolders();
-    let sameNameFolder, createFolderPromise;
+    let sameNameFolder, newFolderPromise;
 
     // Name conflict check
     while (true) {
         sameNameFolder = folders.find(folder => folder.title === title);
-        if (!sameNameFolder) {
-            // No conflict; create new folder and proceed
-            createFolderPromise = browser.bookmarks.create({ title, parentId: HOME_ID });
+        if (!sameNameFolder) { // No conflict; create new folder and proceed
+            newFolderPromise = createFolder(title);
             break;
         }
         if (!sameNameFolder.bookmarkCount) break; // Existing folder has no bookmarks; proceed
         title = Name.applyNumberPostfix(title); // Uniquify name and repeat check
     }
-    return createFolderPromise || sameNameFolder;
+    return newFolderPromise || sameNameFolder;
 }
 
 
