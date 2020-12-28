@@ -6,6 +6,7 @@ const $body = document.body;
 const $form = $body.querySelector('form');
 const $settings = [...$form.querySelectorAll('.setting')];
 const $submitBtns = [...$form.querySelectorAll('button')];
+const stash_subSymbol = $form.stash_home.options[1].text.slice(-1);
 const enablerMap = new GroupMap(); // Fields that enable/disable other fields
 const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and change state according to those fields' states
 let SETTINGS, formData;
@@ -125,11 +126,9 @@ async function stash_onChecked($field) {
 function stash_updateHomeSelect() {
     const name = validify($form.stash_home_name.value);
     $form.stash_home_name.value = name;
-    for (const $option of $form.stash_home.options) {
-        const text = $option.text;
-        const slash_i = text.indexOf('/');
-        if (slash_i > -1) $option.text = text.slice(0, slash_i + 1) + name;
-    }
+    for (const $option of $form.stash_home.options)
+        if (!$option.value.endsWith('_'))
+            $option.text = `${$option.previousElementSibling.text} ${stash_subSymbol} ${name}`;
 }
 
 async function staticText_insertShortcut() {
