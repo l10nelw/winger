@@ -16,7 +16,7 @@
         <br><small class="js-version"></small>
         <br><b>Quick Guide</b>
       </h1>
-      <p class="small">Last updated v1.3.1</p>
+      <p class="small">Last updated v1.4</p>
     </header>
 
     <label class="collapse-box bordered-box mb-5" tabindex="0">
@@ -85,7 +85,7 @@
       <section class="row ai-center mb-1">
         <p class="button mr-1" style="border-radius: 8px"><img src="../icons/winger.svg" alt="Winger icon"></p>
         <div>
-          <p>Click on the Winger button on your browser toolbar, or press <kbd class="bold js-shortcut"></kbd>, to open the pop-up panel.</p>
+          <p>Click on the Winger button on your browser toolbar, or press <kbd class="bold js-shortcut">Alt+W</kbd>, to open the pop-up panel.</p>
           <p class="small">Tip: You can move browser toolbar buttons onto the tab strip &ndash; a reasonable spot for tab/window-related actions! To move buttons around, right-click the toolbar and click <em>Customize</em> to enter Customize Firefox mode.</p>
         </div>
       </section>
@@ -209,25 +209,21 @@
       <h2 class="center">Name Windows</h2>
       <div class="row">
         <section class="col flex-grow mr-1 mb-1">
-          <p class="small mb-2">Winger assigns every window a default name (Window 1, Window 2 and so on), visible when a window has no user-given name.
-            <br>Unlike given names, default names are temporary and not guaranteed to persist across browser sessions.</p>
-          <div class="col">
-            <div class="row mb-1">
-              <p class="col button mr-1"><img src="../icons/edit.svg" style="width: 60%" alt=""></p>
-              <div class="col">
-                <p>The <strong>edit</strong> button lets you name/rename a window.</p>
-                <p>You can also edit the current window's name by double-clicking it. <span class="new">NEW</span></p>
-              </div>
-            </div>
+          <div class="row mb-1">
+            <p class="col button mr-1"><img src="../icons/edit.svg" style="width: 60%" alt=""></p>
             <div class="col">
-              <p>When the panel is in <strong>Edit Mode</strong>, you can type in a new name and then use the following keys:</p>
-              <ul>
-                <li><p><kbd class="bold">Enter</kbd> to <em>save</em> the currently edited name and exit Edit Mode.</p></li>
-                <li><p><kbd class="bold">Up</kbd> or <kbd class="bold">Down</kbd> to <em>save</em> the currently edited name and edit another window name.</p></li>
-                <li><p><kbd class="bold">Esc</kbd> to close the panel, exiting Edit Mode without saving any changes to the currently edited name.</p></li>
-              </ul>
-              <p>Names must be unique and may not begin with a forward slash ("/").</p>
+              <p>The <strong>edit</strong> button lets you name/rename a window.</p>
+              <p>You can also edit the current window's name by double-clicking it. </p>
             </div>
+          </div>
+          <div class="col">
+            <p>When the panel is in <strong>Edit Mode</strong>, you can type in a new name and then use the following keys:</p>
+            <ul>
+              <li><p><kbd class="bold">Enter</kbd> to <em>save</em> the currently edited name and exit Edit Mode.</p></li>
+              <li><p><kbd class="bold">Up</kbd> or <kbd class="bold">Down</kbd> to <em>save</em> the currently edited name and edit another window name.</p></li>
+              <li><p><kbd class="bold">Esc</kbd> to close the panel, exiting Edit Mode without saving any changes to the currently edited name.</p></li>
+            </ul>
+            <p>Names must be unique and may not begin with a forward slash ("/").</p>
           </div>
         </section>
         <div class="col">
@@ -258,10 +254,12 @@
         </div>
       </div>
       <div class="small mx-1">
+        <p class="mb-2">Winger assigns every window a default name (Window 1, Window 2 and so on), visible when a window has no user-given name.
+          <br>Unlike user-given names, default names are temporary and not guaranteed to persist across browser sessions.</p>
         <section class="mb-2">
           <h3>Naming tips</h3>
           <ul>
-            <li><p>In Edit Mode, the status bar will show the title of the targeted window's active tab, to help you identify any windows that are not visible. <span class="new">NEW</span></p></li>
+            <li><p>In Edit Mode, the status bar will show the title of the targeted window's active tab, to help you identify any windows that are not visible. </p></li>
             <li><p>You can include emojis in names. Windows and Mac have built-in emoji pickers (<kbd>Win+.</kbd> and <kbd>Cmd+Ctrl+Space</kbd> respectively). There are also <a href="https://addons.mozilla.org/en-US/firefox/search/?q=emoji&type=extension">emoji extensions</a>.</p></li>
           </ul>
         </section>
@@ -269,8 +267,8 @@
           <h3>Where a window name appears</h3>
           <ul>
             <li><p>Title bar. Contents of the title bar also show up in your operating system's task manager or switcher (e.g. while Alt-Tabbing), even if you've set Firefox's title bars to be hidden.</p></li>
-            <li><p>Tooltip that appears when you hover your pointer over the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon">. <span class="new">NEW</span></p></li>
-            <li><p>Button badge on the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon"> (showing the first few characters of a name), if enabled in <button type="button" class="settingsBtn">⚙️ Settings</button>. <span class="new">NEW</span></p></li>
+            <li><p>Tooltip that appears when you hover your pointer over the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon">. </p></li>
+            <li><p>Button badge on the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon"> (showing the first few characters of a name), if enabled in <button type="button" class="settingsBtn">⚙️ Settings</button>. </p></li>
             <li><p>And of course, open the panel any time to see the current window's name in bold.</p></li>
           </ul>
         </section>
@@ -278,9 +276,50 @@
     </article>
 
     <article class="mb-5">
+      <h2 class="center">Stash Windows <span class="new">NEW</span></h2>
+      <section class="mb-2">
+        <p>If you want to close a window and be able to restore it at any time in the future, you can <strong>stash</strong> it. Stashed windows are stored as bookmark folders, which you can then <strong>unstash</strong>.</p>
+        <ul class="pl-1">
+          <li>
+            <p>To use this feature, enable it in <button type="button" class="settingsBtn">⚙️ Settings</button>.</p>
+          </li>
+          <li>
+            <p>To <strong>stash the current window</strong>, open the panel and enter <kbd class="bold">/stash</kbd> in the omnibox.</p>
+            <p>The window will close and an identically-named bookmark folder &ndash; containing bookmarks converted from tabs &ndash; will appear in the <em>stash home</em>.</p>
+          </li>
+          <li>
+            <p>To <strong>unstash a bookmark folder</strong> inside the stash home, right-click on it and click the <cite>Unstash</cite> context menu command.</p>
+            <p>The folder will disappear and an identically-named window will open, containing the stored tabs.</p>
+            <ul>
+              <li>
+                <p><cite>Unstash</cite> is also available to individual bookmarks inside the stash home. The command will remove the bookmark and open it as a new tab in the current window.</p>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+      <section class="mb-2">
+        <h3>The stash home</h3>
+        <p>The <strong>stash home folder</strong> is where <strong>stash folders</strong> ("stashed windows") are stored. Its location can be changed in <button type="button" class="settingsBtn">⚙️ Settings</button> to be one of the three root bookmark folders &ndash; Bookmarks Toolbar, Bookmarks Menu or Other Bookmarks &ndash; or a "Stashed Windows" folder inside a root bookmark folder.</p>
+        <p>A root bookmark folder is usually also used for other bookmarks. Don't worry; Winger ignores everything before <strong>the last separator in the stash home</strong>, treating only folders after it as stash folders. Thus, this separator separates your other bookmarks from the actual stash home zone. If the stash home contains no separators, all its folders are considered stash folders.</p>
+        <p>Stash operations automatically rename any stash folders with invalid names (e.g. leading slashes and spaces), and check for conflicts against the name of the window being stashed.</p>
+      </section>
+      <section class="small bordered-box">
+        <h3>Work in progress as of 1.4x</h3>
+        <p>The stash feature is currently still being developed, building up from basic functionality first. Significant improvements to come:</p>
+        <ul>
+          <li>Show a <em>stash</em> button for each window row in the panel</li>
+          <li>List and filter stashed windows in the panel</li>
+          <li>Preserve certain tab states such as pinned and reader-view</li>
+          <li>Create "window groups"</li>
+        </ul>
+      </section>
+      </article>
+
+    <article class="mb-5">
       <h2 class="center">Keyboard Navigation<br>& The Omnibox</h2>
       <section class="mb-2">
-        <p>Press <kbd class="bold js-shortcut"></kbd> to open the panel. You can always check what the keyboard shortcut is by hovering your pointer over the Winger button <img src="../icons/winger.svg" height="15" alt="Winger icon">.</p>
+        <p>Press <kbd class="bold js-shortcut">Alt+W</kbd> to open the panel. You can always check what the keyboard shortcut is by hovering your pointer over the Winger button <img src="../icons/winger.svg" height="15" alt="Winger icon">.</p>
         <p>You can use the arrow keys to navigate the panel: <kbd class="bold">Up</kbd> and <kbd class="bold">Down</kbd> to select rows, <kbd class="bold">Left</kbd> and <kbd class="bold">Right</kbd> to select buttons. Press <kbd class="bold">Enter</kbd> or <kbd class="bold">Space</kbd> to activate a row or button.</p>
         <p>You should also use Winger's <strong>omnibox</strong> &ndash; a multi-purpose, multi-talented input field &ndash; to vastly accelerate operating Winger by keyboard.</p>
       </section>
@@ -299,7 +338,7 @@
           </ul>
           <p>Thus in summary, to swiftly <strong>switch</strong> OR <strong>send tabs</strong> OR <strong>bring tabs</strong> to a window via keyboard:</p>
           <ol>
-            <li><p><kbd class="bold js-shortcut"></kbd> to open the panel.</p></li>
+            <li><p><kbd class="bold js-shortcut">Alt+W</kbd> to open the panel.</p></li>
             <li><p>If the desired window row is not already immediately below the omnibox, start typing its name until it is.</p></li>
             <li>
               <p><kbd class="bold">Enter</kbd> OR <kbd class="bold">Ctrl+Enter</kbd> OR <kbd class="bold">Shift+Enter</kbd>.</p>
@@ -335,10 +374,12 @@
           <dl class="pl-1">
             <dt><kbd class="bold">/help</kbd> or <kbd class="bold">/h</kbd> or just <kbd class="bold">/</kbd></dt>
             <dd class="mb-1">Open this help page</dd>
-            <dt><kbd class="bold">/edit</kbd> or <kbd class="bold">/e</kbd></dt>
-            <dd class="mb-1">Enter Edit Mode to rename windows</dd>
             <dt><kbd class="bold">/settings</kbd> or <kbd class="bold">/s</kbd></dt>
             <dd class="mb-1">Open Winger settings</dd>
+            <dt><kbd class="bold">/edit</kbd> or <kbd class="bold">/e</kbd></dt>
+            <dd class="mb-1">Enter Edit Mode to rename windows</dd>
+            <dt><kbd class="bold">/stash</kbd> or <kbd class="bold">/st</kbd></dt>
+            <dd class="mb-1">Stashes the current window</dd>
           </dl>
         </section>
         <section class="col bordered-left small pl-2 mx-1">
@@ -369,8 +410,8 @@
     </article>
 
     <article class="mb-5">
-      <h2 class="center">Context Menus</h2>
-      <p class="small">Winger commands are available in the following context menus once there are at least two windows open.</p>
+      <h2 class="center">Destination Window Menu</h2>
+      <p class="small">The following commands are available in their respective context menus once there are at least two windows open.</p>
       <h3>Tab context menu</h3>
       <div class="mx-1">
         <p>Right-click on a tab to get the <em class="bold">Send Tab to Window</em> menu command, which opens a submenu of other windows (sorted by recently focused).</p>
@@ -390,15 +431,8 @@
       <ul class="pl-1">
         <li><p>Use a <a href="https://addons.mozilla.org/en-US/firefox/search/?category=tabs&type=extension&q=tab%20discard%20suspend">tab discarding/suspending extension</a> to minimise memory usage on less-visited tabs and windows.</p></li>
         <li><p>Divide and conquer with "window mitosis": split up a highly-populated window into several windows so you can focus on one set of tabs at a time. Hopefully this helps you work through them easier, and close them sooner.</p></li>
-        <li><p>If you like to proactively keep the number of windows under a certain number, you can always check the window count on the panel status bar. Another cue you can use to start closing windows is when the list of other windows to overflows and scrolls, which happens at about 12 windows.</p></li>
-        <li>
-          <p>Bookmark tabs and windows that you probably won't visit for a while, and close them.</p>
-          <ul class="pl-1">
-            <li><p><kbd class="bold">Ctrl+D</kbd> to bookmark the current tab, or <kbd class="bold">Ctrl+Shift+D</kbd> to bookmark all tabs in a window. (You can also find these commands in the Bookmarks menu (<kbd>Alt B</kbd>).)</p></li>
-            <li class="star-list"><p>A future Winger update aims to streamline this. Stay tuned...</p></li>
-            <li><p>Try some <a href="https://addons.mozilla.org/en-US/firefox/search/?category=tabs&type=extension&q=save%20tabs">tab saving extensions</a> for alternatives to regular bookmarking.</p></li>
-          </ul>
-        </li>
+        <li><p>If you like to proactively keep the number of windows under a certain number, you can always check the window count on the panel status bar. Another cue you can use to close some windows is when the list of other windows starts to overflow and scroll, which happens at about 12 windows.</p></li>
+        <li><p>If you are not yet ready to close windows you have not been using for a while, stash them.</p></li>
         <li>
           <p>The "List all tabs" button, which opens a menu of every tab in the current window, appears whenever the tab strip overflows. Its shortcut is <kbd class="bold">Ctrl+Shift+Tab</kbd>.</p>
           <ul class="pl-1">
