@@ -37,6 +37,23 @@ list.populate = async () => {
     return folders;
 }
 
+// Check if a node is a stash folder or bookmark; return true/false.
+// Side-effect: Rename folder with invalid name.
+export async function testStashNode(nodeId) {
+    if (nodeId === HOME_ID || isRootId(nodeId)) return false;
+    const node = await getNode(nodeId);
+    const type = node.type;
+    if (type === 'separator') return false;
+    const parentId = node.parentId;
+    if (parentId === HOME_ID) {
+        const sepIndex = await findSeparator(parentId);
+        if (node.index < sepIndex) return false;
+        if (type === 'folder') fixFolderName(nodeId, node.title);
+        return true;
+    }
+    return await testStashNode(parentId);
+}
+
 async function findSeparator(parentId) {
     const nodes = await browser.bookmarks.getChildren(parentId);
     for (let i = nodes.length; i--;) { // Reverse loop

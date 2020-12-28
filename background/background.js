@@ -6,9 +6,7 @@
 import * as Settings from './settings.js';
 import * as Metadata from './metadata.js';
 import * as WindowTab from './windowtab.js';
-let Stash, Menu;
-
-// Object.assign(window, { Metadata }); // for debugging
+let Stash, Menu; // Optional modules
 
 init();
 Settings.needsRestart(false);
@@ -37,8 +35,10 @@ async function init() {
     if (SETTINGS.enable_stash)     menusEnabled.push('bookmark');
     if (menusEnabled.length) {
         Menu = await import('./menu.js');
-        Menu.init(menusEnabled, Stash);
+        Menu.init(menusEnabled);
     }
+
+    // Object.assign(window, { Stash, Metadata }); // for debugging
 }
 
 function onExtInstalled(details) {
