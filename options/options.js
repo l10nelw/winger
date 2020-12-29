@@ -1,6 +1,7 @@
 import { getShortcut, hasClass, toggleClass, GroupMap } from '../utils.js';
 import { validify } from '../background/name.js';
 import { retrieve as retrieveSettings, needsRestart } from '../background/settings.js';
+import { openHelp } from '../background/windowtab.js';
 
 const $body = document.body;
 const $form = $body.querySelector('form');
@@ -38,6 +39,7 @@ const getFormValuesString = () => $settings.map(relevantValue).join();
 })();
 
 $form.onchange = onFieldChange;
+$form.onclick = onElClick;
 $form.onsubmit = applySettings;
 staticText_insertShortcut();
 staticText_checkPrivateAccess();
@@ -50,6 +52,10 @@ async function onFieldChange({ target: $field }) {
     updateToggler($form[$field.dataset.toggledBy]);
     saveSetting($field);
     updateApplyBtns();
+}
+
+function onElClick({ target: $el }) {
+    if (hasClass('help', $el)) openHelp($el.getAttribute('href'));
 }
 
 function applySettings() {

@@ -2,7 +2,7 @@ import * as Modifier from '../modifier.js';
 import { windowMap } from './metadata.js';
 import { SETTINGS } from './settings.js';
 
-export const openHelp = () => openUniqueExtPage('help/help.html');
+export const openHelp = hash => openUniqueExtPage('help/help.html', hash);
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
 export const switchWindow = windowId => browser.windows.update(windowId, { focused: true });
 
@@ -20,16 +20,17 @@ export function init() {
 }
 
 // Open extension page tab, closing any duplicates found.
-async function openUniqueExtPage(pathname) {
+async function openUniqueExtPage(pathname, hash) {
     const url = browser.runtime.getURL(pathname);
     const openedTabs = await browser.tabs.query({ url });
     browser.tabs.remove(openedTabs.map(tab => tab.id));
+    if (hash) pathname += hash;
     browser.tabs.create({ url: `/${pathname}` });
 }
 
 export async function selectFocusedTab(windowId) {
-    const tabs = await browser.tabs.query({ windowId, active: true });
-    browser.tabs.highlight({ windowId, tabs: [tabs[0].index], populate: false }); // Select focused tab to deselect other tabs
+    const tab = (await browser.tabs.query({ windowId, active: true }))[0];
+    browser.tabs.highlight({ windowId, tabs: [tab.index], populate: false }); // Select focused tab to deselect other tabs
 }
 
 // Given `windowId`, select action to execute based on `action` and `modifiers`.
@@ -48,9 +49,7 @@ function modifyAction(action, modifiers) {
 }
 
 async function bringTabs(windowId, tabs, reopen) {
-    if (await sendTabs(windowId, tabs, reopen)) {
-        switchWindow(windowId);
-    }
+    if (await sendTabs(windowId, tabs, reopen)) switchWindow(windowId);
 }
 
 async function sendTabs(windowId, tabs, reopen) {

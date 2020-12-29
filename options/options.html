@@ -6,6 +6,12 @@
       body {
         padding: 0 1rem;
       }
+      section {
+        margin: 0 0 3rem;
+      }
+      p {
+        margin: 0 0 1rem;
+      }
 
       label {
         display: flex;
@@ -33,65 +39,79 @@
   <body>
     <form>
 
-      <h2>Pop-up panel</h2>
-      <label><input class="toggler" type="checkbox" name="popup_rowbtns"> <span>Show all window row buttons</span></label>
-      <div class="ml-1">
-        <label><input class="setting" type="checkbox" data-toggled-by="popup_rowbtns" name="show_popup_send"> <span>Show Send</span></label>
-        <label><input class="setting" type="checkbox" data-toggled-by="popup_rowbtns" name="show_popup_bring"> <span>Show Bring</span></label>
-        <label><input class="setting" type="checkbox" data-toggled-by="popup_rowbtns" name="show_popup_edit"> <span>Show Edit</span></label>
-      </div>
-      <label><input class="toggler" type="checkbox" name="popup_toolbtns"> <span>Show all toolbar buttons</span></label>
-      <div class="ml-1">
-        <label><input class="setting" type="checkbox" data-toggled-by="popup_toolbtns" name="show_popup_help"> <span>Show Help</span></label>
-        <label><input class="setting" type="checkbox" data-toggled-by="popup_toolbtns" name="show_popup_settings"> <span>Show Settings</span></label>
-      </div>
-      <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
+      <section>
+        <h2>Pop-up panel</h2>
+        <label><input class="toggler" type="checkbox" name="popup_rowbtns"> <span>Show all window row buttons</span></label>
+        <div class="ml-1">
+          <label><input class="setting" type="checkbox" data-toggled-by="popup_rowbtns" name="show_popup_send"> <span>Show Send</span></label>
+          <label><input class="setting" type="checkbox" data-toggled-by="popup_rowbtns" name="show_popup_bring"> <span>Show Bring</span></label>
+          <label><input class="setting" type="checkbox" data-toggled-by="popup_rowbtns" name="show_popup_edit"> <span>Show Edit</span></label>
+        </div>
+        <label><input class="toggler" type="checkbox" name="popup_toolbtns"> <span>Show all toolbar buttons</span></label>
+        <div class="ml-1">
+          <label><input class="setting" type="checkbox" data-toggled-by="popup_toolbtns" name="show_popup_help"> <span>Show Help</span></label>
+          <label><input class="setting" type="checkbox" data-toggled-by="popup_toolbtns" name="show_popup_settings"> <span>Show Settings</span></label>
+        </div>
+        <p><small>Learn more about <a class="help" href="#panel">the panel</a></small></p>
+        <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
+      </section>
 
-      <h2>Moving tabs between windows (send &amp; bring)</h2>
-      <label><input class="setting enabler" type="checkbox" name="keep_moved_focused_tab_focused"> <span>When a focused tab is moved, make it the destination window's new focused tab</span></label>
-      <label class="ml-1">
-        <input class="setting" type="checkbox" data-enabled-by="keep_moved_focused_tab_focused" name="keep_moved_tabs_selected"> <span>When multiple selected tabs are moved, keep them selected in the destination window</span>
-      </label>
-      <label><input class="setting enabler" type="checkbox" name="move_pinned_tabs"> <span>Allow pinned tabs to be moved</span></label>
-      <label class="ml-1">
-        <input class="setting" type="checkbox" data-enabled-by="move_pinned_tabs" name="move_pinned_tabs_if_all_pinned"> <span>Only if all selected tabs are pinned</span>
-      </label>
-      <label><input class="setting" type="checkbox" name="enable_tab_menu"> <span>Enable tab context menu (Send Tab to Window)</span></label>
-      <label><input class="setting" type="checkbox" name="enable_link_menu"> <span>Enable link context menu (Open Link in Window)</span></label>
+      <section>
+        <h2>Moving tabs between windows (send &amp; bring)</h2>
+        <label><input class="setting enabler" type="checkbox" name="keep_moved_focused_tab_focused"> <span>When a focused tab is moved, make it the destination window's new focused tab</span></label>
+        <label class="ml-1">
+          <input class="setting" type="checkbox" data-enabled-by="keep_moved_focused_tab_focused" name="keep_moved_tabs_selected"> <span>When multiple selected tabs are moved, keep them selected in the destination window</span>
+        </label>
+        <label><input class="setting enabler" type="checkbox" name="move_pinned_tabs"> <span>Allow pinned tabs to be moved</span></label>
+        <label class="ml-1">
+          <input class="setting" type="checkbox" data-enabled-by="move_pinned_tabs" name="move_pinned_tabs_if_all_pinned"> <span>Only if all selected tabs are pinned</span>
+        </label>
+        <label><input class="setting" type="checkbox" name="enable_tab_menu"> <span>Enable tab context menu (Send Tab to Window)</span></label>
+        <label><input class="setting" type="checkbox" name="enable_link_menu"> <span>Enable link context menu (Open Link in Window)</span></label>
+        <p><small>Learn more about <a class="help" href="#common">send/bring</a> and the <a class="help" href="#submenu">windows submenu</a></small></p>
+        <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
+      </section>
 
-      <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
+      <section>
+        <h2>Stash</h2>
+        <label><input class="setting" type="checkbox" name="enable_stash"> <span>Enable stashing
+          <br><small>(Requires permission to read and modify bookmarks)</small></span></label>
+        <label class="block">
+          <span>Stash home:</span>
+          <select class="setting" data-enabled-by="enable_stash" name="stash_home">
+            <option value="toolbar_____" >Bookmarks Toolbar</option>
+            <option value="toolbar_____/">Bookmarks Toolbar ›</option>
+            <option value="menu________" >Bookmarks Menu</option>
+            <option value="menu________/">Bookmarks Menu ›</option>
+            <option value="unfiled_____" >Other Bookmarks</option>
+            <option value="unfiled_____/">Other Bookmarks ›</option>
+          </select>
+        </label>
+        <input type="hidden" class="setting" data-enabled-by="enable_stash" name="stash_home_name" value="Stashed Windows">
+        <p><small>Learn more about <a class="help" href="#stash">stashing</a></small></p>
+        <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
+      </section>
 
-      <h2>Stash</h2>
-      <label><input class="setting" type="checkbox" name="enable_stash"> <span>Enable stashing
-        <br><small>(Requires permission to read and modify bookmarks)</small></span></label>
-      <label class="block">
-        <span>Stash home:</span>
-        <select class="setting" data-enabled-by="enable_stash" name="stash_home">
-          <option value="toolbar_____" >Bookmarks Toolbar</option>
-          <option value="toolbar_____/">Bookmarks Toolbar ›</option>
-          <option value="menu________" >Bookmarks Menu</option>
-          <option value="menu________/">Bookmarks Menu ›</option>
-          <option value="unfiled_____" >Other Bookmarks</option>
-          <option value="unfiled_____/">Other Bookmarks ›</option>
-        </select>
-      </label>
-      <input type="hidden" class="setting" data-enabled-by="enable_stash" name="stash_home_name" value="Stashed Windows">
-      <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
+      <section>
+        <h2>Button badge</h2>
+        <label><input class="setting" type="checkbox" name="show_badge"> <span>Show window name on the Winger button
+          <br><small>(Limited to the first few characters)</small></span></label>
+        <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
+      </section>
 
-      <h2>Button badge</h2>
-      <label><input class="setting" type="checkbox" name="show_badge"> <span>Show window name on the Winger button
-        <br><small>(Limited to the first few characters)</small></span></label>
+      <section>
+        <h2>Private windows</h2>
+        <p class="special private-allowed-yes" hidden>Private windows are currently <strong>accessible</strong> to Winger. Winger can list and interact with them.</p>
+        <p class="special private-allowed-no" hidden>Private windows are currently <strong>not accessible</strong> to Winger. As far as Winger is concerned, they do not exist.</p>
+        <p>To change access to private windows, go to the <em>Details</em> tab at the top this page and choose an option for <em>Run in Private Windows</em>.</p>
+        <p><small>Learn more about <a class="help" href="#private">private windows</a></small></p>
+      </section>
 
-      <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
-
-      <h2>Private windows</h2>
-      <p class="special private-allowed-yes" hidden>Private windows are currently <strong>accessible</strong> to Winger. Winger can list and interact with them.</p>
-      <p class="special private-allowed-no" hidden>Private windows are currently <strong>not accessible</strong> to Winger. As far as Winger is concerned, they do not exist.</p>
-      <p>To change access to private windows, go to the <em>Details</em> tab at the top this page and choose an option for <em>Run in Private Windows</em>.</p>
-
-      <h2>Keyboard shortcut</h2>
-      <p class="special">The keyboard shortcut to open the pop-up panel is <strong class="shortcut">[none]</strong>. <span class="default-shortcut-text" hidden>(Default: <span class="default-shortcut">Alt+W</span>)</span></p>
-      <p>It can be changed in Firefox's extension shortcuts manager: Click the ⚙️&nbsp;button above this page, click <em>Manage Extension Shortcuts</em>, and look for the Winger shortcut.</p>
+      <section>
+        <h2>Keyboard shortcut</h2>
+        <p class="special">The keyboard shortcut to open the pop-up panel is <strong class="shortcut">[none]</strong>. <span class="default-shortcut-text" hidden>(Default: <span class="default-shortcut">Alt+W</span>)</span></p>
+        <p>It can be changed in Firefox's extension shortcuts manager: Click the ⚙️&nbsp;button above this page, click <em>Manage Extension Shortcuts</em>, and look for the Winger shortcut.</p>
+      </section>
 
     </form>
     <script src="options.js" type="module"></script>

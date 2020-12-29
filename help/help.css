@@ -121,6 +121,14 @@ button.settingsBtn {
   list-style-type: "★ ";
 }
 
+:target {
+  animation: target-fading-highlight 2s 1;
+}
+@keyframes target-fading-highlight {
+  0%   { background-color: yellow; }
+  100% { background-color: none; }
+}
+
 .fg-private { color: var(--fgc-private); }
 .bg-private { background-color: var(--bgc-private); color: white; }
 
