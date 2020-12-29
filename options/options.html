@@ -45,7 +45,7 @@
         <label><input class="setting" type="checkbox" data-toggled-by="popup_toolbtns" name="show_popup_help"> <span>Show Help</span></label>
         <label><input class="setting" type="checkbox" data-toggled-by="popup_toolbtns" name="show_popup_settings"> <span>Show Settings</span></label>
       </div>
-      <div class="btnRow"><button disabled>Apply Settings</button></div>
+      <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
 
       <h2>Moving tabs between windows (send &amp; bring)</h2>
       <label><input class="setting enabler" type="checkbox" name="keep_moved_focused_tab_focused"> <span>When a focused tab is moved, make it the destination window's new focused tab</span></label>
@@ -59,7 +59,7 @@
       <label><input class="setting" type="checkbox" name="enable_tab_menu"> <span>Enable tab context menu (Send Tab to Window)</span></label>
       <label><input class="setting" type="checkbox" name="enable_link_menu"> <span>Enable link context menu (Open Link in Window)</span></label>
 
-      <div class="btnRow"><button disabled>Apply Settings</button></div>
+      <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
 
       <h2>Stash</h2>
       <label><input class="setting" type="checkbox" name="enable_stash"> <span>Enable stashing
@@ -76,13 +76,13 @@
         </select>
       </label>
       <input type="hidden" class="setting" data-enabled-by="enable_stash" name="stash_home_name" value="Stashed Windows">
-      <div class="btnRow"><button disabled>Apply Settings</button></div>
+      <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
 
       <h2>Button badge</h2>
       <label><input class="setting" type="checkbox" name="show_badge"> <span>Show window name on the Winger button
         <br><small>(Limited to the first few characters)</small></span></label>
 
-      <div class="btnRow"><button disabled>Apply Settings</button></div>
+      <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
 
       <h2>Private windows</h2>
       <p class="special private-allowed-yes" hidden>Private windows are currently <strong>accessible</strong> to Winger. Winger can list and interact with them.</p>

@@ -5,7 +5,7 @@ import { retrieve as retrieveSettings, needsRestart } from '../background/settin
 const $body = document.body;
 const $form = $body.querySelector('form');
 const $settings = [...$form.querySelectorAll('.setting')];
-const $submitBtns = [...$form.querySelectorAll('button')];
+const $applyBtns = [...$form.querySelectorAll('.applyBtn')];
 const stash_subSymbol = $form.stash_home.options[1].text.slice(-1);
 const enablerMap = new GroupMap(); // Fields that enable/disable other fields
 const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and change state according to those fields' states
@@ -34,7 +34,7 @@ const getFormValuesString = () => $settings.map(relevantValue).join();
     stash_updateHomeSelect();
 
     formData = getFormValuesString();
-    updateSubmitBtns();
+    updateApplyBtns();
 })();
 
 $form.onchange = onFieldChange;
@@ -49,7 +49,7 @@ async function onFieldChange({ target: $field }) {
     activateToggler($field);
     updateToggler($form[$field.dataset.toggledBy]);
     saveSetting($field);
-    updateSubmitBtns();
+    updateApplyBtns();
 }
 
 function applySettings() {
@@ -66,9 +66,9 @@ function saveSetting($field) {
 }
 
  // Disable submit buttons if restart unneeded or form unchanged. Enable otherwise.
-async function updateSubmitBtns() {
+async function updateApplyBtns() {
     const disable = await needsRestart() ? false : getFormValuesString() === formData;
-    for (const $btn of $submitBtns) $btn.disabled = disable;
+    for (const $btn of $applyBtns) $btn.disabled = disable;
     needsRestart(!disable);
 }
 
