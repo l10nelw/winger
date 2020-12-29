@@ -2,7 +2,7 @@ import * as Modifier from '../modifier.js';
 import { windowMap } from './metadata.js';
 import { SETTINGS } from './settings.js';
 
-export const openHelp = () => openExtPage('help/help.html');
+export const openHelp = () => openUniqueExtPage('help/help.html');
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
 export const switchWindow = windowId => browser.windows.update(windowId, { focused: true });
 
@@ -19,18 +19,12 @@ export function init() {
     if (!SETTINGS.move_pinned_tabs) movablePinnedTabs = () => null;
 }
 
-// Open extension page tab or if already open, switch to first tab found.
-async function openExtPage(pathname) {
+// Open extension page tab, closing any duplicates found.
+async function openUniqueExtPage(pathname) {
     const url = browser.runtime.getURL(pathname);
     const openedTabs = await browser.tabs.query({ url });
-    if (openedTabs.length) {
-        const { id, windowId } = openedTabs[0];
-        browser.tabs.reload(id);
-        focusTab(id);
-        switchWindow(windowId);
-    } else {
-        browser.tabs.create({ url: `/${pathname}` });
-    }
+    browser.tabs.remove(openedTabs.map(tab => tab.id));
+    browser.tabs.create({ url: `/${pathname}` });
 }
 
 export async function selectFocusedTab(windowId) {
