@@ -152,8 +152,8 @@ li button {
     border-radius: 50%;
 }
 
-li button:hover,
-li button:focus {
+li button:not(:disabled):hover,
+li button:not(:disabled):focus {
     opacity: 1;
     background-color: var(--bgc-rowbtn-focus);
 }
@@ -176,7 +176,8 @@ li button:focus {
     background-color: var(--bgc-editdone);
 }
 
-body[data-mode="edit"] li button:not(.edit) {
+body[data-mode="edit"] li button:not(.edit),
+.stashing button {
     background-color: transparent;
     opacity: .25;
 }
@@ -187,6 +188,38 @@ body[data-mode="edit"] li button:not(.edit) {
 
 .reopenTabs .tabAction {
     background-color: var(--bgc-private);
+}
+
+
+
+
+/* --- Omnibox --- */
+
+#omniboxWrapper {
+    position: relative;
+}
+
+#omnibox {
+    width: 100%;
+}
+
+#spinner:not([hidden]) {
+    position: absolute;
+    --height: calc(var(--height-row) / 2);
+    --offset: calc(var(--height-row) / 4);
+    top: var(--offset);
+    right: var(--offset);
+    width: var(--height);
+    height: var(--height);
+    border: 2px solid var(--borderc-focus);
+    border-top-color: transparent;
+    border-left-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(1turn); }
 }
 
 
@@ -235,8 +268,8 @@ footer img {
     background-color: #3a3;
 }
 
-#help:hover,
-#help:focus {
+#help:not(:disabled):hover,
+#help:not(:disabled):focus {
     background-color: #4b4;
 }
 
@@ -245,8 +278,8 @@ footer img {
     background-color: #06f;
 }
 
-#settings:hover,
-#settings:focus{
+#settings:not(:disabled):hover,
+#settings:not(:disabled):focus{
     background-color: #28f;
 }
 

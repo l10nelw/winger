@@ -6,7 +6,10 @@
   </head>
   <body data-mode="">
     <ul id="currentWindow"></ul>
-    <input id="omnibox" class="allowRightClick" type="text" hidden>
+    <div id="omniboxWrapper">
+      <input id="omnibox" class="allowRightClick" type="text" hidden>
+      <div id="spinner" hidden></div>
+    </div>
     <ul id="otherWindows" tabindex="-1" hidden></ul>
     <div id="status" class="defaultStatus">Loading...</div>
     <footer hidden>

@@ -97,6 +97,7 @@ function fixFolderName(id, name) {
 // Turn window/tabs into folder/bookmarks.
 // Create folder if nonexistent, save tabs as bookmarks in folder, and close window.
 export async function stash(windowId) {
+    Metadata.windowMap[windowId].stashing = true;
     const name = Metadata.getName(windowId);
     const [tabs, folder] = await Promise.all([ browser.tabs.query({ windowId }), getStashFolder(name) ]);
     const parentId = folder.id;

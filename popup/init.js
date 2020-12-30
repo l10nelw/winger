@@ -1,4 +1,4 @@
-import { getScrollbarWidth, hasClass, addClass, toggleClass } from '../utils.js';
+import { getScrollbarWidth, hasClass, addClass, toggleClass, isButton } from '../utils.js';
 import { $otherWindowsList, $toolbar, unsetActionAttr } from './popup.js';
 import { $omnibox } from './omnibox.js';
 import * as Status from './status.js';
@@ -9,7 +9,6 @@ const $currentWindowList = document.getElementById('currentWindow');
 
 export default async function init() {
     const { SETTINGS, metaWindows, selectedTabCount } = await browser.runtime.sendMessage({ popup: true });
-
     row.removeCells(SETTINGS);
     toolbar.removeButtons(SETTINGS);
 
@@ -72,7 +71,7 @@ const row = {
         }
     },
 
-    create({ id, incognito, givenName, defaultName }, isCurrent) {
+    create({ id, incognito, givenName, defaultName, stashing = false }, isCurrent) {
         const $row = document.importNode(this.$template, true);
 
         // Add references to row's cells, and in each, a reference to the row
@@ -81,7 +80,7 @@ const row = {
             const reference = selector.replace('.', '$');
             $cell.$row = $row;
             $row[reference] = $cell;
-            if (isCurrent && hasClass('tabAction', $cell)) this.disableElement($cell);
+            if ( (stashing && isButton($cell)) || (isCurrent && hasClass('tabAction', $cell)) ) this.disableElement($cell);
         }
 
         // Add data
@@ -93,6 +92,7 @@ const row = {
         $row.$input.value = givenName;
         $row.$input.placeholder = defaultName;
         toggleClass('private', $row, incognito);
+        toggleClass('stashing', $row, stashing);
 
         return $row;
     },
