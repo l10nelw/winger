@@ -298,15 +298,15 @@
           </li>
         </ul>
       </section>
-      <section class="mb-2">
+      <section class="small mb-2">
         <h3>The stash home</h3>
-        <p>The <strong>stash home folder</strong> is where <strong>stash folders</strong> ("stashed windows") are stored. Its location can be changed in <button type="button" class="settingsBtn">⚙️ Settings</button> to be one of the three root bookmark folders &ndash; Bookmarks Toolbar, Bookmarks Menu or Other Bookmarks &ndash; or a "Stashed Windows" folder inside a root bookmark folder.</p>
-        <p>A root bookmark folder is usually also used for other bookmarks. Don't worry; Winger ignores everything before <strong>the last separator in the stash home</strong>, treating only folders after it as stash folders. Thus, this separator separates your other bookmarks from the actual stash home zone. If the stash home contains no separators, all its folders are considered stash folders.</p>
-        <p>Stash operations automatically rename any stash folders with invalid names (e.g. leading slashes and spaces), and check for conflicts against the name of the window being stashed.</p>
+        <p>The <strong>stash home</strong> is where <strong>stash folders</strong> ("stashed windows") are stored. It can be changed in <button type="button" class="settingsBtn">⚙️ Settings</button> to be one of the three root bookmark locations &ndash; Bookmarks Toolbar, Bookmarks Menu or Other Bookmarks &ndash; or a "Stashed Windows" folder inside a root bookmark location.</p>
+        <p>You can move bookmark folders in and out of the stash home; only those inside are considered stash folders. During a stash operation, stash folders are checked for name conflicts against the window being stashed, and also may be automatically renamed if they have invalid names (e.g. leading slashes and spaces).</p>
+        <p>A root bookmark location is usually also used for other bookmarks; how could it be used as a stash home? Don't worry, Winger ignores everything before <strong>the last separator in the stash home</strong>, treating only folders after it as stash folders. Thus, this separator separates your other bookmarks from the actual stash home zone. If the stash home contains no separators, all its subfolders are considered stash folders.</p>
       </section>
-      <section class="small bordered-box">
-        <h3>Work in progress as of 1.4x</h3>
-        <p>The stash feature is currently still being developed, building up from basic functionality first. Significant improvements to come:</p>
+      <section>
+        <h3>Work in progress (Winger 1.4x)</h3>
+        <p>The stash feature is currently still being developed, building up from basic functionality first. Significant improvements to come!</p>
         <ul>
           <li>Show a <em>stash</em> button for each window row in the panel</li>
           <li>List and filter stashed windows in the panel</li>
@@ -314,7 +314,7 @@
           <li>Create "window groups"</li>
         </ul>
       </section>
-      </article>
+    </article>
 
     <article id="keyboard" class="mb-5">
       <h2 class="center">Keyboard Navigation<br>& The Omnibox</h2>
@@ -384,7 +384,7 @@
         </section>
         <section class="col bordered-left small pl-2 mx-1">
           <h3>Tip: Customise the panel <button type="button" class="settingsBtn">⚙️ Settings</button></h3>
-          <p>Once you get comfortable enough with the omnibox, you have the option of removing any buttons that you no longer use.</p>
+          <p>Once you get comfortable enough with the omnibox, you have the option of removing any buttons you don't use.</p>
           <p>Remove them all if you like a minimalist panel!</p>
           <div class="center">
             <figure class="popup popup-point" role="img" aria-label="Winger panel" style="text-align: start">
@@ -409,12 +409,12 @@
       </div>
     </article>
 
-      <h2 class="center">Destination Window Menu</h2>
-      <p class="small">The following commands are available in their respective context menus once there are at least two windows open.</p>
     <article id="submenu" class="mb-5">
+      <h2 class="center">Other Windows Submenu</h2>
+      <p class="small">The following commands are enabled in their respective context menus once there are at least two windows open.</p>
       <h3>Tab context menu</h3>
       <div class="mx-1">
-        <p>Right-click on a tab to get the <em class="bold">Send Tab to Window</em> menu command, which opens a submenu of other windows (sorted by recently focused).</p>
+        <p>Right-click on a tab to get the <em class="bold">Send Tab to Window</em> menu command, which opens a <strong>submenu of other windows</strong> (sorted by recently focused).</p>
         <p>Click a submenu item to <em>send</em> the tab to the chosen window. (As you might expect, <kbd>Shift+</kbd>click to <em>bring</em> the tab instead.)</p>
         <p>If there are multiple tabs selected and one of them was right-clicked, the command will apply to all of them.</p>
         <p>You can also right-click on an unselected tab to use this command on it.</p>
@@ -432,11 +432,11 @@
         <li><p>Use a <a href="https://addons.mozilla.org/en-US/firefox/search/?category=tabs&type=extension&q=tab%20discard%20suspend">tab discarding/suspending extension</a> to minimise memory usage on less-visited tabs and windows.</p></li>
         <li><p>Divide and conquer with "window mitosis": split up a highly-populated window into several windows so you can focus on one set of tabs at a time. Hopefully this helps you work through them easier, and close them sooner.</p></li>
         <li><p>If you like to proactively keep the number of windows under a certain number, you can always check the window count on the panel status bar. Another cue you can use to close some windows is when the list of other windows starts to overflow and scroll, which happens at about 12 windows.</p></li>
-        <li><p>If you are not yet ready to close windows you have not been using for a while, stash them.</p></li>
+        <li><p>If you are not ready to permanently close windows you hardly use, consider <a href="#stash">stashing</a> them.</p></li>
         <li>
           <p>The "List all tabs" button, which opens a menu of every tab in the current window, appears whenever the tab strip overflows. Its shortcut is <kbd class="bold">Ctrl+Shift+Tab</kbd>.</p>
           <ul class="pl-1">
-            <li><p>Each menu item can be right-clicked, just like a tab, to open its context menu. This is as close as Firefox currently gets to native vertical tabs!</p></li>
+            <li><p>Each menu item can be right-clicked, just like a tab, to open its own context menu. This is as close as Firefox currently gets to native vertical tabs!</p></li>
           </ul>
         </li>
       </ul>
