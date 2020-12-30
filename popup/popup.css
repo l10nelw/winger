@@ -82,8 +82,8 @@ li > * {
     font-size: small;
 }
 
-body[data-editmode="false"] .otherRow:hover,
-body[data-editmode="false"] .otherRow:focus {
+body:not([data-mode="edit"]) .otherRow:hover,
+body:not([data-mode="edit"]) .otherRow:focus {
     background-color: var(--bgc-base-focus);
 }
 
@@ -176,7 +176,7 @@ li button:focus {
     background-color: var(--bgc-editdone);
 }
 
-body[data-editmode="true"] li button:not(.edit) {
+body[data-mode="edit"] li button:not(.edit) {
     background-color: transparent;
     opacity: .25;
 }
@@ -202,7 +202,7 @@ body[data-editmode="true"] li button:not(.edit) {
     text-overflow: ellipsis;
 }
 
-body[data-editmode="true"] #status {
+body[data-mode="edit"] #status {
     font-style: italic;
 }
 
