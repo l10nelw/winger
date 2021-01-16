@@ -2,65 +2,38 @@ import * as Name from './name.js';
 import * as Metadata from './metadata.js';
 import { SETTINGS } from './settings.js';
 
-const ROOT_IDS = ['toolbar_____', 'menu________', 'unfiled_____'];
 let HOME_ID;
 
 // Identify the stash home's folder id based on settings.
 export async function init() {
     let rootId = SETTINGS.stash_home; // Id of a root folder; may be followed by a marker character indicating that home is a subfolder
-    if (isRootId(rootId)) {
-        // Home is a root folder
-        if (await findSeparator(rootId) === -1) createSeparator(rootId);
+    let nodes;
+    const isRoot = isRootId(rootId);
+    if (isRoot) {
         HOME_ID = rootId;
-    }
-    else {
+        nodes = await getChildNodes(rootId);
+    } else {
         // Home is subfolder of root folder
         rootId = rootId.slice(0, -1); // Remove marker
+        nodes = await getChildNodes(rootId);
         const title = SETTINGS.stash_home_name;
-        const folder = await findFolderByTitle(title, rootId);
+        const folder = findFolderByTitle(nodes, title);
         HOME_ID = folder ? folder.id : (await createFolder(title, rootId)).id;
     }
-}
-
-async function findFolderByTitle(title, parentId) {
-    const nodes = await browser.bookmarks.getChildren(parentId);
-    return nodes.find(node => node.title === title && node.type === 'folder');
-}
-
-// List of stash folders, to be populated/cleared when popup opens/closes.
-// This arragement keeps getAndFixFolders() data available in this module throughout the popup's duration.
-export const list = [];
-list.clear = () => list.length = 0;
-list.populate = async () => {
-    const folders = await getAndFixFolders();
-    list.push(...folders);
-    return folders;
-}
-
-// Check if a node is a stash folder or bookmark; return true/false.
-// Side-effect: Rename folder with invalid name.
-export async function testStashNode(nodeId) {
-    if (nodeId === HOME_ID || isRootId(nodeId)) return false;
-    const node = await getNode(nodeId);
-    const type = node.type;
-    if (type === 'separator') return false;
-    const parentId = node.parentId;
-    if (parentId === HOME_ID) {
-        const sepIndex = await findSeparator(parentId);
-        if (node.index < sepIndex) return false;
-        if (type === 'folder') fixFolderName(nodeId, node.title);
-        return true;
+    if (isRoot && nodes.length && findSeparator(nodes) === -1) { // If home is a root folder, not empty and has no separator
+        addSeparator(HOME_ID);
     }
-    return await testStashNode(parentId);
 }
 
-async function findSeparator(parentId) {
-    const nodes = await browser.bookmarks.getChildren(parentId);
-    for (let i = nodes.length; i--;) { // Reverse loop
-        if (nodes[i].type === 'separator') return i;
+function findSeparator(nodes) {
+    for (let i = nodes.length; i--;) { // Reverse iterate
+        if (isSeparator(nodes[i])) return i;
     }
     return -1;
 }
+const findFolderByTitle = (nodes, title) => nodes.find(node => node.title === title && node.type === 'folder');
+const addSeparator = parentId => browser.bookmarks.create({ type: 'separator', parentId });
+
 
 // Return array of stash folder objects, excluding those with duplicate names.
 // Side-effect: Rename any folders with invalid names.
@@ -163,7 +136,7 @@ unstash.onWindowCreated = async windowId => {
     const name = Name.uniquify(info.name, windowId);
     Metadata.giveName(windowId, name);
 
-    const bookmarks = (await browser.bookmarks.getChildren(info.folderId)).filter(isBookmark);
+    const bookmarks = (await getChildNodes(info.folderId)).filter(isBookmark);
     if (bookmarks.length) {
         await Promise.all( bookmarks.map(b => turnBookmarkIntoTab(b, windowId)) ); // Populate window
         browser.tabs.remove(info.blankTabId); // Remove initial blank tab
@@ -186,11 +159,16 @@ function openUnstashPage(properties) {
     browser.tabs.create(properties);
 }
 
-const isRootId = nodeId => ROOT_IDS.includes(nodeId);
+
+/* --- */
+
+const ROOT_IDS = ['toolbar_____', 'menu________', 'unfiled_____'];
+export const isRootId = nodeId => ROOT_IDS.includes(nodeId);
+export const isSeparator = node => node.type === 'separator';
+
 const isBookmark = node => node.type === 'bookmark';
-const getNode = async nodeId => (await browser.bookmarks.get(nodeId))[0];
+const getChildNodes = parentId => browser.bookmarks.getChildren(parentId);
 const createFolder = (title, parentId = HOME_ID) => browser.bookmarks.create({ title, parentId });
-const createSeparator = (parentId = HOME_ID) => browser.bookmarks.create({ type: 'separator', parentId });
 
 const unstashPagePath = browser.runtime.getURL('../stash/tab');
 const createUnstashPageUrl = ({ url, title }) => `${unstashPagePath}?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
