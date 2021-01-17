@@ -5,11 +5,11 @@ import { SETTINGS } from './settings.js';
 
 let HOME_ID;
 
-const ROOT_IDS = ['toolbar_____', 'menu________', 'unfiled_____'];
+const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
 const isBookmark = node => node.type === 'bookmark';
 const getChildNodes = parentId => browser.bookmarks.getChildren(parentId);
 const createFolder = (title, parentId = HOME_ID) => browser.bookmarks.create({ title, parentId });
-export const isRootId = nodeId => ROOT_IDS.includes(nodeId);
+export const isRootId = nodeId => ROOT_IDS.has(nodeId);
 export const isSeparator = node => node.type === 'separator';
 
 

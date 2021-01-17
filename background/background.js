@@ -27,7 +27,7 @@ async function init() {
     }
 
     await Metadata.init(SETTINGS, windows);
-    windows.forEach(window => onWindowCreated(window, true));
+    for (const window of windows) onWindowCreated(window, true);
 
     const menusEnabled = [];
     if (SETTINGS.enable_tab_menu)  menusEnabled.push('tab');

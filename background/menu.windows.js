@@ -11,6 +11,16 @@ export function init(context) {
     addDummy(context);
 }
 
+// Add dummy submenu item to avoid parent menu resizing onShown.
+function addDummy(context) {
+    browser.menus.create({
+        contexts: [context],
+        parentId: context,
+        id: menuId(context),
+        title: '-',
+    });
+}
+
 export function handleShow(info, tab) {
     const contexts = info.contexts;
     const context =
@@ -32,16 +42,6 @@ export function handleClick(info, tab) {
     url ? openLink (url, windowId, info.modifiers)
         : moveTab  (tab, windowId, info.modifiers, tab.windowId);
     return true;
-}
-
-// Add dummy submenu item to avoid parent menu resizing onShown.
-function addDummy(context) {
-    browser.menus.create({
-        contexts: [context],
-        parentId: context,
-        id: menuId(context),
-        title: '-',
-    });
 }
 
 // Update menu's enabled state based on window count.
