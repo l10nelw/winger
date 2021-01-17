@@ -1,4 +1,5 @@
 import * as Name from './name.js';
+import * as Placeholder from './placeholder.js';
 import * as Metadata from './metadata.js';
 import { SETTINGS } from './settings.js';
 
@@ -65,7 +66,7 @@ export async function stash(windowId) {
     const parentId = folder.id;
     for (let i = tabs.length; i--;) { // Reverse iteration necessary for bookmarks to be in correct order
         let { title, url } = tabs[i];
-        if (isUnstashPageUrl(url)) url = getUrlFromUnstashPageUrl(url);
+        if (Placeholder.isTabURL(url)) url = Placeholder.getTargetURL(url);
         browser.bookmarks.create({ title, url, parentId });
     }
     closeWindow(windowId);
@@ -140,15 +141,10 @@ async function turnBookmarkIntoTab({ url, title, id }, windowId, active) {
     const properties = (url === 'about:newtab')
         ? { windowId, active }
         : { windowId, active, discarded: !active, title: (active ? null : title), url }; // Only discarded tab can be given title
-    const creating = browser.tabs.create(properties).catch(() => openUnstashPage(properties));
+    const creating = browser.tabs.create(properties).catch(() => Placeholder.openTab(properties, title));
     const removing = browser.bookmarks.remove(id);
     const [tab,] = await Promise.all([ creating, removing ]);
     return tab;
-}
-
-function openUnstashPage(properties) {
-    properties.url = createUnstashPageUrl(properties);
-    browser.tabs.create(properties);
 }
 
 
@@ -162,7 +158,3 @@ const isBookmark = node => node.type === 'bookmark';
 const getChildNodes = parentId => browser.bookmarks.getChildren(parentId);
 const createFolder = (title, parentId = HOME_ID) => browser.bookmarks.create({ title, parentId });
 
-const unstashPagePath = browser.runtime.getURL('../stash/tab');
-const createUnstashPageUrl = ({ url, title }) => `${unstashPagePath}?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
-const isUnstashPageUrl = url => url.startsWith(unstashPagePath);
-const getUrlFromUnstashPageUrl = url => decodeURIComponent((new URL(url)).searchParams.get('url'));
