@@ -116,7 +116,7 @@ unstash.onWindowCreated = async windowId => {
     if (windowId !== info?.windowId) return;
     delete unstash.info;
 
-    const name = Name.uniquify(info.name, windowId);
+    const name = Name.uniquify(Name.validify(info.name), windowId);
     Metadata.giveName(windowId, name);
 
     const bookmarks = (await getChildNodes(info.folderId)).filter(isBookmark);
