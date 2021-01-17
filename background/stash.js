@@ -63,9 +63,10 @@ export async function stash(windowId) {
     const name = Metadata.getName(windowId);
     const [tabs, folder] = await Promise.all([ browser.tabs.query({ windowId }), getTargetFolder(name) ]);
     const parentId = folder.id;
-    for (let { title, url } of tabs) {
+    for (let i = tabs.length; i--;) { // Reverse iteration necessary for bookmarks to be in correct order
+        let { title, url } = tabs[i];
         if (isUnstashPageUrl(url)) url = getUrlFromUnstashPageUrl(url);
-        await browser.bookmarks.create({ title, url, parentId }); // Serial await necessary for bookmarks to be in order
+        browser.bookmarks.create({ title, url, parentId });
     }
     browser.windows.remove(windowId);
     return folder;
