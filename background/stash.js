@@ -35,33 +35,22 @@ const findFolderByTitle = (nodes, title) => nodes.find(node => node.title === ti
 const addSeparator = parentId => browser.bookmarks.create({ type: 'separator', parentId });
 
 
-// Return array of stash folder objects, excluding those with duplicate names.
-// Side-effect: Rename any folders with invalid names.
-async function getAndFixFolders() {
+/* --- LIST FOLDERS --- */
+
+export const folderMap = new Map();
+
+folderMap.populate = async () => {
     const nodes = (await browser.bookmarks.getSubTree(HOME_ID))[0].children; // Contents of stash home
-    const folders = [];
-    const names = new Set();
-    for (let i = nodes.length; i--;) { // Reverse loop
+    for (let i = nodes.length; i--;) { // Reverse iterate
         const node = nodes[i];
-        const type = node.type;
-        if (type === 'separator') break; // Stop at first separator from the end
-        if (type === 'folder') {
-            const id = node.id;
-            const title = fixFolderName(id, node.title);
-            if (names.has(title)) continue; // Ignore folder if name seen before
-            const bookmarkCount = node.children.filter(isBookmark).length;
-            folders.push({ id, title, bookmarkCount });
-            names.add(title);
+        switch (node.type) {
+            case 'separator': return; // Stop at first separator from the end
+            case 'folder':
+                const id = node.id;
+                const bookmarkCount = node.children.filter(isBookmark).length;
+                folderMap.set(id, { id, title: node.title, bookmarkCount });
         }
     }
-    return folders;
-}
-
-// Rename folder if its name is invalid. Return name.
-function fixFolderName(id, name) {
-    const fixedName = Name.validify(name);
-    if (fixedName !== name) browser.bookmarks.update(id, { title: fixedName });
-    return fixedName;
 }
 
 
@@ -72,7 +61,7 @@ function fixFolderName(id, name) {
 export async function stash(windowId) {
     Metadata.windowMap[windowId].stashing = true;
     const name = Metadata.getName(windowId);
-    const [tabs, folder] = await Promise.all([ browser.tabs.query({ windowId }), getStashFolder(name) ]);
+    const [tabs, folder] = await Promise.all([ browser.tabs.query({ windowId }), getTargetFolder(name) ]);
     const parentId = folder.id;
     for (let { title, url } of tabs) {
         if (isUnstashPageUrl(url)) url = getUrlFromUnstashPageUrl(url);
@@ -82,22 +71,15 @@ export async function stash(windowId) {
     return folder;
 }
 
-//For a given name (title), return matching folder or create folder and return its promise.
-async function getStashFolder(title) {
-    const folders = list.length ? list : await getAndFixFolders();
-    let sameNameFolder, newFolderPromise;
-
-    // Name conflict check
-    while (true) {
-        sameNameFolder = folders.find(folder => folder.title === title);
-        if (!sameNameFolder) { // No conflict; create new folder and proceed
-            newFolderPromise = createFolder(title);
-            break;
-        }
-        if (!sameNameFolder.bookmarkCount) break; // Existing folder has no bookmarks; proceed
-        title = Name.applyNumberPostfix(title); // Uniquify name and repeat check
+//For a given name, return matching bookmarkless folder or create folder and return it.
+async function getTargetFolder(name) {
+    const isMapEmpty = !folderMap.size;
+    if (isMapEmpty) await folderMap.populate();
+    for (const [, folder] of folderMap) {
+        if (folder.title === name && !folder.bookmarkCount) return folder; // Existing folder with same name and no bookmarks found
     }
-    return newFolderPromise || sameNameFolder;
+    if (isMapEmpty) folderMap.clear();
+    return createFolder(name);
 }
 
 
