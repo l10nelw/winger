@@ -5,6 +5,16 @@ import { SETTINGS } from './settings.js';
 
 let HOME_ID;
 
+const ROOT_IDS = ['toolbar_____', 'menu________', 'unfiled_____'];
+const isBookmark = node => node.type === 'bookmark';
+const getChildNodes = parentId => browser.bookmarks.getChildren(parentId);
+const createFolder = (title, parentId = HOME_ID) => browser.bookmarks.create({ title, parentId });
+export const isRootId = nodeId => ROOT_IDS.includes(nodeId);
+export const isSeparator = node => node.type === 'separator';
+
+
+/* --- INIT --- */
+
 // Identify the stash home's folder id based on settings.
 export async function init() {
     let rootId = SETTINGS.stash_home; // Id of a root folder; may be followed by a marker character indicating that home is a subfolder
@@ -138,23 +148,10 @@ unstash.onWindowCreated = async windowId => {
 }
 
 async function turnBookmarkIntoTab({ url, title, id }, windowId, active) {
-    const properties = (url === 'about:newtab')
-        ? { windowId, active }
-        : { windowId, active, discarded: !active, title: (active ? null : title), url }; // Only discarded tab can be given title
+    const properties = url === 'about:newtab' ? { windowId, active }
+        : { windowId, active, url, discarded: !active, title: (active ? null : title) }; // Only discarded tab can be given title
     const creating = browser.tabs.create(properties).catch(() => Placeholder.openTab(properties, title));
     const removing = browser.bookmarks.remove(id);
     const [tab,] = await Promise.all([ creating, removing ]);
     return tab;
 }
-
-
-/* --- */
-
-const ROOT_IDS = ['toolbar_____', 'menu________', 'unfiled_____'];
-export const isRootId = nodeId => ROOT_IDS.includes(nodeId);
-export const isSeparator = node => node.type === 'separator';
-
-const isBookmark = node => node.type === 'bookmark';
-const getChildNodes = parentId => browser.bookmarks.getChildren(parentId);
-const createFolder = (title, parentId = HOME_ID) => browser.bookmarks.create({ title, parentId });
-
