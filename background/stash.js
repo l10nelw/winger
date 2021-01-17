@@ -68,7 +68,7 @@ export async function stash(windowId) {
         if (isUnstashPageUrl(url)) url = getUrlFromUnstashPageUrl(url);
         browser.bookmarks.create({ title, url, parentId });
     }
-    browser.windows.remove(windowId);
+    closeWindow(windowId);
     return folder;
 }
 
@@ -81,6 +81,15 @@ async function getTargetFolder(name) {
     }
     if (isMapEmpty) folderMap.clear();
     return createFolder(name);
+}
+
+async function closeWindow(windowId) {
+    await browser.windows.remove(windowId);
+    const sessions = await browser.sessions.getRecentlyClosed({ maxResults: 1 });
+    if (!sessions.length) return;
+    const session = sessions[0];
+    if (session.tab) return;
+    browser.sessions.forgetClosedWindow(session.window.sessionId);
 }
 
 
