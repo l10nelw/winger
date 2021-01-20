@@ -76,7 +76,7 @@ export async function stash(windowId) {
     const parentId = folder.id;
     for (let i = tabs.length; i--;) { // Reverse iteration necessary for bookmarks to be in correct order
         let { title, url } = tabs[i];
-        if (Placeholder.isTabURL(url)) url = Placeholder.getTargetURL(url);
+        if (Placeholder.isPlaceholderURL(url)) url = Placeholder.getTargetURL(url);
         browser.bookmarks.create({ title, url, parentId });
     }
     closeWindow(windowId);
