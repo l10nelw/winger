@@ -1,9 +1,9 @@
 import { $currentWindowRow, $otherWindowsList, $otherWindowRows, getName, requestAction } from './popup.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
+import * as Modifier from '../modifier.js';
 import { getScrollbarWidth, hasClass, addClass, removeClass, toggleClass } from '../utils.js';
 
-const nonCompletingKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
 export const $omnibox = document.getElementById('omnibox');
 
 export const commands = {
@@ -20,7 +20,7 @@ export function handleKeyUp(key, event) {
     toggleClass('slashCommand', $omnibox, isSlashed);
     if (isSlashed) {
         let command;
-        if (!nonCompletingKeys.includes(key)) {
+        if (isCompletingKey(key) && !hasModifier(event)) {
             command = completeCommand(str);
         }
         if (enter) {
@@ -33,6 +33,10 @@ export function handleKeyUp(key, event) {
         if (enter && $firstRow) requestAction(event, $firstRow);
     }
 }
+
+const nonCompletingKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Control', 'Shift', 'Alt']);
+const isCompletingKey = key => !nonCompletingKeys.has(key);
+const hasModifier = event => Modifier.get(event).length;
 
 // Autocomplete a command based on str, case-insensitive. Returns command, or undefined if no command found.
 function completeCommand(str) {
