@@ -1,4 +1,4 @@
-import { isInvalid } from './name.js';
+import * as Name from './name.js';
 import * as Title from './title.js';
 let Badge;
 
@@ -56,7 +56,7 @@ async function nameMetaWindows(windowIds) {
 
 async function restoreGivenName(windowId) {
     const givenName = await browser.sessions.getWindowValue(windowId, 'givenName');
-    windowMap[windowId].givenName = givenName || '';
+    windowMap[windowId].givenName = givenName ? Name.uniquify(givenName) : '';
 }
 
 function createDefaultName(windowId) {
@@ -75,7 +75,7 @@ export function getName(windowId) {
 // Validate and store givenName for target window.
 // Returns 0 if successful, otherwise returns -1 or id of conflicting window.
 export function giveName(windowId, name = '') {
-    if (isInvalid(name)) return -1;
+    if (Name.isInvalid(name)) return -1;
     const conflictId = hasName(name, windowId);
     if (conflictId) return conflictId;
     windowMap[windowId].givenName = name;

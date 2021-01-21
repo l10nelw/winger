@@ -17,7 +17,7 @@ export async function init(contexts) {
             case 'tab':
             case 'link':
                 addMenuItem(context, true);
-                WindowsMenu = WindowsMenu || await import('./menu.windows.js');
+                if (!WindowsMenu) WindowsMenu = await import('./menu.windows.js');
                 WindowsMenu.init(context);
         }
     }

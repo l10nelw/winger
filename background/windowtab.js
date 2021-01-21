@@ -1,4 +1,5 @@
 import * as Modifier from '../modifier.js';
+import * as Placeholder from './placeholder.js';
 import { windowMap } from './metadata.js';
 import { SETTINGS } from './settings.js';
 
@@ -75,34 +76,32 @@ async function moveTabs(windowId, tabs) {
 }
 
 async function reopenTabs(windowId, tabs) {
-    if (!movablePinnedTabs(tabs)) {
-        tabs = tabs.filter(tab => !tab.pinned);
-    }
-    const focusedTabSetting = SETTINGS.keep_moved_focused_tab_focused;
+    if (!movablePinnedTabs(tabs)) tabs = tabs.filter(tab => !tab.pinned);
 
-    async function reopenTab(tab) {
-        const url = tab.isInReaderMode ? getUrlFromReader(tab.url) : tab.url;
-        // Properties with null are simply not set:
-        const newTab = await browser.tabs.create({
+    const focusedTabSetting = SETTINGS.keep_moved_focused_tab_focused;
+    const reopenTab = tab => {
+        const { title, discarded, pinned, isInReaderMode: openInReaderMode } = tab;
+        const url = openInReaderMode ? getReaderTargetURL(tab.url) : tab.url;
+        const properties = {
             windowId,
             url,
-            pinned: tab.pinned,
-            discarded: tab.discarded,
-            openInReaderMode: tab.isInReaderMode,
+            pinned,
+            openInReaderMode,
+            discarded,
+            title: discarded ? title : null,
             active: focusedTabSetting ? tab.active : null,
-            title: tab.discarded ? tab.title : null,
-        }).catch(() => null);
+        };
+        const newTab = browser.tabs.create(properties).catch(() => Placeholder.openTab(properties, title));
         if (newTab) browser.tabs.remove(tab.id);
         return newTab;
-    }
+    };
 
     tabs = await Promise.all(tabs.map(reopenTab));
-    tabs = tabs.filter(tab => tab); // Filter successful reopens
     const tabCount = tabs.length;
     if (!tabCount) return;
 
     if (SETTINGS.keep_moved_tabs_selected && tabCount > 1) {
-        tabs.forEach(tab => selectTab(tab.id));
+        for (const { id } of tabs) selectTab(id);
     }
     return tabs;
 }
@@ -120,4 +119,4 @@ const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
 const focusTab  = tabId => browser.tabs.update(tabId, { active: true });
 const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
 const isSamePrivateStatus = (windowId1, windowId2) => windowMap[windowId1].incognito === windowMap[windowId2].incognito;
-const getUrlFromReader = readerUrl => decodeURIComponent(readerUrl.slice(readerUrl.indexOf('=') + 1));
+const getReaderTargetURL = readerURL => decodeURIComponent( readerURL.slice(readerURL.indexOf('=') + 1) );
