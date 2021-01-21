@@ -1,6 +1,6 @@
 import { getScrollbarWidth, hasClass, addClass, toggleClass, isButton } from '../utils.js';
-import { $otherWindowsList, $toolbar, unsetActionAttr } from './popup.js';
-import { $omnibox } from './omnibox.js';
+import { $otherWindowsList, $toolbar, unsetActionAttr, requestStash } from './popup.js';
+import { $omnibox, commands } from './omnibox.js';
 import * as Status from './status.js';
 import * as Tooltip from './tooltip.js';
 import * as Modifier from '../modifier.js';
@@ -11,6 +11,7 @@ export default async function init() {
     const { SETTINGS, metaWindows, selectedTabCount } = await browser.runtime.sendMessage({ popup: true });
     row.removeCells(SETTINGS);
     toolbar.removeButtons(SETTINGS);
+    if (SETTINGS.enable_stash) commands.stash = requestStash;
 
     populate(metaWindows);
     const $currentWindowRow = $currentWindowList.firstElementChild;
@@ -32,7 +33,6 @@ export default async function init() {
     lockHeight($otherWindowsList);
 
     return {
-        SETTINGS,
         $currentWindowRow,
         $otherWindowRows,
         $allWindowRows,

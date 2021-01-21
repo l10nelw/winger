@@ -29,12 +29,11 @@ export const unsetActionAttr = $el => $el?.removeAttribute(actionAttr);
 export const getActionElements = ($scope = $body, suffix = '') => $scope.querySelectorAll(`[${actionAttr}]${suffix}`);
 
 // Populated by init()
-export let SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows;
+export let $currentWindowRow, $otherWindowRows, $allWindowRows;
 let modifierHints;
 
 (async () => {
-    ({ SETTINGS, $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints } = await init());
-    if (SETTINGS.enable_stash) Omnibox.commands.stash = requestStash;
+    ({ $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints } = await init());
     $body.addEventListener('click', onClick);
     $body.addEventListener('contextmenu', onRightClick);
     $body.addEventListener('keydown', onKeyDown);
@@ -115,7 +114,7 @@ export function getName($rowElement) {
     return $input.value || $input.placeholder;
 }
 
-function requestStash(windowId = $currentWindowRow._id) {
+export function requestStash(windowId = $currentWindowRow._id) {
     browser.runtime.sendMessage({ stash: windowId });
     addClass('stashing', $body);
     for (const $el of $body.querySelectorAll('button')) $el.disabled = true;
