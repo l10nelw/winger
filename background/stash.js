@@ -70,16 +70,11 @@ folderMap.populate = async () => {
 // Turn window/tabs into folder/bookmarks.
 // Create folder if nonexistent, save tabs as bookmarks in folder, and close window.
 export async function stash(windowId) {
-    Metadata.windowMap[windowId].stashing = true;
     const name = Metadata.getName(windowId);
-    const [tabs, folder] = await Promise.all([ browser.tabs.query({ windowId }), getTargetFolder(name) ]);
-    const parentId = folder.id;
-    for (let i = tabs.length; i--;) { // Reverse iteration necessary for bookmarks to be in correct order
-        let { title, url } = tabs[i];
-        if (Placeholder.isPlaceholderURL(url)) url = Placeholder.getTargetURL(url);
-        browser.bookmarks.create({ title, url, parentId });
-    }
+    const tabs = await browser.tabs.query({ windowId });
     closeWindow(windowId);
+    const folder = await getTargetFolder(name);
+    saveTabs(tabs, folder.id);
     return folder;
 }
 
@@ -101,6 +96,17 @@ async function closeWindow(windowId) {
     const session = sessions[0];
     if (session.tab) return;
     browser.sessions.forgetClosedWindow(session.window.sessionId);
+}
+
+async function saveTabs(tabs, folderId) {
+    const count = tabs.length;
+    const bookmarks = new Array(count);
+    for (let i = count; i--;) { // Reverse iteration necessary for bookmarks to be in correct order
+        let { title, url } = tabs[i];
+        if (Placeholder.isPlaceholderURL(url)) url = Placeholder.getTargetURL(url);
+        bookmarks[i] = browser.bookmarks.create({ title, url, parentId: folderId });
+    }
+    await Promise.all(bookmarks);
 }
 
 

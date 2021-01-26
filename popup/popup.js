@@ -6,7 +6,7 @@
 - Some DOM nodes have custom properties (expandos) prefixed with '_' or '$', to store and pass around data.
 */
 
-import { isInput, hasClass, addClass } from '../utils.js';
+import { isInput, hasClass } from '../utils.js';
 import * as Modifier from '../modifier.js';
 import init from './init.js';
 import navigateByArrow from './navigation.js';
@@ -116,10 +116,6 @@ export function getName($rowElement) {
 
 export function requestStash(windowId = $currentWindowRow._id) {
     browser.runtime.sendMessage({ stash: windowId });
-    addClass('stashing', $body);
-    for (const $el of $body.querySelectorAll('button')) $el.disabled = true;
-    Omnibox.placeholder('Stashing...');
-    document.getElementById('spinner').hidden = false;
 }
 
 // Gather action parameters from event and $action element. If action and windowId found, send parameters to

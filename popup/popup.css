@@ -176,8 +176,7 @@ li button:not(:disabled):focus {
     background-color: var(--bgc-editdone);
 }
 
-body[data-mode="edit"] li button:not(.edit),
-.stashing button {
+body[data-mode="edit"] li button:not(.edit) {
     background-color: transparent;
     opacity: .25;
 }
@@ -203,24 +202,6 @@ body[data-mode="edit"] li button:not(.edit),
     width: 100%;
 }
 
-#spinner:not([hidden]) {
-    position: absolute;
-    --height: calc(var(--height-row) / 2);
-    --offset: calc(var(--height-row) / 4);
-    top: var(--offset);
-    right: var(--offset);
-    width: var(--height);
-    height: var(--height);
-    border: 2px solid var(--borderc-focus);
-    border-top-color: transparent;
-    border-left-color: transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    100% { transform: rotate(1turn); }
-}
 
 
 
