@@ -158,6 +158,10 @@ li button:not(:disabled):focus {
     background-color: var(--bgc-rowbtn-focus);
 }
 
+li.reopenTabs button.tabAction {
+    background-color: var(--bgc-private);
+}
+
 .send {
     background-image: url("../icons/send.svg");
 }
@@ -185,9 +189,6 @@ body[data-mode="edit"] li button:not(.edit) {
     visibility: hidden;
 }
 
-.reopenTabs .tabAction {
-    background-color: var(--bgc-private);
-}
 
 
 
