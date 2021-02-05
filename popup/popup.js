@@ -8,11 +8,10 @@
 
 import { isInput, hasClass } from '../utils.js';
 import * as Modifier from '../modifier.js';
-import init from './init.js';
-import navigateByArrow from './navigation.js';
 import * as Omnibox from './omnibox.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
+import navigateByArrow from './navigation.js';
 
 export const $body = document.body;
 export const $otherWindowsList = document.getElementById('otherWindows');
@@ -33,6 +32,7 @@ export let $currentWindowRow, $otherWindowRows, $allWindowRows;
 let modifierHints;
 
 (async () => {
+    const { default: init } = await import('./init.js');
     ({ $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints } = await init());
     $body.addEventListener('click', onClick);
     $body.addEventListener('contextmenu', onRightClick);
