@@ -28,7 +28,7 @@ export async function init() {
         HOME_ID = folder ? folder.id : (await createFolder(title, rootId)).id;
     }
     if (isRoot && nodes.length && findSeparator(nodes) === -1) { // If home is a root folder, not empty and has no separator
-        addSeparator(HOME_ID);
+        createNode({ type: 'separator', parentId: HOME_ID });
     }
 }
 
@@ -38,8 +38,8 @@ function findSeparator(nodes) {
     }
     return -1;
 }
-const findFolderByTitle = (nodes, title) => nodes.find(node => node.title === title && node.type === 'folder');
-const addSeparator = parentId => browser.bookmarks.create({ type: 'separator', parentId });
+
+const findFolderByTitle = (nodes, title) => nodes.find(node => node.title === title && isFolder(node));
 
 
 /* --- LIST FOLDERS --- */
@@ -47,11 +47,12 @@ const addSeparator = parentId => browser.bookmarks.create({ type: 'separator', p
 export const folderMap = new Map();
 
 folderMap.populate = async () => {
-    const nodes = (await browser.bookmarks.getSubTree(HOME_ID))[0].children; // Contents of stash home
+    const nodes = await getHomeContents();
     for (let i = nodes.length; i--;) { // Reverse iterate
         const node = nodes[i];
         switch (node.type) {
-            case 'separator': return; // Stop at first separator from the end
+            case 'separator':
+                return; // Stop at first separator from the end
             case 'folder':
                 const { id, title } = node;
                 const bookmarkCount = nowUnstashing.has(id) ? 0 : node.children.filter(isBookmark).length;
@@ -59,6 +60,8 @@ folderMap.populate = async () => {
         }
     }
 }
+
+const getHomeContents = async () => (await browser.bookmarks.getSubTree(HOME_ID))[0].children;
 
 
 /* --- STASH WINDOW --- */
@@ -75,12 +78,12 @@ export async function stash(windowId) {
     nowStashing.delete(folderId);
 }
 
-//For a given name, return matching bookmarkless folder or create folder and return it.
+//For a given name, return matching bookmarkless folder, otherwise return new folder.
 async function getTargetFolder(name) {
     const isMapEmpty = !folderMap.size;
     if (isMapEmpty) await folderMap.populate();
     for (const [, folder] of folderMap) {
-        if (folder.title === name && !folder.bookmarkCount) return folder; // Existing folder with same name and no bookmarks found
+        if (folder.title === name && !folder.bookmarkCount) return folder; // Existing folder with same name and has no bookmarks
     }
     if (isMapEmpty) folderMap.clear();
     return createFolder(name);
@@ -97,12 +100,15 @@ async function closeWindow(windowId) {
 
 async function saveTabs(tabs, folderId) {
     const count = tabs.length;
-    const bookmarks = new Array(count);
+    const properties = { parentId: folderId };
+    const savingBookmarks = new Array(count);
     for (let i = count; i--;) { // Reverse iteration necessary for bookmarks to be in correct order
-        const { title, url } = tabs[i];
-        bookmarks[i] = browser.bookmarks.create({ title, url: WindowTab.deplaceholderize(url), parentId: folderId });
+        const tab = tabs[i];
+        properties.url = WindowTab.deplaceholderize(tab.url);
+        properties.title = tab.title;
+        savingBookmarks[i] = createNode(properties);
     }
-    await Promise.all(bookmarks);
+    await Promise.all(savingBookmarks);
 }
 
 
@@ -127,10 +133,10 @@ export async function unstash(nodeId) {
 unstash.createWindow = async folder => {
     const window = await browser.windows.create();
     return {
-        windowId:   window.id,
-        blankTabId: window.tabs[0].id,
-        folderId:   folder.id,
-        name:       folder.title,
+        windowId:  window.id,
+        initTabId: window.tabs[0].id,
+        folderId:  folder.id,
+        name:      folder.title,
     };
 }
 
@@ -173,9 +179,9 @@ async function readFolder(folderId) {
     return { bookmarks, isAllBookmarks };
 }
 
-async function replaceInitTab({ windowId, blankTabId }, bookmark, active) {
+async function replaceInitTab({ windowId, initTabId }, bookmark, active) {
     await openTab(bookmark, windowId, active);
-    browser.tabs.remove(blankTabId);
+    browser.tabs.remove(initTabId);
 }
 
 const openTab = ({ url, title }, windowId, active) => WindowTab.openTab({ discarded: true, url, title, windowId, active });
