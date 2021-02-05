@@ -1,5 +1,4 @@
 import * as Modifier from '../modifier.js';
-import * as Placeholder from './placeholder.js';
 import { windowMap } from './metadata.js';
 import { SETTINGS } from './settings.js';
 
@@ -80,23 +79,14 @@ async function reopenTabs(windowId, tabs) {
 
     const focusedTabSetting = SETTINGS.keep_moved_focused_tab_focused;
     const reopenTab = tab => {
-        const { title, discarded, pinned, isInReaderMode: openInReaderMode } = tab;
-        const url = openInReaderMode ? getReaderTargetURL(tab.url) : tab.url;
-        const properties = {
-            windowId,
-            url,
-            pinned,
-            openInReaderMode,
-            discarded,
-            title: discarded ? title : null,
-            active: focusedTabSetting ? tab.active : null,
-        };
-        const newTab = browser.tabs.create(properties).catch(() => Placeholder.openTab(properties, title));
-        if (newTab) browser.tabs.remove(tab.id);
-        return newTab;
+        const { url, title, pinned, discarded } = tab;
+        const properties = { url, title, pinned, discarded, windowId };
+        if (tab.active && focusedTabSetting) properties.active = true;
+        browser.tabs.remove(tab.id);
+        return openTab(properties);
     };
+    for (const tab of tabs) await reopenTab(tab);
 
-    tabs = await Promise.all(tabs.map(reopenTab));
     const tabCount = tabs.length;
     if (!tabCount) return;
 
@@ -114,9 +104,42 @@ function movablePinnedTabs(tabs) {
     return pinnedTabs;
 }
 
+// Create a tab with given properties, or a placeholder tab if properties.url is invalid.
+// Less strict than tabs.create(): properties can contain some invalid combinations, which are automatically fixed.
+export function openTab(properties) {
+    const { url, title } = properties;
+
+    if (properties.active || url.startsWith('about:')) delete properties.discarded;
+    if (!properties.discarded) delete properties.title;
+
+    if (url === 'about:newtab') delete properties.url;
+    else
+    if (isReader(url)) {
+        properties.url = getReaderTarget(url);
+        properties.openInReaderMode = true;
+    }
+
+    return browser.tabs.create(properties).catch(() => openPlaceholderTab(properties, title));
+}
+
+function openPlaceholderTab(properties, title) {
+    properties.url = buildPlaceholderURL(properties.url, title);
+    return browser.tabs.create(properties);
+}
+
+
 const unpinTab  = tabId => browser.tabs.update(tabId, { pinned: false });
 const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
 const focusTab  = tabId => browser.tabs.update(tabId, { active: true });
 const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
 const isSamePrivateStatus = (windowId1, windowId2) => windowMap[windowId1].incognito === windowMap[windowId2].incognito;
-const getReaderTargetURL = readerURL => decodeURIComponent( readerURL.slice(readerURL.indexOf('=') + 1) );
+
+const READER_HEAD = 'about:reader?url=';
+const isReader = url => url.startsWith(READER_HEAD);
+const getReaderTarget = readerURL => decodeURIComponent( readerURL.slice(READER_HEAD.length) );
+
+const PLACEHOLDER_PATH = browser.runtime.getURL('../placeholder/tab.html');
+const buildPlaceholderURL = (url, title) => `${PLACEHOLDER_PATH}?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+const isPlaceholder = url => url.startsWith(PLACEHOLDER_PATH);
+const getPlaceholderTarget = placeholderUrl => decodeURIComponent( (new URL(placeholderUrl)).searchParams.get('url') );
+export const deplaceholderize = url => isPlaceholder(url) ? getPlaceholderTarget(url) : url;

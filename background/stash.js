@@ -1,5 +1,5 @@
 import * as Name from './name.js';
-import * as Placeholder from './placeholder.js';
+import * as WindowTab from './windowtab.js';
 import * as Metadata from './metadata.js';
 import { SETTINGS } from './settings.js';
 
@@ -102,9 +102,8 @@ async function saveTabs(tabs, folderId) {
     const count = tabs.length;
     const bookmarks = new Array(count);
     for (let i = count; i--;) { // Reverse iteration necessary for bookmarks to be in correct order
-        let { title, url } = tabs[i];
-        if (Placeholder.isPlaceholderURL(url)) url = Placeholder.getTargetURL(url);
-        bookmarks[i] = browser.bookmarks.create({ title, url, parentId: folderId });
+        const { title, url } = tabs[i];
+        bookmarks[i] = browser.bookmarks.create({ title, url: WindowTab.deplaceholderize(url), parentId: folderId });
     }
     await Promise.all(bookmarks);
 }
@@ -154,9 +153,8 @@ unstash.onWindowCreated = async windowId => {
 }
 
 async function turnBookmarkIntoTab({ url, title, id }, windowId, active) {
-    const properties = url === 'about:newtab' ? { windowId, active }
-        : { windowId, active, url, discarded: !active, title: (active ? null : title) }; // Only discarded tab can be given title
-    const creating = browser.tabs.create(properties).catch(() => Placeholder.openTab(properties, title));
+    const properties = { discarded: true, url, title, windowId, active };
+    const creating = WindowTab.openTab(properties);
     const removing = browser.bookmarks.remove(id);
     const [tab,] = await Promise.all([ creating, removing ]);
     return tab;
