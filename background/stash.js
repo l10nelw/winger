@@ -4,13 +4,7 @@ import * as Metadata from './metadata.js';
 import { SETTINGS } from './settings.js';
 
 let HOME_ID;
-
 const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
-const isBookmark = node => node.type === 'bookmark';
-const getChildNodes = parentId => browser.bookmarks.getChildren(parentId);
-const createFolder = (title, parentId = HOME_ID) => browser.bookmarks.create({ title, parentId });
-export const isRootId = nodeId => ROOT_IDS.has(nodeId);
-export const isSeparator = node => node.type === 'separator';
 
 
 /* --- INIT --- */
@@ -159,3 +153,19 @@ async function turnBookmarkIntoTab({ url, title, id }, windowId, active) {
     const [tab,] = await Promise.all([ creating, removing ]);
     return tab;
 }
+
+
+/* --- */
+
+export const isCanUnstash = async nodeId => !isRootId(nodeId) && !isSeparator(await getNode(nodeId));
+
+const isRootId    = nodeId => ROOT_IDS.has(nodeId);
+const isSeparator = node => node.type === 'separator';
+const isFolder    = node => node.type === 'folder';
+const isBookmark  = node => node.type === 'bookmark';
+
+const getNode = async nodeId => (await browser.bookmarks.get(nodeId))[0];
+const getChildNodes = parentId => browser.bookmarks.getChildren(parentId);
+
+const createNode = properties => browser.bookmarks.create(properties);
+const createFolder = (title, parentId = HOME_ID) => createNode({ title, parentId });
