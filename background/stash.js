@@ -5,6 +5,8 @@ import { SETTINGS } from './settings.js';
 
 let HOME_ID;
 const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
+const nowStashing   = new Set();
+const nowUnstashing = new Set();
 
 
 /* --- INIT --- */
@@ -51,9 +53,9 @@ folderMap.populate = async () => {
         switch (node.type) {
             case 'separator': return; // Stop at first separator from the end
             case 'folder':
-                const id = node.id;
-                const bookmarkCount = node.children.filter(isBookmark).length;
-                folderMap.set(id, { id, title: node.title, bookmarkCount });
+                const { id, title } = node;
+                const bookmarkCount = nowUnstashing.has(id) ? 0 : node.children.filter(isBookmark).length;
+                folderMap.set(id, { id, title, bookmarkCount });
         }
     }
 }
@@ -67,9 +69,10 @@ export async function stash(windowId) {
     const name = Metadata.getName(windowId);
     const tabs = await browser.tabs.query({ windowId });
     closeWindow(windowId);
-    const folder = await getTargetFolder(name);
-    saveTabs(tabs, folder.id);
-    return folder;
+    const folderId = (await getTargetFolder(name)).id;
+    nowStashing.add(folderId);
+    await saveTabs(tabs, folderId);
+    nowStashing.delete(folderId);
 }
 
 //For a given name, return matching bookmarkless folder or create folder and return it.
@@ -138,12 +141,15 @@ unstash.onWindowCreated = async windowId => {
     const name = Name.uniquify(Name.validify(info.name), windowId);
     Metadata.giveName(windowId, name);
 
+    const folderId = info.folderId;
+    nowUnstashing.add(folderId);
     const bookmarks = (await getChildNodes(info.folderId)).filter(isBookmark);
     if (bookmarks.length) {
         await Promise.all( bookmarks.map(b => turnBookmarkIntoTab(b, windowId)) ); // Populate window
         browser.tabs.remove(info.blankTabId); // Remove initial blank tab
     }
     browser.bookmarks.remove(info.folderId).catch(() => null); // Remove folder if empty
+    nowUnstashing.delete(folderId);
 }
 
 async function turnBookmarkIntoTab({ url, title, id }, windowId, active) {
@@ -157,7 +163,8 @@ async function turnBookmarkIntoTab({ url, title, id }, windowId, active) {
 
 /* --- */
 
-export const isCanUnstash = async nodeId => !isRootId(nodeId) && !isSeparator(await getNode(nodeId));
+export const isCanUnstash = async nodeId =>
+    !( isRootId(nodeId) || nowStashing.has(nodeId) || nowUnstashing.has(nodeId) || isSeparator(await getNode(nodeId)) );
 
 const isRootId    = nodeId => ROOT_IDS.has(nodeId);
 const isSeparator = node => node.type === 'separator';
