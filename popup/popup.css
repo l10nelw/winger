@@ -249,7 +249,6 @@ footer img {
     color: white;
     background-color: #3a3;
 }
-
 #help:not(:disabled):hover,
 #help:not(:disabled):focus {
     background-color: #4b4;
@@ -259,10 +258,18 @@ footer img {
     color: white;
     background-color: #06f;
 }
-
 #settings:not(:disabled):hover,
-#settings:not(:disabled):focus{
+#settings:not(:disabled):focus {
     background-color: #28f;
+}
+
+#restart {
+    color: white;
+    background-color: #e20;
+}
+#restart:not(:disabled):hover,
+#restart:not(:disabled):focus {
+    background-color: #f30;
 }
 
 

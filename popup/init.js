@@ -5,10 +5,14 @@ import * as Status from './status.js';
 import * as Tooltip from './tooltip.js';
 import * as Modifier from '../modifier.js';
 
-const $currentWindowList = document.getElementById('currentWindow');
+export default () => browser.runtime.sendMessage({ popup: true })
+    .then(onSuccess)
+    .catch(onError);
 
-export default async function init() {
-    const { SETTINGS, metaWindows, selectedTabCount } = await browser.runtime.sendMessage({ popup: true });
+const $currentWindowList = document.getElementById('currentWindow');
+const getTemplateContent = id => document.getElementById(id).content.firstElementChild;
+
+function onSuccess({ SETTINGS, metaWindows, selectedTabCount }) {
     row.removeCells(SETTINGS);
     toolbar.removeButtons(SETTINGS);
     if (SETTINGS.enable_stash) commands.stash = requestStash;
@@ -22,7 +26,7 @@ export default async function init() {
     Status.init($allWindowRows);
     Tooltip.init(selectedTabCount);
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
-    resizeBody(row.buttonCount);
+    expandBodyWidth(row.buttonCount);
 
     $omnibox.hidden = false;
     $otherWindowsList.hidden = false;
@@ -40,6 +44,22 @@ export default async function init() {
     };
 }
 
+function onError() {
+    browser.runtime.sendMessage({ popupError: true });
+
+    browser.browserAction.setBadgeText({ text: '⚠️' });
+    browser.browserAction.setBadgeBackgroundColor({ color: 'transparent' });
+
+    Status.show('⚠️ Winger needs to be restarted.');
+    expandBodyWidth(1);
+
+    const $restartBtn = getTemplateContent('restartTemplate');
+    $restartBtn.onclick = () => browser.runtime.reload();
+    $toolbar.innerHTML = '';
+    $toolbar.appendChild($restartBtn);
+    $toolbar.hidden = false;
+}
+
 function populate(metaWindows) {
     const currentMetaWindow = metaWindows.shift();
     $currentWindowList.appendChild(row.create(currentMetaWindow, true));
@@ -50,7 +70,7 @@ function populate(metaWindows) {
 
 const row = {
 
-    $template: document.getElementById('rowTemplate').content.firstElementChild,
+    $template: getTemplateContent('rowTemplate'),
     cellSelectors: new Set(['.send', '.bring', '.input', '.tabCount', '.edit']),
     buttonCount: 0,
 
@@ -103,7 +123,7 @@ const row = {
         unsetActionAttr($el);
     },
 
-};
+}
 
 const toolbar = {
     removeButtons(SETTINGS) {
@@ -116,7 +136,7 @@ const toolbar = {
             if (!SETTINGS[button]) $toolbar.querySelector(selector).remove();
         }
     },
-};
+}
 
 function createModifierHints(selectedTabCount) {
     const { BRING, SEND } = Modifier;
@@ -135,7 +155,7 @@ function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
     }
 }
 
-function resizeBody(buttonCount) {
+function expandBodyWidth(buttonCount) {
     if (!buttonCount) return;
     const $document = document.documentElement;
     const styles = getComputedStyle($document);

@@ -38,7 +38,7 @@ async function init() {
         Menu.init(menusEnabled);
     }
 
-    // Object.assign(window, { Stash, Metadata }); // for debugging
+    // Object.assign(window, { Metadata, WindowTab, Stash });
 }
 
 function onExtInstalled(details) {
@@ -67,9 +67,12 @@ function onWindowFocused(windowId) {
     Metadata.windowMap[windowId].lastFocused = Date.now();
 }
 
+const isWindowBeingCreated = windowId => !(windowId in Metadata.windowMap);
+
 async function onRequest(request) {
 
-    // From popup/popup.js
+    // From popup/init.js
+    if (request.popupError) return debug();
     if (request.popup) {
         return {
             SETTINGS:         Settings.SETTINGS,
@@ -77,6 +80,8 @@ async function onRequest(request) {
             selectedTabCount: (await WindowTab.getSelectedTabs()).length,
         };
     }
+
+    // From popup/popup.js
     if (request.stash) return Stash.stash(request.stash);
     if (request.action) return WindowTab.doAction(request);
     if (request.help) return WindowTab.openHelp();
@@ -85,4 +90,7 @@ async function onRequest(request) {
     if (request.giveName) return Metadata.giveName(request.windowId, request.name);
 }
 
-const isWindowBeingCreated = windowId => !(windowId in Metadata.windowMap);
+function debug() {
+    Object.assign(window, { Metadata });
+    console.log(Metadata.windowMap);
+}
