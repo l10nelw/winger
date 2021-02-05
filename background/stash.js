@@ -115,7 +115,8 @@ export async function unstash(nodeId) {
     switch (node.type) {
         case 'bookmark':
             const currentWindow = await browser.windows.getLastFocused();
-            turnBookmarkIntoTab(node, currentWindow.id, true);
+            openTab(node, currentWindow.id, true);
+            removeNode(node.id);
             break;
         case 'folder':
             unstash.info = unstash.createWindow(node);
@@ -143,22 +144,41 @@ unstash.onWindowCreated = async windowId => {
 
     const folderId = info.folderId;
     nowUnstashing.add(folderId);
-    const bookmarks = (await getChildNodes(info.folderId)).filter(isBookmark);
-    if (bookmarks.length) {
-        await Promise.all( bookmarks.map(b => turnBookmarkIntoTab(b, windowId)) ); // Populate window
-        browser.tabs.remove(info.blankTabId); // Remove initial blank tab
+    const { bookmarks, isAllBookmarks } = await readFolder(folderId);
+
+    const firstBookmark = bookmarks.shift();
+    removeNode(firstBookmark.id); // For the active tab, this ensures bookmark icon in the address bar appears toggled off
+    await replaceInitTab(info, firstBookmark, true);
+
+    if (isAllBookmarks) {
+        for (const bookmark of bookmarks) {
+            openTab(bookmark, windowId, false);
+        }
+        await browser.bookmarks.removeTree(folderId);
+    } else {
+        const removingBookmarks = [];
+        for (const bookmark of bookmarks) {
+            openTab(bookmark, windowId, false);
+            removingBookmarks.push(removeNode(bookmark.id));
+        }
+        await Promise.all(removingBookmarks);
     }
-    browser.bookmarks.remove(info.folderId).catch(() => null); // Remove folder if empty
     nowUnstashing.delete(folderId);
 }
 
-async function turnBookmarkIntoTab({ url, title, id }, windowId, active) {
-    const properties = { discarded: true, url, title, windowId, active };
-    const creating = WindowTab.openTab(properties);
-    const removing = browser.bookmarks.remove(id);
-    const [tab,] = await Promise.all([ creating, removing ]);
-    return tab;
+async function readFolder(folderId) {
+    const nodes = await getChildNodes(folderId);
+    const bookmarks = nodes.filter(isBookmark);
+    const isAllBookmarks = !(nodes.length - bookmarks.length);
+    return { bookmarks, isAllBookmarks };
 }
+
+async function replaceInitTab({ windowId, blankTabId }, bookmark, active) {
+    await openTab(bookmark, windowId, active);
+    browser.tabs.remove(blankTabId);
+}
+
+const openTab = ({ url, title }, windowId, active) => WindowTab.openTab({ discarded: true, url, title, windowId, active });
 
 
 /* --- */
@@ -176,3 +196,4 @@ const getChildNodes = parentId => browser.bookmarks.getChildren(parentId);
 
 const createNode = properties => browser.bookmarks.create(properties);
 const createFolder = (title, parentId = HOME_ID) => createNode({ title, parentId });
+const removeNode = nodeId => browser.bookmarks.remove(nodeId);
