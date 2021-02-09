@@ -82,8 +82,7 @@ li > * {
     font-size: small;
 }
 
-body:not([data-mode="edit"]) .otherRow:hover,
-body:not([data-mode="edit"]) .otherRow:focus {
+body:not([data-mode="edit"]) .otherRow:is(:hover, :focus) {
     background-color: var(--bgc-base-focus);
 }
 
@@ -152,8 +151,7 @@ li button {
     border-radius: 50%;
 }
 
-li button:not(:disabled):hover,
-li button:not(:disabled):focus {
+li button:not(:disabled):is(:hover, :focus) {
     opacity: 1;
     background-color: var(--bgc-rowbtn-focus);
 }
@@ -249,8 +247,7 @@ footer img {
     color: white;
     background-color: #3a3;
 }
-#help:not(:disabled):hover,
-#help:not(:disabled):focus {
+#help:not(:disabled):is(:hover, :focus) {
     background-color: #4b4;
 }
 
@@ -258,8 +255,7 @@ footer img {
     color: white;
     background-color: #06f;
 }
-#settings:not(:disabled):hover,
-#settings:not(:disabled):focus {
+#settings:not(:disabled):is(:hover, :focus) {
     background-color: #28f;
 }
 
@@ -267,8 +263,7 @@ footer img {
     color: white;
     background-color: #e20;
 }
-#restart:not(:disabled):hover,
-#restart:not(:disabled):focus {
+#restart:not(:disabled):is(:hover, :focus) {
     background-color: #f30;
 }
 
