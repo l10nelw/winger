@@ -1,7 +1,6 @@
 import { $currentWindowRow, $otherWindowsList, $otherWindowRows, getName, requestAction } from './popup.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
-import * as Modifier from '../modifier.js';
 import { getScrollbarWidth, hasClass, addClass, removeClass, toggleClass } from '../utils.js';
 
 export const $omnibox = document.getElementById('omnibox');
@@ -16,27 +15,28 @@ export function handleKeyUp(key, event) {
     const enter = key === 'Enter' && $omnibox._enter;
     if (enter) $omnibox._enter = false;
     const str = $omnibox.value;
+
     const isSlashed = str.startsWith('/');
     toggleClass('slashCommand', $omnibox, isSlashed);
-    if (isSlashed) {
-        let command;
-        if (isCompletingKey(key) && !hasModifier(event)) {
-            command = completeCommand(str);
-        }
-        if (enter) {
-            clear();
-            if (command) commands[command]();
-        }
-    } else {
-        showFilteredRows(str);
-        const $firstRow = [...$otherWindowsList.children].find($row => !$row.hidden);
-        if (enter && $firstRow) requestAction(event, $firstRow);
+    if (isSlashed) return handleSlashed(key, event, str, enter);
+
+    showFilteredRows(str);
+    const $firstRow = [...$otherWindowsList.children].find($row => !$row.hidden);
+    if (enter && $firstRow) requestAction(event, $firstRow);
+}
+
+function handleSlashed(key, event, str, enter) {
+    let command;
+    if (!( nonCompletingKeys.has(key) || event.ctrlKey || event.altKey )) {
+        command = completeCommand(str);
+    }
+    if (enter) {
+        clear();
+        if (command) commands[command]();
     }
 }
 
-const nonCompletingKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Control', 'Shift', 'Alt']);
-const isCompletingKey = key => !nonCompletingKeys.has(key);
-const hasModifier = event => Modifier.get(event).length;
+const nonCompletingKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Control', 'Shift', 'Alt']);
 
 // Autocomplete a command based on str, case-insensitive. Returns command, or undefined if no command found.
 function completeCommand(str) {
