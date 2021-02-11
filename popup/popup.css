@@ -98,7 +98,7 @@ input {
 }
 
 input:focus {
-    border: 2px solid var(--borderc-focus);
+    border: 1px solid var(--borderc-focus);
 }
 
 .input {
