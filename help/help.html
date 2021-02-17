@@ -16,7 +16,7 @@
         <br><small class="js-version"></small>
         <br><b>Quick Guide</b>
       </h1>
-      <p class="small">Last updated v1.4</p>
+      <p class="small">Last updated v1.4.2</p>
     </header>
 
     <label class="collapse-box bordered-box mb-5" tabindex="0">
@@ -278,7 +278,7 @@
     <article id="stash" class="mb-5">
       <h2 class="center">Stash Windows <span class="new">NEW</span></h2>
       <section class="mb-2">
-        <p>If you want to close a window and be able to restore it at any time in the future, you can <strong>stash</strong> it. Stashed windows are stored as bookmark folders, which you can then <strong>unstash</strong>.</p>
+        <p>If you want to close a window, but also be able to restore it at any time in the future, you can <strong>stash</strong> it. Stashed windows are stored as bookmark folders, which you can then <strong>unstash</strong>.</p>
         <ul class="pl-1">
           <li>
             <p>To use this feature, enable it in <button type="button" class="settingsBtn">⚙️ Settings</button>.</p>
@@ -288,21 +288,22 @@
             <p>The window will close and an identically-named bookmark folder &ndash; containing bookmarks converted from tabs &ndash; will appear in the <em>stash home</em>.</p>
           </li>
           <li>
-            <p>To <strong>unstash a bookmark folder</strong> inside the stash home, right-click on it and click the <cite>Unstash</cite> context menu command.</p>
-            <p>The folder will disappear and an identically-named window will open, containing the stored tabs.</p>
+            <p>To <strong>unstash a bookmark folder</strong>, right-click on it and click the <cite>Unstash</cite> context menu command.</p>
+            <p>The folder will disappear and an identically-named window will open, containing tabs converted from bookmarks.</p>
             <ul>
-              <li>
-                <p><cite>Unstash</cite> is also available to individual bookmarks inside the stash home. The command will remove the bookmark and open it as a new tab in the current window.</p>
-              </li>
+              <li><p><cite>Unstash</cite> also works on individual bookmarks. The command will remove the bookmark and open it as a new tab in the current window.</p></li>
+              <li><p><cite>Unstash</cite> is available to all bookmarks and folders, not just those within the stash home.</p></li>
             </ul>
           </li>
         </ul>
       </section>
       <section class="small mb-2">
-        <h3>The stash home</h3>
+        <h3>The stash home and stash folders</h3>
         <p>The <strong>stash home</strong> is where <strong>stash folders</strong> ("stashed windows") are stored. It can be changed in <button type="button" class="settingsBtn">⚙️ Settings</button> to be one of the three root bookmark locations &ndash; Bookmarks Toolbar, Bookmarks Menu or Other Bookmarks &ndash; or a "Stashed Windows" folder inside a root bookmark location.</p>
-        <p>You can move bookmark folders in and out of the stash home; only those inside are considered stash folders. During a stash operation, stash folders are checked for name conflicts against the window being stashed, and also may be automatically renamed if they have invalid names (e.g. leading slashes and spaces).</p>
-        <p>A root bookmark location is usually also used for other bookmarks; how could it be used as a stash home? Don't worry, Winger ignores everything before <strong>the last separator in the stash home</strong>, treating only folders after it as stash folders. Thus, this separator separates your other bookmarks from the actual stash home zone. If the stash home contains no separators, all its subfolders are considered stash folders.</p>
+        <p>A root bookmark location is usually also used for other bookmarks; how could it be used as a stash home? Don't worry, Winger ignores everything before <strong>the last separator</strong> within the stash home, treating only folders after it as stash folders. Thus this separator literally separates your other bookmarks from the actual stash home "zone". If the stash home contains no separators, all its subfolders are considered stash folders.</p>
+        <p>You can manually move bookmark folders in and out of the stash home to include or exclude them as stash folders.</p>
+        <!-- <p>(Why does it matter what is or isn't a stash folder? In future updates, they will be used in  the panel may build a list of "stashed windows" out of stash folders, and the <em>unstash</em> command may be restricted to only within the stash home.)</p>
+        <p>(Current usage of the stash folder status: When a window is stashed, the process checks for any empty stash folders with a matching name to occupy instead of creating a new one. )</p> -->
       </section>
       <section>
         <h3>Work in progress (Winger 1.4x)</h3>
@@ -417,7 +418,7 @@
         <p>Right-click on a tab to get the <em class="bold">Send Tab to Window</em> menu command, which opens a <strong>submenu of other windows</strong> (sorted by recently focused).</p>
         <p>Click a submenu item to <em>send</em> the tab to the chosen window. (As you might expect, <kbd>Shift+</kbd>click to <em>bring</em> the tab instead.)</p>
         <p>If there are multiple tabs selected and one of them was right-clicked, the command will apply to all of them.</p>
-        <p>You can also right-click on an unselected tab to use this command on it.</p>
+        <p>You can also right-click on an unselected tab to use this command on it alone.</p>
       </div>
       <h3>Link context menu</h3>
       <div class="mx-1">
@@ -426,7 +427,7 @@
       </div>
     </article>
 
-    <article id="tips" class="bordered-box small mx-1 mb-5">
+    <article id="tips" class="bordered-box mx-1 mb-5">
       <h2 class="center">Tips for Managing Large Tab/Window Counts</h2>
       <ul class="pl-1">
         <li><p>Use a <a href="https://addons.mozilla.org/en-US/firefox/search/?category=tabs&type=extension&q=tab%20discard%20suspend">tab discarding/suspending extension</a> to minimise memory usage on less-visited tabs and windows.</p></li>
