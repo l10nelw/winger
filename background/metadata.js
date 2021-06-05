@@ -74,10 +74,12 @@ export function getName(windowId) {
 
 // Validate and store givenName for target window.
 // Returns 0 if successful, otherwise returns -1 or id of conflicting window.
-export function giveName(windowId, name = '') {
-    if (Name.isInvalid(name)) return -1;
-    const conflictId = hasName(name, windowId);
-    if (conflictId) return conflictId;
+export function giveName(windowId, name) {
+    if (name !== '') {
+        if (Name.isInvalid(name)) return -1;
+        const conflictId = hasName(name, windowId);
+        if (conflictId) return conflictId;
+    }
     windowMap[windowId].givenName = name;
     browser.sessions.setWindowValue(windowId, 'givenName', name);
     onWindowNamed(windowId);
