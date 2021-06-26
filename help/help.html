@@ -158,16 +158,15 @@
           <p><kbd class="bold">Shift+</kbd><em>switch</em> becomes a <strong>bring</strong>. Thus, you can also shift+click a row to bring tabs to that window.</p>
         </section>
       </div>
-      <section id="private" class="small mx-1 mb-1">
+      <section id="private" class="mx-1 mb-2">
         <h3>Private windows</h3>
         <div class="row">
           <div class="col">
             <p>Winger can list and interact with private windows if it is allowed private window access. Check <button type="button" class="settingsBtn">⚙️ Settings</button>.</p>
             <p>Private windows are marked with <strong class="fg-private">purple</strong> names.</p>
-            <p>Tabs technically cannot be moved between normal and private windows, but Winger can perform a close equivalent: <em>send</em> and <em>bring</em> will <strong>close</strong> tabs in the current window and <strong>reopen</strong> them in the destination window. Buttons that will perform this are shown <span class="bg-private">purple</span>.</p>
+            <p>Tabs technically cannot move between normal and private windows, but Winger can perform a close equivalent: <em>send</em> and <em>bring</em> will <strong>close</strong> tabs in the current window and <strong>reopen</strong> them in the destination window. Buttons that will perform this are shown <span class="bg-private">purple</span>.</p>
             <ul>
-              <li><p>This will not work for certain types of tabs, such as <code>file://</code> pages and some <code>about:</code> pages.</p></li>
-              <li><p>Pinned, discarded (a.k.a. suspended) and reader-view tab states will be preserved.</p></li>
+              <li><p>Pinned, unloaded (a.k.a. suspended, discarded) and reader-view tab states will be preserved.</p></li>
               <li><p>Other tab and page states &ndash; including tab history, scroll position and unsubmitted form data &ndash; will be lost in the process.</p></li>
             </ul>
           </div>
@@ -199,7 +198,7 @@
           </div>
         </div>
       </section>
-      <section class="small mx-1 mb-5">
+      <section class="mx-1 mb-5">
         <h3>Pinned tabs</h3>
         <p><em>Send</em> and <em>bring</em> can work on pinned tabs if enabled in <button type="button" class="settingsBtn">⚙️ Settings</button>.</p>
       </section>
@@ -269,7 +268,7 @@
             <li><p>Title bar. Contents of the title bar also show up in your operating system's task manager or switcher (e.g. while Alt-Tabbing), even if you've set Firefox's title bars to be hidden.</p></li>
             <li><p>Tooltip that appears when you hover your pointer over the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon">. </p></li>
             <li><p>Button badge on the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon"> (showing the first few characters of a name), if enabled in <button type="button" class="settingsBtn">⚙️ Settings</button>. </p></li>
-            <li><p>And of course, open the panel any time to see the current window's name in bold.</p></li>
+            <li><p>And of course, open the Winger panel any time to see the current window's name in bold.</p></li>
           </ul>
         </section>
       </div>
@@ -285,35 +284,29 @@
           </li>
           <li>
             <p>To <strong>stash the current window</strong>, open the panel and enter <kbd class="bold">/stash</kbd> in the omnibox.</p>
-            <p>The window will close and an identically-named bookmark folder &ndash; containing bookmarks converted from tabs &ndash; will appear in the <em>stash home</em>.</p>
+            <p>The window will close and an identically-named bookmark folder &ndash; containing bookmarks of tabs &ndash; will appear in the <em>stash home</em>.</p>
           </li>
           <li>
             <p>To <strong>unstash a bookmark folder</strong>, right-click on it and click the <cite>Unstash</cite> context menu command.</p>
-            <p>The folder will disappear and an identically-named window will open, containing tabs converted from bookmarks.</p>
+            <p>The folder will disappear and an identically-named window will open, containing the formerly-bookmarked tabs, in an unloaded state whenever possible.</p>
             <ul>
               <li><p><cite>Unstash</cite> also works on individual bookmarks. The command will remove the bookmark and open it as a new tab in the current window.</p></li>
-              <li><p><cite>Unstash</cite> is available to all bookmarks and folders, not just those within the stash home.</p></li>
+              <li><p><cite>Unstash</cite> is available to all bookmarks and folders, not just within the stash home.</p></li>
             </ul>
           </li>
         </ul>
       </section>
       <section class="small mb-2">
         <h3>The stash home and stash folders</h3>
-        <p>The <strong>stash home</strong> is where <strong>stash folders</strong> ("stashed windows") are stored. It can be changed in <button type="button" class="settingsBtn">⚙️ Settings</button> to be one of the three root bookmark locations &ndash; Bookmarks Toolbar, Bookmarks Menu or Other Bookmarks &ndash; or a "Stashed Windows" folder inside a root bookmark location.</p>
-        <p>A root bookmark location is usually also used for other bookmarks; how could it be used as a stash home? Don't worry, Winger ignores everything before <strong>the last separator</strong> within the stash home, treating only folders after it as stash folders. Thus this separator literally separates your other bookmarks from the actual stash home "zone". If the stash home contains no separators, all its subfolders are considered stash folders.</p>
+        <p>The <strong>stash home</strong> is where <strong>stash folders</strong> ("stashed windows") are stored. It can be changed in <button type="button" class="settingsBtn">⚙️ Settings</button> to be one of the three root folders &ndash; Bookmarks Toolbar, Bookmarks Menu or Other Bookmarks &ndash; or a "Stashed Windows" folder inside a root folder.</p>
+        <p>If the stash home folder contains at least one separator, Winger treats only folders <strong>after the last separator</strong> as stash folders, ignoring everything before it. It effectively allows for a stash home 'zone' set apart from other contents of the folder.</p>
+        <p>This matters for root folders, which tend to already contain bookmarks and folders for other purposes. Therefore if you designate a root folder without separators as your stash home, Winger will automatically add a separator.</p>
         <p>You can manually move bookmark folders in and out of the stash home to include or exclude them as stash folders.</p>
-        <!-- <p>(Why does it matter what is or isn't a stash folder? In future updates, they will be used in  the panel may build a list of "stashed windows" out of stash folders, and the <em>unstash</em> command may be restricted to only within the stash home.)</p>
-        <p>(Current usage of the stash folder status: When a window is stashed, the process checks for any empty stash folders with a matching name to occupy instead of creating a new one. )</p> -->
+        <p>(<em>Q: Why does it matter what is or isn't a stash folder?</em> A: In a future update, the panel may also list "stashed windows".)</p>
       </section>
-      <section>
-        <h3>Work in progress (Winger 1.4x)</h3>
+      <section class="small">
+        <h3>Work in progress (Winger 1.4-1.5x)</h3>
         <p>The stash feature is currently still being developed, building up from basic functionality first. Significant improvements to come!</p>
-        <ul>
-          <li>Show a <em>stash</em> button for each window row in the panel</li>
-          <li>List and filter stashed windows in the panel</li>
-          <li>Preserve certain tab states such as pinned and reader-view</li>
-          <li>Create "window groups"</li>
-        </ul>
       </section>
     </article>
 
@@ -321,6 +314,7 @@
       <h2 class="center">Keyboard Navigation<br>& The Omnibox</h2>
       <section class="mb-2">
         <p>Press <kbd class="bold js-shortcut">Alt+W</kbd> to open the panel. You can always check what the keyboard shortcut is by hovering your pointer over the Winger button <img src="../icons/winger.svg" height="15" alt="Winger icon">.</p>
+        <p class="small">(While Firefox's <em>Find</em> panel is open, Winger's default shortcut <kbd>Alt+W</kbd> conflicts with the <em><u>W</u>hole Words</em> button shortcut, which takes precedence. Simply close the Find panel with <kbd>Esc</kbd> to use the shortcut as you intended.)</p>
         <p>You can use the arrow keys to navigate the panel: <kbd class="bold">Up</kbd> and <kbd class="bold">Down</kbd> to select rows, <kbd class="bold">Left</kbd> and <kbd class="bold">Right</kbd> to select buttons. Press <kbd class="bold">Enter</kbd> or <kbd class="bold">Space</kbd> to activate a row or button.</p>
         <p>You should also use Winger's <strong>omnibox</strong> &ndash; a multi-purpose, multi-talented input field &ndash; to vastly accelerate operating Winger by keyboard.</p>
       </section>
@@ -337,15 +331,15 @@
               </div>
             </li>
           </ul>
-          <p>Thus in summary, to swiftly <strong>switch</strong> OR <strong>send tabs</strong> OR <strong>bring tabs</strong> to a window via keyboard:</p>
+          <p>In summary, to swiftly <strong>switch</strong> or <strong>send tabs</strong> or <strong>bring tabs</strong> to a window via keyboard:</p>
           <ol>
             <li><p><kbd class="bold js-shortcut">Alt+W</kbd> to open the panel.</p></li>
             <li><p>If the desired window row is not already immediately below the omnibox, start typing its name until it is.</p></li>
             <li>
               <p><kbd class="bold">Enter</kbd> OR <kbd class="bold">Ctrl+Enter</kbd> OR <kbd class="bold">Shift+Enter</kbd>.</p>
-              <p>Alternatively, use arrow keys to select the desired row or button.</p>
             </li>
           </ol>
+          <p>Alternatively, use arrow keys to select the desired row or button in the panel.</p>
         </div>
         <div class="col">
           <figure class="popup popup-rounded mb-1" role="img" aria-label="Winger panel filtering windows">
@@ -412,17 +406,17 @@
 
     <article id="submenu" class="mb-5">
       <h2 class="center">Other Windows Submenu</h2>
-      <p class="small">The following commands are enabled in their respective context menus once there are at least two windows open.</p>
+      <p>A <strong>submenu of other windows</strong> &ndash; a list of windows sorted by recently focused &ndash; becomes available in the following context menus when there is more than one window open.</p>
       <h3>Tab context menu</h3>
       <div class="mx-1">
-        <p>Right-click on a tab to get the <em class="bold">Send Tab to Window</em> menu command, which opens a <strong>submenu of other windows</strong> (sorted by recently focused).</p>
-        <p>Click a submenu item to <em>send</em> the tab to the chosen window. (As you might expect, <kbd>Shift+</kbd>click to <em>bring</em> the tab instead.)</p>
-        <p>If there are multiple tabs selected and one of them was right-clicked, the command will apply to all of them.</p>
-        <p>You can also right-click on an unselected tab to use this command on it alone.</p>
+        <p>Right-click on a tab to get the <em class="bold">Send Tab to Window</em> menu command, which opens the submenu.</p>
+        <p>Click a window name to <em>send</em> the tab to the chosen window. (And as you might expect, <kbd>Shift+</kbd>click to <em>bring</em> the tab instead.)</p>
+        <p>The command is available to both selected and unselected tabs.</p>
+        <p>If you right-click on one among multiple selected tabs, the command will apply to all of them.</p>
       </div>
       <h3>Link context menu</h3>
       <div class="mx-1">
-        <p>Right-click on a link in a page to get the <em class="bold">Open Link in Window</em> menu command, which opens the same submenu as above.</p>
+        <p>Right-click on a link in a page to get the <em class="bold">Open Link in Window</em> menu command, which opens the submenu.</p>
         <p>Click a submenu item to open the link in the chosen window. (<kbd>Shift+</kbd>click will also <em>switch</em> to the window.)</p>
       </div>
     </article>
@@ -430,12 +424,12 @@
     <article id="tips" class="bordered-box mx-1 mb-5">
       <h2 class="center">Tips for Managing Large Tab/Window Counts</h2>
       <ul class="pl-1">
-        <li><p>Use a <a href="https://addons.mozilla.org/en-US/firefox/search/?category=tabs&type=extension&q=tab%20discard%20suspend">tab discarding/suspending extension</a> to minimise memory usage on less-visited tabs and windows.</p></li>
+        <li><p>Use a <a href="https://addons.mozilla.org/en-US/firefox/search/?category=tabs&type=extension&q=tab%20discard">tab discarding</a> (a.k.a. <a href="https://addons.mozilla.org/en-US/firefox/search/?category=tabs&type=extension&q=tab%20unload">unloading</a>/<a href="https://addons.mozilla.org/en-US/firefox/search/?category=tabs&type=extension&q=tab%20suspend">suspending</a>) extension to minimise memory usage on less-visited tabs and windows.</p></li>
         <li><p>Divide and conquer with "window mitosis": split up a highly-populated window into several windows so you can focus on one set of tabs at a time. Hopefully this helps you work through them easier, and close them sooner.</p></li>
-        <li><p>If you like to proactively keep the number of windows under a certain number, you can always check the window count on the panel status bar. Another cue you can use to close some windows is when the list of other windows starts to overflow and scroll, which happens at about 12 windows.</p></li>
+        <li><p>If you like to proactively keep the number of windows under a certain number, you can always check the window count on the panel status bar. Also, the list of other windows starts to overflow and scroll once there are about 12 of them; this can be a cue you can use to start closing some windows.</p></li>
         <li><p>If you are not ready to permanently close windows you hardly use, consider <a href="#stash">stashing</a> them.</p></li>
         <li>
-          <p>The "List all tabs" button, which opens a menu of every tab in the current window, appears whenever the tab strip overflows. Its shortcut is <kbd class="bold">Ctrl+Shift+Tab</kbd>.</p>
+          <p>The "List all tabs" button, which appears whenever the tab strip overflows, opens a menu of every tab in the current window. Its shortcut is <kbd class="bold">Ctrl+Shift+Tab</kbd>.</p>
           <ul class="pl-1">
             <li><p>Each menu item can be right-clicked, just like a tab, to open its own context menu. This is as close as Firefox currently gets to native vertical tabs!</p></li>
           </ul>
@@ -447,7 +441,7 @@
      <article class="col mx-1">
        <h2 class="center">I Love Feedback</h2>
       <p>Submit suggestions, feature requests, bug reports and any other issues (including issues about this Quick Guide) to <a href="https://github.com/l10nelw/winger/issues/">Winger's GitHub page</a>.</p>
-       <p>Or you can <a href="mailto:lionelster@gmail.com">drop me an email</a>.</p>
+       <p>Or you can <a href="mailto:lionelster+winger@gmail.com">drop me an email</a>.</p>
        <p>Do leave a rating and review on <a href="https://addons.mozilla.org/en-US/firefox/addon/winger/">Winger's addon page</a>.</p>
       </article>
      <article class="col bordered-left pl-2 mx-1">
