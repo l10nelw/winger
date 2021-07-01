@@ -4,10 +4,11 @@ General activation governs state that persists while different rows change activ
 */
 
 import { hasClass, toggleClass } from '../utils.js';
-import * as Popup from './popup.js';
+import { $body, $currentWindowRow, $allWindowRows, getActionElements, getName } from './common.js';
 import * as Omnibox from './omnibox.js';
 import * as Tooltip from './tooltip.js';
 import * as Status from './status.js';
+import * as Request from './request.js';
 
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
 let $activeInput;
@@ -31,7 +32,7 @@ export function handleClick($target) {
     }
 }
 
-export function activate($row = Popup.$currentWindowRow) {
+export function activate($row = $currentWindowRow) {
     $active ? row.deactivate() : general.activate();
     row.activate($row);
 }
@@ -46,9 +47,9 @@ async function done() {
 const general = {
     toggle(yes) {
         const tabIndex = yes ? -1 : 0;
-        $disabledActions = $disabledActions || [...Popup.getActionElements(Popup.$body, ':not(.edit)')];
+        $disabledActions = $disabledActions || [...getActionElements($body, ':not(.edit)')];
         $disabledActions.forEach($action => $action.tabIndex = tabIndex);
-        document.body.dataset.mode = yes ? 'edit' : '';
+        $body.dataset.mode = yes ? 'edit' : '';
         Omnibox.disable(yes);
         Omnibox.placeholder(yes && omniboxHint);
     },
@@ -84,13 +85,13 @@ const row = {
     },
     deactivate() {
         $activeInput.setSelectionRange(0, 0); // Ensures the beginning is visible in case of a very long name
-        const name = Popup.getName($activeInput);
-        const $actions = [$active, ...Popup.getActionElements($active)];
+        const name = getName($activeInput);
+        const $actions = [$active, ...getActionElements($active)];
         $actions.forEach($action => $action.title = Tooltip.updateName($action.title, name));
         this.toggle(false);
     },
     shiftActive(down) {
-        const $rows = Popup.$allWindowRows;
+        const $rows = $allWindowRows;
         const thisIndex = $rows.indexOf($active);
         if (thisIndex === -1) return;
         const lastIndex = $rows.length - 1;
@@ -146,10 +147,11 @@ export function handleKeyUp(key, $target) {
 // Trim content of input and try to save it. Return 0 on success, non-zero on failure.
 // Toggles error indicator accordingly.
 async function trySaveName($input) {
-    const name = $input.value = $input.value.trim();
     let error = 0;
+    const name = $input.value = $input.value.trim();
     if (name !== $input._original) {
-        error = await browser.runtime.sendMessage({ giveName: true, windowId: $input.$row._id, name });
+        const windowId = $input.$row._id;
+        error = await Request.setName(windowId, name);
     }
     toggleError($input, error);
     return error;

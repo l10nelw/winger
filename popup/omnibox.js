@@ -1,7 +1,8 @@
-import { $currentWindowRow, $otherWindowsList, $otherWindowRows, getName, requestAction } from './popup.js';
+import { hasClass, addClass, removeClass, toggleClass } from '../utils.js';
+import { $currentWindowRow, $otherWindowsList, $otherWindowRows, getName, getScrollbarWidth } from './common.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
-import { getScrollbarWidth, hasClass, addClass, removeClass, toggleClass } from '../utils.js';
+import * as Request from './request.js';
 
 export const $omnibox = document.getElementById('omnibox');
 
@@ -22,7 +23,7 @@ export function handleKeyUp(key, event) {
 
     showFilteredRows(str);
     const $firstRow = [...$otherWindowsList.children].find($row => !$row.hidden);
-    if (enter && $firstRow) requestAction(event, $firstRow);
+    if (enter && $firstRow) Request.action(event, $firstRow);
 }
 
 function handleSlashed(key, event, str, enter) {
@@ -32,6 +33,7 @@ function handleSlashed(key, event, str, enter) {
     }
     if (enter) {
         clear();
+        if (handleDebugCommand(str)) return;
         if (command) commands[command]();
     }
 }
@@ -47,6 +49,14 @@ function completeCommand(str) {
             $omnibox.setSelectionRange(str.length, command.length + 1);
             return command;
         }
+    }
+}
+
+function handleDebugCommand(str) {
+    if (str.trim().toUpperCase() === '/DEBUG') {
+        placeholder('Debug mode on in console');
+        Request.debug();
+        return true;
     }
 }
 

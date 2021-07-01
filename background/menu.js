@@ -12,7 +12,7 @@ export async function init(contexts) {
         switch (context) {
             case 'bookmark':
                 addMenuItem(context, false); // Starts disabled
-                UnstashMenu = await import('./menu.unstash.js');
+                import('./menu.unstash.js').then(module => UnstashMenu = module);
                 break;
             case 'tab':
             case 'link':
@@ -37,8 +37,7 @@ function addMenuItem(context, enabled) {
 }
 
 async function onMenuShow(info, tab) {
-    if (await UnstashMenu?.handleShow(info)) return;
-    WindowsMenu?.handleShow(info, tab);
+    await UnstashMenu?.handleShow(info) || WindowsMenu?.handleShow(info, tab);
 }
 
 function onMenuHide() {
@@ -46,8 +45,7 @@ function onMenuHide() {
 }
 
 function onMenuClick(info, tab) {
-    if (UnstashMenu?.handleClick(info)) return;
-    WindowsMenu?.handleClick(info, tab);
+    UnstashMenu?.handleClick(info) || WindowsMenu?.handleClick(info, tab);
 }
 
 export function update() {

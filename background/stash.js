@@ -1,7 +1,5 @@
 import * as Name from './name.js';
-import * as WindowTab from './windowtab.js';
-import * as Metadata from './metadata.js';
-import { SETTINGS } from './settings.js';
+import * as Action from './action.js';
 
 let HOME_ID;
 const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
@@ -12,7 +10,7 @@ const nowUnstashing = new Set();
 /* --- INIT --- */
 
 // Identify the stash home's folder id based on settings.
-export async function init() {
+export async function init(SETTINGS) {
     let rootId = SETTINGS.stash_home; // Id of a root folder; may be followed by a marker character indicating that home is a subfolder
     let nodes;
     const isRoot = isRootId(rootId);
@@ -51,8 +49,7 @@ folderMap.populate = async () => {
     for (let i = nodes.length; i--;) { // Reverse iterate
         const node = nodes[i];
         switch (node.type) {
-            case 'separator':
-                return; // Stop at first separator from the end
+            case 'separator': return; // Stop at first separator from the end
             case 'folder':
                 const { id, title } = node;
                 const bookmarkCount = nowUnstashing.has(id) ? 0 : node.children.filter(isBookmark).length;
@@ -69,7 +66,7 @@ const getHomeContents = async () => (await browser.bookmarks.getSubTree(HOME_ID)
 // Turn window/tabs into folder/bookmarks.
 // Create folder if nonexistent, save tabs as bookmarks in folder, and close window.
 export async function stash(windowId) {
-    const name = Metadata.getName(windowId);
+    const name = Name.get(windowId);
     const tabs = await browser.tabs.query({ windowId });
     closeWindow(windowId);
     const folderId = (await getTargetFolder(name)).id;
@@ -91,11 +88,13 @@ async function getTargetFolder(name) {
 
 async function closeWindow(windowId) {
     await browser.windows.remove(windowId);
+    forgetLastClosedWindow(); // Avoid adding to the Recently Closed Windows list unnecessarily
+}
+
+async function forgetLastClosedWindow() {
     const sessions = await browser.sessions.getRecentlyClosed({ maxResults: 1 });
-    if (!sessions.length) return;
-    const session = sessions[0];
-    if (session.tab) return;
-    browser.sessions.forgetClosedWindow(session.window.sessionId);
+    const windowSession = sessions?.[0]?.window;
+    if (windowSession) browser.sessions.forgetClosedWindow(windowSession.sessionId);
 }
 
 async function saveTabs(tabs, folderId) {
@@ -104,7 +103,7 @@ async function saveTabs(tabs, folderId) {
     const savingBookmarks = new Array(count);
     for (let i = count; i--;) { // Reverse iteration necessary for bookmarks to be in correct order
         const tab = tabs[i];
-        properties.url = WindowTab.deplaceholderize(tab.url);
+        properties.url = Action.deplaceholderize(tab.url);
         properties.title = tab.title;
         savingBookmarks[i] = createNode(properties);
     }
@@ -115,16 +114,17 @@ async function saveTabs(tabs, folderId) {
 /* --- UNSTASH WINDOW --- */
 
 // Turn folder/bookmarks into window/tabs.
-// If folder, create and populate window. Bookmarks and empty folder are removed.
 export async function unstash(nodeId) {
     const node = (await browser.bookmarks.get(nodeId))[0];
     switch (node.type) {
         case 'bookmark':
+            // Open in current window; remove bookmark
             const currentWindow = await browser.windows.getLastFocused();
             openTab(node, currentWindow.id, true);
             removeNode(node.id);
             break;
         case 'folder':
+            // Create and populate window; remove bookmarks and also folder if emptied
             unstash.info = unstash.createWindow(node);
     }
 }
@@ -146,28 +146,30 @@ unstash.onWindowCreated = async windowId => {
     delete unstash.info;
 
     const name = Name.uniquify(Name.validify(info.name), windowId);
-    Metadata.giveName(windowId, name);
+    Name.set(windowId, name);
 
     const folderId = info.folderId;
     nowUnstashing.add(folderId);
     const { bookmarks, isAllBookmarks } = await readFolder(folderId);
 
+    // Handle initial tab
     const firstBookmark = bookmarks.shift();
-    removeNode(firstBookmark.id); // For the active tab, this ensures bookmark icon in the address bar appears toggled off
+    removeNode(firstBookmark.id); // If first tab will be focused, ensures address bar bookmark icon appears toggled off
     await replaceInitTab(info, firstBookmark, true);
 
+    // Open tabs and remove nodes
     if (isAllBookmarks) {
         for (const bookmark of bookmarks) {
             openTab(bookmark, windowId, false);
         }
-        await browser.bookmarks.removeTree(folderId);
+        await browser.bookmarks.removeTree(folderId); // Remove folder and its contents
     } else {
         const removingBookmarks = [];
         for (const bookmark of bookmarks) {
             openTab(bookmark, windowId, false);
             removingBookmarks.push(removeNode(bookmark.id));
         }
-        await Promise.all(removingBookmarks);
+        await Promise.all(removingBookmarks); // Remove bookmarks only
     }
     nowUnstashing.delete(folderId);
 }
@@ -179,17 +181,18 @@ async function readFolder(folderId) {
     return { bookmarks, isAllBookmarks };
 }
 
-async function replaceInitTab({ windowId, initTabId }, bookmark, active) {
-    await openTab(bookmark, windowId, active);
+async function replaceInitTab({ windowId, initTabId }, bookmark, isFocused) {
+    await openTab(bookmark, windowId, isFocused);
     browser.tabs.remove(initTabId);
 }
 
-const openTab = ({ url, title }, windowId, active) => WindowTab.openTab({ discarded: true, url, title, windowId, active });
+// Open tab from bookmark
+const openTab = ({ url, title }, windowId, active) => Action.openTab({ discarded: true, url, title, windowId, active });
 
 
 /* --- */
 
-export const isCanUnstash = async nodeId =>
+export const canUnstash = async nodeId =>
     !( isRootId(nodeId) || nowStashing.has(nodeId) || nowUnstashing.has(nodeId) || isSeparator(await getNode(nodeId)) );
 
 const isRootId    = nodeId => ROOT_IDS.has(nodeId);
