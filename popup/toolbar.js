@@ -1,5 +1,7 @@
-export async function help() {
-    await browser.runtime.sendMessage({ help: true });
+import * as Request from './request.js';
+
+export function help() {
+    Request.help();
     window.close();
 }
 

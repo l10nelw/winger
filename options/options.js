@@ -1,7 +1,7 @@
 import { getShortcut, hasClass, toggleClass, GroupMap } from '../utils.js';
 import { validify } from '../background/name.js';
 import { retrieve as retrieveSettings, needsRestart } from '../background/settings.js';
-import { openHelp } from '../background/windowtab.js';
+import { openHelp } from '../background/action.js';
 
 const $body = document.body;
 const $form = $body.querySelector('form');

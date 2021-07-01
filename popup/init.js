@@ -1,27 +1,30 @@
-import { getScrollbarWidth, hasClass, addClass, toggleClass } from '../utils.js';
-import { $otherWindowsList, $toolbar, unsetActionAttr, requestStash } from './popup.js';
-import { $omnibox, commands } from './omnibox.js';
+import { hasClass, addClass, toggleClass } from '../utils.js';
+import { init as initCommon, $otherWindowsList, $toolbar, getScrollbarWidth, unsetActionAttr } from './common.js';
+import * as Omnibox from './omnibox.js';
 import * as Status from './status.js';
 import * as Tooltip from './tooltip.js';
-import * as Modifier from '../modifier.js';
+import * as Request from './request.js';
+import { BRING, SEND } from '../modifier.js';
 
-export default () => browser.runtime.sendMessage({ popup: true })
-    .then(onSuccess)
-    .catch(onError);
-
+const { $omnibox } = Omnibox;
 const $currentWindowList = document.getElementById('currentWindow');
 const getTemplateContent = id => document.getElementById(id).content.firstElementChild;
 
-function onSuccess({ SETTINGS, metaWindows, selectedTabCount }) {
+export default () => Request.popup().then(onSuccess).catch(onError);
+
+
+function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
     row.removeCells(SETTINGS);
     toolbar.removeButtons(SETTINGS);
-    if (SETTINGS.enable_stash) commands.stash = requestStash;
+    if (SETTINGS.enable_stash) {
+        Omnibox.commands.stash = Request.stash;
+    }
 
-    populate(metaWindows);
+    populate(winfos);
     const $currentWindowRow = $currentWindowList.firstElementChild;
     const $otherWindowRows = [...$otherWindowsList.children];
     const $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
-    const modifierHints = createModifierHints(selectedTabCount);
+    initCommon({ $currentWindowRow, $otherWindowRows, $allWindowRows });
 
     Status.init($allWindowRows);
     Tooltip.init(selectedTabCount);
@@ -36,16 +39,12 @@ function onSuccess({ SETTINGS, metaWindows, selectedTabCount }) {
     alignWithScrollbar($currentWindowRow, $otherWindowsList);
     lockHeight($otherWindowsList);
 
-    return {
-        $currentWindowRow,
-        $otherWindowRows,
-        $allWindowRows,
-        modifierHints,
-    };
+    const modifierHints = createModifierHints(selectedTabCount);
+    return { modifierHints };
 }
 
 function onError() {
-    browser.runtime.sendMessage({ popupError: true });
+    Request.debug();
 
     browser.browserAction.setBadgeText({ text: '⚠️' });
     browser.browserAction.setBadgeBackgroundColor({ color: 'transparent' });
@@ -58,13 +57,17 @@ function onError() {
     $toolbar.innerHTML = '';
     $toolbar.appendChild($restartBtn);
     $toolbar.hidden = false;
+    expandBodyWidth(1);
+
+    Status.show('⚠️ Winger needs to be restarted.');
 }
 
-function populate(metaWindows) {
-    const currentMetaWindow = metaWindows.shift();
-    $currentWindowList.appendChild(row.create(currentMetaWindow, true));
-    for (const metaWindow of metaWindows) {
-        $otherWindowsList.appendChild(row.create(metaWindow));
+
+function populate(winfos) {
+    const currentWinfo = winfos.shift();
+    $currentWindowList.appendChild(row.create(currentWinfo, true));
+    for (const winfo of winfos) {
+        $otherWindowsList.appendChild(row.create(winfo));
     }
 }
 
@@ -139,7 +142,6 @@ const toolbar = {
 }
 
 function createModifierHints(selectedTabCount) {
-    const { BRING, SEND } = Modifier;
     const tabWord = selectedTabCount === 1 ? 'tab' : 'tabs';
     return {
         [BRING]: `${BRING.toUpperCase()}: Bring ${tabWord} to...`,

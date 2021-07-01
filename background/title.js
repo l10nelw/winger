@@ -1,4 +1,4 @@
-import { getName } from './metadata.js';
+import { get as getName } from './name.js';
 import { getShortcut } from '../utils.js';
 
 export async function update(windowId) {

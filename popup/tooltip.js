@@ -1,7 +1,9 @@
-import { hasClass } from '../utils.js';
-import * as Popup from './popup.js';
+/* Tooltips on-hover over action elements */
 
-const colon = ': ';
+import { hasClass } from '../utils.js';
+import { getName, getActionElements } from './common.js';
+
+const COLON = ': ';
 
 export function init(tabCount) {
     let rowNames = new Map();
@@ -9,7 +11,7 @@ export function init(tabCount) {
     function memoisedRowName($row) {
         let name = rowNames.get($row);
         if (!name) {
-            name = Popup.getName($row);
+            name = getName($row);
             rowNames.set($row, name);
         }
         return name;
@@ -18,7 +20,7 @@ export function init(tabCount) {
     const tabCountPhrase = tabCount == 1 ? 'tab' : `${tabCount} tabs`;
     const reopenPhrase = $row => hasClass('reopenTabs', $row) ? '(reopen) ' : '';
 
-    for (const $action of Popup.getActionElements()) {
+    for (const $action of getActionElements()) {
         const $row = $action.$row || $action;
         const name = memoisedRowName($row);
         const insertText = reopenPhrase($row) + tabCountPhrase;
@@ -28,9 +30,9 @@ export function init(tabCount) {
 
 // Add or change the name portion of a tooltip.
 export function updateName(tooltip, name) {
-    const colonIndex = tooltip.indexOf(colon);
+    const colonIndex = tooltip.indexOf(COLON);
     if (colonIndex > -1) {
-        tooltip = tooltip.slice(0, colonIndex + colon.length) + name;
+        tooltip = tooltip.slice(0, colonIndex + COLON.length) + name;
     }
     return tooltip;
 }

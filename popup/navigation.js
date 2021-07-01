@@ -1,6 +1,5 @@
-import { $currentWindowRow, $otherWindowsList, $toolbar, isRow, getActionAttr } from './popup.js';
+import { $currentWindowRow, $otherWindowsList, $toolbar, isButton, isRow, getActionAttr } from './common.js';
 import { $omnibox } from './omnibox.js';
-import { isButton } from '../utils.js';
 
 const isFocusable = $el => $el.tabIndex !== -1 && !$el.hidden;
 const isVerticalKey = key => ['ArrowDown', 'ArrowUp'].includes(key);

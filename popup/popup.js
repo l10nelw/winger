@@ -1,53 +1,32 @@
-/*
-- A window is represented in the popup as a 'row', which is represented by an HTML list item (<li>).
-- All relevant data are embedded and managed within the popup's DOM structure. No separate, representative dataset to
-  be maintained in parallel with the DOM (apart from Metadata in the background).
-- A variable prefixed with '$' references a DOM node or a collection of DOM nodes.
-- Some DOM nodes have custom properties (expandos) prefixed with '_' or '$', to store and pass around data.
-*/
-
-import { isInput, hasClass } from '../utils.js';
-import * as Modifier from '../modifier.js';
+import { hasClass } from '../utils.js';
+import { $body, $currentWindowRow, isRow, isInput } from './common.js';
 import * as Omnibox from './omnibox.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
+import * as Request from './request.js';
 import navigateByArrow from './navigation.js';
 
-export const $body = document.body;
-export const $otherWindowsList = document.getElementById('otherWindows');
-export const $toolbar = $body.querySelector('footer');
-const $omnibox = Omnibox.$omnibox;
-
-export const isRow = $el => $el?._id;
+const { $omnibox } = Omnibox;
 const isClickKey = key => key === 'Enter' || key === ' ';
 
-// Action attribute utilities
-const actionAttr = 'data-action';
-export const getActionAttr = $el => $el?.getAttribute(actionAttr);
-export const unsetActionAttr = $el => $el?.removeAttribute(actionAttr);
-export const getActionElements = ($scope = $body, suffix = '') => $scope.querySelectorAll(`[${actionAttr}]${suffix}`);
-
-// Populated by init()
-export let $currentWindowRow, $otherWindowRows, $allWindowRows;
 let modifierHints;
 
-(async () => {
-    const { default: init } = await import('./init.js');
-    ({ $currentWindowRow, $otherWindowRows, $allWindowRows, modifierHints } = await init());
+import('./init.js').then(async init => {
+    ({ modifierHints } = await init.default());
     $body.addEventListener('click', onClick);
     $body.addEventListener('contextmenu', onRightClick);
     $body.addEventListener('keydown', onKeyDown);
     $body.addEventListener('keyup', onKeyUp);
     $body.addEventListener('focusout', onFocusOut);
     $currentWindowRow.$input.addEventListener('dblclick', onDoubleClick);
-})();
+});
 
 function onClick(event) {
     const { target: $target } = event;
     const id = $target.id;
     if (id in Toolbar) return Toolbar[id]();
     if (EditMode.handleClick($target)) return;
-    requestAction(event, $target);
+    Request.action(event, $target);
 }
 
 function onRightClick(event) {
@@ -69,7 +48,7 @@ function onKeyUp(event) {
     const { key, target: $target } = event;
     inputEnterCheck.up(key, $target);
     if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
-    if (isRow($target) && isClickKey(key)) return requestAction(event, $target);
+    if (isRow($target) && isClickKey(key)) return Request.action(event, $target);
     if ($target === $omnibox) {
         Omnibox.placeholder();
         Omnibox.handleKeyUp(key, event);
@@ -106,31 +85,4 @@ function showModifierHint(key) {
     const hint = modifierHints[key];
     Omnibox.placeholder(hint);
     return hint;
-}
-
-// Given a $row or any of its child elements, get the givenName or defaultName.
-export function getName($rowElement) {
-    const $input = hasClass('input', $rowElement) && $rowElement || $rowElement.$input || $rowElement.$row.$input;
-    return $input.value || $input.placeholder;
-}
-
-export function requestStash(windowId = $currentWindowRow._id) {
-    browser.runtime.sendMessage({ stash: windowId });
-}
-
-// Gather action parameters from event and $action element. If action and windowId found, send parameters to
-// background to request action execution.
-export function requestAction(event, $action = event.target) {
-    const $row = $action.$row || $action;
-    const windowId = $row._id;
-    if (!windowId) return;
-    const action = getActionAttr($action) || getActionAttr($row);
-    if (!action) return;
-    browser.runtime.sendMessage({
-        action,
-        windowId,
-        originWindowId: $currentWindowRow._id,
-        modifiers: Modifier.get(event),
-    });
-    window.close();
 }
