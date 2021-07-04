@@ -1,14 +1,14 @@
 import { winfoMap } from './window.js';
-import { onWindowNamed } from './background.js';
+import * as Chrome from './chrome.js';
 
-export const DEFAULT_HEAD = 'Window ';
+const DEFAULT_HEAD = 'Window ';
 const NUMBER_POSTFIX = / (\d+)$/;
 let lastWindowNumber = 0;
 
 export async function restoreGiven(windowId) {
     const givenName = await browser.sessions.getWindowValue(windowId, 'givenName');
     winfoMap[windowId].givenName = givenName ? uniquify(givenName) : '';
-    onWindowNamed(windowId);
+    propagate(windowId);
 }
 
 export function createDefault(windowId) {
@@ -34,8 +34,12 @@ export function set(windowId, name) {
     }
     winfoMap[windowId].givenName = name;
     browser.sessions.setWindowValue(windowId, 'givenName', name);
-    onWindowNamed(windowId);
+    propagate(windowId);
     return 0;
+}
+
+function propagate(windowId) {
+    Chrome.update(windowId, get(windowId));
 }
 
 function isInvalid(name) {

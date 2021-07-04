@@ -2,11 +2,11 @@ import * as Settings from './settings.js';
 import * as Window from './window.js';
 import * as Name from './name.js';
 import * as Action from './action.js';
-import * as Title from './title.js';
-let Badge, Stash, Menu; // Optional modules
+import * as Chrome from './chrome.js';
+let Stash, Menu; // Optional modules
 
 function debug() {
-    const modules = { Settings, Window, Name, Action, Title, Badge, Stash, Menu };
+    const modules = { Settings, Window, Name, Action, Stash, Menu };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
     Object.assign(window, modules);
 }
@@ -23,12 +23,8 @@ async function init() {
     const [SETTINGS, windows] = await Promise.all([ Settings.retrieve(), browser.windows.getAll() ]);
 
     Action.init(SETTINGS);
+    Chrome.init(SETTINGS);
 
-    if (SETTINGS.show_badge) {
-        import('./badge.js').then(module => {
-            Badge = module;
-        });
-    }
     if (SETTINGS.enable_stash) {
         import('./stash.js').then(module => {
             Stash = module;
@@ -89,9 +85,4 @@ async function onRequest(request) {
     if (request.help)    return Action.openHelp();
     if (request.setName) return Name.set(request.setName, request.name);
     if (request.debug)   return debug();
-}
-
-export function onWindowNamed(windowId) {
-    Title.update(windowId);
-    Badge?.update(windowId);
 }
