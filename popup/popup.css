@@ -39,6 +39,7 @@ ul {
     max-height: 30rem;
     overflow-x: hidden;
     overflow-y: auto;
+    scroll-snap-type: y mandatory;
     scrollbar-width: thin;
 
     /* Scroll shadows */
@@ -66,6 +67,7 @@ li {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    scroll-snap-align: center;
     list-style: none;
     border-bottom: 1px solid var(--borderc-base);
 }
