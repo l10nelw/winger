@@ -57,6 +57,7 @@ function reset() {
         const $row = $otherWindowsList.children[index];
         if ($row !== $correctRow) {
             $otherWindowsList.insertBefore($correctRow, $row);
+            $row._index = index;
         }
     });
     removeClass('scrollbarOffset', $otherWindowsList);
