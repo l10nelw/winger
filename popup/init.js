@@ -66,11 +66,15 @@ function onError() {
 
 
 function populate(winfos) {
+    // Current window
     const currentWinfo = winfos.shift();
     $currentWindowList.appendChild(row.create(currentWinfo, true));
-    for (const winfo of winfos) {
-        $otherWindowsList.appendChild(row.create(winfo));
-    }
+    // Other windows
+    winfos.forEach((winfo, index) => {
+        const $row = row.create(winfo);
+        $otherWindowsList.appendChild($row);
+        $row._index = index;
+    });
 }
 
 const row = {

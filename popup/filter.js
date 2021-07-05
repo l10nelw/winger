@@ -18,8 +18,10 @@ export function execute(str) {
     if (!$shownRows.length) return;
 
     $shownRows.sort(compareNameLength);
-    $shownRows.forEach($row => $otherWindowsList.appendChild($row)); // move filtered rows to the end of the list
-
+    $shownRows.forEach(($row, index) => {
+        $otherWindowsList.appendChild($row); // Move filtered row to the end of the list
+        $row._index = index;
+    });
 
     // Add offset if scrollbar disappears
     if (hasClass('scrollbarOffset', $currentWindowRow) && !getScrollbarWidth($otherWindowsList)) {
@@ -51,9 +53,11 @@ function filter(str) {
 function reset() {
     $otherWindowRows.forEach(($correctRow, index) => {
         $correctRow.hidden = false;
+        $correctRow._index = index;
         const $row = $otherWindowsList.children[index];
         if ($row !== $correctRow) {
             $otherWindowsList.insertBefore($correctRow, $row);
+            $row._index = index;
         }
     });
     removeClass('scrollbarOffset', $otherWindowsList);
