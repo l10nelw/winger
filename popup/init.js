@@ -1,6 +1,7 @@
 import { hasClass, addClass, toggleClass } from '../utils.js';
 import { init as initCommon, $otherWindowsList, $toolbar, getScrollbarWidth, unsetActionAttr } from './common.js';
 import * as Omnibox from './omnibox.js';
+import * as Filter from './filter.js';
 import * as Status from './status.js';
 import * as Tooltip from './tooltip.js';
 import * as Request from './request.js';
@@ -28,6 +29,7 @@ function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
 
     Status.init($allWindowRows);
     Tooltip.init(selectedTabCount);
+    Filter.init();
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
     expandBodyWidth(row.buttonCount);
 
