@@ -1,16 +1,25 @@
 import { $currentWindowRow, $otherWindowsList, $toolbar, isButton, isRow, getActionAttr } from './common.js';
-import { $omnibox } from './omnibox.js';
+import { $shownRows } from './filter.js';
 
 const isFocusable = $el => $el.tabIndex !== -1 && !$el.hidden;
 const isVerticalKey = key => ['ArrowDown', 'ArrowUp'].includes(key);
 
-// Given element and an arrow key, focus on another element in that direction and return true.
+// Given an element and an arrow key, focus on the next focusable element in that direction and return true.
 // Return null if key not an arrow key.
-export default function navigateByArrow($el, key) {
+// Control vertical scrolling.
+export default function navigateByArrow($el, key, event) {
     const navigatorKey = navigator[key];
     if (!navigatorKey) return;
-    do { $el = navigatorKey($el) } while (!isFocusable($el)); // Repeat in same direction until focusable element found
-    if (!isVerticalKey(key)) setColumn($el);
+
+     // Repeat in same direction until focusable element found
+    do { $el = navigatorKey($el) } while (!isFocusable($el));
+
+    if (isVerticalKey(key)) {
+        restrictScroll($el, event);
+    } else {
+        setColumn($el);
+    }
+
     $el.focus();
     return true;
 }
@@ -41,6 +50,15 @@ const navigator = {
         return isRow($el) ? $el.lastElementChild : ($el.previousElementSibling || $el.$row);
     },
 };
+
+const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
+
+function restrictScroll($el, event) {
+    const index = row($el)._index;
+    if (SCROLL_THRESHOLD <= index && ($shownRows.length - index) > SCROLL_THRESHOLD) return;
+    event.preventDefault(); // Suppress scrolling
+}
+
 
 let column;
 
