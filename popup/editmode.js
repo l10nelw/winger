@@ -6,6 +6,7 @@ General activation governs state that persists while different rows change activ
 import { hasClass, toggleClass } from '../utils.js';
 import { $body, $currentWindowRow, $allWindowRows, getActionElements, getName } from './common.js';
 import * as Omnibox from './omnibox.js';
+import * as Filter from './filter.js';
 import * as Tooltip from './tooltip.js';
 import * as Status from './status.js';
 import * as Request from './request.js';
@@ -55,7 +56,7 @@ const general = {
     },
     activate() {
         Omnibox.clear();
-        Omnibox.showAllRows();
+        Filter.execute();
         this.toggle(true);
     },
     deactivate() {
