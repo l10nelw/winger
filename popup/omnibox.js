@@ -1,10 +1,9 @@
 import { removeClass, toggleClass } from '../utils.js';
+import { $omnibox } from './common.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
 import * as Filter from './filter.js';
 import * as Request from './request.js';
-
-export const $omnibox = document.getElementById('omnibox');
 
 export const commands = {
     help:     Toolbar.help,
@@ -63,16 +62,4 @@ function handleDebugCommand(str) {
 export function clear() {
     $omnibox.value = $omnibox.placeholder = '';
     removeClass('slashCommand', $omnibox);
-}
-
-export function placeholder(str) {
-    $omnibox.placeholder = str ? str : '';
-}
-
-export function disable(yes) {
-    $omnibox.disabled = yes;
-}
-
-export function focus() {
-    $omnibox.focus();
 }

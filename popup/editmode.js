@@ -4,8 +4,7 @@ General activation governs state that persists while different rows change activ
 */
 
 import { hasClass, toggleClass } from '../utils.js';
-import { $body, $currentWindowRow, $allWindowRows, getActionElements, getName } from './common.js';
-import * as Omnibox from './omnibox.js';
+import { $body, $currentWindowRow, $omnibox, $allWindowRows, getActionElements, getName } from './common.js';
 import * as Filter from './filter.js';
 import * as Tooltip from './tooltip.js';
 import * as Status from './status.js';
@@ -51,8 +50,8 @@ const general = {
         $disabledActions = $disabledActions || [...getActionElements($body, ':not(.edit)')];
         $disabledActions.forEach($action => $action.tabIndex = tabIndex);
         $body.dataset.mode = yes ? 'edit' : '';
-        Omnibox.disable(yes);
-        Omnibox.placeholder(yes && omniboxHint);
+        $omnibox.disabled = yes;
+        $omnibox.placeholder = yes ? omniboxHint : '';
     },
     activate() {
         Omnibox.clear();
@@ -61,7 +60,7 @@ const general = {
     },
     deactivate() {
         this.toggle(false);
-        Omnibox.focus();
+        $omnibox.focus();
         Status.show();
         $active = null;
     },

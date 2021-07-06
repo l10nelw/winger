@@ -2,6 +2,7 @@ import { hasClass } from '../utils.js';
 
 // Elements of the popup
 export const $body = document.body;
+export const $omnibox = document.getElementById('omnibox');
 export const $otherWindowsList = document.getElementById('otherWindows');
 export const $toolbar = $body.querySelector('footer');
 export let $currentWindowRow, $otherWindowRows, $allWindowRows;

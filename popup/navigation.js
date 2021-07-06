@@ -1,5 +1,4 @@
-import { $currentWindowRow, $toolbar, isButton, isRow, getActionAttr } from './common.js';
-import { $omnibox } from './omnibox.js';
+import { $currentWindowRow, $omnibox, $toolbar, isButton, isRow, getActionAttr } from './common.js';
 import { $shownRows } from './filter.js';
 
 const isFocusable = $el => $el.tabIndex !== -1 && !$el.hidden;
