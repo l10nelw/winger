@@ -1,4 +1,5 @@
-import { $currentWindowRow, $otherWindowsList, $toolbar, isButton, isRow, getActionAttr } from './common.js';
+import { $currentWindowRow, $toolbar, isButton, isRow, getActionAttr } from './common.js';
+import { $omnibox } from './omnibox.js';
 import { $shownRows } from './filter.js';
 
 const isFocusable = $el => $el.tabIndex !== -1 && !$el.hidden;
@@ -28,15 +29,15 @@ const navigator = {
     ArrowDown($el) {
         if (isToolbar($el)) return currentWindow();
         if (isCurrentWindow($el)) return $omnibox;
-        if ($el === $omnibox) return rowOrCell($otherWindowsList.firstElementChild) || toolbar();
-        const $nextRow = row($el).nextElementSibling;
+        if ($el === $omnibox) return rowOrCell($shownRows[0]) || toolbar();
+        const $nextRow = $shownRows[row($el)._index + 1];
         return rowOrCell($nextRow) || toolbar();
     },
     ArrowUp($el) {
         if ($el === $omnibox) return currentWindow();
         if (isCurrentWindow($el)) return toolbar();
-        if (isToolbar($el)) return rowOrCell($otherWindowsList.lastElementChild) || $omnibox;
-        const $nextRow = row($el).previousElementSibling;
+        if (isToolbar($el)) return rowOrCell($shownRows[$shownRows.length - 1]) || $omnibox;
+        const $nextRow = $shownRows[row($el)._index - 1];
         return rowOrCell($nextRow) || $omnibox;
     },
     ArrowRight($el) {
@@ -60,9 +61,9 @@ function restrictScroll($el, event) {
 }
 
 
-let column;
+let column; // Currently-focused button column
 
-// Set `column` to: null if row, a reference ("send", etc) if cell, or no change.
+// Set column to: null if row, an action reference ("send", etc) if cell, or no change.
 function setColumn($el) {
     column =
         isRow($el) ? null :
