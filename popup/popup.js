@@ -1,12 +1,11 @@
 import { hasClass } from '../utils.js';
-import { $body, $currentWindowRow, isRow, isInput } from './common.js';
+import { $body, $omnibox, $currentWindowRow, isRow, isInput } from './common.js';
 import * as Omnibox from './omnibox.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
 import * as Request from './request.js';
 import navigateByArrow from './navigation.js';
 
-const { $omnibox } = Omnibox;
 const isClickKey = key => key === 'Enter' || key === ' ';
 
 let modifierHints;
@@ -50,13 +49,13 @@ function onKeyUp(event) {
     if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
     if (isRow($target) && isClickKey(key)) return Request.action(event, $target);
     if ($target === $omnibox) {
-        Omnibox.placeholder();
+        $omnibox.placeholder = '';
         Omnibox.handleKeyUp(key, event);
     }
 }
 
 function onFocusOut(event) {
-    if (event.target === $omnibox) Omnibox.placeholder();
+    if (event.target === $omnibox) $omnibox.placeholder = '';
 }
 
 function onDoubleClick() {
@@ -83,6 +82,6 @@ const inputEnterCheck = {
 function showModifierHint(key) {
     if (key === 'Control') key = 'Ctrl';
     const hint = modifierHints[key];
-    Omnibox.placeholder(hint);
+    $omnibox.placeholder = hint;
     return hint;
 }

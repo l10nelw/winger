@@ -1,5 +1,5 @@
 import { hasClass, addClass, toggleClass } from '../utils.js';
-import { init as initCommon, $otherWindowsList, $toolbar, getScrollbarWidth, unsetActionAttr } from './common.js';
+import { init as initCommon, $omnibox, $otherWindowsList, $toolbar, getScrollbarWidth, unsetActionAttr } from './common.js';
 import * as Omnibox from './omnibox.js';
 import * as Filter from './filter.js';
 import * as Status from './status.js';
@@ -7,7 +7,6 @@ import * as Tooltip from './tooltip.js';
 import * as Request from './request.js';
 import { BRING, SEND } from '../modifier.js';
 
-const { $omnibox } = Omnibox;
 const $currentWindowList = document.getElementById('currentWindow');
 const getTemplateContent = id => document.getElementById(id).content.firstElementChild;
 
