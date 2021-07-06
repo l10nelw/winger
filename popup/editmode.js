@@ -4,8 +4,8 @@ General activation governs state that persists while different rows change activ
 */
 
 import { hasClass, toggleClass } from '../utils.js';
-import { $body, $currentWindowRow, $omnibox, $allWindowRows, getActionElements, getName } from './common.js';
-import * as Filter from './filter.js';
+import { $body, $currentWindowRow, $omnibox, getActionElements, getName } from './common.js';
+import { $shownRows } from './filter.js';
 import * as Tooltip from './tooltip.js';
 import * as Status from './status.js';
 import * as Request from './request.js';
@@ -54,8 +54,6 @@ const general = {
         $omnibox.placeholder = yes ? omniboxHint : '';
     },
     activate() {
-        Omnibox.clear();
-        Filter.execute();
         this.toggle(true);
     },
     deactivate() {
@@ -91,17 +89,11 @@ const row = {
         this.toggle(false);
     },
     shiftActive(down) {
-        const $rows = $allWindowRows;
-        const thisIndex = $rows.indexOf($active);
-        if (thisIndex === -1) return;
-        const lastIndex = $rows.length - 1;
-        let newIndex = thisIndex + down;
-        if (newIndex < 0) {
-            newIndex = lastIndex;
-        } else if (newIndex > lastIndex) {
-            newIndex = 0;
-        }
-        activate($rows[newIndex]);
+        const lastIndex = $shownRows.length - 1;
+        if ($active === $currentWindowRow) return activate($shownRows[down < 0 ? lastIndex : 0]);
+        const newIndex = $active._index + down;
+        if (newIndex < 0 || lastIndex < newIndex) return activate($currentWindowRow);
+        activate($shownRows[newIndex]);
     },
 };
 
