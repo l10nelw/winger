@@ -1,7 +1,7 @@
 import { $currentWindowRow, $omnibox, $toolbar, isButton, isRow, getActionAttr } from './common.js';
 import { $shownRows } from './filter.js';
 
-const isFocusable = $el => $el.tabIndex !== -1 && !$el.hidden;
+const isUnfocusable = $el => $el.hidden || $el.tabIndex === -1;
 const isVerticalKey = key => ['ArrowDown', 'ArrowUp'].includes(key);
 
 // Given an element and an arrow key, focus on the next focusable element in that direction and return true.
@@ -12,7 +12,7 @@ export default function navigateByArrow($el, key, event) {
     if (!navigatorKey) return;
 
      // Repeat in same direction until focusable element found
-    do { $el = navigatorKey($el) } while (!isFocusable($el));
+    do { $el = navigatorKey($el) } while (isUnfocusable($el));
 
     if (isVerticalKey(key)) {
         restrictScroll($el, event);
@@ -85,7 +85,7 @@ function currentWindow() {
     let $cell = $currentWindowRow[`$${column}`];
     if ($cell) return $cell;
     $cell = $currentWindowRow.firstElementChild;
-    while ($cell && !isFocusable($cell)) {
+    while ($cell && isUnfocusable($cell)) {
         $cell = $cell.nextElementSibling;
     }
     return $cell || $currentWindowRow;
