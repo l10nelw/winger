@@ -4,11 +4,11 @@ const $status = document.getElementById('status');
 const count = { tabs: 0, windows: 0 };
 let defaultText;
 
-export async function init($allWindowRows) {
-    const tabCounts = await Promise.all($allWindowRows.map(getAndShow));
+export async function init($rows) {
+    const tabCounts = await Promise.all($rows.map(getAndShow));
     const sum = (a, b) => a + b;
     count.tabs = tabCounts.reduce(sum);
-    count.windows = $allWindowRows.length;
+    count.windows = $rows.length;
     update();
 
     async function getAndShow($row) {

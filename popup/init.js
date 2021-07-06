@@ -23,10 +23,9 @@ function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
     populate(winfos);
     const $currentWindowRow = $currentWindowList.firstElementChild;
     const $otherWindowRows = [...$otherWindowsList.children];
-    const $allWindowRows = [$currentWindowRow, ...$otherWindowRows];
-    initCommon({ $currentWindowRow, $otherWindowRows, $allWindowRows });
+    initCommon({ $currentWindowRow, $otherWindowRows });
 
-    Status.init($allWindowRows);
+    Status.init([$currentWindowRow, ...$otherWindowRows]);
     Tooltip.init(selectedTabCount);
     Filter.init();
     indicateReopenTabs($currentWindowRow, $otherWindowRows);

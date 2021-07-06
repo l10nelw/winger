@@ -5,10 +5,10 @@ export const $body = document.body;
 export const $omnibox = document.getElementById('omnibox');
 export const $otherWindowsList = document.getElementById('otherWindows');
 export const $toolbar = $body.querySelector('footer');
-export let $currentWindowRow, $otherWindowRows, $allWindowRows;
+export let $currentWindowRow, $otherWindowRows;
 
 export function init(data) {
-    ({ $currentWindowRow, $otherWindowRows, $allWindowRows } = data);
+    ({ $currentWindowRow, $otherWindowRows } = data);
 }
 
 // Element type
