@@ -151,46 +151,35 @@ unstash.onWindowCreated = async windowId => {
     const name = Name.uniquify(Name.validify(info.name), windowId);
     Name.set(windowId, name);
 
-    const folderId = info.folderId;
+    const { folderId } = info;
     nowUnstashing.add(folderId);
-    const { bookmarks, isAllBookmarks } = await readFolder(folderId);
+    const { bookmark: bookmarks, folder: subfolders } = await readFolder(folderId);
 
-    // Handle initial tab
-    const firstBookmark = bookmarks.shift();
-    removeNode(firstBookmark.id); // If first tab will be focused, ensures address bar bookmark icon appears toggled off
-    await replaceInitTab(info, firstBookmark, true);
+    await Promise.all( bookmarks.map(bookmark => openTab(bookmark, windowId)) );
+    browser.tabs.remove(info.initTabId);
 
-    // Open tabs and remove nodes
-    if (isAllBookmarks) {
-        for (const bookmark of bookmarks) {
-            openTab(bookmark, windowId, false);
-        }
-        await browser.bookmarks.removeTree(folderId); // Remove folder and its contents
-    } else {
-        const removingBookmarks = [];
-        for (const bookmark of bookmarks) {
-            openTab(bookmark, windowId, false);
-            removingBookmarks.push(removeNode(bookmark.id));
-        }
-        await Promise.all(removingBookmarks); // Remove bookmarks only
-    }
+    subfolders.length // If folder contains subfolders
+        ? await Promise.all( bookmarks.map(bookmark => removeNode(bookmark.id)) ) // remove each bookmark individually
+        : await browser.bookmarks.removeTree(folderId); // else remove entire folder
     nowUnstashing.delete(folderId);
 }
 
 async function readFolder(folderId) {
-    const nodes = await getChildNodes(folderId);
-    const bookmarks = nodes.filter(isBookmark);
-    const isAllBookmarks = !(nodes.length - bookmarks.length);
-    return { bookmarks, isAllBookmarks };
-}
-
-async function replaceInitTab({ windowId, initTabId }, bookmark, isFocused) {
-    await openTab(bookmark, windowId, isFocused);
-    browser.tabs.remove(initTabId);
+    const nodesByType = {
+        bookmark: [],
+        folder: [],
+    };
+    for (const node of await getChildNodes(folderId)) {
+        nodesByType[node.type]?.push(node);
+    }
+    return nodesByType;
 }
 
 // Open tab from bookmark
-const openTab = ({ url, title }, windowId, active) => Action.openTab({ discarded: true, url, title, windowId, active });
+function openTab({ url, title }, windowId) {
+    console.log('Unstashing', url);
+    return Action.openTab({ url, title, windowId, discarded: true });
+}
 
 
 /* --- */
