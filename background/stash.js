@@ -68,11 +68,24 @@ const getHomeContents = async () => (await browser.bookmarks.getSubTree(HOME_ID)
 export async function stash(windowId) {
     const name = Name.get(windowId);
     const tabs = await browser.tabs.query({ windowId });
-    closeWindow(windowId);
+    closeWindow(windowId); // Close window before starting any bookmark-related operations
+
     const folderId = (await getTargetFolder(name)).id;
     nowStashing.add(folderId);
     await saveTabs(tabs, folderId);
     nowStashing.delete(folderId);
+}
+
+
+async function closeWindow(windowId) {
+    await browser.windows.remove(windowId);
+    forgetRecentlyClosedWindow(); // Remove unnecessary entry in Recently Closed Windows
+}
+
+async function forgetRecentlyClosedWindow() {
+    const sessions = await browser.sessions.getRecentlyClosed({ maxResults: 1 });
+    const windowSession = sessions?.[0]?.window;
+    if (windowSession) browser.sessions.forgetClosedWindow(windowSession.sessionId);
 }
 
 //For a given name, return matching bookmarkless folder, otherwise return new folder.
@@ -86,28 +99,18 @@ async function getTargetFolder(name) {
     return createFolder(name);
 }
 
-async function closeWindow(windowId) {
-    await browser.windows.remove(windowId);
-    forgetLastClosedWindow(); // Avoid adding to the Recently Closed Windows list unnecessarily
-}
-
-async function forgetLastClosedWindow() {
-    const sessions = await browser.sessions.getRecentlyClosed({ maxResults: 1 });
-    const windowSession = sessions?.[0]?.window;
-    if (windowSession) browser.sessions.forgetClosedWindow(windowSession.sessionId);
-}
-
 async function saveTabs(tabs, folderId) {
     const count = tabs.length;
-    const properties = { parentId: folderId };
-    const savingBookmarks = new Array(count);
-    for (let i = count; i--;) { // Reverse iteration necessary for bookmarks to be in correct order
-        const tab = tabs[i];
-        properties.url = Action.deplaceholderize(tab.url);
-        properties.title = tab.title;
-        savingBookmarks[i] = createNode(properties);
-    }
-    await Promise.all(savingBookmarks);
+    const creatingBookmarks = new Array(count);
+    for (let i = count; i--;) // Reverse iteration necessary for bookmarks to be in correct order
+        creatingBookmarks[i] = createBookmark(tabs[i], folderId);
+    await Promise.all(creatingBookmarks);
+}
+
+async function createBookmark(tab, parentId) {
+    const url = Action.deplaceholderize(tab.url);
+    console.log('Stashing', url);
+    return createNode({ parentId, url, title: tab.title });
 }
 
 
