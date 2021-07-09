@@ -154,11 +154,7 @@ unstash.onWindowCreated = async windowId => {
     const { folderId, initTabId } = info;
     nowUnstashing.add(folderId);
     const { bookmarks, isAllBookmarks } = await readFolder(folderId);
-
-    // Handle initial tab
-    const firstBookmark = bookmarks.shift();
-    removeNode(firstBookmark.id); // If first tab will be focused, ensures address bar bookmark icon appears toggled off
-    await replaceInitTab(firstBookmark, windowId, initTabId);
+    handleInitTab(windowId, initTabId);
 
     // If folder contains only bookmarks, then remove entire folder tree later, otherwise remove each bookmark individually
     const removingBookmarks = isAllBookmarks ? null : [];
@@ -177,9 +173,13 @@ async function readFolder(folderId) {
     return { bookmarks, isAllBookmarks };
 }
 
-async function replaceInitTab(bookmark, windowId, initTabId) {
-    await openTab(bookmark, windowId);
-    browser.tabs.remove(initTabId);
+function handleInitTab(windowId, initTabId) {
+    browser.tabs.onCreated.addListener(onTabOpened);
+    function onTabOpened(tab) {
+        if (tab.windowId !== windowId) return;
+        browser.tabs.onCreated.removeListener(onTabOpened);
+        browser.tabs.remove(initTabId);
+    }
 }
 
 // Open tab from bookmark
