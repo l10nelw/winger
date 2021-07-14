@@ -57,9 +57,9 @@ async function onWindowCreated(window, isInit) {
     if (isInit) return;
 
     await Window.add([window]);
+    Action.selectFocusedTab(windowId);
     Menu?.update();
     Stash?.unstash.onWindowCreated(windowId);
-    Action.selectFocusedTab(windowId);
 }
 
 function onWindowRemoved(windowId) {
@@ -68,11 +68,8 @@ function onWindowRemoved(windowId) {
 }
 
 function onWindowFocused(windowId) {
-    if (isWindowBeingCreated(windowId)) return;
-    Window.winfoMap[windowId].lastFocused = Date.now();
+    if (windowId in Window.winfoMap) Window.winfoMap[windowId].lastFocused = Date.now();
 }
-
-const isWindowBeingCreated = windowId => !(windowId in Window.winfoMap);
 
 async function onRequest(request) {
     if (request.popup) return {
