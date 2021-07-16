@@ -68,7 +68,7 @@ function onWindowRemoved(windowId) {
 }
 
 function onWindowFocused(windowId) {
-    if (windowId in Window.winfoMap) Window.winfoMap[windowId].lastFocused = Date.now();
+    if (windowId in Window.winfoDict) Window.winfoDict[windowId].lastFocused = Date.now();
 }
 
 async function onRequest(request) {

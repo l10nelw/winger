@@ -1,14 +1,14 @@
 // Common actions involving windows and tabs.
 
 import { BRING, SEND } from '../modifier.js';
-import { winfoMap } from './window.js';
+import { winfoDict } from './window.js';
 import { SETTINGS } from './settings.js';
 
 export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash);
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
 export const switchWindow = windowId => browser.windows.update(windowId, { focused: true });
 
-const actionMap = {
+const actionDict = {
     bring:  bringTabs,
     send:   sendTabs,
     switch: switchWindow,
@@ -40,7 +40,7 @@ export async function execute({ windowId, originWindowId, action, modifiers, tab
     const reopen = !isSamePrivateStatus(windowId, originWindowId);
     tabs = tabs || await getSelectedTabs();
     action = modify(action, modifiers);
-    actionMap[action](windowId, tabs, reopen);
+    actionDict[action](windowId, tabs, reopen);
 }
 
 function modify(action, modifiers) {
@@ -134,7 +134,7 @@ const unpinTab  = tabId => browser.tabs.update(tabId, { pinned: false });
 const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
 const focusTab  = tabId => browser.tabs.update(tabId, { active: true });
 const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
-const isSamePrivateStatus = (windowId1, windowId2) => winfoMap[windowId1].incognito === winfoMap[windowId2].incognito;
+const isSamePrivateStatus = (windowId1, windowId2) => winfoDict[windowId1].incognito === winfoDict[windowId2].incognito;
 
 const READER_HEAD = 'about:reader?url=';
 const isReader = url => url.startsWith(READER_HEAD);

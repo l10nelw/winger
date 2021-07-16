@@ -1,8 +1,8 @@
 import * as Name from './name.js';
 
-export const winfoMap = {};
+export const winfoDict = {};
 
-export const sortedWinfos = () => Object.values(winfoMap).sort(compareLastFocused);
+export const sortedWinfos = () => Object.values(winfoDict).sort(compareLastFocused);
 const compareLastFocused = (a, b) => b.lastFocused - a.lastFocused;
 
 export async function add(windows) {
@@ -10,14 +10,14 @@ export async function add(windows) {
     for (const window of windows) {
         const windowId = window.id;
         windowIds.push(windowId);
-        winfoMap[windowId] = createWinfo(window);
-        winfoMap[windowId].defaultName = Name.createDefault(windowId);
+        winfoDict[windowId] = createWinfo(window);
+        winfoDict[windowId].defaultName = Name.createDefault(windowId);
     }
     await Promise.all(windowIds.map(Name.restoreGiven));
 }
 
 export function remove(windowId) {
-    delete winfoMap[windowId];
+    delete winfoDict[windowId];
 }
 
 function createWinfo({ id, incognito }) {
@@ -31,7 +31,7 @@ function createWinfo({ id, incognito }) {
 
 export function isOverOne() {
     let count = 0;
-    for (const _ in winfoMap) {
+    for (const _ in winfoDict) {
         if (++count === 2) return true;
     }
     return false;
