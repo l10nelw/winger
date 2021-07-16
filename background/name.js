@@ -1,4 +1,4 @@
-import { winfoMap } from './window.js';
+import { winfoDict } from './window.js';
 import * as Chrome from './chrome.js';
 
 const DEFAULT_HEAD = 'Window ';
@@ -7,7 +7,7 @@ let lastWindowNumber = 0;
 
 export async function restoreGiven(windowId) {
     const givenName = await browser.sessions.getWindowValue(windowId, 'givenName');
-    winfoMap[windowId].givenName = givenName ? uniquify(givenName) : '';
+    winfoDict[windowId].givenName = givenName ? uniquify(givenName) : '';
     propagate(windowId);
 }
 
@@ -20,7 +20,7 @@ export function createDefault(windowId) {
 }
 
 export function get(windowId) {
-    const winfo = winfoMap[windowId];
+    const winfo = winfoDict[windowId];
     return winfo.givenName || winfo.defaultName;
 }
 
@@ -32,7 +32,7 @@ export function set(windowId, name) {
         const conflictId = has(name, windowId);
         if (conflictId) return conflictId;
     }
-    winfoMap[windowId].givenName = name;
+    winfoDict[windowId].givenName = name;
     browser.sessions.setWindowValue(windowId, 'givenName', name);
     propagate(windowId);
     return 0;
@@ -61,9 +61,9 @@ export function uniquify(name, excludeId) {
 // Find window with given name, skipping window with id of excludeId.
 // Return id of matching window, otherwise return 0.
 function has(name, excludeId) {
-    for (const windowId in winfoMap) {
+    for (const windowId in winfoDict) {
         if (windowId == excludeId) continue;
-        const winfo = winfoMap[windowId];
+        const winfo = winfoDict[windowId];
         if (winfo.givenName === name || winfo.defaultName === name) return windowId;
     }
     return 0;

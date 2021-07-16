@@ -82,13 +82,13 @@ const row = {
     buttonCount: 0,
 
     removeCells(SETTINGS) {
-        const cellMap = {
+        const cellDict = {
             // setting:       selector
             show_popup_bring: '.bring',
             show_popup_send:  '.send',
             show_popup_edit:  '.edit',
         };
-        for (const [cell, selector] of Object.entries(cellMap)) {
+        for (const [cell, selector] of Object.entries(cellDict)) {
             if (SETTINGS[cell]) {
                 this.buttonCount++;
             } else {
@@ -134,12 +134,12 @@ const row = {
 
 const toolbar = {
     removeButtons(SETTINGS) {
-        const buttonMap = {
+        const buttonDict = {
             // setting:          selector
             show_popup_help:     '#help',
             show_popup_settings: '#settings',
         }
-        for (const [button, selector] of Object.entries(buttonMap)) {
+        for (const [button, selector] of Object.entries(buttonDict)) {
             if (!SETTINGS[button]) $toolbar.querySelector(selector).remove();
         }
     },
