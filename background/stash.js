@@ -153,11 +153,11 @@ unstash.onWindowCreated = async windowId => {
 
     const { folderId, initTabId } = info;
     nowUnstashing.add(folderId);
-    const { bookmarks, isAllBookmarks } = await readFolder(folderId);
+    const { bookmark: bookmarks, folder: subfolders } = await readFolder(folderId);
     handleInitTab(windowId, initTabId);
 
-    // If folder contains only bookmarks, then remove entire folder tree later, otherwise remove each bookmark individually
-    const removingBookmarks = isAllBookmarks ? null : [];
+    // If folder contains subfolders, then remove each bookmark individually, else remove entire folder later
+    const removingBookmarks = subfolders.length ? [] : null;
     for (const bookmark of bookmarks) {
         openTab(bookmark, windowId);
         removingBookmarks?.push(removeNode(bookmark.id));
@@ -167,10 +167,14 @@ unstash.onWindowCreated = async windowId => {
 }
 
 async function readFolder(folderId) {
-    const nodes = await getChildNodes(folderId);
-    const bookmarks = nodes.filter(isBookmark);
-    const isAllBookmarks = !(nodes.length - bookmarks.length);
-    return { bookmarks, isAllBookmarks };
+    const nodesByType = {
+        bookmark: [],
+        folder: [],
+    };
+    for (const node of await getChildNodes(folderId)) {
+        nodesByType[node.type]?.push(node);
+    }
+    return nodesByType;
 }
 
 function handleInitTab(windowId, initTabId) {
