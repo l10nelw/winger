@@ -151,18 +151,16 @@ unstash.onWindowCreated = async windowId => {
     const name = Name.uniquify(Name.validify(info.name), windowId);
     Name.set(windowId, name);
 
-    const { folderId, initTabId } = info;
+    const { folderId } = info;
     nowUnstashing.add(folderId);
     const { bookmark: bookmarks, folder: subfolders } = await readFolder(folderId);
-    handleInitTab(windowId, initTabId);
 
-    // If folder contains subfolders, then remove each bookmark individually, else remove entire folder later
-    const removingBookmarks = subfolders.length ? [] : null;
-    for (const bookmark of bookmarks) {
-        openTab(bookmark, windowId);
-        removingBookmarks?.push(removeNode(bookmark.id));
-    }
-    await (removingBookmarks ? Promise.all(removingBookmarks) : browser.bookmarks.removeTree(folderId));
+    await Promise.all( bookmarks.map(bookmark => openTab(bookmark, windowId)) );
+    browser.tabs.remove(info.initTabId);
+
+    subfolders.length // If folder contains subfolders
+        ? await Promise.all( bookmarks.map(bookmark => removeNode(bookmark.id)) ) // remove each bookmark individually
+        : await browser.bookmarks.removeTree(folderId); // else remove entire folder
     nowUnstashing.delete(folderId);
 }
 
@@ -177,19 +175,10 @@ async function readFolder(folderId) {
     return nodesByType;
 }
 
-function handleInitTab(windowId, initTabId) {
-    browser.tabs.onCreated.addListener(onTabOpened);
-    function onTabOpened(tab) {
-        if (tab.windowId !== windowId) return;
-        browser.tabs.onCreated.removeListener(onTabOpened);
-        browser.tabs.remove(initTabId);
-    }
-}
-
 // Open tab from bookmark
 function openTab({ url, title }, windowId) {
     console.log('Unstashing', url);
-    Action.openTab({ url, title, windowId, discarded: true });
+    return Action.openTab({ url, title, windowId, discarded: true });
 }
 
 
