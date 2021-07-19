@@ -3,8 +3,8 @@ import * as Action from './action.js';
 
 let HOME_ID;
 const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
-const nowStashing   = new Set();
-const nowUnstashing = new Set();
+const nowStashing   = new Set(); // folderIds
+const nowUnstashing = new Map(); // folderIds or windowIds
 
 
 /* --- INIT --- */
@@ -120,43 +120,34 @@ async function createBookmark(tab, parentId) {
 export async function unstash(nodeId) {
     const node = (await browser.bookmarks.get(nodeId))[0];
     switch (node.type) {
-        case 'bookmark':
-            // Open in current window; remove bookmark
+
+        case 'bookmark': // Open in current window; remove bookmark
             const currentWindow = await browser.windows.getLastFocused();
             openTab(node, currentWindow.id, true);
             removeNode(node.id);
             break;
-        case 'folder':
-            // Create and populate window; remove bookmarks and also folder if emptied
-            unstash.info = unstash.createWindow(node);
+
+        case 'folder': // Create and populate window; remove bookmarks and also folder if emptied
+            const window = await browser.windows.create();
+            nowUnstashing.set(window.id, {
+                folderId:  node.id,
+                name:      node.title,
+                initTabId: window.tabs[0].id,
+            });
+            // Let onWindowCreated() in background.js trigger the rest of the unstash process
     }
 }
 
-// Create window and let onWindowCreated() in background.js trigger the rest of the unstash process.
-unstash.createWindow = async folder => {
-    const window = await browser.windows.create();
-    return {
-        windowId:  window.id,
-        initTabId: window.tabs[0].id,
-        folderId:  folder.id,
-        name:      folder.title,
-    };
-}
-
 unstash.onWindowCreated = async windowId => {
-    const info = await unstash.info;
-    if (windowId !== info?.windowId) return;
-    delete unstash.info;
+    if (!nowUnstashing.has(windowId)) return;
+    const { folderId, name, initTabId } = nowUnstashing.get(windowId);
+    Name.set(windowId, Name.uniquify(Name.validify(name), windowId));
 
-    const name = Name.uniquify(Name.validify(info.name), windowId);
-    Name.set(windowId, name);
-
-    const { folderId } = info;
-    nowUnstashing.add(folderId);
+    nowUnstashing.set(folderId);
     const { bookmark: bookmarks, folder: subfolders } = await readFolder(folderId);
-
     await Promise.all( bookmarks.map(bookmark => openTab(bookmark, windowId)) );
-    browser.tabs.remove(info.initTabId);
+    browser.tabs.remove(initTabId);
+    nowUnstashing.delete(windowId);
 
     subfolders.length // If folder contains subfolders
         ? await Promise.all( bookmarks.map(bookmark => removeNode(bookmark.id)) ) // remove each bookmark individually
