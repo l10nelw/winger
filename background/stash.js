@@ -89,15 +89,19 @@ async function forgetRecentlyClosedWindow() {
     if (windowSession) browser.sessions.forgetClosedWindow(windowSession.sessionId);
 }
 
-//For a given name, return matching bookmarkless folder, otherwise return new folder.
+// For a given name, return matching bookmarkless folder, otherwise return new folder.
 async function getTargetFolder(name) {
     const isMapEmpty = !folderMap.size;
     if (isMapEmpty) await folderMap.populate();
-    for (const [, folder] of folderMap) {
-        if (folder.title === name && !folder.bookmarkCount) return folder; // Existing folder with same name and has no bookmarks
-    }
+    const folder = findBookmarklessFolder(name);
     if (isMapEmpty) folderMap.clear();
-    return createFolder(name);
+    return folder || createFolder(name);
+}
+
+function findBookmarklessFolder(name) {
+    for (const folder of folderMap.values()) {
+        if (folder.title === name && !folder.bookmarkCount) return folder;
+    }
 }
 
 async function saveTabs(tabs, folderId) {
