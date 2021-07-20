@@ -107,11 +107,10 @@ function movablePinnedTabs(tabs) {
 }
 
 // Create a tab with given properties, or a placeholder tab if properties.url is invalid.
-// Less strict than tabs.create(): properties can contain some invalid combinations, which are automatically fixed.
+// Less strict than tabs.create(): properties can contain invalid properties or combinations, which are automatically removed or fixed.
 export function openTab(properties) {
     const { url, title } = properties;
-
-    if (properties.active || url.startsWith('about:')) delete properties.discarded;
+    if (properties.active || properties.pinned || url.startsWith('about:')) delete properties.discarded;
     if (!properties.discarded) delete properties.title;
 
     if (url === 'about:newtab') delete properties.url;
@@ -121,8 +120,15 @@ export function openTab(properties) {
         properties.openInReaderMode = true;
     }
 
+    for (const property in properties) {
+        if (!CREATE_TAB_PROPERTIES.has(property)) delete properties[property];
+    }
     return browser.tabs.create(properties).catch(() => openPlaceholderTab(properties, title));
 }
+
+const CREATE_TAB_PROPERTIES = new Set(
+    ['active', 'cookieStoreId', 'discarded', 'index', 'openerTabId', 'openInReaderMode', 'pinned', 'title', 'url', 'windowId']
+);
 
 function openPlaceholderTab(properties, title) {
     properties.url = buildPlaceholderURL(properties.url, title);
