@@ -67,6 +67,7 @@ const getHomeContents = async () => (await browser.bookmarks.getSubTree(HOME_ID)
 // Create folder if nonexistent, save tabs as bookmarks in folder, and close window.
 export async function stash(windowId) {
     const name = Name.get(windowId);
+    console.log('Stashing', name);
     const tabs = await browser.tabs.query({ windowId });
     closeWindow(windowId); // Close window before starting any bookmark-related operations
 
@@ -109,8 +110,9 @@ async function saveTabs(tabs, folderId) {
 
 async function createBookmark(tab, parentId) {
     const url = Action.deplaceholderize(tab.url);
-    console.log('Stashing', url);
-    return createNode({ parentId, url, title: tab.title });
+    const { title } = tab;
+    console.log('Stashing', url, '|', title);
+    return createNode({ parentId, url, title });
 }
 
 
@@ -141,6 +143,7 @@ export async function unstash(nodeId) {
 unstash.onWindowCreated = async windowId => {
     if (!nowUnstashing.has(windowId)) return;
     const { folderId, name, initTabId } = nowUnstashing.get(windowId);
+    console.log('Unstashing', name);
     Name.set(windowId, Name.uniquify(Name.validify(name), windowId));
 
     nowUnstashing.set(folderId);
@@ -168,7 +171,7 @@ async function readFolder(folderId) {
 
 // Open tab from bookmark
 function openTab({ url, title }, windowId) {
-    console.log('Unstashing', url);
+    console.log('Unstashing', url, '|', title);
     return Action.openTab({ url, title, windowId, discarded: true });
 }
 
