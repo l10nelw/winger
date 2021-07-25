@@ -77,7 +77,7 @@ async function onRequest(request) {
         winfos:           Window.sortedWinfos(),
         selectedTabCount: (await Action.getSelectedTabs()).length,
     };
-    if (request.stash)   return Stash.stash(request.stash);
+    if (request.stash)   return Stash.stash(request.stash, request.close);
     if (request.action)  return Action.execute(request);
     if (request.help)    return Action.openHelp();
     if (request.setName) return Name.set(request.setName, request.name);
