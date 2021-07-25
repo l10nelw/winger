@@ -10,8 +10,8 @@ const NON_COMPLETING_KEYS = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowR
 export const commands = {
     help:     Toolbar.help,
     settings: Toolbar.settings,
-    edit:     EditMode.activate,
-    stash:    Request.stash,
+    edit:     () => EditMode.activate(),
+    stash:    (event) => Request.stash(undefined, !event.shiftKey),
 };
 
 export function handleKeyUp(key, event) {
@@ -36,7 +36,7 @@ function handleSlashed(key, event, str, enter) {
     if (enter) {
         clear();
         if (handleDebugCommand(str)) return;
-        if (command) commands[command]();
+        if (command) commands[command](event);
     }
 }
 

@@ -17,6 +17,6 @@ export function handleHide() {
 export function handleClick(info) {
     const nodeId = info.bookmarkId;
     if (!nodeId) return false; // Not bookmark menu; not handled
-    unstash(nodeId);
+    unstash(nodeId, !info.modifiers.includes('Shift'));
     return true;
 }

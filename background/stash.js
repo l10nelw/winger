@@ -64,19 +64,18 @@ const getHomeContents = async () => (await browser.bookmarks.getSubTree(HOME_ID)
 /* --- STASH WINDOW --- */
 
 // Turn window/tabs into folder/bookmarks.
-// Create folder if nonexistent, save tabs as bookmarks in folder, and close window.
-export async function stash(windowId) {
+// Create folder if nonexistent, save tabs as bookmarks in folder. Close window if remove is true.
+export async function stash(windowId, remove = true) {
     const name = Name.get(windowId);
     console.log('Stashing', name);
     const tabs = await browser.tabs.query({ windowId });
-    closeWindow(windowId); // Close window before starting any bookmark-related operations
+    if (remove) closeWindow(windowId);
 
     const folderId = (await getTargetFolder(name)).id;
     nowStashing.add(folderId);
     await saveTabs(tabs, folderId);
     nowStashing.delete(folderId);
 }
-
 
 async function closeWindow(windowId) {
     await browser.windows.remove(windowId);
@@ -122,23 +121,24 @@ async function createBookmark(tab, parentId) {
 
 /* --- UNSTASH WINDOW --- */
 
-// Turn folder/bookmarks into window/tabs.
-export async function unstash(nodeId) {
+// Turn folder/bookmarks into window/tabs. Delete folder/bookmarks if remove is true.
+export async function unstash(nodeId, remove = true) {
     const node = (await browser.bookmarks.get(nodeId))[0];
     switch (node.type) {
 
-        case 'bookmark': // Open in current window; remove bookmark
+        case 'bookmark':
             const currentWindow = await browser.windows.getLastFocused();
             openTab(node, currentWindow.id, true);
-            removeNode(node.id);
+            if (remove) removeNode(node.id);
             break;
 
-        case 'folder': // Create and populate window; remove bookmarks and also folder if emptied
+        case 'folder':
             const window = await browser.windows.create();
             nowUnstashing.set(window.id, {
                 folderId:  node.id,
                 name:      node.title,
                 initTabId: window.tabs[0].id,
+                remove,
             });
             // Let onWindowCreated() in background.js trigger the rest of the unstash process
     }
@@ -146,7 +146,7 @@ export async function unstash(nodeId) {
 
 unstash.onWindowCreated = async windowId => {
     if (!nowUnstashing.has(windowId)) return;
-    const { folderId, name, initTabId } = nowUnstashing.get(windowId);
+    const { folderId, name, initTabId, remove } = nowUnstashing.get(windowId);
     console.log('Unstashing', name);
     Name.set(windowId, Name.uniquify(Name.validify(name), windowId));
 
@@ -156,9 +156,11 @@ unstash.onWindowCreated = async windowId => {
     browser.tabs.remove(initTabId);
     nowUnstashing.delete(windowId);
 
-    subfolders.length // If folder contains subfolders
+    if (remove) {
+        subfolders.length // If folder contains subfolders
         ? await Promise.all( bookmarks.map(bookmark => removeNode(bookmark.id)) ) // remove each bookmark individually
         : await browser.bookmarks.removeTree(folderId); // else remove entire folder
+    }
     nowUnstashing.delete(folderId);
 }
 

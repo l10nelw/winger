@@ -33,8 +33,9 @@ export function setName(windowId, name) {
     return sendMessage({ setName: windowId, name });
 }
 
-export function stash(windowId = $currentWindowRow._id) {
-    sendMessage({ stash: windowId });
+export function stash(windowId = $currentWindowRow._id, close) {
+    sendMessage({ stash: windowId, close });
+    window.close();
 }
 
 export function debug() {
