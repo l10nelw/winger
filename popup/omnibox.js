@@ -5,10 +5,13 @@ import * as EditMode from './editmode.js';
 import * as Filter from './filter.js';
 import * as Request from './request.js';
 
+const NON_COMPLETING_KEYS = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Control', 'Shift', 'Alt']);
+
 export const commands = {
     help:     Toolbar.help,
     settings: Toolbar.settings,
     edit:     EditMode.activate,
+    stash:    Request.stash,
 };
 
 export function handleKeyUp(key, event) {
@@ -27,7 +30,7 @@ export function handleKeyUp(key, event) {
 
 function handleSlashed(key, event, str, enter) {
     let command;
-    if (!( nonCompletingKeys.has(key) || event.ctrlKey || event.altKey )) {
+    if (!( NON_COMPLETING_KEYS.has(key) || event.ctrlKey || event.altKey )) {
         command = completeCommand(str);
     }
     if (enter) {
@@ -36,8 +39,6 @@ function handleSlashed(key, event, str, enter) {
         if (command) commands[command]();
     }
 }
-
-const nonCompletingKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Control', 'Shift', 'Alt']);
 
 // Autocomplete a command based on str, case-insensitive. Returns command, or undefined if no command found.
 function completeCommand(str) {

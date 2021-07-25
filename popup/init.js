@@ -16,9 +16,7 @@ export default () => Request.popup().then(onSuccess).catch(onError);
 function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
     row.removeCells(SETTINGS);
     toolbar.removeButtons(SETTINGS);
-    if (SETTINGS.enable_stash) {
-        Omnibox.commands.stash = Request.stash;
-    }
+    if (!SETTINGS.enable_stash) delete Omnibox.commands.stash;
 
     populate(winfos);
     const $currentWindowRow = $currentWindowList.firstElementChild;
