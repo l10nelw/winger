@@ -129,7 +129,7 @@ export async function unstash(nodeId, remove = true) {
 
         case 'bookmark':
             const currentWindow = await browser.windows.getLastFocused();
-            openTab(node, currentWindow.id, true);
+            openTab({ url: node.url, ...State.readTitle(node.title) }, currentWindow.id);
             if (remove) removeNode(node.id);
             break;
 
@@ -179,7 +179,8 @@ async function readFolder(folderId) {
 // Open tab from bookmark
 function openTab({ url, title }, windowId) {
     console.log('Unstashing', url, '|', title);
-    return Action.openTab({ url, title, windowId, discarded: true });
+    const properties = State.readTitle(title) || { title };
+    return Action.openTab({ url, windowId, discarded: true, ...properties });
 }
 
 
