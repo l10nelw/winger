@@ -1,5 +1,6 @@
 import * as Name from './name.js';
 import * as Action from './action.js';
+import * as State from './stash.state.js';
 
 let HOME_ID;
 const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
@@ -111,10 +112,10 @@ async function saveTabs(tabs, folderId) {
     await Promise.all(creatingBookmarks);
 }
 
-async function createBookmark(tab, parentId) {
+function createBookmark(tab, parentId) {
     const url = Action.deplaceholderize(tab.url);
-    const { title } = tab;
-    console.log('Stashing', url, '|', title);
+    console.log('Stashing', url, '|', tab.title);
+    const title = State.writeTabTitle(tab, parentId);
     return createNode({ parentId, url, title });
 }
 
