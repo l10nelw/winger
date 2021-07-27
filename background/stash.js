@@ -3,8 +3,7 @@ import * as Action from './action.js';
 
 let HOME_ID;
 const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
-const nowStashing   = new Set(); // folderIds
-const nowUnstashing = new Map(); // folderIds or windowIds
+const nowProcessing = new Map(); // Ids of windows and folders currently being stashed or unstashed
 
 
 /* --- INIT --- */
@@ -52,7 +51,7 @@ folderMap.populate = async () => {
             case 'separator': return; // Stop at first separator from the end
             case 'folder':
                 const { id, title } = node;
-                const bookmarkCount = nowUnstashing.has(id) ? 0 : node.children.filter(isBookmark).length;
+                const bookmarkCount = nowProcessing.has(id) ? 0 : node.children.filter(isBookmark).length;
                 folderMap.set(id, { id, title, bookmarkCount });
         }
     }
@@ -72,9 +71,9 @@ export async function stash(windowId, remove = true) {
     if (remove) closeWindow(windowId);
 
     const folderId = (await getTargetFolder(name)).id;
-    nowStashing.add(folderId);
+    nowProcessing.set(folderId);
     await saveTabs(tabs, folderId);
-    nowStashing.delete(folderId);
+    nowProcessing.delete(folderId);
 }
 
 async function closeWindow(windowId) {
@@ -134,7 +133,7 @@ export async function unstash(nodeId, remove = true) {
 
         case 'folder':
             const window = await browser.windows.create();
-            nowUnstashing.set(window.id, {
+            nowProcessing.set(window.id, {
                 folderId:  node.id,
                 name:      node.title,
                 initTabId: window.tabs[0].id,
@@ -145,23 +144,23 @@ export async function unstash(nodeId, remove = true) {
 }
 
 unstash.onWindowCreated = async windowId => {
-    if (!nowUnstashing.has(windowId)) return;
-    const { folderId, name, initTabId, remove } = nowUnstashing.get(windowId);
+    if (!nowProcessing.has(windowId)) return;
+    const { folderId, name, initTabId, remove } = nowProcessing.get(windowId);
     console.log('Unstashing', name);
     Name.set(windowId, Name.uniquify(Name.validify(name), windowId));
 
-    nowUnstashing.set(folderId);
+    nowProcessing.set(folderId);
     const { bookmark: bookmarks, folder: subfolders } = await readFolder(folderId);
     await Promise.all( bookmarks.map(bookmark => openTab(bookmark, windowId)) );
     browser.tabs.remove(initTabId);
-    nowUnstashing.delete(windowId);
+    nowProcessing.delete(windowId);
 
     if (remove) {
         subfolders.length // If folder contains subfolders
         ? await Promise.all( bookmarks.map(bookmark => removeNode(bookmark.id)) ) // remove each bookmark individually
         : await browser.bookmarks.removeTree(folderId); // else remove entire folder
     }
-    nowUnstashing.delete(folderId);
+    nowProcessing.delete(folderId);
 }
 
 async function readFolder(folderId) {
@@ -185,7 +184,7 @@ function openTab({ url, title }, windowId) {
 /* --- */
 
 export const canUnstash = async nodeId =>
-    !( isRootId(nodeId) || nowStashing.has(nodeId) || nowUnstashing.has(nodeId) || isSeparator(await getNode(nodeId)) );
+    !( isRootId(nodeId) || nowProcessing.has(nodeId) || isSeparator(await getNode(nodeId)) );
 
 const isRootId    = nodeId => ROOT_IDS.has(nodeId);
 const isSeparator = node => node.type === 'separator';
