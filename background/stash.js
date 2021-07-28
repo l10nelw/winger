@@ -128,7 +128,8 @@ export async function unstash(nodeId, remove = true) {
 
         case 'bookmark':
             const currentWindow = await browser.windows.getLastFocused();
-            openTab({ url: node.url, ...State.readTitle(node.title) }, currentWindow.id);
+            const { url, title } = node;
+            openTab({ url, title, ...State.readTitle(title), windowId: currentWindow.id });
             if (remove) removeNode(node.id);
             break;
 
@@ -152,8 +153,11 @@ unstash.onWindowCreated = async windowId => {
 
     nowProcessing.set(folderId);
     const { bookmark: bookmarks, folder: subfolders } = await readFolder(folderId);
-    await Promise.all( bookmarks.map(bookmark => openTab(bookmark, windowId)) );
+    const protoTabs = bookmarks.map(({ url, title }) => ({ url, title, ...State.readTitle(title), windowId, discarded: true }));
+    const tabMap = new State.UntashedTabMap();
+    await Promise.all( protoTabs.map(protoTab => openTab(protoTab, tabMap)) );
     browser.tabs.remove(initTabId);
+    tabMap.restoreParents();
     nowProcessing.delete(windowId);
 
     if (remove) {
@@ -175,11 +179,11 @@ async function readFolder(folderId) {
     return nodesByType;
 }
 
-// Open tab from bookmark
-function openTab({ url, title }, windowId) {
-    console.log('Unstashing', url, '|', title);
-    const properties = State.readTitle(title) || { title };
-    return Action.openTab({ url, windowId, discarded: true, ...properties });
+async function openTab(protoTab, tabMap) {
+    console.log('Unstashing', protoTab.url, '|', protoTab.title);
+    const tab = await Action.openTab(protoTab);
+    tabMap?.addTab(tab, protoTab);
+    return tab;
 }
 
 

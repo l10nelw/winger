@@ -49,3 +49,24 @@ export function readTitle(title) {
 
     return properties;
 }
+
+
+/* --- UNSTASH: Restore tabs' openerTabId --- */
+
+export class UntashedTabMap extends Map {
+
+    addTab(tab, protoTab) {
+        const { id } = tab;
+        const { stashedId, stashedParentId } = protoTab;
+        this.set((stashedId || id), { id, stashedParentId }); // Key doesn't matter, just use id if missing stashedId ("id=")
+    }
+
+    restoreParents() {
+        for (const { id, stashedParentId } of this.values()) {
+            if (!stashedParentId) continue;
+            const openerTabId = this.get(stashedParentId).id;
+            if (openerTabId) browser.tabs.update(id, { openerTabId });
+        }
+        this.clear();
+    }
+}
