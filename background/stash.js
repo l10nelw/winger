@@ -104,17 +104,18 @@ function findBookmarklessFolder(name) {
 }
 
 async function saveTabs(tabs, folderId) {
+    const containerDict = await State.getContainerDict(tabs);
     const count = tabs.length;
     const creatingBookmarks = new Array(count);
     for (let i = count; i--;) // Reverse iteration necessary for bookmarks to be in correct order
-        creatingBookmarks[i] = createBookmark(tabs[i], folderId);
+        creatingBookmarks[i] = createBookmark(tabs[i], folderId, containerDict);
     await Promise.all(creatingBookmarks);
 }
 
-function createBookmark(tab, parentId) {
+function createBookmark(tab, parentId, containerDict) {
     const url = Action.deplaceholderize(tab.url);
     console.log('Stashing', url, '|', tab.title);
-    const title = State.writeTabTitle(tab, parentId);
+    const title = State.writeTabTitle(tab, parentId, containerDict);
     return createNode({ parentId, url, title });
 }
 

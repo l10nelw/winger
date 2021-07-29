@@ -11,7 +11,9 @@
     "sessions",
     "storage",
     "tabs",
-    "menus"
+    "menus",
+    "cookies",
+    "contextualIdentities"
   ],
   "optional_permissions": [
     "bookmarks"
