@@ -143,7 +143,9 @@ export async function unstash(nodeId, remove = true) {
 async function unstashTab(node, remove) {
     const currentWindow = await browser.windows.getLastFocused();
     const { url, title } = node;
-    openTab({ url, title, ...State.readTitle(title), windowId: currentWindow.id });
+    const protoTab = { url, title, ...State.readTitle(title), windowId: currentWindow.id };
+    await State.restoreContainers([protoTab]);
+    openTab(protoTab);
     if (remove) removeNode(node.id);
 }
 
@@ -157,6 +159,7 @@ unstash.onWindowCreated = async windowId => {
     const { bookmark: bookmarks, folder: subfolders } = await readFolder(folderId);
     const protoTabs = bookmarks.map(({ url, title }) => ({ url, title, ...State.readTitle(title), windowId, discarded: true }));
     const tabMap = new State.UntashedTabMap();
+    await State.restoreContainers(protoTabs);
     await Promise.all( protoTabs.map(protoTab => openTab(protoTab, tabMap)) );
     browser.tabs.remove(initTabId);
     tabMap.restoreParents();

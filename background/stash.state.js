@@ -1,3 +1,5 @@
+import { GroupMap } from '../utils.js';
+
 const PREFACE = '/ｗ?';
 const NON_CONTAINER_ID = 'firefox-default';
 
@@ -47,7 +49,6 @@ export async function getContainerDict(tabs) {
 
 async function getContainerIdName(cookieStoreId) {
     const container = await browser.contextualIdentities.get(cookieStoreId).catch(() => null);
-    console.log('container', container);
     if (container) return [cookieStoreId, encodeURIComponent(container.name)];
 }
 
@@ -59,6 +60,7 @@ const paramToProp = {
     focused:   () => ({ active: true }),
     id:        (stashedId) => ({ stashedId }),
     parent:    (stashedId) => ({ stashedParentId: stashedId }),
+    container: (containerName) => ({ container: containerName }),
 };
 
 // Get properties, including state, for tab creation (a protoTab).
@@ -76,6 +78,38 @@ export function readTitle(title) {
     }
 
     return properties;
+}
+
+// In protoTabs, convert container names to cookieStoreIds.
+export async function restoreContainers(protoTabs) {
+
+    // Find any containers and note protoTabs that belong to each container
+    const containerNameIndexMap = new GroupMap();
+    protoTabs.forEach((protoTab, index) => {
+        const name = protoTab.container;
+        if (name) containerNameIndexMap.group(index, name);
+    });
+
+    // Get all relevant cookieStoreIds at once
+    const containerNameIdDict = Object.fromEntries(
+        (await Promise.all(
+            [...containerNameIndexMap.keys()].map(getContainerNameId)
+        ))
+        .filter(Boolean)
+    );
+
+    // Assign correct cookieStoreId to each container's protoTabs
+    for (const [name, indexes] of containerNameIndexMap.entries()) {
+        const containerId = containerNameIdDict[name];
+        for (const i of indexes) {
+            protoTabs[i].cookieStoreId = containerId;
+        }
+    }
+}
+
+async function getContainerNameId(name) {
+    const container = (await browser.contextualIdentities.query({ name: decodeURIComponent(name) }))[0];
+    if (container) return [name, container.cookieStoreId];
 }
 
 
