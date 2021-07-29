@@ -108,8 +108,12 @@ export async function restoreContainers(protoTabs) {
 }
 
 async function getContainerNameId(name) {
-    const container = (await browser.contextualIdentities.query({ name: decodeURIComponent(name) }))[0];
-    if (container) return [name, container.cookieStoreId];
+    try {
+        const container =
+            (await browser.contextualIdentities.query({ name: decodeURIComponent(name) }))[0] ||
+            await browser.contextualIdentities.create({ name, color: 'toolbar', icon: 'circle' });
+        return [name, container.cookieStoreId];
+    } catch {}
 }
 
 
