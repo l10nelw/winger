@@ -123,24 +123,25 @@ async function createBookmark(tab, parentId) {
 // Turn folder/bookmarks into window/tabs. Delete folder/bookmarks if remove is true.
 export async function unstash(nodeId, remove = true) {
     const node = (await browser.bookmarks.get(nodeId))[0];
-    switch (node.type) {
 
-        case 'bookmark':
-            const currentWindow = await browser.windows.getLastFocused();
-            openTab(node, currentWindow.id, true);
-            if (remove) removeNode(node.id);
-            break;
+    if (isBookmark(node)) return unstashTab(node, remove);
 
-        case 'folder':
-            const window = await browser.windows.create();
-            nowProcessing.set(window.id, {
-                folderId:  node.id,
-                name:      node.title,
-                initTabId: window.tabs[0].id,
-                remove,
-            });
-            // Let onWindowCreated() in background.js trigger the rest of the unstash process
+    if (isFolder(node)) {
+        const window = await browser.windows.create();
+        nowProcessing.set(window.id, {
+            folderId:  node.id,
+            name:      node.title,
+            initTabId: window.tabs[0].id,
+            remove,
+        });
+        // Let onWindowCreated() in background.js trigger the rest of the unstash process
     }
+}
+
+async function unstashTab(node, remove) {
+    const currentWindow = await browser.windows.getLastFocused();
+    openTab(node, currentWindow.id, true);
+    if (remove) removeNode(node.id);
 }
 
 unstash.onWindowCreated = async windowId => {
