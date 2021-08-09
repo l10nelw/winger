@@ -68,23 +68,12 @@ export async function stash(windowId, remove = true) {
     const name = Name.get(windowId);
     console.log('Stashing', name);
     const tabs = await browser.tabs.query({ windowId });
-    if (remove) closeWindow(windowId);
+    if (remove) browser.windows.remove(windowId);
 
     const folderId = (await getTargetFolder(name)).id;
     nowProcessing.set(folderId);
     await saveTabs(tabs, folderId);
     nowProcessing.delete(folderId);
-}
-
-async function closeWindow(windowId) {
-    await browser.windows.remove(windowId);
-    forgetRecentlyClosedWindow(); // Remove unnecessary entry in Recently Closed Windows
-}
-
-async function forgetRecentlyClosedWindow() {
-    const sessions = await browser.sessions.getRecentlyClosed({ maxResults: 1 });
-    const windowSession = sessions?.[0]?.window;
-    if (windowSession) browser.sessions.forgetClosedWindow(windowSession.sessionId);
 }
 
 // For a given name, return matching bookmarkless folder, otherwise return new folder.
@@ -175,7 +164,6 @@ async function readFolder(folderId) {
     return nodesByType;
 }
 
-// Open tab from bookmark
 function openTab({ url, title }, windowId) {
     console.log('Unstashing', url, '|', title);
     return Action.openTab({ url, title, windowId, discarded: true });
