@@ -8,6 +8,7 @@
     --bgc-rowbtn: #d0d0d0;
     --fgc-base: black;
     --fgc-muted: #555;
+    --border-radius: 8px;
     --borderc-base: #ccc;
     --borderc-focus: #4a90d9;
     --bgc-slashinput: #ff6;
@@ -29,22 +30,9 @@
     user-select: none;
 }
 
-.popup-point::before,
-.popup-point::after {
-    content: "";
-    position: absolute;
-    right: .25rem;
-    border-left: .7rem solid transparent;
-    border-right: .7rem solid transparent;
-}
-.popup-point::before {
-    top: -.7rem;
-    border-bottom: .7rem solid var(--borderc-base);
-}
-.popup-point::after {
-    top: calc(-.7rem + 1px);
-    border-bottom: .7rem solid var(--bgc-base);
-}
+.popup-rounded { border-radius: var(--border-radius); }
+.popup-rounded .popup-tool:first-of-type { border-bottom-left-radius: var(--border-radius); }
+.popup-rounded .popup-tool:last-of-type { border-bottom-right-radius: var(--border-radius); }
 
 .popup-row,
 .popup-input {
@@ -144,13 +132,8 @@
     margin-right: .2rem;
 }
 
-.popup-tool.help {
-    background-color: #3a3;
-}
-
-.popup-tool.settings {
-    background-color: #06f;
-}
+.popup-tool.help { background-color: #3a3; }
+.popup-tool.settings { background-color: #06f; }
 
 
 /* Utilities */
