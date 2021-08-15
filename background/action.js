@@ -35,12 +35,11 @@ export async function selectFocusedTab(windowId) {
     browser.tabs.highlight({ windowId, tabs: [tab.index], populate: false }); // Select focused tab to deselect other tabs
 }
 
-// Given `windowId`, select action to execute based on `action` and `modifiers`.
-export async function execute({ windowId, originWindowId, action, modifiers, tabs }) {
-    const reopen = !isSamePrivateStatus(windowId, originWindowId);
+// Select action to execute based on `action` and `modifiers`.
+export async function execute({ action, modifiers, windowId, tabs }) {
     tabs = tabs || await getSelectedTabs();
     action = modify(action, modifiers);
-    actionDict[action](windowId, tabs, reopen);
+    actionDict[action](windowId, tabs);
 }
 
 function modify(action, modifiers) {
@@ -50,11 +49,13 @@ function modify(action, modifiers) {
            action;
 }
 
-async function bringTabs(windowId, tabs, reopen) {
-    if (await sendTabs(windowId, tabs, reopen)) switchWindow(windowId);
+async function bringTabs(windowId, tabs) {
+    if (await sendTabs(windowId, tabs)) switchWindow(windowId);
 }
 
-async function sendTabs(windowId, tabs, reopen) {
+async function sendTabs(windowId, tabs) {
+    const originWindowId = tabs[0].windowId;
+    const reopen = !isSamePrivateStatus(originWindowId, windowId);
     return await (reopen ? reopenTabs : moveTabs)(windowId, tabs);
 }
 
