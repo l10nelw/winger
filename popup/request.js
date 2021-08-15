@@ -23,7 +23,6 @@ export function action(event, $action = event.target) {
     sendMessage({
         action,
         windowId,
-        originWindowId: $currentWindowRow._id,
         modifiers: getModifiers(event),
     });
     window.close();
