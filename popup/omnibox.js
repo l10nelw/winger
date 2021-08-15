@@ -7,10 +7,14 @@ import * as Request from './request.js';
 
 const NON_COMPLETING_KEYS = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Control', 'Shift', 'Alt']);
 
+const editCurrentWindow = () => EditMode.activate();
+
 export const commands = {
     help:     Toolbar.help,
     settings: Toolbar.settings,
-    edit:     () => EditMode.activate(),
+    options:  Toolbar.settings,
+    edit:     editCurrentWindow,
+    name:     editCurrentWindow,
     stash:    (event) => Request.stash(undefined, !event.shiftKey),
 };
 
