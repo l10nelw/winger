@@ -80,6 +80,7 @@ async function onRequest(request) {
     if (request.stash)   return Stash.stash(request.stash, request.close);
     if (request.action)  return Action.execute(request);
     if (request.help)    return Action.openHelp();
+    if (request.pop)     return Action.pop(request.incognito);
     if (request.setName) return Name.set(request.setName, request.name);
     if (request.debug)   return debug();
 }

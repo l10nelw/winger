@@ -28,6 +28,10 @@ export function action(event, $action = event.target) {
     window.close();
 }
 
+export function pop(incognito) {
+    sendMessage({ pop: true, incognito });
+}
+
 export function setName(windowId, name) {
     return sendMessage({ setName: windowId, name });
 }

@@ -10,12 +10,14 @@ const NON_COMPLETING_KEYS = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowR
 const editCurrentWindow = () => EditMode.activate();
 
 export const commands = {
-    help:     Toolbar.help,
-    settings: Toolbar.settings,
-    options:  Toolbar.settings,
-    edit:     editCurrentWindow,
-    name:     editCurrentWindow,
-    stash:    (event) => Request.stash(undefined, !event.shiftKey),
+    help:       Toolbar.help,
+    settings:   Toolbar.settings,
+    options:    Toolbar.settings,
+    edit:       editCurrentWindow,
+    name:       editCurrentWindow,
+    pop:        () => Request.pop(),
+    popprivate: () => Request.pop(true),
+    stash:      (event) => Request.stash(undefined, !event.shiftKey),
 };
 
 export function handleKeyUp(key, event) {

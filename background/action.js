@@ -49,6 +49,22 @@ function modify(action, modifiers) {
            action;
 }
 
+// Create a new window containing currently selected tabs.
+export async function pop(incognito) {
+    const [tabs, window] = await Promise.all([
+        browser.tabs.query({ currentWindow: true }),
+        browser.windows.create({ incognito, focused: false }),
+    ]);
+    const selectedTabs = tabs.filter(tab => tab.highlighted);
+    if (selectedTabs.length === tabs.length) {
+        await browser.tabs.create({ windowId: tabs[0].windowId }); // Prevents origin window from closing
+    }
+    const windowId = window.id;
+    const initTabId = window.tabs[0].id;
+    await bringTabs(windowId, selectedTabs);
+    browser.tabs.remove(initTabId);
+}
+
 async function bringTabs(windowId, tabs) {
     if (await sendTabs(windowId, tabs)) switchWindow(windowId);
 }
