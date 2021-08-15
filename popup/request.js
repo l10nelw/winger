@@ -15,19 +15,22 @@ export function help() {
     sendMessage({ help: true });
 }
 
-// Gather action parameters from event and $action element. Request only if action and windowId found.
-//@ (Object, Object) -> state|nil
-export function action(event, $action = event.target) {
-    const $row = $action.$row || $action;
-    const windowId = $row._id;
-    if (!windowId) return;
-    const action = $action.dataset.action || $row.dataset.action;
-    if (!action) return;
-    sendMessage({
-        action,
-        windowId,
-        modifiers: getModifiers(event),
-    });
+// Gather action parameters from event and action element or action string. Proceed only if action found.
+//@ (Object, String|Object) -> state|nil
+export function action(event, action) {
+    const request = {};
+    if (typeof action === 'string') {
+        request.action = action;
+    } else {
+        // action is an element
+        const $row = action.$row || action;
+        request.windowId = $row._id;
+        request.action = action.dataset.action || $row.dataset.action;
+    }
+    if (!request.action)
+        return;
+    request.modifiers = getModifiers(event);
+    sendMessage(request);
     window.close();
 }
 

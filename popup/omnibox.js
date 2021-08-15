@@ -7,12 +7,18 @@ import { BRING, SEND } from '../modifier.js';
 
 const editCurrentWindow = () => EditMode.activate();
 const commands = {
-    help:     Toolbar.help,
-    settings: Toolbar.settings,
-    options:  Toolbar.settings,
-    edit:     editCurrentWindow,
-    name:     editCurrentWindow,
-    stash:    (event) => Request.stash(undefined, !event.shiftKey),
+    help:        Toolbar.help,
+    settings:    Toolbar.settings,
+    options:     Toolbar.settings,
+    new:         (event) => Request.action(event, 'new'),
+    newprivate:  (event) => Request.action(event, 'newprivate'),
+    pop:         (event) => Request.action(event, 'pop'),
+    popprivate:  (event) => Request.action(event, 'popprivate'),
+    kick:        (event) => Request.action(event, 'kick'),
+    kickprivate: (event) => Request.action(event, 'kickprivate'),
+    stash:       (event) => Request.stash(undefined, !event.shiftKey),
+    edit:        editCurrentWindow,
+    name:        editCurrentWindow,
 };
 
 let commandReady;

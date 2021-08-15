@@ -2,16 +2,35 @@
 
 import { BRING, SEND } from '../modifier.js';
 import { SETTINGS } from './settings.js';
+import { lastFocused } from './window.js';
 
 export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash); //@ (String) -> state
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> ([Object])
 export const switchWindow = ({ windowId }) => browser.windows.update(windowId, { focused: true }); //@ ({ Number }), state -> (Promise: Object), state
 
 const ACTION_DICT = {
-    bring:  bringTabs,
-    send:   sendTabs,
-    switch: switchWindow,
+    bring:       bringTabs,
+    send:        sendTabs,
+    switch:      switchWindow,
+    new:         createWindow,
+    newprivate:  () => createWindow({ incognito: true }),
+    pop:         () => createWindow({ isMove: true, focused: true }),
+    popprivate:  () => createWindow({ isMove: true, focused: true, incognito: true }),
+    kick:        () => createWindow({ isMove: true, focused: false }),
+    kickprivate: () => createWindow({ isMove: true, focused: false, incognito: true }),
 };
+
+const MODIFIABLE_ACTIONS_TABLE = {
+    switch:      { [BRING]: 'bring',      [SEND]: 'send' },
+    new:         { [BRING]: 'pop',        [SEND]: 'kick' },
+    newprivate:  { [BRING]: 'popprivate', [SEND]: 'kickprivate' },
+    bring:       { [SEND]: 'send' },
+    pop:         { [SEND]: 'kick' },
+    popprivate:  { [SEND]: 'kickprivate' },
+    send:        { [BRING]: 'bring' },
+    kick:        { [BRING]: 'pop' },
+    kickprivate: { [BRING]: 'popprivate' },
+}
 
 // Open extension page tab, closing any duplicates found.
 //@ (String, String), state -> state
@@ -31,29 +50,45 @@ export async function execute({ action, modifiers, tabs, windowId }) {
     ACTION_DICT[action]({ tabs, windowId });
 }
 
+// Change an action to another based on any modifiers given.
 //@ (String, [String]) -> (String)
 function modify(action, modifiers) {
-    if (!modifiers.length) return action;
-    return modifiers.includes(BRING) ? 'bring' :
-           modifiers.includes(SEND)  ? 'send' :
-           action;
+    if (!modifiers.length)
+        return action;
+    const modifiedActionDict = MODIFIABLE_ACTIONS_TABLE[action];
+    if (modifiedActionDict) {
+        for (const modifier in modifiedActionDict)
+            if (modifiers.includes(modifier))
+                return modifiedActionDict[modifier];
+    }
+    return action;
 }
 
-// Create a new window containing currently selected tabs.
-//@ (Boolean), state -> state
-export async function pop(incognito) {
-    const [tabs, window] = await Promise.all([
-        browser.tabs.query({ currentWindow: true }),
-        browser.windows.create({ incognito, focused: false }),
+// Create a new window. If isMove=true, do so with the currently selected tabs.
+//@ ({ Boolean, Boolean, Boolean }), state -> (Object), state
+export async function createWindow({ isMove, focused = true, incognito }) {
+    const currentWindowProp = { windowId: lastFocused.id };
+    const [newWindow, allTabs] = await Promise.all([
+        browser.windows.create({ incognito }),
+        isMove && browser.tabs.query(currentWindowProp), // Get all tabs to check if all selected
     ]);
-    const selectedTabs = tabs.filter(tab => tab.highlighted);
-    if (selectedTabs.length === tabs.length) {
-        await browser.tabs.create({ windowId: tabs[0].windowId }); // Prevents origin window from closing
+
+    // FF ignores windows.create/update({ focused: false }), so if focused=false switch back to current window
+    if (!focused)
+        switchWindow(currentWindowProp);
+
+    if (isMove) {
+        const selectedTabs = allTabs.filter(tab => tab.highlighted);
+
+        // If all of the origin window's tabs are to be moved, add a tab to prevent the window from closing
+        if (selectedTabs.length === allTabs.length)
+            await browser.tabs.create(currentWindowProp);
+
+        await sendTabs({ tabs: selectedTabs, windowId: newWindow.id });
+        browser.tabs.remove(newWindow.tabs[0].id);
     }
-    const windowId = window.id;
-    const initTabId = window.tabs[0].id;
-    await bringTabs(windowId, selectedTabs);
-    browser.tabs.remove(initTabId);
+
+    return newWindow;
 }
 
 //@ ({ Number, [Object] }), state -> state|nil
