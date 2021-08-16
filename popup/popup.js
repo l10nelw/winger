@@ -82,6 +82,6 @@ const inputEnterCheck = {
 function showModifierHint(key) {
     if (key === 'Control') key = 'Ctrl';
     const hint = modifierHints[key];
-    $omnibox.placeholder = hint;
+    if (hint) $omnibox.placeholder = hint;
     return hint;
 }
