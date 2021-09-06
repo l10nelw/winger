@@ -141,11 +141,11 @@ function stash_updateHomeSelect() {
 }
 
 async function staticText_insertShortcut() {
-    const shortcut = await getShortcut();
-    if (shortcut) $body.querySelector('.shortcut').textContent = shortcut;
-    const $defaultShortcutText = $body.querySelector('.default-shortcut-text');
     const defaultShortcut = browser.runtime.getManifest().commands._execute_browser_action.suggested_key.default;
-    if (shortcut == defaultShortcut) return;
+    const currentShortcut = await getShortcut();
+    if (currentShortcut) $body.querySelector('.current-shortcut').textContent = currentShortcut;
+    if (currentShortcut == defaultShortcut) return;
+    const $defaultShortcutText = $body.querySelector('.default-shortcut-text');
     $defaultShortcutText.querySelector('.default-shortcut').textContent = defaultShortcut;
     $defaultShortcutText.hidden = false;
 }
