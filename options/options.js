@@ -1,6 +1,7 @@
+import { retrieve as retrieveSettings, needsRestart } from '../background/settings.js';
+import * as Theme from '../theme.js';
 import { getShortcut, hasClass, toggleClass, GroupMap } from '../utils.js';
 import { validify } from '../background/name.js';
-import { retrieve as retrieveSettings, needsRestart } from '../background/settings.js';
 import { openHelp } from '../background/action.js';
 
 const $body = document.body;
@@ -18,6 +19,8 @@ const getFormValuesString = () => $settings.map(relevantValue).join();
 
 (async () => {
     SETTINGS = await retrieveSettings();
+
+    Theme.apply(SETTINGS.theme);
 
     for (const $field of $settings) {
         loadSetting($field);
