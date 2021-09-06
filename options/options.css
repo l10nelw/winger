@@ -1,0 +1,60 @@
+body {
+    padding: 0 1rem;
+    font-size: larger;
+}
+
+section {
+    margin: 0 0 3rem;
+}
+
+p {
+    margin: 0 0 1rem;
+}
+
+label {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: .5rem;
+}
+
+[type="checkbox"] {
+    margin-left: 0;
+    margin-right: .5rem;
+}
+
+.btnRow {
+    margin: 1.5rem 0 2.5rem;
+    text-align: center;
+}
+button {
+    padding: .25rem 1rem;
+    border-radius: 2px;
+}
+.applyBtn:not(:disabled) {
+    font-weight: bold;
+}
+
+.block { display: block; }
+.ml-1 { margin-left: 1rem; }
+
+.special { color: darkblue; }
+.muted { opacity: .5; }
+
+
+/* Dark theme */
+
+.dark {
+    background-color: #23222b;
+    color: white;
+    accent-color: #0ff;
+}
+.dark :focus {
+    outline: 2px solid #0df;
+}
+.dark a {
+    color: #0df;
+}
+.dark button {
+    background-color: #ccc;
+}
+.dark .special { color: #ff0; }

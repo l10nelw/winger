@@ -1,5 +1,7 @@
 const DEFAULT = {
 
+    theme: 'system',
+
     keep_moved_focused_tab_focused: true,
     keep_moved_tabs_selected: true,
     move_pinned_tabs: false,

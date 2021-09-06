@@ -2,45 +2,20 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <style>
-      body {
-        padding: 0 1rem;
-      }
-      section {
-        margin: 0 0 3rem;
-      }
-      p {
-        margin: 0 0 1rem;
-      }
-
-      label {
-        display: flex;
-        align-items: flex-start;
-        margin-bottom: .5rem;
-      }
-      [type="checkbox"] {
-        margin-left: 0;
-        margin-right: .5rem;
-      }
-
-      .btnRow {
-        margin: 1.5rem 0 2.5rem;
-        text-align: center;
-      }
-      .applyBtn {
-        font-weight: bold;
-      }
-
-      .block { display: block; }
-
-      .ml-1 { margin-left: 1rem; }
-
-      .special { color: darkblue; }
-      .muted { opacity: .5; }
-    </style>
+    <link rel="stylesheet" href="options.css">
   </head>
-  <body>
+  <body class="dark">
     <form>
+
+      <section>
+        <h2>Theme</h2>
+        <select class="setting" name="theme">
+          <option value="system">System theme</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+        <div class="btnRow"><button class="applyBtn" disabled>Apply Settings</button></div>
+      </section>
 
       <section>
         <h2>Pop-up panel</h2>
