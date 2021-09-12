@@ -1,10 +1,16 @@
 :root {
-    --bgc-base: #eee;
-    --bgc-base-focus: #ddd;
-    --bgc-rowbtn: #d0d0d0;
-    --bgc-rowbtn-focus: #bbb;
-    --fgc-muted: #555;
-    --borderc-focus: #4a90d9;
+    --bg-color: #ddd;
+    --text-color: black;
+    --muted-text-color: #555;
+    --button-bg-color: #d0d0d0;
+    --hovered-button-bg-color: #bbb;
+    --field-border-color: #4a90d9;
+}
+.dark {
+    --bg-color: #222;
+    --text-color: white;
+    --muted-text-color: #ccc;
+    --focus-outline-color: #0df;
 }
 
 *, *::before, *::after {
@@ -13,13 +19,14 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    background-color: var(--bgc-base-focus);
+    background-color: var(--bg-color);
+    color: var(--text-color);
     margin: 1rem;
     text-align: center;
 }
 
 header {
-    color: var(--fgc-muted);
+    color: var(--muted-text-color);
 }
 header img {
     vertical-align: middle;
@@ -33,10 +40,11 @@ h1 {
 input {
     display: inline-block;
     width: 100%;
-    background-color: var(--bgc-base-focus);
+    background-color: var(--bg-color);
+    color: var(--text-color);
     margin-bottom: .5rem;
     padding: 8px 0;
-    border: 1px solid var(--borderc-focus);
+    border: 1px solid var(--field-border-color);
     text-align: center;
     font-size: large;
 }
@@ -44,14 +52,21 @@ input {
 button {
     display: inline-block;
     min-width: 160px;
-    background-color: var(--bgc-rowbtn);
+    background-color: var(--button-bg-color);
     margin-bottom: 1rem;
     padding: 8px 20px;
     border-radius: 6px;
     font-size: large;
 }
-button:hover,
-button:focus {
-    background-color: var(--bgc-rowbtn-focus);
+button:hover {
+    background-color: var(--hovered-button-bg-color);
     color: black;
+}
+
+.dark :focus {
+    outline: 2px solid var(--focus-outline-color);
+}
+
+small kbd {
+    font-size: larger;
 }
