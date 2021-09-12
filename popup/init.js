@@ -1,5 +1,6 @@
 import { hasClass, addClass, toggleClass } from '../utils.js';
 import { init as initCommon, $omnibox, $otherWindowsList, $toolbar, getScrollbarWidth, unsetActionAttr } from './common.js';
+import * as Theme from '../theme.js';
 import * as Omnibox from './omnibox.js';
 import * as Filter from './filter.js';
 import * as Status from './status.js';
@@ -27,7 +28,8 @@ function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
     Tooltip.init(selectedTabCount);
     Filter.init();
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
-    expandBodyWidth(row.buttonCount);
+    expandPopupWidth(row.buttonCount);
+    Theme.apply(SETTINGS.theme);
 
     $omnibox.hidden = false;
     $otherWindowsList.hidden = false;
@@ -48,14 +50,14 @@ function onError() {
     browser.browserAction.setBadgeBackgroundColor({ color: 'transparent' });
 
     Status.show('⚠️ Winger needs to be restarted.');
-    expandBodyWidth(1);
+    expandPopupWidth(1);
 
     const $restartBtn = getTemplateContent('restartTemplate');
     $restartBtn.onclick = () => browser.runtime.reload();
     $toolbar.innerHTML = '';
     $toolbar.appendChild($restartBtn);
     $toolbar.hidden = false;
-    expandBodyWidth(1);
+    expandPopupWidth(1);
 
     Status.show('⚠️ Winger needs to be restarted.');
 }
@@ -159,14 +161,14 @@ function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
     }
 }
 
-function expandBodyWidth(buttonCount) {
+function expandPopupWidth(buttonCount) {
     if (!buttonCount) return;
     const $document = document.documentElement;
     const styles = getComputedStyle($document);
-    const buttonWidth = parseInt(styles.getPropertyValue('--width-btn'));
-    const bodyWidth = parseInt(styles.getPropertyValue('--width-body'));
-    const newBodyWidth = bodyWidth + buttonWidth * buttonCount;
-    $document.style.setProperty('--width-body', `${newBodyWidth}px`);
+    const buttonWidth = parseInt(styles.getPropertyValue('--button-width'));
+    const popupWidth = parseInt(styles.getPropertyValue('--popup-width'));
+    const newPopupWidth = popupWidth + buttonWidth * buttonCount;
+    $document.style.setProperty('--popup-width', `${newPopupWidth}px`);
 };
 
 function alignWithScrollbar($toAlign, $scrolling) {

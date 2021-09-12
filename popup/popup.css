@@ -1,22 +1,49 @@
 /* * { outline: 1px solid red; } */
 :root {
-    --width-body: 220px;
-    --width-btn: 30px;
-    --width-input: 160px;
-    --width-tabcount: 20px;
-    --height-row: 36px;
-    --bgc-base: #eee;
-    --bgc-base-focus: #ddd;
-    --bgc-rowbtn: #d0d0d0;
-    --bgc-rowbtn-focus: #bbb;
-    --fgc-muted: #555;
-    --borderc-base: #ccc;
-    --borderc-focus: #4a90d9;
-    --borderc-error: red;
-    --bgc-slashinput: #ff6;
-    --bgc-editdone: lightgreen;
-    --bgc-private: darkorchid;
-    --fgc-private: purple;
+    --popup-width: 250px;
+    --row-height: 36px;
+    --tabcount-width: 20px;
+    --button-width: 30px;
+    --max-list-height: calc(30rem + 4px); /* Slightly more to accommodate y-padding */
+    --input-border-radius: 4px;
+
+    --text-color: #000;
+    --muted-text-color: #333;
+    --private-text-color: purple;
+
+    --row-color: #eee;
+    --focused-row-color: #ddd;
+
+    --input-color: #fff;
+    --slash-input-color: #ff6;
+
+    --button-color: #d0d0d0;
+    --focused-button-color: #bbb;
+    --private-button-color: darkorchid;
+    --editdone-button-color: lightgreen;
+
+    --border-color: #ccc;
+    --focus-outline-color: #4a90d9;
+    --error-outline-color: red;
+}
+
+.dark {
+    --text-color: #fff;
+    --muted-text-color: #ccc;
+    --private-text-color: magenta;
+
+    --row-color: #42414d;
+    --focused-row-color: #52525e;
+
+    --input-color: #223;
+    --slash-input-color: #223;
+    --slash-input-theme-color: gold;
+
+    --button-color: #50505c;
+    --focused-button-color: #666;
+
+    --border-color: #333;
+    --focus-outline-color: #0df;
 }
 
 
@@ -25,9 +52,8 @@
 /* --- Container --- */
 
 body {
-    width: var(--width-body);
-    overflow: hidden;
-    background-color: var(--bgc-base);
+    width: var(--popup-width);
+    background-color: var(--row-color);
 }
 
 ul {
@@ -35,17 +61,21 @@ ul {
     padding: 0;
 }
 
+#currentWindow,
 #otherWindows {
-    max-height: 30rem;
-    overflow-x: hidden;
+    padding: 2px 1px 2px 2px; /* Space to accommodate outlines */
+}
+
+#otherWindows {
+    max-height: var(--max-list-height);
     overflow-y: auto;
     scroll-snap-type: y mandatory;
     scrollbar-width: thin;
 
     /* Scroll shadows */
     background:
-        linear-gradient(var(--bgc-base) 30%, transparent),
-        linear-gradient(transparent, var(--bgc-base) 70%) 0 100%,
+        linear-gradient(var(--row-color) 30%, transparent),
+        linear-gradient(transparent, var(--row-color) 70%) 0 100%,
         radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.3), transparent),
         radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.3), transparent) 0 100%;
     background-repeat: no-repeat;
@@ -58,18 +88,12 @@ ul {
 
 /* --- Row --- */
 
-input {
-    height: var(--height-row);
-}
-
 li {
     width: auto;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     scroll-snap-align: center;
     list-style: none;
-    border-bottom: 1px solid var(--borderc-base);
 }
 
 li > * {
@@ -77,34 +101,31 @@ li > * {
 }
 
 .tabCount {
-    width: var(--width-tabcount);
+    width: var(--tabcount-width);
     margin: 0 .8rem;
-    color: var(--fgc-muted);
+    color: var(--muted-text-color);
     text-align: end;
     font-size: small;
 }
 
 body:not([data-mode="edit"]) .otherRow:is(:hover, :focus) {
-    background-color: var(--bgc-base-focus);
+    background-color: var(--focused-row-color);
 }
-
-
-
 
 /* --- Input field --- */
 
 input {
-    border: 1px solid var(--borderc-base);
+    height: var(--row-height);
+    border: 1px solid var(--border-color);
     padding: 0 6px;
     text-align: start;
-}
-
-input:focus {
-    border: 1px solid var(--borderc-focus);
+    background-color: var(--input-color);
+    color: var(--text-color);
 }
 
 .input {
-    width: var(--width-input);
+    flex-grow: 1;
+    border-radius: var(--input-border-radius);
     margin-left: .25rem;
 }
 
@@ -123,29 +144,66 @@ input:-moz-read-only::placeholder {
     font-weight: bold;
 }
 
-.inputError {
-    border-color: var(--borderc-error) !important;
+.private .input {
+    color: var(--private-text-color);
 }
 
-.private .input {
-    color: var(--fgc-private);
+input:focus,
+button:focus,
+body:not([data-mode="edit"]) .otherRow:focus {
+    outline: 2px solid var(--focus-outline-color);
+}
+
+.inputError {
+    outline: 2px solid var(--error-outline-color) !important;
+}
+
+
+body:not([data-mode="edit"]) .input:focus {
+    outline: none;
+}
+
+
+
+
+/* --- Omnibox --- */
+
+#omniboxWrapper {
+    position: relative;
+    z-index: 1; /* Keep omnibox outline from being covered by other elements e.g. buttons */
+    padding: 0 1px 0 2px; /* Space to accommodate outline */
+}
+
+#omnibox {
+    width: 100%;
+}
+
+#omnibox:disabled {
+    background-color: var(--focused-row-color);
 }
 
 .slashCommand {
-    background-color: var(--bgc-slashinput);
-    border: none;
+    background-color: var(--slash-input-color);
 }
 
-
+.dark .slashCommand {
+    color: var(--slash-input-theme-color);
+    outline-color: var(--slash-input-theme-color);
+}
+.dark .slashCommand::selection {
+    background-color: var(--slash-input-theme-color);
+    color: var(--input-color);
+}
 
 
 /* --- Button --- */
 
 li button {
-    width: var(--width-btn);
-    height: var(--width-btn);
+    width: var(--button-width);
+    height: var(--button-width);
+    margin: 1px;
     opacity: .7;
-    background-color: var(--bgc-rowbtn);
+    background-color: var(--button-color);
     background-size: 90%;
     background-repeat: no-repeat;
     background-position: center;
@@ -155,11 +213,11 @@ li button {
 
 li button:not(:disabled):is(:hover, :focus) {
     opacity: 1;
-    background-color: var(--bgc-rowbtn-focus);
+    background-color: var(--focused-button-color);
 }
 
 li.reopenTabs button.tabAction {
-    background-color: var(--bgc-private);
+    background-color: var(--private-button-color);
 }
 
 .send {
@@ -177,7 +235,7 @@ li.reopenTabs button.tabAction {
 
 .editModeRow .edit {
     background-image: url("../icons/check.svg");
-    background-color: var(--bgc-editdone);
+    background-color: var(--editdone-button-color);
 }
 
 body[data-mode="edit"] li button:not(.edit) {
@@ -193,25 +251,12 @@ body[data-mode="edit"] li button:not(.edit) {
 
 
 
-/* --- Omnibox --- */
-
-#omniboxWrapper {
-    position: relative;
-}
-
-#omnibox {
-    width: 100%;
-}
-
-
-
-
-
 /* --- Status bar --- */
 
 #status {
+    width: var(--body-width);
     border: .25rem solid transparent;
-    color: var(--fgc-muted);
+    color: var(--muted-text-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -235,7 +280,7 @@ footer {
 }
 
 footer button {
-    height: var(--height-row);
+    height: var(--row-height);
     flex: 1 1 auto;
     border: none;
     text-align: center;
