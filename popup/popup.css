@@ -108,7 +108,7 @@ li > * {
     font-size: small;
 }
 
-body:not([data-mode="edit"]) .otherRow:is(:hover, :focus) {
+body:not(.editMode) .otherRow:is(:hover, :focus) {
     background-color: var(--focused-row-color);
 }
 
@@ -150,7 +150,7 @@ input:-moz-read-only::placeholder {
 
 input:focus,
 button:focus,
-body:not([data-mode="edit"]) .otherRow:focus {
+body:not(.editMode) .otherRow:focus {
     outline: 2px solid var(--focus-outline-color);
 }
 
@@ -159,7 +159,7 @@ body:not([data-mode="edit"]) .otherRow:focus {
 }
 
 
-body:not([data-mode="edit"]) .input:focus {
+body:not(.editMode) .input:focus {
     outline: none;
 }
 
@@ -238,7 +238,7 @@ li.reopenTabs button.tabAction {
     background-color: var(--editdone-button-color);
 }
 
-body[data-mode="edit"] li button:not(.edit) {
+body.editMode li button:not(.edit) {
     background-color: transparent;
     opacity: .25;
 }
@@ -262,7 +262,7 @@ body[data-mode="edit"] li button:not(.edit) {
     text-overflow: ellipsis;
 }
 
-body[data-mode="edit"] #status {
+body.editMode #status {
     font-style: italic;
 }
 
