@@ -7,6 +7,8 @@ import * as Request from './request.js';
 import navigateByArrow from './navigation.js';
 
 const isClickKey = key => key === 'Enter' || key === ' ';
+const isOmnibox = $target => $target === $omnibox;
+const isCurrentWindowInput = $target => $target === $currentWindowRow.$input;
 
 let modifierHints;
 
@@ -17,7 +19,6 @@ import('./init.js').then(async init => {
     $body.addEventListener('keydown', onKeyDown);
     $body.addEventListener('keyup', onKeyUp);
     $body.addEventListener('focusout', onFocusOut);
-    $currentWindowRow.$input.addEventListener('dblclick', onDoubleClick);
 });
 
 function onClick(event) {
@@ -25,13 +26,13 @@ function onClick(event) {
     const id = $target.id;
     if (id in Toolbar) return Toolbar[id]();
     if (EditMode.handleClick($target)) return;
+    if (isCurrentWindowInput($target)) return EditMode.activate();
     Request.action(event, $target);
 }
 
 function onRightClick(event) {
     if (!hasClass('allowRightClick', event.target)) event.preventDefault();
 }
-
 
 function onKeyDown(event) {
     const { key, target: $target } = event;
@@ -40,26 +41,25 @@ function onKeyDown(event) {
     if (navigateByArrow($target, key, event)) return;
     if (showModifierHint(key)) return;
     if (key === 'Tab' || isClickKey(key)) return;
-    if ($target !== $omnibox) $omnibox.focus();
+    if (!isOmnibox($target)) $omnibox.focus();
 }
 
 function onKeyUp(event) {
     const { key, target: $target } = event;
     inputEnterCheck.up(key, $target);
     if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
-    if (isRow($target) && isClickKey(key)) return Request.action(event, $target);
-    if ($target === $omnibox) {
+    if (isClickKey(key)) {
+        if (isCurrentWindowInput($target)) return EditMode.activate();
+        if (isRow($target)) return Request.action(event, $target);
+    }
+    if (isOmnibox($target)) {
         $omnibox.placeholder = '';
         Omnibox.handleKeyUp(key, event);
     }
 }
 
 function onFocusOut(event) {
-    if (event.target === $omnibox) $omnibox.placeholder = '';
-}
-
-function onDoubleClick() {
-    if (!EditMode.$active) EditMode.activate();
+    if (isOmnibox(event.target)) $omnibox.placeholder = '';
 }
 
 // Flag if Enter has been keyed down and up both within the same input. A handler should then check and reset the flag (_enter).
