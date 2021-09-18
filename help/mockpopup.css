@@ -1,20 +1,43 @@
 :root {
-    --width-btn: 30px;
-    --width-input: 160px;
-    --width-tabcount: 20px;
-    --height-row: 36px;
-    --bgc-base: #eee;
-    --bgc-base-focus: #ddd;
-    --bgc-rowbtn: #d0d0d0;
-    --fgc-base: black;
-    --fgc-muted: #555;
+    --popup-width: 240px;
     --border-radius: 8px;
-    --borderc-base: #ccc;
-    --borderc-focus: #4a90d9;
-    --bgc-slashinput: #ff6;
-    --bgc-editdone: lightgreen;
-    --bgc-private: darkorchid;
-    --fgc-private: purple;
+    --row-height: 36px;
+    --button-width: 30px;
+    --input-width: 160px;
+    --tabcount-width: 20px;
+
+    --text-color: black;
+    --muted-text-color: #555;
+    --private-text-color: purple;
+
+    --row-color: #eee;
+    --focused-row-color: #ddd;
+
+    --input-color: #fff;
+
+    --button-color: #d0d0d0;
+    --private-button-color: darkorchid;
+    --editdone-button-color: lightgreen;
+
+    --border-color: #ccc;
+    --focus-outline-color: #4a90d9;
+}
+
+.dark {
+    --text-color: #fff;
+    --muted-text-color: #ccc;
+    --private-text-color: magenta;
+
+    --row-color: #42414d;
+    --focused-row-color: #52525e;
+
+    --input-color: #223;
+
+    --button-color: #50505c;
+    --focused-button-color: #666;
+
+    --border-color: #333;
+    --focus-outline-color: #0df;
 }
 
 .popup {
@@ -23,9 +46,9 @@
     display: inline-block;
     position: relative;
     margin: 0;
-    background-color: var(--bgc-base);
-    color: var(--fgc-base);
-    border: 1px solid var(--borderc-base);
+    background-color: var(--row-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     cursor: default;
     user-select: none;
 }
@@ -36,50 +59,47 @@
 
 .popup-row,
 .popup-input {
-    height: var(--height-row);
+    height: var(--row-height);
     display: flex;
     align-items: center;
 }
 
-.popup-row {
-    border-bottom: 1px solid var(--borderc-base);
-}
-
 .popup-input {
-    padding-left: 3px;
-    background-color: white;
-    border: 2px solid var(--borderc-focus);
-    border-radius: 3px;
+    padding-left: 4px;
+    background-color: var(--input-color);
+    border: 2px solid var(--focus-outline-color);
+    border-radius: 4px;
 }
 .popup-input:not(.disabled)::after {
     content: "|";
     font-weight: 100;
 }
 .popup-input.disabled {
-    background-color: var(--bgc-base-focus);
-    color: var(--fgc-muted);
-    border: 1px solid var(--borderc-base);
+    background-color: var(--focused-row-color);
+    color: var(--muted-text-color);
+    border: 1px solid var(--border-color);
 }
 .popup-name {
-    width: var(--width-input);
+    width: var(--input-width);
     margin-left: .25rem;
     padding: 0 .25rem;
 }
 .popup-name.private {
-    color: var(--fgc-private);
+    color: var(--private-text-color);
 }
 
 
 .popup-tabCount {
-    width: var(--width-tabcount);
+    width: var(--tabcount-width);
     margin: 0 .8rem;
-    color: var(--fgc-muted);
+    color: var(--muted-text-color);
     text-align: end;
 }
 
 .popup-btn {
-    width: var(--width-btn);
-    height: var(--width-btn);
+    width: var(--button-width);
+    height: var(--button-width);
+    margin: 1px;
     opacity: .7;
     background-size: 90%;
     background-repeat: no-repeat;
@@ -89,38 +109,38 @@
 }
 .popup-btn.send {
     background-image: url("../icons/send.svg");
-    background-color: var(--bgc-rowbtn);
+    background-color: var(--button-color);
 }
 .popup-btn.bring {
     background-image: url("../icons/bring.svg");
-    background-color: var(--bgc-rowbtn);
+    background-color: var(--button-color);
 }
 .popup-btn.edit {
     background-image: url("../icons/edit.svg");
     background-size: 60%;
-    background-color: var(--bgc-rowbtn);
+    background-color: var(--button-color);
     justify-self: end;
 }
 
 .popup-btn.edit.done {
     background-image: url("../icons/check.svg");
-    background-color: var(--bgc-editdone);
+    background-color: var(--editdone-button-color);
 }
 .popup-btn.faded {
     background-color: transparent;
     opacity: .25;
 }
 .popup-btn.reopen {
-    background-color: var(--bgc-private);
+    background-color: var(--private-button-color);
 }
 
 .popup-status {
     border: .25rem solid transparent;
-    color: var(--fgc-muted);
+    color: var(--muted-text-color);
 }
 
 .popup-tool {
-    height: var(--height-row);
+    height: var(--row-height);
     flex: 1 1 auto;
     display: flex;
     align-items: center;

@@ -1,3 +1,5 @@
+import { retrieve as retrieveSettings } from '../background/settings.js';
+import * as Theme from '../theme.js';
 import { getShortcut, hasClass } from '../utils.js';
 
 const $body = document.body;
@@ -5,11 +7,17 @@ const $ = (selector, $scope = $body) => $scope.querySelector(selector);
 const $$ = (selector, $scope = $body) => $scope.querySelectorAll(selector);
 $body.onclick = onClick;
 
+applySettings();
 insertVersion();
 insertShortcut();
 doOSSpecific();
 updateMockPopups();
 handleCollapse();
+
+async function applySettings() {
+    const SETTINGS = await retrieveSettings();
+    Theme.apply(SETTINGS.theme);
+}
 
 function onClick({ target }) {
     if (hasClass('settingsBtn', target)) browser.runtime.openOptionsPage();
