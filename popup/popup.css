@@ -2,10 +2,11 @@
 :root {
     --popup-width: 250px;
     --row-height: 36px;
+    --input-height: 30px;
     --tabcount-width: 20px;
     --button-width: 30px;
     --max-list-height: calc(30rem + 4px); /* Slightly more to accommodate y-padding */
-    --input-border-radius: 4px;
+    --input-border-radius: 6px;
 
     --text-color: #000;
     --muted-text-color: #333;
@@ -47,8 +48,6 @@
 }
 
 
-
-
 /* --- Container --- */
 
 body {
@@ -84,11 +83,10 @@ ul {
 }
 
 
-
-
 /* --- Row --- */
 
 li {
+    height: var(--row-height);
     width: auto;
     display: flex;
     align-items: center;
@@ -112,10 +110,10 @@ body:not(.editMode) .otherRow:is(:hover, :focus) {
     background-color: var(--focused-row-color);
 }
 
+
 /* --- Input field --- */
 
 input {
-    height: var(--row-height);
     border: 1px solid var(--border-color);
     padding: 0 6px;
     text-align: start;
@@ -124,6 +122,7 @@ input {
 }
 
 .input {
+    height: var(--input-height);
     flex-grow: 1;
     border-radius: var(--input-border-radius);
     margin-left: .25rem;
@@ -144,6 +143,11 @@ input:-moz-read-only::placeholder {
     font-weight: bold;
 }
 
+.currentRow:not(.editModeRow) .input:is(:hover, :focus) {
+    background-color: var(--focused-row-color);
+    cursor: pointer;
+}
+
 .private .input {
     color: var(--private-text-color);
 }
@@ -154,16 +158,13 @@ body:not(.editMode) .otherRow:focus {
     outline: 2px solid var(--focus-outline-color);
 }
 
+body:not(.editMode) .input::selection {
+    background-color: transparent;
+}
+
 .inputError {
     outline: 2px solid var(--error-outline-color) !important;
 }
-
-
-body:not(.editMode) .input:focus {
-    outline: none;
-}
-
-
 
 
 /* --- Omnibox --- */
@@ -175,6 +176,7 @@ body:not(.editMode) .input:focus {
 }
 
 #omnibox {
+    height: var(--row-height);
     width: 100%;
 }
 
@@ -190,6 +192,7 @@ body:not(.editMode) .input:focus {
     color: var(--slash-input-theme-color);
     outline-color: var(--slash-input-theme-color);
 }
+
 .dark .slashCommand::selection {
     background-color: var(--slash-input-theme-color);
     color: var(--input-color);
@@ -248,9 +251,6 @@ body.editMode li button:not(.edit) {
 }
 
 
-
-
-
 /* --- Status bar --- */
 
 #status {
@@ -269,8 +269,6 @@ body.editMode #status {
 .defaultStatus {
     text-align: center;
 }
-
-
 
 
 /* --- Toolbar --- */
@@ -313,8 +311,6 @@ footer img {
 #restart:not(:disabled):is(:hover, :focus) {
     background-color: #f30;
 }
-
-
 
 
 /* --- Utilities --- */
