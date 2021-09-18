@@ -6,24 +6,16 @@ body {
   max-width: 80rem;
   margin: 0 auto;
   padding: 1rem;
-  /* background-color: black;
-  color: white; */
   font-family: Arial, Helvetica, sans-serif;
   font-size: 1rem;
 }
-
-/* #content {
-  display: flex;
+.dark {
+  background-color: #222;
+  color: white;
 }
-
-aside {
-  width: 20rem;
+.dark a {
+  color: #0df;
 }
-
-.sticky-top {
-  position: sticky;
-  top: .5rem;
-} */
 
 h1, h2, h3, h4, p {
   margin-top: 0;
@@ -76,11 +68,11 @@ img {
   display: none;
 }
 .collapse-hide:checked ~ .collapse-head {
-  color: var(--borderc-base);
+  color: #ccc;
 }
 .collapse-hide:checked ~ .collapse-head > .collapse-arrow {
   transform: rotate(.5turn);
-  border-bottom-color: var(--borderc-base);
+  border-bottom-color: #ccc;
 }
 .arrow-up {
   width: 0;
@@ -91,6 +83,9 @@ img {
   border-right: 8px solid transparent;
   margin: 0 5px;
 }
+.dark .arrow-up {
+  border-bottom-color: white;
+}
 
 button.settingsBtn {
   border-radius: 2px;
@@ -99,22 +94,25 @@ button.settingsBtn {
 }
 
 .bordered-box {
-  border: 3px solid var(--borderc-base);
+  border: 3px solid #ccc;
   padding: 1rem;
   border-radius: 1rem;
 }
 .bordered-left {
-  border-left: 3px solid var(--borderc-base);
+  border-left: 3px solid #ccc;
 }
 
 .new {
   vertical-align: middle;
   padding: 2px 5px;
-  border-radius: 50%;
+  border-radius: 1rem;
   background-color: yellow;
   font-size: .5rem;
   cursor: default;
   user-select: none;
+}
+.dark .new {
+  color: black;
 }
 
 .star-list {
@@ -122,15 +120,19 @@ button.settingsBtn {
 }
 
 :target {
+  --target-fading-highlight-color: yellow;
   animation: target-fading-highlight 2s 1;
 }
+.dark :target {
+  --target-fading-highlight-color: darkblue;
+}
 @keyframes target-fading-highlight {
-  0%   { background-color: yellow; }
+  0%   { background-color: var(--target-fading-highlight-color); }
   100% { background-color: none; }
 }
 
-.fg-private { color: var(--fgc-private); }
-.bg-private { background-color: var(--bgc-private); color: white; }
+.fg-private { color: var(--private-text-color); }
+.bg-private { background-color: var(--private-button-color); color: white; }
 
 .lastchild-mb-0 > :last-child { margin-bottom: 0; }
 .flex-grow { flex-grow: 1; }
