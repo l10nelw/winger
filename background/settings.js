@@ -9,7 +9,6 @@ const DEFAULT = {
 
     show_popup_bring: true,
     show_popup_send: true,
-    show_popup_edit: true,
     show_popup_help: true,
     show_popup_settings: true,
 
