@@ -78,7 +78,7 @@ function populate(winfos) {
 const row = {
 
     $template: getTemplateContent('rowTemplate'),
-    cellSelectors: new Set(['.send', '.bring', '.input', '.tabCount', '.edit']),
+    cellSelectors: new Set(['.send', '.bring', '.input', '.tabCount']),
     buttonCount: 0,
 
     removeCells(SETTINGS) {
@@ -86,7 +86,6 @@ const row = {
             // setting:       selector
             show_popup_bring: '.bring',
             show_popup_send:  '.send',
-            show_popup_edit:  '.edit',
         };
         for (const [cell, selector] of Object.entries(cellDict)) {
             if (SETTINGS[cell]) {

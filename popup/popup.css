@@ -231,17 +231,7 @@ li.reopenTabs button.tabAction {
     background-image: url("../icons/bring.svg");
 }
 
-.edit {
-    background-image: url("../icons/edit.svg");
-    background-size: 60%;
-}
-
-.editModeRow .edit {
-    background-image: url("../icons/check.svg");
-    background-color: var(--editdone-button-color);
-}
-
-body.editMode li button:not(.edit) {
+body.editMode li button {
     background-color: transparent;
     opacity: .25;
 }
