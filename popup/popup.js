@@ -22,12 +22,12 @@ import('./init.js').then(async init => {
 });
 
 function onClick(event) {
-    const { target: $target } = event;
-    const id = $target.id;
+    const { target } = event;
+    const id = target.id;
     if (id in Toolbar) return Toolbar[id]();
-    if (EditMode.handleClick($target)) return;
-    if (isCurrentWindowInput($target)) return EditMode.activate();
-    Request.action(event, $target);
+    if (EditMode.handleClick(target)) return;
+    if (isCurrentWindowInput(target)) return EditMode.activate();
+    Request.action(event, target);
 }
 
 function onRightClick(event) {
@@ -35,22 +35,22 @@ function onRightClick(event) {
 }
 
 function onKeyDown(event) {
-    const { key, target: $target } = event;
+    const { key, target } = event;
     if (EditMode.$active) return;
-    if (navigateByArrow($target, key, event)) return;
+    if (navigateByArrow(target, key, event)) return;
     if (showModifierHint(key)) return;
     if (key === 'Tab' || isClickKey(key)) return;
-    if (!isOmnibox($target)) $omnibox.focus();
+    if (!isOmnibox(target)) $omnibox.focus();
 }
 
 function onKeyUp(event) {
-    const { key, target: $target } = event;
-    if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
+    const { key, target } = event;
+    if (EditMode.$active) return EditMode.handleKeyUp(key, target);
     if (isClickKey(key)) {
-        if (isCurrentWindowInput($target)) return EditMode.activate();
-        if (isRow($target)) return Request.action(event, $target);
+        if (isCurrentWindowInput(target)) return EditMode.activate();
+        if (isRow(target)) return Request.action(event, target);
     }
-    if (isOmnibox($target)) {
+    if (isOmnibox(target)) {
         $omnibox.placeholder = '';
         Omnibox.handleKeyUp(key, event);
     }
