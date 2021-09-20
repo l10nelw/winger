@@ -36,7 +36,6 @@ function onRightClick(event) {
 
 function onKeyDown(event) {
     const { key, target: $target } = event;
-    inputEnterCheck.down(key, $target);
     if (EditMode.$active) return;
     if (navigateByArrow($target, key, event)) return;
     if (showModifierHint(key)) return;
@@ -46,7 +45,6 @@ function onKeyDown(event) {
 
 function onKeyUp(event) {
     const { key, target: $target } = event;
-    inputEnterCheck.up(key, $target);
     if (EditMode.$active) return EditMode.handleKeyUp(key, $target);
     if (isClickKey(key)) {
         if (isCurrentWindowInput($target)) return EditMode.activate();
@@ -61,23 +59,6 @@ function onKeyUp(event) {
 function onFocusOut(event) {
     if (isOmnibox(event.target)) $omnibox.placeholder = '';
 }
-
-// Flag if Enter has been keyed down and up both within the same input. A handler should then check and reset the flag (_enter).
-// Guards against cases where input receives the keyup after the keydown was invoked elsewhere (usually a button).
-const inputEnterCheck = {
-    $input: null,
-    down(key, $target) {
-        if (key === 'Enter' && isInput($target)) {
-            this.$input = $target;
-        }
-    },
-    up(key, $target) {
-        if (key === 'Enter' && $target === this.$input) {
-            $target._enter = true;
-            this.$input = null;
-        }
-    }
-};
 
 function showModifierHint(key) {
     if (key === 'Control') key = 'Ctrl';
