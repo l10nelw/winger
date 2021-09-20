@@ -19,8 +19,7 @@ export const commands = {
 };
 
 export function handleKeyUp(key, event) {
-    const enter = key === 'Enter' && $omnibox._enter;
-    if (enter) $omnibox._enter = false;
+    const enter = key === 'Enter';
     const str = $omnibox.value;
 
     const isSlashed = str.startsWith('/');

@@ -115,12 +115,7 @@ const keyEffects = {
         if (!error) row.shiftActive(-1);
     },
 
-    async Enter() {
-        if ($activeInput._enter) {
-            $activeInput._enter = false;
-            await done();
-        }
-    },
+    Enter: done,
 
 };
 
