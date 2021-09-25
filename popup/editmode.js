@@ -49,7 +49,7 @@ const general = {
         const tabIndex = yes ? -1 : 0;
         $disabledActions = $disabledActions || [...getActionElements($body, ':not(.edit)')];
         $disabledActions.forEach($action => $action.tabIndex = tabIndex);
-        toggleClass('editMode', $body, yes);
+        $body.dataset.mode = yes ? 'edit' : 'normal';
         $omnibox.disabled = yes;
         $omnibox.placeholder = yes ? omniboxHint : '';
     },
