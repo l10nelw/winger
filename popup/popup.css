@@ -106,7 +106,7 @@ li > * {
     font-size: small;
 }
 
-body:not(.editMode) .otherRow:is(:hover, :focus) {
+[data-mode="normal"] .otherRow:is(:hover, :focus) {
     background-color: var(--focused-row-color);
 }
 
@@ -154,11 +154,11 @@ input:-moz-read-only::placeholder {
 
 input:focus,
 button:focus,
-body:not(.editMode) .otherRow:focus {
+[data-mode="normal"] .otherRow:focus {
     outline: 2px solid var(--focus-outline-color);
 }
 
-body:not(.editMode) .input::selection {
+[data-mode="normal"] .input::selection {
     background-color: transparent;
 }
 
@@ -231,7 +231,7 @@ li.reopenTabs button.tabAction {
     background-image: url("../icons/bring.svg");
 }
 
-body.editMode li button {
+[data-mode="edit"] li button {
     background-color: transparent;
     opacity: .25;
 }
@@ -252,7 +252,7 @@ body.editMode li button {
     text-overflow: ellipsis;
 }
 
-body.editMode #status {
+[data-mode="edit"] #status {
     font-style: italic;
 }
 
