@@ -18,7 +18,7 @@ import('./init.js').then(async init => {
     $body.addEventListener('contextmenu', onContextMenu);
     $body.addEventListener('keydown', onKeyDown);
     $body.addEventListener('keyup', onKeyUp);
-    $body.addEventListener('focusout', onFocusOut);
+    $body.addEventListener('focusin', onFocusIn);
 });
 
 function onClick(event) {
@@ -59,8 +59,8 @@ function onKeyUp(event) {
     }
 }
 
-function onFocusOut(event) {
-    if (isOmnibox(event.target)) $omnibox.placeholder = '';
+function onFocusIn(event) {
+    if (isOmnibox(event.relatedTarget)) $omnibox.placeholder = ''; // Clear any modifier hints when omnibox unfocused
 }
 
 function showModifierHint(key) {
