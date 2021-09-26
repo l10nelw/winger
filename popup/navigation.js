@@ -67,36 +67,11 @@ const navigator = {
     },
 };
 
+const rowOrCell = $row => $row?.['$'+column] || $row; // Take and return row, unless a cell can be returned instead.
+const row = $el => $el.$row || $el; // Element's parent row, else assume element is a row.
 
-// Take and return the same row, unless a cell can be returned instead.
-function rowOrCell($row) {
-    return $row?.[`$${column}`] || $row;
-}
+const currentWindow = () => $currentWindowRow.$input || $currentWindowRow;
+const toolbar = () => $toolbar.firstElementChild || $toolbar;
 
-// Element's parent row, else assume element is a row.
-function row($el) {
-    return $el.$row || $el;
-}
-
-// Return the appropriate cell in currentWindowRow, else return row itself.
-function currentWindow() {
-    let $cell = $currentWindowRow[`$${column}`];
-    if ($cell) return $cell;
-    $cell = $currentWindowRow.firstElementChild;
-    while ($cell && isUnfocusable($cell)) {
-        $cell = $cell.nextElementSibling;
-    }
-    return $cell || $currentWindowRow;
-}
-
-function toolbar() {
-    return $toolbar.firstElementChild || $toolbar;
-}
-
-function isCurrentWindow($el) {
-    return $el.$row === $currentWindowRow || $el === $currentWindowRow;
-}
-
-function isToolbar($el) {
-    return $el.parentElement === $toolbar || $el === $toolbar;
-}
+const isCurrentWindow = $el => $el.$row === $currentWindowRow || $el === $currentWindowRow;
+const isToolbar = $el => $el.parentElement === $toolbar || $el === $toolbar;
