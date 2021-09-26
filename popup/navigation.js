@@ -1,8 +1,7 @@
 import { $currentWindowRow, $omnibox, $toolbar, isButton, isRow, getActionAttr } from './common.js';
 import { $shownRows } from './filter.js';
 
-const isUnfocusable = $el => $el.hidden || $el.tabIndex === -1;
-const isVerticalKey = key => ['ArrowDown', 'ArrowUp'].includes(key);
+const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
 
 // Given an element and an arrow key, focus on the next focusable element in that direction and return true.
 // Return null if key not an arrow key.
@@ -22,6 +21,23 @@ export default function navigateByArrow($el, key, event) {
 
     $el.focus();
     return true;
+}
+
+const isUnfocusable = $el => $el.hidden || $el.tabIndex === -1;
+const isVerticalKey = key => ['ArrowDown', 'ArrowUp'].includes(key);
+
+function restrictScroll($el, event) {
+    const index = row($el)._index;
+    if (SCROLL_THRESHOLD <= index && ($shownRows.length - index) > SCROLL_THRESHOLD) return;
+    event.preventDefault(); // Suppress scrolling
+}
+
+let column; // Currently-focused button column
+function setColumn($el) {
+    column =
+        isRow($el) ? null : // if row: null
+        isButton($el) ? getActionAttr($el) : // if cell: its action reference ("send", etc)
+        column; // no change
 }
 
 const navigator = {
@@ -51,24 +67,6 @@ const navigator = {
     },
 };
 
-const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
-
-function restrictScroll($el, event) {
-    const index = row($el)._index;
-    if (SCROLL_THRESHOLD <= index && ($shownRows.length - index) > SCROLL_THRESHOLD) return;
-    event.preventDefault(); // Suppress scrolling
-}
-
-
-let column; // Currently-focused button column
-
-// Set column to: null if row, an action reference ("send", etc) if cell, or no change.
-function setColumn($el) {
-    column =
-        isRow($el) ? null :
-        isButton($el) ? getActionAttr($el) :
-        column;
-}
 
 // Take and return the same row, unless a cell can be returned instead.
 function rowOrCell($row) {
