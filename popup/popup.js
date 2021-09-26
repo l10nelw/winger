@@ -15,7 +15,7 @@ let modifierHints;
 import('./init.js').then(async init => {
     ({ modifierHints } = await init.default());
     $body.addEventListener('click', onClick);
-    $body.addEventListener('contextmenu', onRightClick);
+    $body.addEventListener('contextmenu', onContextMenu);
     $body.addEventListener('keydown', onKeyDown);
     $body.addEventListener('keyup', onKeyUp);
     $body.addEventListener('focusout', onFocusOut);
@@ -30,8 +30,11 @@ function onClick(event) {
     Request.action(event, target);
 }
 
-function onRightClick(event) {
-    if (!hasClass('allowRightClick', event.target)) event.preventDefault();
+function onContextMenu(event) {
+    const { target } = event;
+    if (target.matches('input:not([readonly])')) return; // Allow right-click only on non-readonly input
+    event.preventDefault();
+    target.blur();
 }
 
 function onKeyDown(event) {
