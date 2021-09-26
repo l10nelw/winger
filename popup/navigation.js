@@ -1,4 +1,4 @@
-import { $currentWindowRow, $omnibox, $toolbar, isButton, isRow, getActionAttr } from './common.js';
+import { $currentWindowRow, $otherWindowsList, $omnibox, $toolbar, isButton, isRow, getActionAttr } from './common.js';
 import { $shownRows } from './filter.js';
 
 const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
@@ -23,7 +23,7 @@ export default function navigateByArrow($el, key, event) {
     return true;
 }
 
-const isUnfocusable = $el => $el.hidden || $el.tabIndex === -1;
+const isUnfocusable = $el => row($el).hidden || $el.tabIndex === -1;
 const isVerticalKey = key => ['ArrowDown', 'ArrowUp'].includes(key);
 
 function restrictScroll($el, event) {
@@ -44,15 +44,15 @@ const navigator = {
     ArrowDown($el) {
         if (isToolbar($el)) return currentWindow();
         if (isCurrentWindow($el)) return $omnibox;
-        if ($el === $omnibox) return rowOrCell($shownRows[0]) || toolbar();
-        const $nextRow = $shownRows[row($el)._index + 1];
+        if ($el === $omnibox) return rowOrCell($otherWindowsList.firstElementChild) || toolbar();
+        const $nextRow = row($el).nextElementSibling;
         return rowOrCell($nextRow) || toolbar();
     },
     ArrowUp($el) {
         if ($el === $omnibox) return currentWindow();
         if (isCurrentWindow($el)) return toolbar();
-        if (isToolbar($el)) return rowOrCell($shownRows[$shownRows.length - 1]) || $omnibox;
-        const $nextRow = $shownRows[row($el)._index - 1];
+        if (isToolbar($el)) return rowOrCell($otherWindowsList.lastElementChild) || $omnibox;
+        const $nextRow = row($el).previousElementSibling;
         return rowOrCell($nextRow) || $omnibox;
     },
     ArrowRight($el) {
