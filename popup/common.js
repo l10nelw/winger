@@ -24,8 +24,8 @@ export const getActionElements = ($scope = $body, suffix = '') => $scope.querySe
 
 // Given a $row or any of its child elements, get the givenName or defaultName.
 export function getName($rowElement) {
-    const $input = hasClass('input', $rowElement) && $rowElement || $rowElement.$input || $rowElement.$row.$input;
-    return $input.value || $input.placeholder;
+    const $name = hasClass('name', $rowElement) && $rowElement || $rowElement.$name || $rowElement.$row.$name;
+    return $name.value || $name.placeholder;
 }
 
 export const getScrollbarWidth = $el => $el.offsetWidth - $el.clientWidth;

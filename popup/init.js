@@ -78,7 +78,7 @@ function populate(winfos) {
 const row = {
 
     $template: getTemplateContent('rowTemplate'),
-    cellSelectors: new Set(['.send', '.bring', '.input', '.tabCount']),
+    cellSelectors: new Set(['.send', '.bring', '.name', '.tabCount']),
     buttonCount: 0,
 
     removeCells(SETTINGS) {
@@ -116,8 +116,8 @@ const row = {
             this.disableElement($row);
         }
         $row._id = id;
-        $row.$input.value = givenName;
-        $row.$input.placeholder = defaultName;
+        $row.$name.value = givenName;
+        $row.$name.placeholder = defaultName;
         toggleClass('private', $row, incognito);
 
         return $row;
