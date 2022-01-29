@@ -121,7 +121,7 @@ input {
     color: var(--text-color);
 }
 
-.input {
+.name {
     height: var(--input-height);
     flex-grow: 1;
     border-radius: var(--input-border-radius);
@@ -133,22 +133,22 @@ input:-moz-read-only::placeholder {
     opacity: 1;
 }
 
-.input:-moz-read-only {
+.name:-moz-read-only {
     background-color: transparent;
     border-color: transparent;
     cursor: default;
 }
 
-.currentRow:not(.editModeRow) .input {
+.currentRow:not(.editModeRow) .name {
     font-weight: bold;
 }
 
-.currentRow:not(.editModeRow) .input:is(:hover, :focus) {
+.currentRow:not(.editModeRow) .name:is(:hover, :focus) {
     background-color: var(--focused-row-color);
     cursor: pointer;
 }
 
-.private .input {
+.private .name {
     color: var(--private-text-color);
 }
 
@@ -158,11 +158,11 @@ button:focus,
     outline: 2px solid var(--focus-outline-color);
 }
 
-[data-mode="normal"] .input::selection {
+[data-mode="normal"] .name::selection {
     background-color: transparent;
 }
 
-.inputError {
+.nameError {
     outline: 2px solid var(--error-outline-color) !important;
 }
 

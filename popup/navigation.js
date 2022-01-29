@@ -70,7 +70,7 @@ const navigator = {
 const rowOrCell = $row => $row?.['$'+column] || $row; // Take and return row, unless a cell can be returned instead.
 const row = $el => $el.$row || $el; // Element's parent row, else assume element is a row.
 
-const currentWindow = () => $currentWindowRow.$input || $currentWindowRow;
+const currentWindow = () => $currentWindowRow.$name || $currentWindowRow;
 const toolbar = () => $toolbar.firstElementChild || $toolbar;
 
 const isCurrentWindow = $el => $el.$row === $currentWindowRow || $el === $currentWindowRow;

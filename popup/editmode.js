@@ -11,7 +11,7 @@ import * as Status from './status.js';
 import * as Request from './request.js';
 
 export let $active = null; // Currently activated row; indicates if popup is in Edit Mode
-let $activeInput;
+let $activeName;
 let $disabledActions;
 
 const omniboxHint = `ENTER/↑/↓: Save, ESC: Cancel`;
@@ -27,7 +27,7 @@ export function handleClick($target) {
     }
     if ($active) {
         // Otherwise when in Edit Mode, return focus to active row
-        $active.$input.focus();
+        $active.$name.focus();
         return true;
     }
 }
@@ -38,7 +38,7 @@ export function activate($row = $currentWindowRow) {
 }
 
 async function done() {
-    const error = await trySaveName($activeInput);
+    const error = await trySaveName($activeName);
     if (error) return;
     row.deactivate();
     general.deactivate();
@@ -67,22 +67,22 @@ const general = {
 const row = {
     toggle(yes) {
         toggleClass('editModeRow', $active, yes);
-        $activeInput.readOnly = !yes;
-        $activeInput.tabIndex = yes ? 0 : -1;
+        $activeName.readOnly = !yes;
+        $activeName.tabIndex = yes ? 0 : -1;
         const $edit = $active.$edit;
         if ($edit) [$edit.title, altTooltip] = [altTooltip, $edit.title];
     },
     activate($row) {
         showTitleInStatus($row);
         $active = $row;
-        $activeInput = $active.$input;
-        $activeInput._original = $activeInput.value;
-        $activeInput.select();
+        $activeName = $active.$name;
+        $activeName._original = $activeName.value;
+        $activeName.select();
         this.toggle(true);
     },
     deactivate() {
-        $activeInput.setSelectionRange(0, 0); // Ensures the beginning is visible in case of a very long name
-        const name = getName($activeInput);
+        $activeName.setSelectionRange(0, 0); // Ensures the beginning is visible in case of a very long name
+        const name = getName($activeName);
         const $actions = [$active, ...getActionElements($active)];
         $actions.forEach($action => $action.title = Tooltip.updateName($action.title, name));
         this.toggle(false);
@@ -105,12 +105,12 @@ const getFocusedTab = async windowId => (await browser.tabs.query({ windowId, ac
 const keyEffects = {
 
     async ArrowDown() {
-        const error = await trySaveName($activeInput);
+        const error = await trySaveName($activeName);
         if (!error) row.shiftActive(1);
     },
 
     async ArrowUp() {
-        const error = await trySaveName($activeInput);
+        const error = await trySaveName($activeName);
         if (!error) row.shiftActive(-1);
     },
 
@@ -119,33 +119,33 @@ const keyEffects = {
 };
 
 export function handleKeyUp(key, $target) {
-    if ($target !== $activeInput) return;
+    if ($target !== $activeName) return;
     if (key in keyEffects) {
-        // If input receives a keystroke with an effect assigned, perform effect
+        // If $name receives a keystroke with an effect assigned, perform effect
         keyEffects[key]();
     } else
-    if ($activeInput.value !== $activeInput._invalid) {
-        // If input content is changed, remove any error indicator
-        toggleError($activeInput, false);
+    if ($activeName.value !== $activeName._invalid) {
+        // If $name content is changed, remove any error indicator
+        toggleError($activeName, false);
     }
 }
 
-// Trim content of input and try to save it. Return 0 on success, non-zero on failure.
+// Trim content of $name and try to save it. Return 0 on success, non-zero on failure.
 // Toggles error indicator accordingly.
-async function trySaveName($input) {
+async function trySaveName($name) {
     let error = 0;
-    const name = $input.value = $input.value.trim();
-    if (name !== $input._original) {
-        const windowId = $input.$row._id;
+    const name = $name.value = $name.value.trim();
+    if (name !== $name._original) {
+        const windowId = $name.$row._id;
         error = await Request.setName(windowId, name);
     }
-    toggleError($input, error);
+    toggleError($name, error);
     return error;
 }
 
-// Toggle-on effects: apply error indicator, remember invalid content, select input.
-function toggleError($input, error) {
-    toggleClass('inputError', $input, error);
-    $input._invalid = error ? $input.value : null;
-    if (error) $input.select();
+// Toggle-on effects: apply error indicator, remember invalid content, select name field.
+function toggleError($name, error) {
+    toggleClass('nameError', $name, error);
+    $name._invalid = error ? $name.value : null;
+    if (error) $name.select();
 }
