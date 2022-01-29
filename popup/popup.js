@@ -8,7 +8,7 @@ import navigateByArrow from './navigation.js';
 
 const isClickKey = key => key === 'Enter' || key === ' ';
 const isOmnibox = $target => $target === $omnibox;
-const isCurrentWindowInput = $target => $target === $currentWindowRow.$input;
+const isCurrentWindowInput = $target => $target === $currentWindowRow.$name;
 
 let modifierHints;
 

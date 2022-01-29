@@ -112,7 +112,7 @@ const row = {
         // Add data
         if (isCurrent) {
             $row.classList.replace('otherRow', 'currentRow');
-            $row.$input.tabIndex = 0;
+            $row.$name.tabIndex = 0;
             this.disableElement($row);
         }
         $row._id = id;
