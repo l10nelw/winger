@@ -17,7 +17,7 @@ import('./init.js').then(async init => {
     $body.addEventListener('keydown', onKeyDown);
     $body.addEventListener('keyup', onKeyUp);
     $body.addEventListener('focusout', onFocusOut);
-    $currentWindowRow.$input.addEventListener('dblclick', onDoubleClick);
+    $currentWindowRow.$name.addEventListener('dblclick', onDoubleClick);
 });
 
 function onClick(event) {

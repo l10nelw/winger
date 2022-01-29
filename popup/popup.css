@@ -123,7 +123,7 @@ input {
     color: var(--text-color);
 }
 
-.input {
+.name {
     flex-grow: 1;
     border-radius: var(--input-border-radius);
     margin-left: .25rem;
@@ -134,17 +134,17 @@ input:-moz-read-only::placeholder {
     opacity: 1;
 }
 
-.input:-moz-read-only {
+.name:-moz-read-only {
     background-color: transparent;
     border-color: transparent;
     cursor: default;
 }
 
-.currentRow:not(.editModeRow) .input {
+.currentRow:not(.editModeRow) .name {
     font-weight: bold;
 }
 
-.private .input {
+.private .name {
     color: var(--private-text-color);
 }
 
@@ -154,12 +154,12 @@ body:not([data-mode="edit"]) .otherRow:focus {
     outline: 2px solid var(--focus-outline-color);
 }
 
-.inputError {
+.nameError {
     outline: 2px solid var(--error-outline-color) !important;
 }
 
 
-body:not([data-mode="edit"]) .input:focus {
+body:not([data-mode="edit"]) .name:focus {
     outline: none;
 }
 
