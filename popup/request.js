@@ -28,6 +28,10 @@ export function action(event, $action = event.target) {
     window.close();
 }
 
+export function checkName(windowId, name) {
+    return sendMessage({ checkName: windowId, name });
+}
+
 export function setName(windowId, name) {
     return sendMessage({ setName: windowId, name });
 }
