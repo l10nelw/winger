@@ -1,4 +1,5 @@
-import { $currentWindowRow, $otherWindowsList, $omnibox, $toolbar, isButton, isRow, getActionAttr } from './common.js';
+import { $currentWindowRow, $otherWindowsList, $omnibox, $toolbar, isButton, isRow, getActionAttr, isField } from './common.js';
+import { isActive as isEditMode } from './editmode.js';
 import { $shownRows } from './filter.js';
 
 const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
@@ -57,17 +58,19 @@ const navigator = {
     },
     ArrowRight($el) {
         if ($el === $omnibox) return $omnibox;
+        if (isEditMode && isField($el)) return $el;
         if (isToolbar($el)) return $el.nextElementSibling || $toolbar.firstElementChild;
         return isRow($el) ? $el.firstElementChild : ($el.nextElementSibling || $el.$row);
     },
     ArrowLeft($el) {
         if ($el === $omnibox) return $omnibox;
+        if (isEditMode && isField($el)) return $el;
         if (isToolbar($el)) return $el.previousElementSibling || $toolbar.lastElementChild;
         return isRow($el) ? $el.lastElementChild : ($el.previousElementSibling || $el.$row);
     },
 };
 
-const rowOrCell = $row => $row?.['$'+column] || $row; // Take and return row, unless a cell can be returned instead.
+const rowOrCell = $row => isEditMode && $row?.$name || $row?.['$'+column] || $row; // Take and return row, unless a cell can be returned instead.
 const row = $el => $el.$row || $el; // Element's parent row, else assume element is a row.
 
 const currentWindow = () => $currentWindowRow.$name || $currentWindowRow;

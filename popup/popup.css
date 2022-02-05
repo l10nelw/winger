@@ -1,8 +1,8 @@
 /* * { outline: 1px solid red; } */
 :root {
     --popup-width: 250px;
-    --row-height: 36px;
-    --input-height: 30px;
+    --row-height: 34px;
+    --input-height: 28px;
     --tabcount-width: 20px;
     --button-width: 30px;
     --max-list-height: calc(30rem + 4px); /* Slightly more to accommodate y-padding */
@@ -103,7 +103,6 @@ li > * {
     margin: 0 .8rem;
     color: var(--muted-text-color);
     text-align: end;
-    font-size: small;
 }
 
 [data-mode="normal"] .otherRow:is(:hover, :focus) {
@@ -121,6 +120,10 @@ input {
     color: var(--text-color);
 }
 
+input:read-only {
+    cursor: default;
+}
+
 .name {
     height: var(--input-height);
     flex-grow: 1;
@@ -128,22 +131,23 @@ input {
     margin-left: .25rem;
 }
 
-input:disabled::placeholder,
-input:-moz-read-only::placeholder {
-    opacity: 1;
-}
-
-.name:-moz-read-only {
+[data-mode="normal"] .name,
+[data-mode="edit"] .name:not(:focus) {
     background-color: transparent;
     border-color: transparent;
     cursor: default;
+    user-select: none;
 }
 
-.currentRow:not(.editModeRow) .name {
+[data-mode="normal"] .name::placeholder {
+    opacity: 1;
+}
+
+[data-mode="normal"] .currentRow .name {
     font-weight: bold;
 }
 
-.currentRow:not(.editModeRow) .name:is(:hover, :focus) {
+[data-mode="normal"] .currentRow .name:hover {
     background-color: var(--focused-row-color);
     cursor: pointer;
 }
@@ -233,7 +237,7 @@ li.reopenTabs button.tabAction {
 
 [data-mode="edit"] li button {
     background-color: transparent;
-    opacity: .25;
+    opacity: .1;
 }
 
 .currentRow .tabAction {
@@ -250,13 +254,6 @@ li.reopenTabs button.tabAction {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-[data-mode="edit"] #status {
-    font-style: italic;
-}
-
-.defaultStatus {
     text-align: center;
 }
 

@@ -13,7 +13,8 @@ export function init(data) {
 
 // Element type
 export const isButton = $el => $el?.tagName === 'BUTTON';
-export const isInput = $el => $el?.tagName === 'INPUT';
+export const isField = $el => $el?.tagName === 'INPUT';
+export const isNameField = $el => hasClass('name', $el);
 export const isRow = $el => $el?._id;
 
 // Action attribute utilities
@@ -23,8 +24,8 @@ export const unsetActionAttr = $el => $el?.removeAttribute(actionAttr);
 export const getActionElements = ($scope = $body, suffix = '') => $scope.querySelectorAll(`[${actionAttr}]${suffix}`);
 
 // Given a $row or any of its child elements, get the givenName or defaultName.
-export function getName($rowElement) {
-    const $name = hasClass('name', $rowElement) && $rowElement || $rowElement.$name || $rowElement.$row.$name;
+export function getName($el) {
+    const $name = isNameField($el) && $el || $el.$name || $el.$row.$name;
     return $name.value || $name.placeholder;
 }
 
