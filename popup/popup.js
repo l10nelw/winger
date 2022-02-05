@@ -42,8 +42,6 @@ function onKeyDown(event) {
     if (EditMode.$active) return;
     if (navigateByArrow(target, key, event)) return;
     if (showModifierHint(key)) return;
-    if (key === 'Tab' || isClickKey(key)) return;
-    if (!isOmnibox(target)) $omnibox.focus();
 }
 
 function onKeyUp(event) {
