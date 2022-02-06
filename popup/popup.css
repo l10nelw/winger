@@ -2,11 +2,11 @@
 :root {
     --popup-width: 250px;
     --row-height: 34px;
-    --input-height: 28px;
     --tabcount-width: 20px;
     --button-width: 30px;
     --max-list-height: calc(30rem + 4px); /* Slightly more to accommodate y-padding */
-    --input-border-radius: 6px;
+    --name-height: 28px;
+    --name-border-radius: 6px;
 
     --text-color: #000;
     --muted-text-color: #333;
@@ -15,8 +15,8 @@
     --row-color: #eee;
     --focused-row-color: #ddd;
 
-    --input-color: #fff;
-    --slash-input-color: #ff6;
+    --field-color: #fff;
+    --slash-field-color: #ff6;
 
     --button-color: #d0d0d0;
     --focused-button-color: #bbb;
@@ -36,8 +36,8 @@
     --row-color: #42414d;
     --focused-row-color: #52525e;
 
-    --input-color: #223;
-    --slash-input-color: #223;
+    --field-color: #223;
+    --slash-field-color: #223;
     --slash-input-theme-color: gold;
 
     --button-color: #50505c;
@@ -86,10 +86,11 @@ ul {
 /* --- Row --- */
 
 li {
-    height: var(--row-height);
-    width: auto;
     display: flex;
     align-items: center;
+    position: relative;
+    height: var(--row-height);
+    width: auto;
     scroll-snap-align: center;
     list-style: none;
 }
@@ -116,7 +117,7 @@ input {
     border: 1px solid var(--border-color);
     padding: 0 6px;
     text-align: start;
-    background-color: var(--input-color);
+    background-color: var(--field-color);
     color: var(--text-color);
 }
 
@@ -125,9 +126,9 @@ input:read-only {
 }
 
 .name {
-    height: var(--input-height);
+    height: var(--name-height);
     flex-grow: 1;
-    border-radius: var(--input-border-radius);
+    border-radius: var(--name-border-radius);
     margin-left: .25rem;
 }
 
@@ -189,7 +190,7 @@ button:focus,
 }
 
 .slashCommand {
-    background-color: var(--slash-input-color);
+    background-color: var(--slash-field-color);
 }
 
 .dark .slashCommand {
@@ -199,7 +200,7 @@ button:focus,
 
 .dark .slashCommand::selection {
     background-color: var(--slash-input-theme-color);
-    color: var(--input-color);
+    color: var(--field-color);
 }
 
 
