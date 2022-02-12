@@ -5,10 +5,7 @@ import * as EditMode from './editmode.js';
 import * as Filter from './filter.js';
 import * as Request from './request.js';
 
-const NON_COMPLETING_KEYS = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Control', 'Shift', 'Alt']);
-
 const editCurrentWindow = () => EditMode.activate();
-
 export const commands = {
     help:       Toolbar.help,
     settings:   Toolbar.settings,
@@ -20,52 +17,61 @@ export const commands = {
     stash:      (event) => Request.stash(undefined, !event.shiftKey),
 };
 
+let commandReady;
+
+const keyUpResponse = {
+
+    Enter(event) {
+        if (commandReady) {
+            if (commandReady === 'debug') {
+                Request.debug();
+            } else {
+                commands[commandReady](event);
+            }
+            clear();
+        } else {
+            const $firstRow = Filter.$shownRows?.[0];
+            if ($firstRow) Request.action(event, $firstRow);
+        }
+    },
+
+}
+
 export function handleKeyUp(key, event) {
-    const enter = key === 'Enter';
+    if (key in keyUpResponse) keyUpResponse[key](event);
+}
+
+const isDeletion = event => event.inputType.startsWith('delete');
+
+export function handleInput(event) {
     const str = $omnibox.value;
-
     const isSlashed = str.startsWith('/');
+
     toggleClass('slashCommand', $omnibox, isSlashed);
-    if (isSlashed) return handleSlashed(key, event, str, enter);
 
-    Filter.execute(str);
-    const $firstRow = Filter.$shownRows?.[0];
-    if (enter && $firstRow) Request.action(event, $firstRow);
+    commandReady = isSlashed ? matchCommand(str) : null;
+    if (commandReady && !isDeletion(event)) {
+        autocompleteCommand(str, commandReady);
+    }
+
+    if (!isSlashed) Filter.execute(str);
 }
 
-function handleSlashed(key, event, str, enter) {
-    let command;
-    if (!( NON_COMPLETING_KEYS.has(key) || event.ctrlKey || event.altKey )) {
-        command = completeCommand(str);
-    }
-    if (enter) {
-        clear();
-        if (handleDebugCommand(str)) return;
-        if (command) commands[command](event);
-    }
-}
-
-// Autocomplete a command based on str, case-insensitive. Returns command, or undefined if no command found.
-function completeCommand(str) {
+function matchCommand(str) {
     const strUnslashed = str.slice(1).toUpperCase();
     for (const command in commands) {
-        if (command.toUpperCase().startsWith(strUnslashed)) {
-            $omnibox.value = `/${command}`;
-            $omnibox.setSelectionRange(str.length, command.length + 1);
-            return command;
-        }
+        if (command.toUpperCase().startsWith(strUnslashed)) return command;
     }
+    if (strUnslashed === 'DEBUG') return 'debug';
 }
 
-function handleDebugCommand(str) {
-    if (str.trim().toUpperCase() === '/DEBUG') {
-        placeholder('Debug mode on in console');
-        Request.debug();
-        return true;
-    }
+function autocompleteCommand(str, command) {
+    $omnibox.value = `/${command}`;
+    $omnibox.setSelectionRange(str.length, command.length + 1);
 }
 
 export function clear() {
     $omnibox.value = $omnibox.placeholder = '';
     removeClass('slashCommand', $omnibox);
+    commandReady = null;
 }

@@ -45,7 +45,7 @@ function onKeyDown(event) {
 
 function onKeyUp(event) {
     const { key, target } = event;
-    $omnibox.placeholder = '';
+    $omnibox.placeholder = ''; // Clear any hints
 
     if (EditMode.handleKeyUp(target, key)) return;
 
@@ -59,9 +59,12 @@ function onKeyUp(event) {
     }
 }
 
-function onInput(event) {
+async function onInput(event) {
     const { target } = event;
-    if (EditMode.handleInput(target)) return;
+    if (await EditMode.handleInput(target)) return;
+    if (target === $omnibox) {
+        return Omnibox.handleInput(event);
+    }
 }
 
 function onFocusIn(event) {
