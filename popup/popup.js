@@ -1,4 +1,9 @@
-import { $body, $omnibox, $currentWindowRow, isRow } from './common.js';
+import {
+    $body,
+    $omnibox,
+    $currentWindowRow,
+    isRow,
+} from './common.js';
 import * as Omnibox from './omnibox.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';

@@ -1,6 +1,9 @@
 /* Send messages to the background frame */
 
-import { $currentWindowRow, getActionAttr } from './common.js';
+import {
+    $currentWindowRow,
+    getActionAttr,
+} from './common.js';
 import { get as getModifiers } from '../modifier.js';
 
 const sendMessage = browser.runtime.sendMessage;

@@ -1,4 +1,11 @@
-import { init as initCommon, $omnibox, $otherWindowsList, $toolbar, getScrollbarWidth, unsetActionAttr } from './common.js';
+import {
+    init as initCommon,
+    $omnibox,
+    $otherWindowsList,
+    $toolbar,
+    getScrollbarWidth,
+    unsetActionAttr,
+} from './common.js';
 import * as Theme from '../theme.js';
 import * as Omnibox from './omnibox.js';
 import * as Filter from './filter.js';

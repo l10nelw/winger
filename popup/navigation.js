@@ -1,4 +1,13 @@
-import { $currentWindowRow, $otherWindowsList, $omnibox, $toolbar, isButton, isRow, getActionAttr, isField } from './common.js';
+import {
+    $currentWindowRow,
+    $otherWindowsList,
+    $omnibox,
+    $toolbar,
+    isButton,
+    isRow,
+    isField,
+    getActionAttr,
+} from './common.js';
 import { isActive as isEditMode } from './editmode.js';
 import { $shownRows } from './filter.js';
 
