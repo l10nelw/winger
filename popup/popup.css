@@ -137,11 +137,16 @@ input:read-only {
     background-color: transparent;
     border-color: transparent;
     cursor: default;
+    outline: none;
     user-select: none;
 }
 
 [data-mode="normal"] .name::placeholder {
     opacity: 1;
+}
+
+[data-mode="normal"] .name::selection {
+    background-color: transparent;
 }
 
 [data-mode="normal"] .currentRow .name {
@@ -153,8 +158,8 @@ input:read-only {
     cursor: pointer;
 }
 
-.private .name {
-    color: var(--private-text-color);
+[data-mode="normal"] .otherRow .name {
+    outline: none;
 }
 
 input:focus,
@@ -163,8 +168,8 @@ button:focus,
     outline: 2px solid var(--focus-outline-color);
 }
 
-[data-mode="normal"] .name::selection {
-    background-color: transparent;
+.private .name {
+    color: var(--private-text-color);
 }
 
 .nameError {
