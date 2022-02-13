@@ -1,4 +1,3 @@
-import { hasClass, removeClass, toggleClass } from '../utils.js';
 import { $body, $currentWindowRow, $omnibox, getActionElements, isField, isNameField } from './common.js';
 import * as Tooltip from './tooltip.js';
 import * as Status from './status.js';
@@ -25,7 +24,7 @@ function init() {
 
 function done() {
     setActive(false);
-    $allNames.forEach($name => removeClass('nameError', $name));
+    $allNames.forEach($name => $name.classList.remove('nameError'));
     $currentWindowRow.$name.tabIndex = 0;
     $omnibox.focus();
 }
@@ -42,7 +41,7 @@ export function handleFocusIn($focused, $defocused) {
     if (!isActive) return false;
 
     // Disallow defocusing field with error
-    if (hasClass('nameError', $defocused)) {
+    if ($defocused.classList.contains('nameError')) {
         $defocused.focus();
         return true;
     }
@@ -89,7 +88,7 @@ export function handleKeyUp($name, key) {
 function trySaveName($name) {
     const name = $name.value = $name.value.trim();
 
-    if (hasClass('nameError', $name)) return false;
+    if ($name.classList.contains('nameError')) return false;
     if (name === $name._original) return true;
 
     const windowId = $name.$row._id;
@@ -100,7 +99,7 @@ function trySaveName($name) {
 // On name error, add indicator and disable other fields.
 // Otherwise, remove indicator and enable other fields.
 function toggleError($name, error) {
-    toggleClass('nameError', $name, error);
+    $name.classList.toggle('nameError', error);
     toggleOtherFields($name, !error);
 }
 

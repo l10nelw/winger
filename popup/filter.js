@@ -1,4 +1,3 @@
-import { hasClass, addClass, removeClass } from '../utils.js';
 import { $currentWindowRow, $otherWindowsList, $otherWindowRows, getName, getScrollbarWidth } from './common.js';
 
 export let $shownRows;
@@ -24,9 +23,8 @@ export function execute(str) {
     });
 
     // Add offset if scrollbar disappears
-    if (hasClass('scrollbarOffset', $currentWindowRow) && !getScrollbarWidth($otherWindowsList)) {
-        addClass('scrollbarOffset', $otherWindowsList);
-    }
+    if ($currentWindowRow.classList.contains('scrollbarOffset') && !getScrollbarWidth($otherWindowsList))
+        $otherWindowsList.classList.add('scrollbarOffset');
 }
 
 const compareNameLength = ($a, $b) => $a._nameLength - $b._nameLength;
@@ -60,6 +58,6 @@ function reset() {
             $row._index = index;
         }
     });
-    removeClass('scrollbarOffset', $otherWindowsList);
+    $otherWindowsList.classList.remove('scrollbarOffset');
     return $otherWindowRows;
 }

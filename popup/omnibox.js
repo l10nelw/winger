@@ -1,4 +1,3 @@
-import { removeClass, toggleClass } from '../utils.js';
 import { $omnibox } from './common.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
@@ -47,7 +46,7 @@ export function handleInput(event) {
     const str = $omnibox.value;
     const isSlashed = str.startsWith('/');
 
-    toggleClass('slashCommand', $omnibox, isSlashed);
+    $omnibox.classList.toggle('slashCommand', isSlashed);
 
     commandReady = isSlashed ? matchCommand(str) : null;
     if (commandReady && !isDeletion(event)) {
@@ -72,6 +71,6 @@ function autocompleteCommand(str, command) {
 
 export function clear() {
     $omnibox.value = $omnibox.placeholder = '';
-    removeClass('slashCommand', $omnibox);
+    $omnibox.classList.remove('slashCommand');
     commandReady = null;
 }

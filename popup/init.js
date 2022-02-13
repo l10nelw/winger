@@ -1,4 +1,3 @@
-import { hasClass, addClass, toggleClass } from '../utils.js';
 import { init as initCommon, $omnibox, $otherWindowsList, $toolbar, getScrollbarWidth, unsetActionAttr } from './common.js';
 import * as Theme from '../theme.js';
 import * as Omnibox from './omnibox.js';
@@ -106,7 +105,8 @@ const row = {
             const reference = selector.replace('.', '$');
             $cell.$row = $row;
             $row[reference] = $cell;
-            if (isCurrent && hasClass('tabAction', $cell)) this.disableElement($cell);
+            if (isCurrent && $cell.classList.contains('tabAction'))
+                this.disableElement($cell);
         }
 
         // Add data
@@ -118,7 +118,7 @@ const row = {
         $row._id = id;
         $row.$name.value = givenName;
         $row.$name.placeholder = defaultName;
-        toggleClass('private', $row, incognito);
+        $row.classList.toggle('private', incognito);
 
         return $row;
     },
@@ -140,7 +140,8 @@ const toolbar = {
             show_popup_settings: '#settings',
         }
         for (const [button, selector] of Object.entries(buttonDict)) {
-            if (!SETTINGS[button]) $toolbar.querySelector(selector).remove();
+            if (!SETTINGS[button])
+                $toolbar.querySelector(selector).remove();
         }
     },
 }
@@ -154,10 +155,11 @@ function createModifierHints(selectedTabCount) {
 }
 
 function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
-    const isPrivate = $row => hasClass('private', $row);
+    const isPrivate = $row => $row.classList.contains('private');
     const currentIsPrivate = isPrivate($currentWindowRow);
     for (const $row of $otherWindowRows) {
-        if (isPrivate($row) != currentIsPrivate) addClass('reopenTabs', $row);
+        if (isPrivate($row) != currentIsPrivate)
+            $row.classList.add('reopenTabs');
     }
 }
 
@@ -175,7 +177,7 @@ function alignWithScrollbar($toAlign, $scrolling) {
     const scrollbarWidth = getScrollbarWidth($scrolling);
     if (!scrollbarWidth) return;
     document.styleSheets[0].insertRule(`.scrollbarOffset { margin-right: ${scrollbarWidth}px }`);
-    addClass('scrollbarOffset', $toAlign);
+    $toAlign.classList.add('scrollbarOffset');
 }
 
 function lockHeight($el) {

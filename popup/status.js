@@ -1,5 +1,3 @@
-import { addClass, toggleClass } from '../utils.js';
-
 const $status = document.getElementById('status');
 const count = { tabs: 0, windows: 0 };
 let defaultText;
@@ -22,13 +20,13 @@ export async function init($rows) {
 export function show(text) {
     defaultText = defaultText || tabCountText();
     $status.textContent = text || defaultText;
-    toggleClass('defaultStatus', $status, !text);
+    $status.classList.toggle('defaultStatus', !text);
 }
 
 // Update and show defaultText in status bar.
 export function update() {
     $status.textContent = defaultText = tabCountText();
-    addClass('defaultStatus', $status);
+    $status.classList.add('defaultStatus');
 }
 
 function tabCountText() {

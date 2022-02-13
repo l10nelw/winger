@@ -1,6 +1,6 @@
 import { retrieve as retrieveSettings } from '../background/settings.js';
 import * as Theme from '../theme.js';
-import { getShortcut, hasClass } from '../utils.js';
+import { getShortcut } from '../utils.js';
 
 const $body = document.body;
 const $ = (selector, $scope = $body) => $scope.querySelector(selector);
@@ -20,7 +20,8 @@ async function applySettings() {
 }
 
 function onClick({ target }) {
-    if (hasClass('settingsBtn', target)) browser.runtime.openOptionsPage();
+    if (target.classList.contains('settingsBtn'))
+        browser.runtime.openOptionsPage();
 }
 
 function insertVersion() {
