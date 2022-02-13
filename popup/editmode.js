@@ -1,4 +1,11 @@
-import { $body, $currentWindowRow, $omnibox, getActionElements, isField, isNameField } from './common.js';
+import {
+    $body,
+    $currentWindowRow,
+    $omnibox,
+    getActionElements,
+    isField,
+    isNameField,
+} from './common.js';
 import * as Tooltip from './tooltip.js';
 import * as Status from './status.js';
 import * as Request from './request.js';

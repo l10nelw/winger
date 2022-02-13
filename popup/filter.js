@@ -1,4 +1,10 @@
-import { $currentWindowRow, $otherWindowsList, $otherWindowRows, getName, getScrollbarWidth } from './common.js';
+import {
+    $currentWindowRow,
+    $otherWindowsList,
+    $otherWindowRows,
+    getName,
+    getScrollbarWidth,
+} from './common.js';
 
 export let $shownRows;
 

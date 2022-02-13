@@ -1,6 +1,9 @@
 /* Tooltips on-hover over action elements */
 
-import { getName, getActionElements } from './common.js';
+import {
+    getName,
+    getActionElements,
+} from './common.js';
 
 const COLON = ': ';
 
