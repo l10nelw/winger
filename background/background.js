@@ -5,6 +5,7 @@ import * as Action from './action.js';
 import * as Chrome from './chrome.js';
 let Stash, Menu; // Optional modules
 
+//@ -> state
 function debug() {
     const modules = { Settings, Window, Name, Action, Stash, Menu };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
@@ -19,6 +20,7 @@ browser.windows.onRemoved.addListener      (onWindowRemoved);
 browser.windows.onFocusChanged.addListener (onWindowFocused);
 browser.runtime.onMessage.addListener      (onRequest);
 
+//@ state -> state
 async function init() {
     const [SETTINGS, windows] = await Promise.all([ Settings.retrieve(), browser.windows.getAll() ]);
 
@@ -46,10 +48,12 @@ async function init() {
     for (const window of windows) onWindowCreated(window, true);
 }
 
+//@ (Object) -> state
 function onExtensionInstalled(details) {
     if (details.reason === 'install') Action.openHelp();
 }
 
+//@ (Object, Boolean), state -> state
 async function onWindowCreated(window, isInit) {
     const windowId = window.id;
     if (window.focused) onWindowFocused(windowId);
@@ -62,15 +66,18 @@ async function onWindowCreated(window, isInit) {
     Stash?.unstash.onWindowCreated(windowId);
 }
 
+//@ (Number), state -> state
 function onWindowRemoved(windowId) {
     Window.remove(windowId);
     Menu?.update();
 }
 
+//@ (Number), state -> state
 function onWindowFocused(windowId) {
     if (windowId in Window.winfoDict) Window.winfoDict[windowId].lastFocused = Date.now();
 }
 
+//@ (Object), state -> (Promise: Object|Boolean|null), state|null
 async function onRequest(request) {
     if (request.popup) return {
         SETTINGS:         Settings.SETTINGS,

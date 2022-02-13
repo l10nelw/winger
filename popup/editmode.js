@@ -13,23 +13,26 @@ import * as Request from './request.js';
 const HINT = `Edit Mode: ENTER/↑/↓ to Save, ESC to Cancel`;
 
 export let isActive = false; // Indicates if popup is in Edit Mode
-let $allNames;
+let $names;
 let $focusedName;
 
+//@ (Object), state -> state
 export function activate($name = $currentWindowRow.$name) {
-    $allNames = $allNames || $body.querySelectorAll('.name');
+    $names = $names || $body.querySelectorAll('.name');
     setActive(true);
     $name.focus();
     $focusedName = $name;
 }
 
+//@ -> state
 function done() {
     setActive(false);
-    $allNames.forEach($name => $name.classList.remove('nameError'));
+    $names.forEach($name => $name.classList.remove('nameError'));
     $currentWindowRow.$name.tabIndex = 0;
     $omnibox.focus();
 }
 
+//@ (Boolean) -> state
 function setActive(isActivate) {
     isActive = isActivate;
     $body.dataset.mode = isActivate ? 'edit' : 'normal';
@@ -38,6 +41,7 @@ function setActive(isActivate) {
     Status.show(isActivate ? HINT : null);
 }
 
+//@ (Object, Object) -> (Boolean), state|null
 export function handleFocusIn($focused, $defocused) {
     if (!isActive) return false;
 
@@ -66,6 +70,7 @@ export function handleFocusIn($focused, $defocused) {
     return isHandled;
 }
 
+//@ (Object) -> (Boolean), state|null
 export async function handleInput($name) {
     if (!isActive || $name !== $focusedName) return false;
     const error = await Request.checkName($name.$row._id, $name.value.trim());
@@ -73,6 +78,7 @@ export async function handleInput($name) {
     return true;
 }
 
+//@ (Object, String) -> (Boolean), state|null
 export function handleKeyUp($name, key) {
     if (!isActive || $name !== $focusedName) return false;
 
@@ -86,6 +92,7 @@ export function handleKeyUp($name, key) {
 }
 
 // Trim content of name field and try to save it. Return true if successful, false otherwise.
+//@ (Object) -> (Boolean), state|null
 function trySaveName($name) {
     const name = $name.value = $name.value.trim();
 
@@ -99,25 +106,30 @@ function trySaveName($name) {
 
 // On name error, add indicator and disable other fields.
 // Otherwise, remove indicator and enable other fields.
+//@ (Object, Number) -> state
 function toggleError($name, error) {
     $name.classList.toggle('nameError', error);
     toggleOtherFields($name, !error);
 }
 
+//@ (Boolean) -> state
 function toggleDisabledActions(isDisable) {
     $actions.forEach($action => $action.disabled = isDisable);
 }
 
+//@ (Boolean) -> state
 function toggleNameFields(isEnable) {
-    toggleFields($allNames, isEnable);
+    toggleFields($names, isEnable);
 }
 
+//@ (Object, Boolean) -> state
 function toggleOtherFields($field, isEnable) {
-    const $fields = [...$allNames];
+    const $fields = [...$names];
     $fields[$fields.indexOf($field)] = $omnibox;
     toggleFields($fields, isEnable);
 }
 
+//@ ([Object], Boolean) -> state
 function toggleFields($fields, isEnable) {
     const tabIndex = isEnable ? 0 : -1;
     const isReadOnly = !isEnable;

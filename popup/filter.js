@@ -8,11 +8,13 @@ import {
 
 export let $shownRows;
 
+//@ state -> state
 export function init() {
     $shownRows = $otherWindowRows;
 }
 
 // Show only rows whose names contain str, and sort them by name length, shortest first.
+//@ (String) -> state
 export function execute(str) {
     if (!str) {
         $shownRows = reset();
@@ -33,10 +35,11 @@ export function execute(str) {
         $otherWindowsList.classList.add('scrollbarOffset');
 }
 
-const compareNameLength = ($a, $b) => $a._nameLength - $b._nameLength;
+const compareNameLength = ($a, $b) => $a._nameLength - $b._nameLength; //@ (Object, Object) -> (Number)
 
 // Hide rows whose names do not contain str, case-insensitive.
 // The rest are shown, given _nameLength property and returned as an array.
+//@ (String), state -> ([Object]), state
 function filter(str) {
     str = str.toUpperCase();
     const $filteredRows = [];
@@ -54,6 +57,7 @@ function filter(str) {
 
 // Reverse all changes made by execute(): hidden rows, sort order, _index, scrollbar offset.
 // Restore sort order by comparing 'live' $otherWindowsList.children against correctly-sorted $otherWindowRows.
+//@ state -> state
 function reset() {
     $otherWindowRows.forEach(($correctRow, index) => {
         $correctRow.hidden = false;

@@ -13,9 +13,9 @@ const enablerMap = new GroupMap(); // Fields that enable/disable other fields
 const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and change state according to those fields' states
 let SETTINGS, formData;
 
-const relevantProp = $field => $field.type === 'checkbox' ? 'checked' : 'value';
-const relevantValue = $field => $field[relevantProp($field)];
-const getFormValuesString = () => $settings.map(relevantValue).join();
+const relevantProp = $field => $field.type === 'checkbox' ? 'checked' : 'value'; //@ (Object) -> (String)
+const relevantValue = $field => $field[relevantProp($field)]; //@ (Object) -> (Boolean|String)
+const getFormValuesString = () => $settings.map(relevantValue).join(); //@ state -> (String)
 
 (async () => {
     SETTINGS = await retrieveSettings();
@@ -47,6 +47,7 @@ $form.onsubmit = applySettings;
 staticText_insertShortcut();
 staticText_checkPrivateAccess();
 
+//@ ({ Object }), state -> state
 async function onFieldChange({ target: $field }) {
     await stash_onChecked($field);
     stash_updateHomeSelect();
@@ -57,25 +58,30 @@ async function onFieldChange({ target: $field }) {
     updateApplyBtns();
 }
 
+//@ ({ Object }), state -> state|null
 function onElClick({ target: $el }) {
     if ($el.classList.contains('help'))
         openHelp($el.getAttribute('href'));
 }
 
+//@ -> state
 function applySettings() {
     browser.runtime.reload();
 }
 
+//@ (Object), state -> state
 function loadSetting($field) {
     $field[relevantProp($field)] = SETTINGS[$field.name];
 }
 
+//@ (Object), state -> state|null
 function saveSetting($field) {
     if ($field.classList.contains('setting'))
         browser.storage.local.set({ [$field.name]: relevantValue($field) });
 }
 
- // Disable submit buttons if restart unneeded or form unchanged. Enable otherwise.
+// Disable submit buttons if restart unneeded or form unchanged. Enable otherwise.
+//@ state -> state
 async function updateApplyBtns() {
     const disable = await needsRestart() ? false : getFormValuesString() === formData;
     for (const $btn of $applyBtns) $btn.disabled = disable;
@@ -83,6 +89,7 @@ async function updateApplyBtns() {
 }
 
 // Enable/disable fields that $enabler controls.
+//@ (Object), state -> state|null
 function activateEnabler($enabler) {
     const $targets = enablerMap.get($enabler);
     if (!$targets) return;
@@ -93,12 +100,14 @@ function activateEnabler($enabler) {
     }
 }
 
+//@ (Object, Boolean) -> state
 function updateEnablerTarget($field, disable) {
     $field.disabled = disable;
     $field.closest('label')?.classList.toggle('muted', disable);
 }
 
 // Check/uncheck fields that $toggler controls.
+//@ (Object), state -> state|null
 function activateToggler($toggler) {
     const $targets = togglerMap.get($toggler);
     if (!$targets) return;
@@ -110,6 +119,7 @@ function activateToggler($toggler) {
 }
 
 // Update $toggler state based on the states of the fields it controls.
+//@ (Object), state -> state|null
 function updateToggler($toggler) {
     const $targets = togglerMap.get($toggler);
     if (!$targets) return;
@@ -125,6 +135,7 @@ function updateToggler($toggler) {
     }
 }
 
+//@ (Object), state -> state|null
 async function stash_onChecked($field) {
     if ($field !== $form.enable_stash) return;
     const permission = { permissions: ['bookmarks'] };
@@ -133,6 +144,7 @@ async function stash_onChecked($field) {
 }
 
 // Add/update subfolder name in the stash home <select>.
+//@ state -> state
 function stash_updateHomeSelect() {
     const name = validify($form.stash_home_name.value);
     $form.stash_home_name.value = name;
@@ -141,6 +153,7 @@ function stash_updateHomeSelect() {
             $option.text = `${$option.previousElementSibling.text} ${stash_subSymbol} ${name}`;
 }
 
+//@ state -> state
 async function staticText_insertShortcut() {
     const defaultShortcut = browser.runtime.getManifest().commands._execute_browser_action.suggested_key.default;
     const currentShortcut = await getShortcut();
@@ -151,6 +164,7 @@ async function staticText_insertShortcut() {
     $defaultShortcutText.hidden = false;
 }
 
+//@ state -> state
 async function staticText_checkPrivateAccess() {
     const isAllowed = await browser.extension.isAllowedIncognitoAccess();
     const $toShow = $body.querySelectorAll(`.private-allowed-${isAllowed ? 'yes' : 'no'}`);

@@ -3,8 +3,8 @@ import * as Theme from '../theme.js';
 import { getShortcut } from '../utils.js';
 
 const $body = document.body;
-const $ = (selector, $scope = $body) => $scope.querySelector(selector);
-const $$ = (selector, $scope = $body) => $scope.querySelectorAll(selector);
+const $ = (selector, $scope = $body) => $scope.querySelector(selector); //@ (Object, Object|null) -> (Object)
+const $$ = (selector, $scope = $body) => $scope.querySelectorAll(selector); //@ (Object, Object|null) -> ([Object])
 $body.onclick = onClick;
 
 applySettings();
@@ -14,26 +14,31 @@ doOSSpecific();
 updateMockPopups();
 handleCollapse();
 
+//@ state -> state
 async function applySettings() {
     const SETTINGS = await retrieveSettings();
     Theme.apply(SETTINGS.theme);
 }
 
+//@ (Object) -> state
 function onClick({ target }) {
     if (target.classList.contains('settingsBtn'))
         browser.runtime.openOptionsPage();
 }
 
+//@ state -> state
 function insertVersion() {
     const { version } = browser.runtime.getManifest();
     $$('.js-version').forEach($el => $el.textContent = version);
 }
 
+//@ state -> state
 async function insertShortcut() {
     const shortcut = await getShortcut();
     $$('.js-shortcut').forEach($el => $el.textContent = shortcut);
 }
 
+//@ state -> state
 function doOSSpecific() {
     const isOS = str => navigator.userAgent.indexOf(str) !== -1;
     const isMac = isOS('Mac OS');
@@ -53,6 +58,7 @@ function doOSSpecific() {
     }
 }
 
+//@ state -> state
 function updateMockPopups() {
     $$('.popup').forEach($popup => {
         const $status = $('.popup-status', $popup);
@@ -66,6 +72,7 @@ function updateMockPopups() {
     });
 }
 
+//@ state -> state
 async function handleCollapse() {
     const { help_collapse } = await browser.storage.local.get('help_collapse');
     const $collapse = document.getElementById('collapse');
