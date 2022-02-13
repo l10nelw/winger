@@ -171,10 +171,10 @@ const isSamePrivateStatus = (windowId1, windowId2) => winfoDict[windowId1].incog
 
 const READER_HEAD = 'about:reader?url=';
 const isReader = url => url.startsWith(READER_HEAD); //@ (String) -> (Boolean)
-const getReaderTarget = readerURL => decodeURIComponent( readerURL.slice(READER_HEAD.length) ); //@ (String) -> (String)
+const getReaderTarget = readerURL => decodeURIComponent(readerURL.slice(READER_HEAD.length)); //@ (String) -> (String)
 
 const PLACEHOLDER_PATH = browser.runtime.getURL('../placeholder/tab.html');
-const buildPlaceholderURL = (url, title) => `${PLACEHOLDER_PATH}?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`; //@ (String, String) -> (String)
+const buildPlaceholderURL = (url, title) => `${PLACEHOLDER_PATH}?${new URLSearchParams({ url, title })}`; //@ (String, String) -> (String)
 const isPlaceholder = url => url.startsWith(PLACEHOLDER_PATH); //@ (String) -> (Boolean)
-const getPlaceholderTarget = placeholderUrl => decodeURIComponent( (new URL(placeholderUrl)).searchParams.get('url') ); //@ (String) -> (String)
+const getPlaceholderTarget = placeholderUrl => (new URL(placeholderUrl)).searchParams.get('url'); //@ (String) -> (String)
 export const deplaceholderize = url => isPlaceholder(url) ? getPlaceholderTarget(url) : url; //@ (String) -> (String)

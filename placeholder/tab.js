@@ -7,8 +7,8 @@ import * as Theme from '../theme.js';
 })();
 
 const params = new URL(location).searchParams;
-const url    = decodeURIComponent(params.get('url'));
-const title  = decodeURIComponent(params.get('title'));
+const url    = params.get('url');
+const title  = params.get('title');
 
 const $head  = document.body.querySelector('h1');
 const $main  = document.body.querySelector('main');
