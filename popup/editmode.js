@@ -2,7 +2,7 @@ import {
     $body,
     $currentWindowRow,
     $omnibox,
-    getActionElements,
+    $actions,
     isField,
     isNameField,
 } from './common.js';
@@ -14,19 +14,13 @@ const HINT = `Edit Mode: ENTER/↑/↓ to Save, ESC to Cancel`;
 
 export let isActive = false; // Indicates if popup is in Edit Mode
 let $allNames;
-let $actions;
 let $focusedName;
 
 export function activate($name = $currentWindowRow.$name) {
-    init();
+    $allNames = $allNames || $body.querySelectorAll('.name');
     setActive(true);
     $name.focus();
     $focusedName = $name;
-}
-
-function init() {
-    $allNames = $allNames || $body.querySelectorAll('.name');
-    $actions = $actions || getActionElements();
 }
 
 function done() {

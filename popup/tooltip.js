@@ -2,7 +2,7 @@
 
 import {
     getName,
-    getActionElements,
+    $actions,
 } from './common.js';
 
 const COLON = ': ';
@@ -22,7 +22,7 @@ export function init(tabCount) {
     const tabCountPhrase = tabCount == 1 ? 'tab' : `${tabCount} tabs`;
     const reopenPhrase = $row => $row.classList.contains('reopenTabs') ? '(reopen) ' : '';
 
-    for (const $action of getActionElements()) {
+    for (const $action of $actions) {
         const $row = $action.$row || $action;
         const name = memoisedRowName($row);
         const insertText = reopenPhrase($row) + tabCountPhrase;
