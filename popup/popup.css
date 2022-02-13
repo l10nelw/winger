@@ -144,6 +144,10 @@ input:read-only {
     opacity: 1;
 }
 
+[data-mode="normal"] .name::selection {
+    background-color: transparent;
+}
+
 [data-mode="normal"] .currentRow .name {
     font-weight: bold;
 }
@@ -153,8 +157,8 @@ input:read-only {
     cursor: pointer;
 }
 
-.private .name {
-    color: var(--private-text-color);
+[data-mode="normal"] .otherRow .name {
+    outline: none;
 }
 
 input:focus,
@@ -163,8 +167,8 @@ button:focus,
     outline: 2px solid var(--focus-outline-color);
 }
 
-[data-mode="normal"] .name::selection {
-    background-color: transparent;
+.private .name {
+    color: var(--private-text-color);
 }
 
 .nameError {
