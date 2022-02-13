@@ -1,5 +1,3 @@
-import { hasClass } from '../utils.js';
-
 // Elements of the popup
 export const $body = document.body;
 export const $omnibox = document.getElementById('omnibox');
@@ -14,7 +12,7 @@ export function init(data) {
 // Element type
 export const isButton = $el => $el?.tagName === 'BUTTON';
 export const isField = $el => $el?.tagName === 'INPUT';
-export const isNameField = $el => hasClass('name', $el);
+export const isNameField = $el => $el.classList.contains('name');
 export const isRow = $el => $el?._id;
 
 // Action attribute utilities

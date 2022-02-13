@@ -1,6 +1,5 @@
 /* Tooltips on-hover over action elements */
 
-import { hasClass } from '../utils.js';
 import { getName, getActionElements } from './common.js';
 
 const COLON = ': ';
@@ -18,7 +17,7 @@ export function init(tabCount) {
     }
 
     const tabCountPhrase = tabCount == 1 ? 'tab' : `${tabCount} tabs`;
-    const reopenPhrase = $row => hasClass('reopenTabs', $row) ? '(reopen) ' : '';
+    const reopenPhrase = $row => $row.classList.contains('reopenTabs') ? '(reopen) ' : '';
 
     for (const $action of getActionElements()) {
         const $row = $action.$row || $action;
@@ -31,8 +30,7 @@ export function init(tabCount) {
 // Add or change the name portion of a tooltip.
 export function updateName(tooltip, name) {
     const colonIndex = tooltip.indexOf(COLON);
-    if (colonIndex > -1) {
+    if (colonIndex > -1)
         tooltip = tooltip.slice(0, colonIndex + COLON.length) + name;
-    }
     return tooltip;
 }

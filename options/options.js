@@ -1,6 +1,6 @@
 import { retrieve as retrieveSettings, needsRestart } from '../background/settings.js';
 import * as Theme from '../theme.js';
-import { getShortcut, hasClass, toggleClass, GroupMap } from '../utils.js';
+import { getShortcut, GroupMap } from '../utils.js';
 import { validify } from '../background/name.js';
 import { openHelp } from '../background/action.js';
 
@@ -58,7 +58,8 @@ async function onFieldChange({ target: $field }) {
 }
 
 function onElClick({ target: $el }) {
-    if (hasClass('help', $el)) openHelp($el.getAttribute('href'));
+    if ($el.classList.contains('help'))
+        openHelp($el.getAttribute('href'));
 }
 
 function applySettings() {
@@ -70,7 +71,7 @@ function loadSetting($field) {
 }
 
 function saveSetting($field) {
-    if (hasClass('setting', $field))
+    if ($field.classList.contains('setting'))
         browser.storage.local.set({ [$field.name]: relevantValue($field) });
 }
 
@@ -94,7 +95,7 @@ function activateEnabler($enabler) {
 
 function updateEnablerTarget($field, disable) {
     $field.disabled = disable;
-    toggleClass('muted', $field.closest('label'), disable);
+    $field.closest('label')?.classList.toggle('muted', disable);
 }
 
 // Check/uncheck fields that $toggler controls.
