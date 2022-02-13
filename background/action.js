@@ -4,9 +4,9 @@ import { BRING, SEND } from '../modifier.js';
 import { winfoDict } from './window.js';
 import { SETTINGS } from './settings.js';
 
-export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash);
-export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true });
-export const switchWindow = windowId => browser.windows.update(windowId, { focused: true });
+export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash); //@ (String) -> state
+export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> ([Object])
+export const switchWindow = windowId => browser.windows.update(windowId, { focused: true }); //@ (Number), state -> (Promise: Object), state
 
 const actionDict = {
     bring:  bringTabs,
@@ -14,6 +14,7 @@ const actionDict = {
     switch: switchWindow,
 };
 
+//@ state -> state
 export function init() {
     if (!SETTINGS.keep_moved_focused_tab_focused) SETTINGS.keep_moved_tabs_selected = false;
     // Disable functions according to settings:
@@ -22,6 +23,7 @@ export function init() {
 }
 
 // Open extension page tab, closing any duplicates found.
+//@ (String, String), state -> state
 async function openUniqueExtensionPage(pathname, hash) {
     const url = browser.runtime.getURL(pathname);
     const openedTabs = await browser.tabs.query({ url });
@@ -30,18 +32,21 @@ async function openUniqueExtensionPage(pathname, hash) {
     browser.tabs.create({ url: `/${pathname}` });
 }
 
+//@ (Number), state -> state
 export async function selectFocusedTab(windowId) {
     const tab = (await browser.tabs.query({ windowId, active: true }))[0];
     browser.tabs.highlight({ windowId, tabs: [tab.index], populate: false }); // Select focused tab to deselect other tabs
 }
 
 // Select action to execute based on `action` and `modifiers`.
+//@ ({ String, [String], Number, [Object] }), state -> state
 export async function execute({ action, modifiers, windowId, tabs }) {
     tabs = tabs || await getSelectedTabs();
     action = modify(action, modifiers);
     actionDict[action](windowId, tabs);
 }
 
+//@ (String, [String]) -> (String)
 function modify(action, modifiers) {
     if (!modifiers.length) return action;
     return modifiers.includes(BRING) ? 'bring' :
@@ -50,6 +55,7 @@ function modify(action, modifiers) {
 }
 
 // Create a new window containing currently selected tabs.
+//@ (Boolean), state -> state
 export async function pop(incognito) {
     const [tabs, window] = await Promise.all([
         browser.tabs.query({ currentWindow: true }),
@@ -65,16 +71,19 @@ export async function pop(incognito) {
     browser.tabs.remove(initTabId);
 }
 
+//@ (Number, [Object]), state -> state
 async function bringTabs(windowId, tabs) {
     if (await sendTabs(windowId, tabs)) switchWindow(windowId);
 }
 
+//@ (Number, [Object]), state -> ([Object]|null), state
 async function sendTabs(windowId, tabs) {
     const originWindowId = tabs[0].windowId;
     const reopen = !isSamePrivateStatus(originWindowId, windowId);
     return await (reopen ? reopenTabs : moveTabs)(windowId, tabs);
 }
 
+//@ (Number, [Object]), state -> (Promise: [Object]|null), state
 async function moveTabs(windowId, tabs) {
     const pinnedTabIds = movablePinnedTabs(tabs)?.map(tab => tab.id);
     if (pinnedTabIds) await Promise.all(pinnedTabIds.map(unpinTab));
@@ -93,14 +102,17 @@ async function moveTabs(windowId, tabs) {
     return movedTabs;
 }
 
+//@ (Number, [Object]), state -> (Promise: [Object]|null), state
 async function reopenTabs(windowId, tabs) {
     if (!movablePinnedTabs(tabs)) tabs = tabs.filter(tab => !tab.pinned);
 
-    const focusedTabSetting = SETTINGS.keep_moved_focused_tab_focused;
+    const FOCUSED_TAB_SETTING = SETTINGS.keep_moved_focused_tab_focused;
+
+    //@ (Object), state -> (Promise: Object), state
     const reopenTab = tab => {
         const { url, title, pinned, discarded } = tab;
         const properties = { url, title, pinned, discarded, windowId };
-        if (tab.active && focusedTabSetting) properties.active = true;
+        if (tab.active && FOCUSED_TAB_SETTING) properties.active = true;
         browser.tabs.remove(tab.id);
         return openTab(properties);
     };
@@ -115,6 +127,7 @@ async function reopenTabs(windowId, tabs) {
     return tabs;
 }
 
+//@ ([Object]) -> ([Object]|null)
 function movablePinnedTabs(tabs) {
     const pinnedTabs = tabs.filter(tab => tab.pinned);
     const pinnedTabCount = pinnedTabs.length;
@@ -125,6 +138,7 @@ function movablePinnedTabs(tabs) {
 
 // Create a tab with given properties, or a placeholder tab if properties.url is invalid.
 // Less strict than tabs.create(): properties can contain some invalid combinations, which are automatically fixed.
+//@ (Object), state -> (Promise: Object), state
 export function openTab(properties) {
     const { url, title } = properties;
 
@@ -141,24 +155,26 @@ export function openTab(properties) {
     return browser.tabs.create(properties).catch(() => openPlaceholderTab(properties, title));
 }
 
+//@ (Object, String) -> (Promise: Object), state
 function openPlaceholderTab(properties, title) {
     properties.url = buildPlaceholderURL(properties.url, title);
     return browser.tabs.create(properties);
 }
 
-
+//@ (Number) -> (Promise: Object), state
 const unpinTab  = tabId => browser.tabs.update(tabId, { pinned: false });
 const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
 const focusTab  = tabId => browser.tabs.update(tabId, { active: true });
 const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
-const isSamePrivateStatus = (windowId1, windowId2) => winfoDict[windowId1].incognito === winfoDict[windowId2].incognito;
+
+const isSamePrivateStatus = (windowId1, windowId2) => winfoDict[windowId1].incognito === winfoDict[windowId2].incognito; //@ (Number, Number), state -> (Boolean)
 
 const READER_HEAD = 'about:reader?url=';
-const isReader = url => url.startsWith(READER_HEAD);
-const getReaderTarget = readerURL => decodeURIComponent( readerURL.slice(READER_HEAD.length) );
+const isReader = url => url.startsWith(READER_HEAD); //@ (String) -> (Boolean)
+const getReaderTarget = readerURL => decodeURIComponent( readerURL.slice(READER_HEAD.length) ); //@ (String) -> (String)
 
 const PLACEHOLDER_PATH = browser.runtime.getURL('../placeholder/tab.html');
-const buildPlaceholderURL = (url, title) => `${PLACEHOLDER_PATH}?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
-const isPlaceholder = url => url.startsWith(PLACEHOLDER_PATH);
-const getPlaceholderTarget = placeholderUrl => decodeURIComponent( (new URL(placeholderUrl)).searchParams.get('url') );
-export const deplaceholderize = url => isPlaceholder(url) ? getPlaceholderTarget(url) : url;
+const buildPlaceholderURL = (url, title) => `${PLACEHOLDER_PATH}?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`; //@ (String, String) -> (String)
+const isPlaceholder = url => url.startsWith(PLACEHOLDER_PATH); //@ (String) -> (Boolean)
+const getPlaceholderTarget = placeholderUrl => decodeURIComponent( (new URL(placeholderUrl)).searchParams.get('url') ); //@ (String) -> (String)
+export const deplaceholderize = url => isPlaceholder(url) ? getPlaceholderTarget(url) : url; //@ (String) -> (String)

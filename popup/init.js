@@ -15,11 +15,12 @@ import * as Request from './request.js';
 import { BRING, SEND } from '../modifier.js';
 
 const $currentWindowList = document.getElementById('currentWindow');
-const getTemplateContent = id => document.getElementById(id).content.firstElementChild;
+const getTemplateContent = id => document.getElementById(id).content.firstElementChild; //@ (Number), state -> (Object)
 
 export default () => Request.popup().then(onSuccess).catch(onError);
 
 
+//@ ({ Object, [Object], Number }), state -> ({String}), state
 function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
     row.removeCells(SETTINGS);
     toolbar.removeButtons(SETTINGS);
@@ -49,6 +50,7 @@ function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
     return { modifierHints };
 }
 
+//@ -> state
 function onError() {
     Request.debug();
 
@@ -69,6 +71,7 @@ function onError() {
 }
 
 
+//@ ([Object]) -> state
 function populate(winfos) {
     // Current window
     const currentWinfo = winfos.shift();
@@ -83,10 +86,11 @@ function populate(winfos) {
 
 const row = {
 
-    $template: getTemplateContent('rowTemplate'),
+    $TEMPLATE: getTemplateContent('rowTemplate'),
     cellSelectors: new Set(['.send', '.bring', '.name', '.tabCount']),
     buttonCount: 0,
 
+    //@ (Object) -> state
     removeCells(SETTINGS) {
         const cellDict = {
             // setting:       selector
@@ -97,14 +101,15 @@ const row = {
             if (SETTINGS[cell]) {
                 this.buttonCount++;
             } else {
-                this.$template.querySelector(selector).remove();
+                this.$TEMPLATE.querySelector(selector).remove();
                 this.cellSelectors.delete(selector);
             }
         }
     },
 
+    //@ ({ Number, Boolean, String, String }, Boolean) -> (Object)
     create({ id, incognito, givenName, defaultName }, isCurrent) {
-        const $row = document.importNode(this.$template, true);
+        const $row = document.importNode(this.$TEMPLATE, true);
 
         // Add references to row's cells, and in each, a reference to the row
         for (const selector of this.cellSelectors) {
@@ -130,6 +135,7 @@ const row = {
         return $row;
     },
 
+    //@ (Object) -> state
     disableElement($el) {
         $el.disabled = true;
         $el.tabIndex = -1;
@@ -140,6 +146,7 @@ const row = {
 }
 
 const toolbar = {
+    //@ (Object) -> state
     removeButtons(SETTINGS) {
         const buttonDict = {
             // setting:          selector
@@ -153,6 +160,7 @@ const toolbar = {
     },
 }
 
+//@ (Number) -> ({String})
 function createModifierHints(selectedTabCount) {
     const tabWord = selectedTabCount === 1 ? 'tab' : 'tabs';
     return {
@@ -161,8 +169,10 @@ function createModifierHints(selectedTabCount) {
     };
 }
 
+const isPrivate = $row => $row.classList.contains('private'); //@ (Object) -> (Boolean)
+
+//@ (Object, [Object]) -> state
 function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
-    const isPrivate = $row => $row.classList.contains('private');
     const currentIsPrivate = isPrivate($currentWindowRow);
     for (const $row of $otherWindowRows) {
         if (isPrivate($row) != currentIsPrivate)
@@ -170,6 +180,7 @@ function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
     }
 }
 
+//@ (Number), state -> state | null
 function expandPopupWidth(buttonCount) {
     if (!buttonCount) return;
     const $document = document.documentElement;
@@ -180,6 +191,7 @@ function expandPopupWidth(buttonCount) {
     $document.style.setProperty('--popup-width', `${newPopupWidth}px`);
 };
 
+//@ (Object, Object) -> state | null
 function alignWithScrollbar($toAlign, $scrolling) {
     const scrollbarWidth = getScrollbarWidth($scrolling);
     if (!scrollbarWidth) return;
@@ -187,6 +199,7 @@ function alignWithScrollbar($toAlign, $scrolling) {
     $toAlign.classList.add('scrollbarOffset');
 }
 
+//@ (Object) -> state
 function lockHeight($el) {
     $el.style.height = ``;
     $el.style.height = `${$el.offsetHeight}px`;

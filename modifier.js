@@ -1,6 +1,7 @@
 export const SEND  = 'Ctrl';
 export const BRING = 'Shift';
 
+//@ (Object) -> ([String])
 export function get(event) {
     const modifiers = [];
     if (event.altKey)   modifiers.push('Alt');

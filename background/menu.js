@@ -7,6 +7,7 @@ const contextTitle = {
 }
 
 // Create a menu item for each given context.
+//@ ([String]) -> state
 export async function init(contexts) {
     for (const context of contexts) {
         switch (context) {
@@ -27,6 +28,7 @@ export async function init(contexts) {
     browser.menus.onClicked.addListener (onMenuClick);
 }
 
+//@ (String, Boolean) -> state
 function addMenuItem(context, enabled) {
     browser.menus.create({
         contexts: [context],
@@ -36,18 +38,22 @@ function addMenuItem(context, enabled) {
     });
 }
 
+//@ (Object, Object), state -> state|null
 async function onMenuShow(info, tab) {
     await UnstashMenu?.handleShow(info) || WindowsMenu?.handleShow(info, tab);
 }
 
+//@ state -> state|null
 function onMenuHide() {
     UnstashMenu?.handleHide();
 }
 
+//@ (Object, Object), state -> state|null
 function onMenuClick(info, tab) {
     UnstashMenu?.handleClick(info) || WindowsMenu?.handleClick(info, tab);
 }
 
+//@ state -> state|null
 export function update() {
     WindowsMenu?.updateAvailability();
 }

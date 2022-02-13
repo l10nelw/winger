@@ -12,10 +12,12 @@ import { isActive as isEditMode } from './editmode.js';
 import { $shownRows } from './filter.js';
 
 const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
+const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
 
 // Given an element and an arrow key, focus on the next focusable element in that direction and return true.
 // Return null if key not an arrow key.
 // Control vertical scrolling.
+//@ (Object, String, Object), state -> (Boolean), state|null
 export default function navigateByArrow($el, key, event) {
     const navigatorKey = navigator[key];
     if (!navigatorKey) return;
@@ -33,9 +35,10 @@ export default function navigateByArrow($el, key, event) {
     return true;
 }
 
-const isUnfocusable = $el => row($el).hidden || $el.tabIndex === -1;
-const isVerticalKey = key => ['ArrowDown', 'ArrowUp'].includes(key);
+const isUnfocusable = $el => row($el).hidden || $el.tabIndex === -1; //@ (Object) -> (Boolean)
+const isVerticalKey = key => VERTICAL_KEYS.includes(key); //@ (String) -> (Boolean)
 
+//@ (Object, Object) -> state|null
 function restrictScroll($el, event) {
     const index = row($el)._index;
     if (SCROLL_THRESHOLD <= index && ($shownRows.length - index) > SCROLL_THRESHOLD) return;
@@ -43,6 +46,8 @@ function restrictScroll($el, event) {
 }
 
 let column; // Currently-focused button column
+
+//@ (Object) -> state
 function setColumn($el) {
     column =
         isRow($el) ? null : // if row: null
@@ -50,6 +55,7 @@ function setColumn($el) {
         column; // no change
 }
 
+//@ (Object) -> (Object)
 const navigator = {
     ArrowDown($el) {
         if (isToolbar($el)) return currentWindow();
@@ -78,6 +84,8 @@ const navigator = {
         return isRow($el) ? $el.lastElementChild : ($el.previousElementSibling || $el.$row);
     },
 };
+
+//@ (Object) -> (Object)
 
 const rowOrCell = $row => isEditMode && $row?.$name || $row?.['$'+column] || $row; // Take and return row, unless a cell can be returned instead.
 const row = $el => $el.$row || $el; // Element's parent row, else assume element is a row.

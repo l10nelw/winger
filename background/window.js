@@ -2,9 +2,10 @@ import * as Name from './name.js';
 
 export const winfoDict = {};
 
-export const sortedWinfos = () => Object.values(winfoDict).sort(compareLastFocused);
-const compareLastFocused = (a, b) => b.lastFocused - a.lastFocused;
+export const sortedWinfos = () => Object.values(winfoDict).sort(compareLastFocused); //@ state -> ([Object])
+const compareLastFocused = (a, b) => b.lastFocused - a.lastFocused; //@ (Number, Number) -> (Number)
 
+//@ ([Object]) -> state
 export async function add(windows) {
     const windowIds = [];
     for (const window of windows) {
@@ -16,10 +17,12 @@ export async function add(windows) {
     await Promise.all(windowIds.map(Name.restoreGiven));
 }
 
+//@ (Number), state -> state
 export function remove(windowId) {
     delete winfoDict[windowId];
 }
 
+//@ ({ Number, Boolean }) -> (Object)
 function createWinfo({ id, incognito }) {
     return {
         id,
@@ -29,6 +32,7 @@ function createWinfo({ id, incognito }) {
     };
 }
 
+//@ state -> (Boolean)
 export function isOverOne() {
     let count = 0;
     for (const _ in winfoDict) {

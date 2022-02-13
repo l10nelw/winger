@@ -10,8 +10,8 @@ import * as EditMode from './editmode.js';
 import * as Request from './request.js';
 import navigateByArrow from './navigation.js';
 
-const clickKeys = ['Enter', ' '];
-const isClickKey = key => clickKeys.includes(key);
+const CLICK_KEYS = ['Enter', ' '];
+const isClickKey = key => CLICK_KEYS.includes(key); //@ (String) -> (Boolean)
 
 let modifierHints;
 
@@ -25,6 +25,7 @@ import('./init.js').then(async init => {
     $body.addEventListener('focusin', onFocusIn);
 });
 
+//@ (Object) -> state|null
 function onClick(event) {
     const { target } = event;
 
@@ -36,18 +37,21 @@ function onClick(event) {
     Request.action(event, target);
 }
 
+//@ (Object) -> state|null
 function onContextMenu(event) {
     const { target } = event;
     if (target.matches('input:not([readonly])')) return; // Allow right-click only on non-readonly input
     event.preventDefault();
 }
 
+//@ (Object) -> state|null
 function onKeyDown(event) {
     const { key, target } = event;
     if (navigateByArrow(target, key, event)) return;
     if (showModifierHint(key)) return;
 }
 
+//@ (Object) -> state|null
 function onKeyUp(event) {
     const { key, target } = event;
     $omnibox.placeholder = ''; // Clear any hints
@@ -64,6 +68,7 @@ function onKeyUp(event) {
     }
 }
 
+//@ (Object) -> state|null
 async function onInput(event) {
     const { target } = event;
     if (await EditMode.handleInput(target)) return;
@@ -72,6 +77,7 @@ async function onInput(event) {
     }
 }
 
+//@ (Object) -> state|null
 function onFocusIn(event) {
     const { target: $focused, relatedTarget: $defocused } = event;
     if ($defocused === $omnibox) $omnibox.placeholder = ''; // Clear any modifier hints when omnibox unfocused
@@ -79,6 +85,7 @@ function onFocusIn(event) {
     if (EditMode.handleFocusIn($focused, $defocused)) return;
 }
 
+//@ (String) -> (String), state | (null)
 function showModifierHint(key) {
     if (key === 'Control') key = 'Ctrl';
     const hint = modifierHints[key];

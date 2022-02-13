@@ -1,5 +1,6 @@
 import { canUnstash, unstash } from './stash.js';
 
+//@ (Object) -> (Boolean), state|null
 export async function handleShow(info) {
     const nodeId = info.bookmarkId;
     if (!nodeId) return false; // Not bookmark menu; not handled
@@ -10,10 +11,12 @@ export async function handleShow(info) {
     return true;
 }
 
+//@ -> state
 export function handleHide() {
     browser.menus.update('bookmark', { enabled: false }); // Restore disabled status
 }
 
+//@ (Object) -> (Boolean), state|null
 export function handleClick(info) {
     const nodeId = info.bookmarkId;
     if (!nodeId) return false; // Not bookmark menu; not handled
