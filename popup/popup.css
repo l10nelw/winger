@@ -137,6 +137,7 @@ input:read-only {
     background-color: transparent;
     border-color: transparent;
     cursor: default;
+    outline: none;
     user-select: none;
 }
 
