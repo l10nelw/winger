@@ -77,11 +77,13 @@ function populate(winfos) {
     const currentWinfo = winfos.shift();
     $currentWindowList.appendChild(row.create(currentWinfo, true));
     // Other windows
+    const $fragment = document.createDocumentFragment();
     winfos.forEach((winfo, index) => {
         const $row = row.create(winfo);
-        $otherWindowsList.appendChild($row);
         $row._index = index;
+        $fragment.appendChild($row);
     });
+    $otherWindowsList.appendChild($fragment);
 }
 
 const row = {
