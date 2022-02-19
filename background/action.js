@@ -146,29 +146,31 @@ function movablePinnedTabs(tabs) {
     return pinnedTabs;
 }
 
-// Create a tab with given properties, or a placeholder tab if properties.url is invalid.
-// Less strict than tabs.create(): properties can contain some invalid combinations, which are automatically fixed.
+// Create a tab with given properties a.k.a. a protoTab, or create a placeholder tab if protoTab.url is invalid.
+// Less strict than tabs.create(): protoTab can contain some invalid combinations, which are automatically fixed.
+// Unlike tabs.create(), undefined protoTab.active defaults to false.
 //@ (Object), state -> (Promise: Object), state
-export function openTab(properties) {
-    const { url, title } = properties;
+export function openTab(protoTab) {
+    const { url, title } = protoTab;
 
-    if (properties.active || url.startsWith('about:')) delete properties.discarded;
-    if (!properties.discarded) delete properties.title;
+    protoTab.active ??= false;
+    if (protoTab.active || url.startsWith('about:')) delete protoTab.discarded;
+    if (!protoTab.discarded) delete protoTab.title;
 
-    if (url === 'about:newtab') delete properties.url;
+    if (url === 'about:newtab') delete protoTab.url;
     else
     if (isReader(url)) {
-        properties.url = getReaderTarget(url);
-        properties.openInReaderMode = true;
+        protoTab.url = getReaderTarget(url);
+        protoTab.openInReaderMode = true;
     }
 
-    return browser.tabs.create(properties).catch(() => openPlaceholderTab(properties, title));
+    return browser.tabs.create(protoTab).catch(() => openPlaceholderTab(protoTab, title));
 }
 
 //@ (Object, String) -> (Promise: Object), state
-function openPlaceholderTab(properties, title) {
-    properties.url = buildPlaceholderURL(properties.url, title);
-    return browser.tabs.create(properties);
+function openPlaceholderTab(protoTab, title) {
+    protoTab.url = buildPlaceholderURL(protoTab.url, title);
+    return browser.tabs.create(protoTab);
 }
 
 //@ (Number) -> (Promise: Object), state
