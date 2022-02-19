@@ -20,7 +20,7 @@ export async function init($rows) {
 // Show text in status bar. If no text given, show last updated defaultText.
 //@ (String) -> state
 export function show(text) {
-    defaultText = defaultText || tabCountText();
+    defaultText ||= tabCountText();
     $status.textContent = text || defaultText;
     $status.classList.toggle('defaultStatus', !text);
 }

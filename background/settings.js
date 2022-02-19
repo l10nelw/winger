@@ -27,7 +27,7 @@ export let SETTINGS;
 
 //@ state -> state
 export async function retrieve() {
-    SETTINGS = SETTINGS || await browser.storage.local.get(DEFAULT);
+    SETTINGS ??= await browser.storage.local.get(DEFAULT);
     return SETTINGS;
 }
 

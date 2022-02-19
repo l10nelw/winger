@@ -18,7 +18,7 @@ let $focusedName;
 
 //@ (Object), state -> state
 export function activate($name = $currentWindowRow.$name) {
-    $names = $names || $body.querySelectorAll('.name');
+    $names ??= $body.querySelectorAll('.name');
     setActive(true);
     $name.focus();
     $focusedName = $name;

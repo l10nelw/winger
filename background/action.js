@@ -45,7 +45,7 @@ export async function selectFocusedTab(windowId) {
 // Select action to execute based on `action` and `modifiers`.
 //@ ({ String, [String], Number, [Object] }), state -> state
 export async function execute({ action, modifiers, windowId, tabs }) {
-    tabs = tabs || await getSelectedTabs();
+    tabs ??= await getSelectedTabs();
     action = modify(action, modifiers);
     actionDict[action](windowId, tabs);
 }
