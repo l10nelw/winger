@@ -8,15 +8,19 @@ export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash);
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> ([Object])
 export const switchWindow = windowId => browser.windows.update(windowId, { focused: true }); //@ (Number), state -> (Promise: Object), state
 
+// fn(windowId) or fn(windowId, tabs)
 const actionDict = {
     bring:  bringTabs,
     send:   sendTabs,
     switch: switchWindow,
 };
 
+let PRESERVE_TAB_FOCUS;
+
 //@ state -> state
 export function init() {
-    if (!SETTINGS.keep_moved_focused_tab_focused) SETTINGS.keep_moved_tabs_selected = false;
+    PRESERVE_TAB_FOCUS = SETTINGS.keep_moved_focused_tab_focused;
+    if (!PRESERVE_TAB_FOCUS) SETTINGS.keep_moved_tabs_selected = false;
     // Disable functions according to settings:
     if (SETTINGS.keep_moved_tabs_selected) selectFocusedTab = () => null;
     if (!SETTINGS.move_pinned_tabs) movablePinnedTabs = () => null;
@@ -71,30 +75,30 @@ export async function pop(incognito) {
     browser.tabs.remove(initTabId);
 }
 
-//@ (Number, [Object]), state -> state
+//@ (Number, [Object]), state -> state|null
 async function bringTabs(windowId, tabs) {
     if (await sendTabs(windowId, tabs)) switchWindow(windowId);
 }
 
-//@ (Number, [Object]), state -> ([Object]|null), state
-async function sendTabs(windowId, tabs) {
+//@ (Number, [Object]), state -> (Promise: [Object]|null), state|null
+function sendTabs(windowId, tabs) {
     const originWindowId = tabs[0].windowId;
     const reopen = !isSamePrivateStatus(originWindowId, windowId);
-    return await (reopen ? reopenTabs : moveTabs)(windowId, tabs);
+    return (reopen ? reopenTabs : moveTabs)(windowId, tabs);
 }
 
-//@ (Number, [Object]), state -> (Promise: [Object]|null), state
+//@ (Number, [Object]), state -> (Promise: [Object]|null), state|null
 async function moveTabs(windowId, tabs) {
     const pinnedTabIds = movablePinnedTabs(tabs)?.map(tab => tab.id);
-    if (pinnedTabIds) await Promise.all(pinnedTabIds.map(unpinTab));
+    if (pinnedTabIds) await Promise.all(pinnedTabIds.map(unpinTab)); // Unpin pinned tabs so they can be moved
 
     const tabIds = tabs.map(tab => tab.id);
     const movedTabs = await browser.tabs.move(tabIds, { windowId, index: -1 });
 
-    if (pinnedTabIds) pinnedTabIds.forEach(pinTab);
+    if (pinnedTabIds) pinnedTabIds.forEach(pinTab); // Repin originally-pinned tabs
     if (!movedTabs.length) return;
 
-    if (SETTINGS.keep_moved_focused_tab_focused) {
+    if (PRESERVE_TAB_FOCUS) {
         const preMoveFocusedTab = tabs.find(tab => tab.active);
         if (preMoveFocusedTab) focusTab(preMoveFocusedTab.id);
         if (SETTINGS.keep_moved_tabs_selected) movedTabs.forEach(tab => selectTab(tab.id));
@@ -102,29 +106,35 @@ async function moveTabs(windowId, tabs) {
     return movedTabs;
 }
 
-//@ (Number, [Object]), state -> (Promise: [Object]|null), state
+//@ (Number, [Object]), state -> ([Object]), state | (null)
 async function reopenTabs(windowId, tabs) {
-    if (!movablePinnedTabs(tabs)) tabs = tabs.filter(tab => !tab.pinned);
-
-    const FOCUSED_TAB_SETTING = SETTINGS.keep_moved_focused_tab_focused;
-
-    //@ (Object), state -> (Promise: Object), state
-    const reopenTab = tab => {
-        const { url, title, pinned, discarded } = tab;
-        const properties = { url, title, pinned, discarded, windowId };
-        if (tab.active && FOCUSED_TAB_SETTING) properties.active = true;
-        browser.tabs.remove(tab.id);
-        return openTab(properties);
-    };
-    for (const tab of tabs) await reopenTab(tab);
+    if (!movablePinnedTabs(tabs))
+        tabs = tabs.filter(tab => !tab.pinned);  // If pinned tabs in list not allowed to be moved, exclude them from list
 
     const tabCount = tabs.length;
     if (!tabCount) return;
 
-    if (SETTINGS.keep_moved_tabs_selected && tabCount > 1) {
-        for (const { id } of tabs) selectTab(id);
+    const protoTabs = [];
+    const tabIds = [];
+    for (const tab of tabs) {
+        const protoTab = {
+            windowId,
+            url: tab.url,
+            title: tab.title,
+            pinned: tab.pinned,
+            discarded: tab.discarded,
+        };
+        if (tab.active && PRESERVE_TAB_FOCUS) protoTab.active = true;
+        protoTabs.push(protoTab);
+        tabIds.push(tab.id);
     }
-    return tabs;
+    const openedTabs = await Promise.all(protoTabs.map(openTab));
+    browser.tabs.remove(tabIds);
+
+    if (SETTINGS.keep_moved_tabs_selected && tabCount > 1)
+        openedTabs.forEach(tab => selectTab(tab.id));
+
+    return openedTabs;
 }
 
 //@ ([Object]) -> ([Object]|null)
