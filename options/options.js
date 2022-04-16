@@ -1,4 +1,4 @@
-import { retrieve as retrieveSettings, needsRestart } from '../background/settings.js';
+import * as Settings from '../background/settings.js';
 import * as Theme from '../theme.js';
 import { getShortcut, GroupMap } from '../utils.js';
 import { validify } from '../background/name.js';
@@ -6,24 +6,20 @@ import { openHelp } from '../background/action.js';
 
 const $body = document.body;
 const $form = $body.querySelector('form');
-const $settings = [...$form.querySelectorAll('.setting')];
-const $applyBtns = [...$form.querySelectorAll('.applyBtn')];
+const $settingFields = [...$form.querySelectorAll('.setting')];
 const stash_subSymbol = $form.stash_home.options[1].text.slice(-1);
 const enablerMap = new GroupMap(); // Fields that enable/disable other fields
 const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and change state according to those fields' states
-let SETTINGS, formData;
+let SETTINGS;
 
 const relevantProp = $field => $field.type === 'checkbox' ? 'checked' : 'value'; //@ (Object) -> (String)
 const relevantValue = $field => $field[relevantProp($field)]; //@ (Object) -> (Boolean|String)
-const getFormValuesString = () => $settings.map(relevantValue).join(); //@ state -> (String)
 
-(async () => {
-    SETTINGS = await retrieveSettings();
-
+(async function init() {
+    SETTINGS = await Settings.get();
     Theme.apply(SETTINGS.theme);
-
-    for (const $field of $settings) {
-        loadSetting($field);
+    for (const $field of $settingFields) {
+        $field[relevantProp($field)] = SETTINGS[$field.name];
         const $enabler = $form[$field.dataset.enabledBy];
         if ($enabler) { // field has enabler
             enablerMap.group($field, $enabler);
@@ -34,18 +30,16 @@ const getFormValuesString = () => $settings.map(relevantValue).join(); //@ state
             togglerMap.group($field, $toggler);
         }
     }
-    for (const $toggler of togglerMap.keys()) updateToggler($toggler);
+    for (const $toggler of togglerMap.keys()) {
+        updateToggler($toggler);
+    }
     stash_updateHomeSelect();
-
-    formData = getFormValuesString();
-    updateApplyBtns();
+    staticText_insertShortcut();
+    staticText_checkPrivateAccess();
+    $form.onchange = onFieldChange;
+    $form.onclick = onElClick;
+    $form.onsubmit = saveSettings;
 })();
-
-$form.onchange = onFieldChange;
-$form.onclick = onElClick;
-$form.onsubmit = applySettings;
-staticText_insertShortcut();
-staticText_checkPrivateAccess();
 
 //@ ({ Object }), state -> state
 async function onFieldChange({ target: $field }) {
@@ -54,8 +48,6 @@ async function onFieldChange({ target: $field }) {
     activateEnabler($field);
     activateToggler($field);
     updateToggler($form[$field.dataset.toggledBy]);
-    saveSetting($field);
-    updateApplyBtns();
 }
 
 //@ ({ Object }), state -> state|null
@@ -64,28 +56,14 @@ function onElClick({ target: $el }) {
         openHelp($el.getAttribute('href'));
 }
 
-//@ -> state
-function applySettings() {
-    browser.runtime.reload();
-}
-
-//@ (Object), state -> state
-function loadSetting($field) {
-    $field[relevantProp($field)] = SETTINGS[$field.name];
-}
-
-//@ (Object), state -> state|null
-function saveSetting($field) {
-    if ($field.classList.contains('setting'))
-        browser.storage.local.set({ [$field.name]: relevantValue($field) });
-}
-
-// Disable submit buttons if restart unneeded or form unchanged. Enable otherwise.
 //@ state -> state
-async function updateApplyBtns() {
-    const disable = await needsRestart() ? false : getFormValuesString() === formData;
-    for (const $btn of $applyBtns) $btn.disabled = disable;
-    needsRestart(!disable);
+function saveSettings() {
+    const newSettings = {};
+    for (const $field of $settingFields) {
+        newSettings[$field.name] = relevantValue($field);
+    }
+    Settings.set(newSettings);
+    browser.runtime.reload();
 }
 
 // Enable/disable fields that $enabler controls.
@@ -112,10 +90,7 @@ function activateToggler($toggler) {
     const $targets = togglerMap.get($toggler);
     if (!$targets) return;
     const check = $toggler.checked;
-    $targets.forEach($target => {
-        $target.checked = check;
-        saveSetting($target);
-    });
+    $targets.forEach($target => $target.checked = check);
 }
 
 // Update $toggler state based on the states of the fields it controls.

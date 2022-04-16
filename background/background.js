@@ -13,7 +13,6 @@ function debug() {
 }
 
 init();
-Settings.needsRestart(false);
 browser.runtime.onInstalled.addListener    (onExtensionInstalled);
 browser.windows.onCreated.addListener      (onWindowCreated);
 browser.windows.onRemoved.addListener      (onWindowRemoved);
@@ -22,7 +21,7 @@ browser.runtime.onMessage.addListener      (onRequest);
 
 //@ state -> state
 async function init() {
-    const [SETTINGS, windows] = await Promise.all([ Settings.retrieve(), browser.windows.getAll() ]);
+    const [SETTINGS, windows] = await Promise.all([ Settings.get(), browser.windows.getAll() ]);
 
     Action.init(SETTINGS);
     Chrome.init(SETTINGS);
