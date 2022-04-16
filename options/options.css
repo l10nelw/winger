@@ -3,8 +3,13 @@ body {
     font-size: larger;
 }
 
-section {
-    margin: 0 0 3rem;
+fieldset {
+    margin-bottom: 1rem;
+    border-radius: .5rem;
+}
+
+legend {
+    font-weight: bold;
 }
 
 p {
@@ -29,15 +34,13 @@ button {
 .saveBtn {
     display: block;
     width: 100%;
+    margin-bottom: 3rem;
     font-size: 1.25rem;
     text-align: center;
     font-weight: bold;
 }
 
-.block { display: block; }
 .ml-1 { margin-left: 1rem; }
-
-.special { color: darkblue; }
 .muted { opacity: .5; }
 
 
@@ -48,6 +51,9 @@ button {
     color: white;
     accent-color: #0ff;
 }
+.dark fieldset {
+    border-color: #555;
+}
 .dark :focus {
     outline: 2px solid #0df;
 }
@@ -57,4 +63,3 @@ button {
 .dark button {
     background-color: #ccc;
 }
-.dark .special { color: #ff0; }
