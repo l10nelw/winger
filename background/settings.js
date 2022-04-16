@@ -25,14 +25,15 @@ const DEFAULT = {
 
 export let SETTINGS;
 
+// Retrieve all settings.
 //@ state -> state
-export async function retrieve() {
+export async function get() {
     SETTINGS ??= await browser.storage.local.get(DEFAULT);
     return SETTINGS;
 }
 
-//@ (Boolean|Undefined), state -> state
-export async function needsRestart(value) {
-    if (value === undefined) return (await browser.storage.local.get('needs_restart')).needs_restart;
-    browser.storage.local.set({ needs_restart: value });
+// Save settings provided as key-value pairs.
+//@ (Object) -> state
+export function set(dict) {
+    return browser.storage.local.set(dict);
 }
