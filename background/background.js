@@ -89,5 +89,6 @@ async function onRequest(request) {
     if (request.pop)       return Action.pop(request.incognito);
     if (request.checkName) return Name.check(request.checkName, request.name);
     if (request.setName)   return Name.set(request.setName, request.name);
+    if (request.settings)  return Settings.SETTINGS;
     if (request.debug)     return debug();
 }

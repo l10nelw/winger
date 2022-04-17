@@ -10,13 +10,12 @@ const $settingFields = [...$form.querySelectorAll('.setting')];
 const stash_subSymbol = $form.stash_home.options[1].text.slice(-1);
 const enablerMap = new GroupMap(); // Fields that enable/disable other fields
 const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and change state according to those fields' states
-let SETTINGS;
 
 const relevantProp = $field => $field.type === 'checkbox' ? 'checked' : 'value'; //@ (Object) -> (String)
 const relevantValue = $field => $field[relevantProp($field)]; //@ (Object) -> (Boolean|String)
 
 (async function init() {
-    SETTINGS = await Settings.get();
+    const SETTINGS = await browser.runtime.sendMessage({ settings: true });
     Theme.apply(SETTINGS.theme);
     for (const $field of $settingFields) {
         $field[relevantProp($field)] = SETTINGS[$field.name];
