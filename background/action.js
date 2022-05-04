@@ -163,20 +163,29 @@ function reopenableTabs(tabs) {
 // Unlike tabs.create(), undefined protoTab.active defaults to false.
 //@ (Object), state -> (Promise: Object), state
 export function openTab(protoTab) {
-    const { url, title } = protoTab;
+    const { url, title, pinned } = protoTab;
 
     protoTab.active ??= false;
-    if (protoTab.active || url.startsWith('about:')) delete protoTab.discarded;
-    if (!protoTab.discarded) delete protoTab.title;
 
-    if (url === 'about:newtab') delete protoTab.url;
+    if (protoTab.active || url.startsWith('about:'))
+        delete protoTab.discarded;
+
+    const { discarded } = protoTab;
+
+    // Tab cannot be created both pinned and discarded
+    // title only allowed if discarded
+    delete protoTab[discarded ? 'pinned' : 'title'];
+
+    if (url === 'about:newtab')
+        delete protoTab.url;
     else
     if (isReader(url)) {
         protoTab.url = getReaderTarget(url);
         protoTab.openInReaderMode = true;
     }
 
-    return browser.tabs.create(protoTab).catch(() => openPlaceholderTab(protoTab, title));
+    const tabPromise = browser.tabs.create(protoTab).catch(() => openPlaceholderTab(protoTab, title));
+    return (pinned && discarded) ? tabPromise.then(tab => pinTab(tab.id)) : tabPromise;
 }
 
 //@ (Object, String) -> (Promise: Object), state
