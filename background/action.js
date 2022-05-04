@@ -15,12 +15,12 @@ const actionDict = {
     switch: switchWindow,
 };
 
-let PRESERVE_TAB_FOCUS;
+let PRESERVE_MOVED_TAB_FOCUS;
 
 //@ state -> state
 export function init() {
-    PRESERVE_TAB_FOCUS = SETTINGS.keep_moved_focused_tab_focused;
-    if (!PRESERVE_TAB_FOCUS) SETTINGS.keep_moved_tabs_selected = false;
+    PRESERVE_MOVED_TAB_FOCUS = SETTINGS.keep_moved_focused_tab_focused;
+    if (!PRESERVE_MOVED_TAB_FOCUS) SETTINGS.keep_moved_tabs_selected = false;
     // Disable functions according to settings:
     if (SETTINGS.keep_moved_tabs_selected) selectFocusedTab = () => null;
     if (!SETTINGS.move_pinned_tabs) movablePinnedTabs = () => null;
@@ -36,6 +36,7 @@ async function openUniqueExtensionPage(pathname, hash) {
     browser.tabs.create({ url: `/${pathname}` });
 }
 
+// Is null function via init() if SETTINGS.keep_moved_tabs_selected
 //@ (Number), state -> state
 export async function selectFocusedTab(windowId) {
     const tab = (await browser.tabs.query({ windowId, active: true }))[0];
@@ -93,12 +94,12 @@ async function moveTabs(windowId, tabs) {
     if (pinnedTabIds) await Promise.all(pinnedTabIds.map(unpinTab)); // Unpin pinned tabs so they can be moved
 
     const tabIds = tabs.map(tab => tab.id);
-    const movedTabs = await browser.tabs.move(tabIds, { windowId, index: -1 });
+    const movedTabs = await browser.tabs.move(tabIds, { windowId, index: -1 }); // Ignores pinned tabs
 
     if (pinnedTabIds) pinnedTabIds.forEach(pinTab); // Repin originally-pinned tabs
     if (!movedTabs.length) return;
 
-    if (PRESERVE_TAB_FOCUS) {
+    if (PRESERVE_MOVED_TAB_FOCUS) {
         const preMoveFocusedTab = tabs.find(tab => tab.active);
         if (preMoveFocusedTab) focusTab(preMoveFocusedTab.id);
         if (SETTINGS.keep_moved_tabs_selected) movedTabs.forEach(tab => selectTab(tab.id));
@@ -106,13 +107,21 @@ async function moveTabs(windowId, tabs) {
     return movedTabs;
 }
 
+// Is null function via init() if !SETTINGS.move_pinned_tabs
+//@ ([Object]) -> ([Object]|null)
+function movablePinnedTabs(tabs) {
+    const firstUnpinnedIndex = tabs.findIndex(tab => !tab.pinned);
+    if (isNonePinned(firstUnpinnedIndex)) return;
+    if (isAllPinned(firstUnpinnedIndex)) return tabs;
+    if (SETTINGS.move_pinned_tabs_if_all_pinned) return;
+    return tabs.slice(0, firstUnpinnedIndex);
+}
+
+// Recreate given tabs in a given window, maintaining pinned states.
 //@ (Number, [Object]), state -> ([Object]), state | (null)
 async function reopenTabs(windowId, tabs) {
-    if (!movablePinnedTabs(tabs))
-        tabs = tabs.filter(tab => !tab.pinned);  // If pinned tabs in list not allowed to be moved, exclude them from list
-
-    const tabCount = tabs.length;
-    if (!tabCount) return;
+    tabs = reopenableTabs(tabs);
+    if (!tabs.length) return;
 
     const protoTabs = [];
     const tabIds = [];
@@ -122,28 +131,31 @@ async function reopenTabs(windowId, tabs) {
             url: tab.url,
             title: tab.title,
             pinned: tab.pinned,
-            discarded: tab.discarded,
+            discarded: true,
         };
-        if (tab.active && PRESERVE_TAB_FOCUS) protoTab.active = true;
+        if (tab.active && PRESERVE_MOVED_TAB_FOCUS)
+            protoTab.active = true;
         protoTabs.push(protoTab);
         tabIds.push(tab.id);
     }
     const openedTabs = await Promise.all(protoTabs.map(openTab));
     browser.tabs.remove(tabIds);
 
-    if (SETTINGS.keep_moved_tabs_selected && tabCount > 1)
+    if (SETTINGS.keep_moved_tabs_selected)
         openedTabs.forEach(tab => selectTab(tab.id));
 
     return openedTabs;
 }
 
-//@ ([Object]) -> ([Object]|null)
-function movablePinnedTabs(tabs) {
-    const pinnedTabs = tabs.filter(tab => tab.pinned);
-    const pinnedTabCount = pinnedTabs.length;
-    if (!pinnedTabCount) return;
-    if (SETTINGS.move_pinned_tabs_if_all_pinned && tabs.length !== pinnedTabCount) return;
-    return pinnedTabs;
+//@ ([Object]) -> ([Object])
+function reopenableTabs(tabs) {
+    const firstUnpinnedIndex = tabs.findIndex(tab => !tab.pinned);
+    if (isNonePinned(firstUnpinnedIndex)) return tabs;
+    if (!SETTINGS.move_pinned_tabs)
+        return isAllPinned(firstUnpinnedIndex) ? [] : tabs.slice(firstUnpinnedIndex);
+    if (SETTINGS.move_pinned_tabs_if_all_pinned)
+        return isAllPinned(firstUnpinnedIndex) ? tabs : tabs.slice(firstUnpinnedIndex);
+    return tabs; // Mixed pinned/unpinned tabs allowed
 }
 
 // Create a tab with given properties a.k.a. a protoTab, or create a placeholder tab if protoTab.url is invalid.
@@ -190,3 +202,7 @@ const buildPlaceholderURL = (url, title) => `${PLACEHOLDER_PATH}?${new URLSearch
 const isPlaceholder = url => url.startsWith(PLACEHOLDER_PATH); //@ (String) -> (Boolean)
 const getPlaceholderTarget = placeholderUrl => (new URL(placeholderUrl)).searchParams.get('url'); //@ (String) -> (String)
 export const deplaceholderize = url => isPlaceholder(url) ? getPlaceholderTarget(url) : url; //@ (String) -> (String)
+
+//@ (Number) -> (Boolean)
+const isNonePinned = firstUnpinnedIndex => firstUnpinnedIndex === 0;
+const isAllPinned = firstUnpinnedIndex => firstUnpinnedIndex === -1;
