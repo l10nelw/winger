@@ -7,17 +7,17 @@
   <body class="dark">
     <form>
 
-      <section>
-        <h2>Theme</h2>
+      <fieldset>
+        <legend>Theme</legend>
         <select class="setting" name="theme">
           <option value="system">System theme</option>
           <option value="light">Light</option>
           <option value="dark">Dark</option>
         </select>
-      </section>
+      </fieldset>
 
-      <section>
-        <h2>Pop-up panel</h2>
+      <fieldset>
+        <legend>Pop-up panel</legend>
         <label><input class="toggler" type="checkbox" name="popup_rowbtns"> <span>Show all window row buttons</span></label>
         <div class="ml-1">
           <label><input class="setting" type="checkbox" data-toggled-by="popup_rowbtns" name="show_popup_send"> <span>Show Send</span></label>
@@ -28,11 +28,11 @@
           <label><input class="setting" type="checkbox" data-toggled-by="popup_toolbtns" name="show_popup_help"> <span>Show Help</span></label>
           <label><input class="setting" type="checkbox" data-toggled-by="popup_toolbtns" name="show_popup_settings"> <span>Show Settings</span></label>
         </div>
-        <p>Learn more about <a class="help" href="#panel">the panel</a></p>
-      </section>
+        <small>Learn more about <a class="help" href="#panel">the panel</a></small>
+      </fieldset>
 
-      <section>
-        <h2>Send/bring</h2>
+      <fieldset>
+        <legend>Send/bring</legend>
         <label><input class="setting enabler" type="checkbox" name="keep_moved_focused_tab_focused"> <span>When sending/bringing a focused tab, keep it focused in the destination window</span></label>
         <label class="ml-1">
           <input class="setting" type="checkbox" data-enabled-by="keep_moved_focused_tab_focused" name="keep_moved_tabs_selected"> <span>When sending/bringing multiple selected tabs, keep them selected in the destination window</span>
@@ -44,11 +44,11 @@
         </label>
         <label><input class="setting" type="checkbox" name="enable_tab_menu"> <span>Enable tab context menu: Send Tab to Window</span></label>
         <label><input class="setting" type="checkbox" name="enable_link_menu"> <span>Enable link context menu: Open Link in Window</span></label>
-        <p>Learn more about <a class="help" href="#common">send and bring</a> and the <a class="help" href="#submenu">windows submenu</a></p>
-      </section>
+        <small>Learn more about <a class="help" href="#common">send and bring</a> and the <a class="help" href="#submenu">windows submenu</a></small>
+      </fieldset>
 
-      <section>
-        <h2>Stash</h2>
+      <fieldset>
+        <legend>Stash</legend>
         <label><input class="setting" type="checkbox" name="enable_stash"> <span>Enable stashing
           <br><small>(Requires permission to read and modify bookmarks)</small></span></label>
         <label class="block">
@@ -63,30 +63,30 @@
           </select>
         </label>
         <input type="hidden" class="setting" data-enabled-by="enable_stash" name="stash_home_name" value="Stashed Windows">
-        <p>Learn more about <a class="help" href="#stash">stashing</a></p>
-      </section>
+        <small>Learn more about <a class="help" href="#stash">stashing</a></small>
+      </fieldset>
 
-      <section>
-        <h2>Button badge</h2>
+      <fieldset>
+        <legend>Button badge</legend>
         <label><input class="setting" type="checkbox" name="show_badge"> <span>Show window name on the Winger button
           <br><small>(Limited to the first few characters)</small></span></label>
-      </section>
+      </fieldset>
 
       <button class="saveBtn">Save Settings</button>
 
-      <section>
-        <h2>Private windows</h2>
-        <p class="special private-allowed-yes" hidden>Private windows are currently accessible to Winger. Winger can list and interact with them.</p>
-        <p class="special private-allowed-no" hidden>Private windows are currently <strong>not</strong> accessible to Winger. As far as Winger is concerned, they do not exist.</p>
+      <fieldset>
+        <legend>Private windows</legend>
+        <p class="private-allowed-yes" hidden>Private windows are currently accessible to Winger. Winger can list and interact with them.</p>
+        <p class="private-allowed-no" hidden>Private windows are currently <strong>not</strong> accessible to Winger. As far as Winger is concerned, they do not exist.</p>
         <p>To change access to private windows, go to the <em>Details</em> tab at the top this page and choose an option for <em>Run in Private Windows</em>.</p>
-        <p>Learn more about <a class="help" href="#private">private windows</a></p>
-      </section>
+        <small>Learn more about <a class="help" href="#private">private windows</a></small>
+      </fieldset>
 
-      <section>
-        <h2>Keyboard shortcut</h2>
-        <p class="special">The keyboard shortcut to open the pop-up panel is <strong class="current-shortcut">[current-shortcut]</strong>. <span class="default-shortcut-text" hidden>(Default: <span class="default-shortcut">[default-shortcut]</span>)</span></p>
+      <fieldset>
+        <legend>Keyboard shortcut</legend>
+        <p>The keyboard shortcut to open the pop-up panel is <strong class="current-shortcut">[current-shortcut]</strong>. <span class="default-shortcut-text" hidden>(Default: <span class="default-shortcut">[default-shortcut]</span>)</span></p>
         <p>It can be changed in Firefox's extension shortcuts manager: Click the ⚙️&nbsp;button above this page, click <em>Manage Extension Shortcuts</em>, and look for the Winger shortcut.</p>
-      </section>
+      </fieldset>
 
     </form>
     <script src="./options.js" type="module"></script>
