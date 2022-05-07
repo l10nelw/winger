@@ -11,14 +11,10 @@ const stash_subSymbol = $form.stash_home.options[1].text.slice(-1);
 const enablerMap = new GroupMap(); // Fields that enable/disable other fields
 const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and change state according to those fields' states
 
-const relevantProp = $field => $field.type === 'checkbox' ? 'checked' : 'value'; //@ (Object) -> (String)
-const relevantValue = $field => $field[relevantProp($field)]; //@ (Object) -> (Boolean|String)
-
 (async function init() {
     const SETTINGS = await browser.runtime.sendMessage({ settings: true });
     Theme.apply(SETTINGS.theme);
     for (const $field of $settingFields) {
-        $field[relevantProp($field)] = SETTINGS[$field.name];
         const $enabler = $form[$field.dataset.enabledBy];
         if ($enabler) { // field has enabler
             enablerMap.group($field, $enabler);
@@ -28,6 +24,7 @@ const relevantValue = $field => $field[relevantProp($field)]; //@ (Object) -> (B
         if ($toggler) { // field has toggler
             togglerMap.group($field, $toggler);
         }
+        loadSetting($field);
     }
     for (const $toggler of togglerMap.keys()) {
         updateToggler($toggler);
@@ -38,6 +35,17 @@ const relevantValue = $field => $field[relevantProp($field)]; //@ (Object) -> (B
     $form.onchange = onFieldChange;
     $form.onclick = onElClick;
     $form.onsubmit = saveSettings;
+
+    //@ (Object), state -> state
+    function loadSetting($field) {
+        const value = SETTINGS[$field.name];
+        const type = $field.type;
+        if (type === 'radio') {
+            $field.checked = $field.value === value;
+        } else {
+            $field[type === 'checkbox' ? 'checked' : 'value'] = value;
+        }
+    }
 })();
 
 //@ ({ Object }), state -> state
@@ -59,7 +67,14 @@ function onElClick({ target: $el }) {
 function saveSettings() {
     const newSettings = {};
     for (const $field of $settingFields) {
-        newSettings[$field.name] = relevantValue($field);
+        const type = $field.type;
+        if (type === 'radio') {
+            if ($field.checked) {
+                newSettings[$field.name] = $field.value;
+            }
+        } else {
+            newSettings[$field.name] = $field[type === 'checkbox' ? 'checked' : 'value'];
+        }
     }
     Settings.set(newSettings);
     browser.runtime.reload();

@@ -7,13 +7,8 @@ fieldset {
     margin-bottom: 1rem;
     border-radius: .5rem;
 }
-
 legend {
     font-weight: bold;
-}
-
-p {
-    margin: 0 0 1rem;
 }
 
 label {
@@ -21,10 +16,13 @@ label {
     align-items: flex-start;
     margin-bottom: .5rem;
 }
-
-[type="checkbox"] {
+input {
     margin-left: 0;
     margin-right: .5rem;
+}
+
+p {
+    margin: 0 0 1rem;
 }
 
 button {
