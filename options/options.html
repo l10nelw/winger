@@ -43,17 +43,22 @@
         <label class="ml-1">
           <input class="setting" type="checkbox" data-enabled-by="keep_moved_focused_tab_focused" name="keep_moved_tabs_selected"> <span>When sending/bringing multiple selected tabs, keep them selected in the destination window</span>
         </label>
+        <small>Learn more about <a class="help" href="#common">send and bring</a></small>
+      </fieldset>
+
+      <fieldset>
+        <legend>Context menus</legend>
         <label><input class="setting" type="checkbox" name="enable_tab_menu"> <span>Enable tab context menu: Send Tab to Window</span></label>
         <label><input class="setting" type="checkbox" name="enable_link_menu"> <span>Enable link context menu: Open Link in Window</span></label>
-        <small>Learn more about <a class="help" href="#common">send and bring</a> and the <a class="help" href="#submenu">windows submenu</a></small>
+        <small>Learn more about <a class="help" href="#submenu">context menus</a></small>
       </fieldset>
 
       <fieldset>
         <legend>Stash</legend>
         <label><input class="setting" type="checkbox" name="enable_stash"> <span>Enable stashing
           <br><small>(Requires permission to read and modify bookmarks)</small></span></label>
-        <label class="block">
-          <span>Stash home:</span>
+        <label>
+          <span>Stash home:</span>&nbsp;
           <select class="setting" data-enabled-by="enable_stash" name="stash_home">
             <option value="toolbar_____" >Bookmarks Toolbar</option>
             <option value="toolbar_____/">Bookmarks Toolbar ›</option>
