@@ -18,16 +18,9 @@ const relevantValue = $field => $field[relevantProp($field)]; //@ (Object) -> (B
     const SETTINGS = await browser.runtime.sendMessage({ settings: true });
     Theme.apply(SETTINGS.theme);
     for (const $field of $settingFields) {
-        const $enabler = $form[$field.dataset.enabledBy];
-        if ($enabler) { // field has enabler
-            enablerMap.group($field, $enabler);
-            updateEnablerTarget($field, $enabler.disabled || !$enabler.checked);
-        }
-        const $toggler = $form[$field.dataset.toggledBy];
-        if ($toggler) { // field has toggler
-            togglerMap.group($field, $toggler);
-        }
         loadSetting($field);
+        registerEnabler($field);
+        registerToggler($field);
     }
     for (const $toggler of togglerMap.keys()) {
         updateToggler($toggler);
@@ -49,6 +42,24 @@ const relevantValue = $field => $field[relevantProp($field)]; //@ (Object) -> (B
             $field[type === 'checkbox' ? 'checked' : 'value'] = value;
         }
     }
+
+    //@ (Object), state -> state
+    function registerEnabler($field) {
+        const $enabler = $form[$field.dataset.enabledBy];
+        if ($enabler) {
+            enablerMap.group($field, $enabler);
+            updateEnablerTarget($field, $enabler.disabled || !$enabler.checked);
+        }
+    }
+
+    //@ (Object), state -> state
+    function registerToggler($field) {
+        const $toggler = $form[$field.dataset.toggledBy];
+        if ($toggler) {
+            togglerMap.group($field, $toggler);
+        }
+    }
+
 })();
 
 //@ ({ Object }), state -> state
