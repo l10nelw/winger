@@ -4,8 +4,7 @@ const DEFAULT = {
 
     keep_moved_focused_tab_focused: true,
     keep_moved_tabs_selected: true,
-    move_pinned_tabs: false,
-    move_pinned_tabs_if_all_pinned: true,
+    move_pinned_tabs: 'allow',
 
     show_popup_bring: true,
     show_popup_send: true,

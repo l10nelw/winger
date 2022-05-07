@@ -32,15 +32,16 @@
       </fieldset>
 
       <fieldset>
-        <legend>Send/bring</legend>
+        <legend>Send and bring</legend>
+        <label>Allow sending/bringing pinned tabs:</label>
+        <div class="ml-1">
+          <label><input class="setting" type="radio" name="move_pinned_tabs" value="allow"> <span>Always </span></label>
+          <label><input class="setting" type="radio" name="move_pinned_tabs" value="conditional_allow"> <span>When only pinned tabs are selected</span></label>
+          <label><input class="setting" type="radio" name="move_pinned_tabs" value="disallow"> <span>Never</span></label>
+        </div>
         <label><input class="setting enabler" type="checkbox" name="keep_moved_focused_tab_focused"> <span>When sending/bringing a focused tab, keep it focused in the destination window</span></label>
         <label class="ml-1">
           <input class="setting" type="checkbox" data-enabled-by="keep_moved_focused_tab_focused" name="keep_moved_tabs_selected"> <span>When sending/bringing multiple selected tabs, keep them selected in the destination window</span>
-        </label>
-        <label><input class="setting enabler" type="checkbox" name="move_pinned_tabs"> <span>Allow send/bring on pinned tabs</span></label>
-        <label class="ml-1">
-          <input class="setting" type="checkbox" data-enabled-by="move_pinned_tabs" name="move_pinned_tabs_if_all_pinned"> <span>Only if all selected tabs are pinned
-            <br><small>(If selected tabs include pinned and unpinned tabs, only the unpinned will be sent/brought)</small></span>
         </label>
         <label><input class="setting" type="checkbox" name="enable_tab_menu"> <span>Enable tab context menu: Send Tab to Window</span></label>
         <label><input class="setting" type="checkbox" name="enable_link_menu"> <span>Enable link context menu: Open Link in Window</span></label>

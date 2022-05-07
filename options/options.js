@@ -18,7 +18,6 @@ const relevantValue = $field => $field[relevantProp($field)]; //@ (Object) -> (B
     const SETTINGS = await browser.runtime.sendMessage({ settings: true });
     Theme.apply(SETTINGS.theme);
     for (const $field of $settingFields) {
-        $field[relevantProp($field)] = SETTINGS[$field.name];
         const $enabler = $form[$field.dataset.enabledBy];
         if ($enabler) { // field has enabler
             enablerMap.group($field, $enabler);
@@ -28,6 +27,7 @@ const relevantValue = $field => $field[relevantProp($field)]; //@ (Object) -> (B
         if ($toggler) { // field has toggler
             togglerMap.group($field, $toggler);
         }
+        loadSetting($field);
     }
     for (const $toggler of togglerMap.keys()) {
         updateToggler($toggler);
@@ -38,6 +38,17 @@ const relevantValue = $field => $field[relevantProp($field)]; //@ (Object) -> (B
     $form.onchange = onFieldChange;
     $form.onclick = onElClick;
     $form.onsubmit = saveSettings;
+
+    //@ (Object), state -> state
+    function loadSetting($field) {
+        const value = SETTINGS[$field.name];
+        const type = $field.type;
+        if (type === 'radio') {
+            $field.checked = $field.value === value;
+        } else {
+            $field[type === 'checkbox' ? 'checked' : 'value'] = value;
+        }
+    }
 })();
 
 //@ ({ Object }), state -> state
@@ -59,7 +70,14 @@ function onElClick({ target: $el }) {
 function saveSettings() {
     const newSettings = {};
     for (const $field of $settingFields) {
-        newSettings[$field.name] = relevantValue($field);
+        const type = $field.type;
+        if (type === 'radio') {
+            if ($field.checked) {
+                newSettings[$field.name] = $field.value;
+            }
+        } else {
+            newSettings[$field.name] = $field[type === 'checkbox' ? 'checked' : 'value'];
+        }
     }
     Settings.set(newSettings);
     browser.runtime.reload();

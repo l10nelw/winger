@@ -23,7 +23,7 @@ export function init() {
     if (!PRESERVE_MOVED_TAB_FOCUS) SETTINGS.keep_moved_tabs_selected = false;
     // Disable functions according to settings:
     if (SETTINGS.keep_moved_tabs_selected) selectFocusedTab = () => null;
-    if (!SETTINGS.move_pinned_tabs) movablePinnedTabs = () => null;
+    if (SETTINGS.move_pinned_tabs === 'disallow') movablePinnedTabs = () => null;
 }
 
 // Open extension page tab, closing any duplicates found.
@@ -107,13 +107,13 @@ async function moveTabs(windowId, tabs) {
     return movedTabs;
 }
 
-// Is null function via init() if !SETTINGS.move_pinned_tabs
+// Is null function via init() if SETTINGS.move_pinned_tabs === 'disallow'
 //@ ([Object]) -> ([Object]|null)
 function movablePinnedTabs(tabs) {
     const firstUnpinnedIndex = tabs.findIndex(tab => !tab.pinned);
     if (isNonePinned(firstUnpinnedIndex)) return;
     if (isAllPinned(firstUnpinnedIndex)) return tabs;
-    if (SETTINGS.move_pinned_tabs_if_all_pinned) return;
+    if (SETTINGS.move_pinned_tabs === 'conditional_allow') return;
     return tabs.slice(0, firstUnpinnedIndex);
 }
 
@@ -151,11 +151,13 @@ async function reopenTabs(windowId, tabs) {
 function reopenableTabs(tabs) {
     const firstUnpinnedIndex = tabs.findIndex(tab => !tab.pinned);
     if (isNonePinned(firstUnpinnedIndex)) return tabs;
-    if (!SETTINGS.move_pinned_tabs)
-        return isAllPinned(firstUnpinnedIndex) ? [] : tabs.slice(firstUnpinnedIndex);
-    if (SETTINGS.move_pinned_tabs_if_all_pinned)
-        return isAllPinned(firstUnpinnedIndex) ? tabs : tabs.slice(firstUnpinnedIndex);
-    return tabs; // Mixed pinned/unpinned tabs allowed
+    switch (SETTINGS.move_pinned_tabs) {
+        case 'disallow':
+            return isAllPinned(firstUnpinnedIndex) ? [] : tabs.slice(firstUnpinnedIndex);
+        case 'conditional_allow':
+            return isAllPinned(firstUnpinnedIndex) ? tabs : tabs.slice(firstUnpinnedIndex);
+    }
+    return tabs;
 }
 
 // Create a tab with given properties a.k.a. a protoTab, or create a placeholder tab if protoTab.url is invalid.
