@@ -164,6 +164,7 @@ input:read-only {
 
 input:focus,
 button:focus,
+.currentRow .name:focus,
 [data-mode="normal"] .otherRow:focus {
     outline: 2px solid var(--focus-outline-color);
 }
