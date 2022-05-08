@@ -6,11 +6,6 @@ const DEFAULT = {
     keep_moved_tabs_selected: true,
     move_pinned_tabs: 'allow',
 
-    show_popup_bring: true,
-    show_popup_send: true,
-    show_popup_help: true,
-    show_popup_settings: true,
-
     show_badge: false,
 
     enable_tab_menu: true,

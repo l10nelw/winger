@@ -1,9 +1,9 @@
 /* * { outline: 1px solid red; } */
 :root {
-    --popup-width: 250px;
-    --row-height: 34px;
-    --tabcount-width: 20px;
+    --tabcount-width: 2rem;
     --button-width: 30px;
+    --popup-width: calc(20rem + var(--tabcount-width) + var(--button-width) * 2);
+    --row-height: 34px;
     --max-list-height: calc(30rem + 4px); /* Slightly more to accommodate y-padding */
     --name-height: 28px;
     --name-border-radius: 6px;
@@ -52,6 +52,8 @@
 body {
     width: var(--popup-width);
     background-color: var(--row-color);
+    overflow: hidden;
+    scrollbar-width: none;
 }
 
 ul {
@@ -254,7 +256,6 @@ li.reopenTabs button.tabAction {
 /* --- Status bar --- */
 
 #status {
-    width: var(--body-width);
     border: .25rem solid transparent;
     color: var(--muted-text-color);
     white-space: nowrap;

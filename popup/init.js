@@ -22,8 +22,6 @@ export default () => Request.popup().then(onSuccess).catch(onError);
 
 //@ ({ Object, [Object], Number }), state -> ({String}), state
 function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
-    row.removeCells(SETTINGS);
-    toolbar.removeButtons(SETTINGS);
     if (!SETTINGS.enable_stash) delete Omnibox.commands.stash;
 
     populate(winfos);
@@ -35,7 +33,6 @@ function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
     Tooltip.init(selectedTabCount);
     Filter.init();
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
-    expandPopupWidth(row.buttonCount);
     Theme.apply(SETTINGS.theme);
 
     $omnibox.hidden = false;
@@ -56,18 +53,13 @@ function onError() {
 
     browser.browserAction.setBadgeText({ text: '⚠️' });
     browser.browserAction.setBadgeBackgroundColor({ color: 'transparent' });
-
     Status.show('⚠️ Winger needs to be restarted.');
-    expandPopupWidth(1);
 
     const $restartBtn = getTemplateContent('restartTemplate');
     $restartBtn.onclick = () => browser.runtime.reload();
     $toolbar.innerHTML = '';
     $toolbar.appendChild($restartBtn);
     $toolbar.hidden = false;
-    expandPopupWidth(1);
-
-    Status.show('⚠️ Winger needs to be restarted.');
 }
 
 
@@ -90,24 +82,6 @@ const row = {
 
     $TEMPLATE: getTemplateContent('rowTemplate'),
     cellSelectors: new Set(['.send', '.bring', '.name', '.tabCount']),
-    buttonCount: 0,
-
-    //@ (Object) -> state
-    removeCells(SETTINGS) {
-        const cellDict = {
-            // setting:       selector
-            show_popup_bring: '.bring',
-            show_popup_send:  '.send',
-        };
-        for (const [cell, selector] of Object.entries(cellDict)) {
-            if (SETTINGS[cell]) {
-                this.buttonCount++;
-            } else {
-                this.$TEMPLATE.querySelector(selector).remove();
-                this.cellSelectors.delete(selector);
-            }
-        }
-    },
 
     //@ ({ Number, Boolean, String, String }, Boolean) -> (Object)
     create({ id, incognito, givenName, defaultName }, isCurrent) {
@@ -147,21 +121,6 @@ const row = {
 
 }
 
-const toolbar = {
-    //@ (Object) -> state
-    removeButtons(SETTINGS) {
-        const buttonDict = {
-            // setting:          selector
-            show_popup_help:     '#help',
-            show_popup_settings: '#settings',
-        }
-        for (const [button, selector] of Object.entries(buttonDict)) {
-            if (!SETTINGS[button])
-                $toolbar.querySelector(selector).remove();
-        }
-    },
-}
-
 //@ (Number) -> ({String})
 function createModifierHints(selectedTabCount) {
     const tabWord = selectedTabCount === 1 ? 'tab' : 'tabs';
@@ -181,17 +140,6 @@ function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
             $row.classList.add('reopenTabs');
     }
 }
-
-//@ (Number), state -> state | null
-function expandPopupWidth(buttonCount) {
-    if (!buttonCount) return;
-    const $document = document.documentElement;
-    const styles = getComputedStyle($document);
-    const buttonWidth = parseInt(styles.getPropertyValue('--button-width'));
-    const popupWidth = parseInt(styles.getPropertyValue('--popup-width'));
-    const newPopupWidth = popupWidth + buttonWidth * buttonCount;
-    $document.style.setProperty('--popup-width', `${newPopupWidth}px`);
-};
 
 //@ (Object, Object) -> state | null
 function alignWithScrollbar($toAlign, $scrolling) {
