@@ -9,7 +9,6 @@ const $form = $body.querySelector('form');
 const $settingFields = [...$form.querySelectorAll('.setting')];
 const stash_subSymbol = $form.stash_home.options[1].text.slice(-1);
 const enablerMap = new GroupMap(); // Fields that enable/disable other fields
-const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and change state according to those fields' states
 
 (async function init() {
     const SETTINGS = await browser.runtime.sendMessage({ settings: true });
@@ -17,10 +16,6 @@ const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and
     for (const $field of $settingFields) {
         loadSetting($field);
         registerEnabler($field);
-        registerToggler($field);
-    }
-    for (const $toggler of togglerMap.keys()) {
-        updateToggler($toggler);
     }
     stash_updateHomeSelect();
     staticText_insertShortcut();
@@ -48,15 +43,6 @@ const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and
             updateEnablerTarget($field, $enabler.disabled || !$enabler.checked);
         }
     }
-
-    //@ (Object), state -> state
-    function registerToggler($field) {
-        const $toggler = $form[$field.dataset.toggledBy];
-        if ($toggler) {
-            togglerMap.group($field, $toggler);
-        }
-    }
-
 })();
 
 //@ ({ Object }), state -> state
@@ -64,8 +50,6 @@ async function onFieldChange({ target: $field }) {
     await stash_onChecked($field);
     stash_updateHomeSelect();
     activateEnabler($field);
-    activateToggler($field);
-    updateToggler($form[$field.dataset.toggledBy]);
 }
 
 //@ ({ Object }), state -> state|null
@@ -107,32 +91,6 @@ function activateEnabler($enabler) {
 function updateEnablerTarget($field, disable) {
     $field.disabled = disable;
     $field.closest('label')?.classList.toggle('muted', disable);
-}
-
-// Check/uncheck fields that $toggler controls.
-//@ (Object), state -> state|null
-function activateToggler($toggler) {
-    const $targets = togglerMap.get($toggler);
-    if (!$targets) return;
-    const check = $toggler.checked;
-    $targets.forEach($target => $target.checked = check);
-}
-
-// Update $toggler state based on the states of the fields it controls.
-//@ (Object), state -> state|null
-function updateToggler($toggler) {
-    const $targets = togglerMap.get($toggler);
-    if (!$targets) return;
-    const $checked = $targets.filter($target => $target.checked);
-    $toggler.indeterminate = false;
-    if ($checked.length === 0) {
-        $toggler.checked = false;
-    } else
-    if ($checked.length === $targets.length) {
-        $toggler.checked = true;
-    } else {
-        $toggler.indeterminate = true;
-    }
 }
 
 //@ (Object), state -> state|null
