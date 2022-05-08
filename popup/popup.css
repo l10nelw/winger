@@ -18,7 +18,7 @@
     --field-color: #fff;
     --slash-field-color: #ff6;
 
-    --button-color: #d0d0d0;
+    --button-color: transparent;
     --focused-button-color: #bbb;
     --private-button-color: darkorchid;
     --editdone-button-color: lightgreen;
@@ -40,7 +40,6 @@
     --slash-field-color: #223;
     --slash-input-theme-color: gold;
 
-    --button-color: #50505c;
     --focused-button-color: #666;
 
     --border-color: #333;
