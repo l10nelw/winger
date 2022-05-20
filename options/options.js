@@ -9,7 +9,7 @@ const $form = $body.querySelector('form');
 const $settingFields = [...$form.querySelectorAll('.setting')];
 const stash_subSymbol = $form.stash_home.options[1].text.slice(-1);
 const enablerMap = new GroupMap(); // Fields that enable/disable other fields
-const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and change state according to those fields' states
+const togglerMap = new GroupMap(); // Fields that check/uncheck other fields
 
 (async function init() {
     const SETTINGS = await browser.runtime.sendMessage({ settings: true });
@@ -18,9 +18,6 @@ const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and
         loadSetting($field);
         registerEnabler($field);
         registerToggler($field);
-    }
-    for (const $toggler of togglerMap.keys()) {
-        updateToggler($toggler);
     }
     stash_updateHomeSelect();
     staticText_insertShortcut();
@@ -56,7 +53,6 @@ const togglerMap = new GroupMap(); // Fields that check/uncheck other fields and
             togglerMap.group($field, $toggler);
         }
     }
-
 })();
 
 //@ ({ Object }), state -> state
@@ -65,7 +61,6 @@ async function onFieldChange({ target: $field }) {
     stash_updateHomeSelect();
     activateEnabler($field);
     activateToggler($field);
-    updateToggler($form[$field.dataset.toggledBy]);
 }
 
 //@ ({ Object }), state -> state|null
@@ -116,23 +111,6 @@ function activateToggler($toggler) {
     if (!$targets) return;
     const check = $toggler.checked;
     $targets.forEach($target => $target.checked = check);
-}
-
-// Update $toggler state based on the states of the fields it controls.
-//@ (Object), state -> state|null
-function updateToggler($toggler) {
-    const $targets = togglerMap.get($toggler);
-    if (!$targets) return;
-    const $checked = $targets.filter($target => $target.checked);
-    $toggler.indeterminate = false;
-    if ($checked.length === 0) {
-        $toggler.checked = false;
-    } else
-    if ($checked.length === $targets.length) {
-        $toggler.checked = true;
-    } else {
-        $toggler.indeterminate = true;
-    }
 }
 
 //@ (Object), state -> state|null
