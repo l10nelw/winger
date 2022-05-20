@@ -15,12 +15,8 @@ const actionDict = {
     switch: switchWindow,
 };
 
-let PRESERVE_MOVED_TAB_FOCUS;
-
 //@ state -> state
 export function init() {
-    PRESERVE_MOVED_TAB_FOCUS = SETTINGS.keep_moved_focused_tab_focused;
-    if (!PRESERVE_MOVED_TAB_FOCUS) SETTINGS.keep_moved_tabs_selected = false;
     // Disable functions according to settings:
     if (SETTINGS.keep_moved_tabs_selected) selectFocusedTab = () => null;
 }
@@ -98,7 +94,7 @@ async function moveTabs(windowId, tabs) {
     if (pinnedTabIds) pinnedTabIds.forEach(pinTab); // Repin originally-pinned tabs
     if (!movedTabs.length) return;
 
-    if (PRESERVE_MOVED_TAB_FOCUS) {
+    if (SETTINGS.keep_moved_focused_tab_focused) {
         const preMoveFocusedTab = tabs.find(tab => tab.active);
         if (preMoveFocusedTab) focusTab(preMoveFocusedTab.id);
         if (SETTINGS.keep_moved_tabs_selected) movedTabs.forEach(tab => selectTab(tab.id));
@@ -127,7 +123,7 @@ async function reopenTabs(windowId, tabs) {
             pinned: tab.pinned,
             discarded: true,
         };
-        if (tab.active && PRESERVE_MOVED_TAB_FOCUS)
+        if (tab.active && SETTINGS.keep_moved_focused_tab_focused)
             protoTab.active = true;
         protoTabs.push(protoTab);
         tabIds.push(tab.id);
