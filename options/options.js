@@ -7,11 +7,11 @@ import { openHelp } from '../background/action.js';
 const $body = document.body;
 const $form = $body.querySelector('form');
 const $settingFields = [...$form.querySelectorAll('.setting')];
-const stash_subSymbol = $form.stash_home.options[1].text.slice(-1);
 const enablerMap = new GroupMap(); // Fields that enable/disable other fields
 const togglerMap = new GroupMap(); // Fields that check/uncheck other fields
 
 (async function init() {
+    // Settings already retrieved and checked at background init
     const SETTINGS = await browser.runtime.sendMessage({ settings: true });
     Theme.apply(SETTINGS.theme);
     for (const $field of $settingFields) {
@@ -57,7 +57,7 @@ const togglerMap = new GroupMap(); // Fields that check/uncheck other fields
 
 //@ ({ Object }), state -> state
 async function onFieldChange({ target: $field }) {
-    await stash_onChecked($field);
+    await stash_onEnabled($field);
     stash_updateHomeSelect();
     activateEnabler($field);
     activateToggler($field);
@@ -113,12 +113,16 @@ function activateToggler($toggler) {
     $targets.forEach($target => $target.checked = check);
 }
 
+const bookmarksPermission = { permissions: ['bookmarks'] };
+const stash_subSymbol = $form.stash_home.options[1].text.slice(-1);
+
+// Permissions request done here because doing it upon submit not possible.
+// Any mismatch of setting and permission states will be resolved after extension is reloaded.
 //@ (Object), state -> state|null
-async function stash_onChecked($field) {
+async function stash_onEnabled($field) {
     if ($field !== $form.enable_stash) return;
-    const permission = { permissions: ['bookmarks'] };
-    if (!$field.checked) return browser.permissions.remove(permission);
-    $field.checked = await browser.permissions.request(permission);
+    if (!$field.checked) return browser.permissions.remove(bookmarksPermission);
+    $field.checked = await browser.permissions.request(bookmarksPermission);
 }
 
 // Add/update subfolder name in the stash home <select>.
