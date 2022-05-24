@@ -4,11 +4,83 @@ import { getShortcut, GroupMap } from '../utils.js';
 import { validify } from '../background/name.js';
 import { openHelp } from '../background/action.js';
 
-const $body = document.body;
-const $form = $body.querySelector('form');
+const $form = document.body.querySelector('form');
 const $settingFields = [...$form.querySelectorAll('.setting')];
-const enablerMap = new GroupMap(); // Fields that enable/disable other fields
-const togglerMap = new GroupMap(); // Fields that check/uncheck other fields
+
+// Checkboxes that enable/disable other fields
+const enablerMap = Object.assign(new GroupMap(), {
+
+    //@ (Object, Boolean) -> state
+    updateTarget($target, disable) {
+        $target.disabled = disable;
+        $target.closest('label')?.classList.toggle('muted', disable);
+    },
+
+    //@ (Object), state -> state
+    addTarget($target) {
+        const $enabler = $form[$target.dataset.enabledBy];
+        if (!$enabler) return;
+        this.group($target, $enabler);
+        this.updateTarget($target, $enabler.disabled || !$enabler.checked);
+    },
+
+    // Enable/disable fields that $enabler controls.
+    //@ (Object), state -> state|null
+    activate($enabler) {
+        const $targets = this.get($enabler);
+        if (!$targets) return;
+        const disable = $enabler.disabled || !$enabler.checked; // Disable targets if enabler is unchecked or is itself disabled
+        for (const $target of $targets) {
+            this.updateTarget($target, disable);
+            this.activate($target); // In case $target is itself an enabler
+        }
+    },
+});
+
+// Checkboxes that tick/untick other checkboxes
+const togglerMap = Object.assign(new GroupMap(), {
+
+    //@ (Object), state -> state
+    addTarget($targets) {
+        const $toggler = $form[$targets.dataset.toggledBy];
+        if ($toggler)
+            this.group($targets, $toggler);
+    },
+
+    // Check/uncheck fields that $toggler controls.
+    //@ (Object), state -> state|null
+    activate($toggler) {
+        const $targets = this.get($toggler);
+        if (!$targets) return;
+        const check = $toggler.checked;
+        $targets.forEach($target => $target.checked = check);
+    },
+});
+
+const stashSection = {
+    permission: { permissions: ['bookmarks'] },
+    subfolderSymbol: $form.stash_home.options[1].text.slice(-1),
+
+    // Permission request done here because attempts to do it upon submit have not been successful.
+    // Any mismatch of setting and permission states is resolved after extension is reloaded.
+    //@ (Object), state -> state|null
+    async onEnabled($field) {
+        if ($field !== $form.enable_stash) return;
+        if (!$field.checked) return browser.permissions.remove(this.permission);
+        $field.checked = await browser.permissions.request(this.permission);
+    },
+
+    // Add/update subfolder name in the stash home <select>.
+    //@ state -> state
+    updateHomeSelect() {
+        const name = $form.stash_home_name.value = validify($form.stash_home_name.value);
+        const isSubfolder = $option => !$option.value.endsWith('_');
+        for (const $option of $form.stash_home.options) {
+            if (isSubfolder($option))
+                $option.text = `${$option.previousElementSibling.text} ${this.subfolderSymbol} ${name}`;
+        }
+    }
+};
 
 (async function init() {
     // Settings already retrieved and checked at background init
@@ -16,51 +88,34 @@ const togglerMap = new GroupMap(); // Fields that check/uncheck other fields
     Theme.apply(SETTINGS.theme);
     for (const $field of $settingFields) {
         loadSetting($field);
-        registerEnabler($field);
-        registerToggler($field);
+        enablerMap.addTarget($field);
+        togglerMap.addTarget($field);
     }
-    stash_updateHomeSelect();
+
+    stashSection.updateHomeSelect();
     staticText_insertShortcut();
     staticText_checkPrivateAccess();
-    $form.onchange = onFieldChange;
-    $form.onclick = onElClick;
-    $form.onsubmit = saveSettings;
 
     //@ (Object), state -> state
     function loadSetting($field) {
         const value = SETTINGS[$field.name];
         const type = $field.type;
-        if (type === 'radio') {
+        if (type === 'radio')
             $field.checked = $field.value === value;
-        } else {
+        else
             $field[type === 'checkbox' ? 'checked' : 'value'] = value;
-        }
-    }
-
-    //@ (Object), state -> state
-    function registerEnabler($field) {
-        const $enabler = $form[$field.dataset.enabledBy];
-        if ($enabler) {
-            enablerMap.group($field, $enabler);
-            updateEnablerTarget($field, $enabler.disabled || !$enabler.checked);
-        }
-    }
-
-    //@ (Object), state -> state
-    function registerToggler($field) {
-        const $toggler = $form[$field.dataset.toggledBy];
-        if ($toggler) {
-            togglerMap.group($field, $toggler);
-        }
     }
 })();
 
+$form.onchange = onFieldChange;
+$form.onclick = onElClick;
+$form.onsubmit = saveSettings;
+
 //@ ({ Object }), state -> state
 async function onFieldChange({ target: $field }) {
-    await stash_onEnabled($field);
-    stash_updateHomeSelect();
-    activateEnabler($field);
-    activateToggler($field);
+    await stashSection.onEnabled($field);
+    enablerMap.activate($field);
+    togglerMap.activate($field);
 }
 
 //@ ({ Object }), state -> state|null
@@ -75,9 +130,8 @@ function saveSettings() {
     for (const $field of $settingFields) {
         const type = $field.type;
         if (type === 'radio') {
-            if ($field.checked) {
+            if ($field.checked)
                 newSettings[$field.name] = $field.value;
-            }
         } else {
             newSettings[$field.name] = $field[type === 'checkbox' ? 'checked' : 'value'];
         }
@@ -86,62 +140,13 @@ function saveSettings() {
     browser.runtime.reload();
 }
 
-// Enable/disable fields that $enabler controls.
-//@ (Object), state -> state|null
-function activateEnabler($enabler) {
-    const $targets = enablerMap.get($enabler);
-    if (!$targets) return;
-    const disable = $enabler.disabled || !$enabler.checked; // Disable targets if enabler is unchecked or is itself disabled
-    for (const $target of $targets) {
-        updateEnablerTarget($target, disable);
-        activateEnabler($target); // In case $target is itself an enabler
-    }
-}
-
-//@ (Object, Boolean) -> state
-function updateEnablerTarget($field, disable) {
-    $field.disabled = disable;
-    $field.closest('label')?.classList.toggle('muted', disable);
-}
-
-// Check/uncheck fields that $toggler controls.
-//@ (Object), state -> state|null
-function activateToggler($toggler) {
-    const $targets = togglerMap.get($toggler);
-    if (!$targets) return;
-    const check = $toggler.checked;
-    $targets.forEach($target => $target.checked = check);
-}
-
-const bookmarksPermission = { permissions: ['bookmarks'] };
-const stash_subSymbol = $form.stash_home.options[1].text.slice(-1);
-
-// Permissions request done here because doing it upon submit not possible.
-// Any mismatch of setting and permission states will be resolved after extension is reloaded.
-//@ (Object), state -> state|null
-async function stash_onEnabled($field) {
-    if ($field !== $form.enable_stash) return;
-    if (!$field.checked) return browser.permissions.remove(bookmarksPermission);
-    $field.checked = await browser.permissions.request(bookmarksPermission);
-}
-
-// Add/update subfolder name in the stash home <select>.
-//@ state -> state
-function stash_updateHomeSelect() {
-    const name = validify($form.stash_home_name.value);
-    $form.stash_home_name.value = name;
-    for (const $option of $form.stash_home.options)
-        if (!$option.value.endsWith('_'))
-            $option.text = `${$option.previousElementSibling.text} ${stash_subSymbol} ${name}`;
-}
-
 //@ state -> state
 async function staticText_insertShortcut() {
     const defaultShortcut = browser.runtime.getManifest().commands._execute_browser_action.suggested_key.default;
     const currentShortcut = await getShortcut();
-    if (currentShortcut) $body.querySelector('.current-shortcut').textContent = currentShortcut;
+    if (currentShortcut) $form.querySelector('.current-shortcut').textContent = currentShortcut;
     if (currentShortcut == defaultShortcut) return;
-    const $defaultShortcutText = $body.querySelector('.default-shortcut-text');
+    const $defaultShortcutText = $form.querySelector('.default-shortcut-text');
     $defaultShortcutText.querySelector('.default-shortcut').textContent = defaultShortcut;
     $defaultShortcutText.hidden = false;
 }
@@ -149,6 +154,6 @@ async function staticText_insertShortcut() {
 //@ state -> state
 async function staticText_checkPrivateAccess() {
     const isAllowed = await browser.extension.isAllowedIncognitoAccess();
-    const $toShow = $body.querySelectorAll(`.private-allowed-${isAllowed ? 'yes' : 'no'}`);
+    const $toShow = $form.querySelectorAll(`.private-allowed-${isAllowed ? 'yes' : 'no'}`);
     $toShow.forEach($el => $el.hidden = false);
 }
