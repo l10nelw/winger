@@ -6,7 +6,7 @@ import { openHelp } from '../background/action.js';
 
 const $form = document.body.querySelector('form');
 
-const settings = {
+const setting = {
     $fields: [...$form.querySelectorAll('.setting')],
     _relevantProp: type => (type === 'checkbox') ? 'checked' : 'value',
 
@@ -15,14 +15,10 @@ const settings = {
         $field[this._relevantProp($field.type)] = value;
     },
 
-    //@ state -> state
-    saveAll() {
-        const newSettings = {};
-        for (const $field of this.$fields) {
-            newSettings[$field.name] = $field[this._relevantProp($field.type)];
-        }
-        Settings.set(newSettings);
-        browser.runtime.reload();
+    //@ (Object) -> state
+    save($field) {
+        if ($field.classList.contains('setting'))
+            Settings.set({ [$field.name]: $field[this._relevantProp($field.type)] });
     },
 };
 
@@ -55,6 +51,7 @@ const enablerMap = Object.assign(new GroupMap(), {
         for (const $target of $targets) {
             this._updateTarget($target, disable);
             this.trigger($target); // In case $target is itself an enabler
+            setting.save($target);
         }
     },
 });
@@ -110,8 +107,8 @@ const staticText = {
 (async function init() {
     const SETTINGS = await browser.runtime.sendMessage({ settings: true });
     Theme.apply(SETTINGS.theme);
-    for (const $field of settings.$fields) {
-        settings.load(SETTINGS[$field.name], $field);
+    for (const $field of setting.$fields) {
+        setting.load(SETTINGS[$field.name], $field);
         enablerMap.addTarget($field);
     }
     stashSection.updateHomeSelect();
@@ -122,6 +119,7 @@ const staticText = {
 $form.addEventListener('change', async ({ target: $field }) => {
     await stashSection.onEnabled($field);
     enablerMap.trigger($field);
+    setting.save($field);
 });
 
 $form.addEventListener('click', ({ target: $el }) => {
@@ -129,4 +127,4 @@ $form.addEventListener('click', ({ target: $el }) => {
         return openHelp($el.getAttribute('href'));
 });
 
-$form.addEventListener('submit', settings.saveAll);
+$form.addEventListener('submit', () => browser.runtime.reload());
