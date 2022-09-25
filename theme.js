@@ -1,2 +1,2 @@
-const isDark = theme => (theme === 'system') ? matchMedia('(prefers-color-scheme: dark)').matches : (theme === 'dark'); //@ (String), state -> (Boolean)
+const isDark = theme => (theme === 'dark') || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches); //@ (String), state -> (Boolean)
 export const apply = theme => document.body.classList.toggle('dark', isDark(theme)); //@ (String), state -> state

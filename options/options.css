@@ -1,5 +1,5 @@
 body {
-    padding: 0 1rem;
+    padding: 1rem;
     font-size: larger;
 }
 
@@ -19,6 +19,10 @@ label {
 input {
     margin-left: 0;
     margin-right: .5rem;
+}
+.inline-fields > label {
+    display: inline-flex;
+    margin-right: 1.5rem;
 }
 
 p {

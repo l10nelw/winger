@@ -12,13 +12,21 @@ const setting = {
 
     //@ (Boolean|String, Object) -> state
     load(value, $field) {
-        $field[this._relevantProp($field.type)] = value;
+        const type = $field.type;
+        if (type === 'radio')
+            $field.checked = ($field.value === value);
+        else
+            $field[this._relevantProp(type)] = value;
     },
 
     //@ (Object) -> state
     save($field) {
-        if ($field.classList.contains('setting'))
-            Settings.set({ [$field.name]: $field[this._relevantProp($field.type)] });
+        if (!$field.classList.contains('setting'))
+            return;
+        const { type, name } = $field;
+        if (type === 'radio')
+            return $field.checked ? Settings.set({ [name]: $field.value }) : null;
+        return Settings.set({ [name]: $field[this._relevantProp(type)] });
     },
 };
 

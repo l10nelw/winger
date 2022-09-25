@@ -8,19 +8,10 @@
     <form>
 
       <fieldset>
-        <legend>Theme</legend>
-        <select class="setting" name="theme">
-          <option value="system">System theme</option>
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-        </select>
-      </fieldset>
-
-      <fieldset>
         <legend>Send and bring</legend>
-        <label><input class="setting enabler" type="checkbox" name="keep_moved_focused_tab_focused"> <span>When sending/bringing a focused tab, keep it focused in the destination window</span></label>
+        <label><input class="setting enabler" type="checkbox" name="keep_moved_focused_tab_focused"> <span>When sending/bringing a focused (active) tab, keep it focused in the destination window</span></label>
         <label class="ml-1">
-          <input class="setting" type="checkbox" data-enabled-by="keep_moved_focused_tab_focused" data-toggled-by="keep_moved_focused_tab_focused" name="keep_moved_tabs_selected"> <span>When sending/bringing multiple selected tabs, keep them selected in the destination window</span>
+          <input class="setting" type="checkbox" data-enabled-by="keep_moved_focused_tab_focused" data-toggled-by="keep_moved_focused_tab_focused" name="keep_moved_tabs_selected"> <span>When sending/bringing multiple selected (highlighted) tabs, keep them selected in the destination window</span>
         </label>
         <small>Learn more about <a class="help" href="#common">send and bring</a></small>
       </fieldset>
@@ -57,12 +48,21 @@
           <br><small>(Limited to the first few characters)</small></span></label>
       </fieldset>
 
+      <fieldset>
+        <legend>Theme</legend>
+        <div class="inline-fields">
+          <label><input class="setting" type="radio" name="theme" value="system"> <span>Match system theme</span></label>
+          <label><input class="setting" type="radio" name="theme" value="light"> <span>Light</span></label>
+          <label><input class="setting" type="radio" name="theme" value="dark"> <span>Dark</span></label>
+        </div>
+      </fieldset>
+
       <button type="submit">Apply Settings</button>
 
       <fieldset>
         <legend>Private windows</legend>
         <p class="private-allowed-yes" hidden>Private windows are currently accessible to Winger. Winger can list and interact with them.</p>
-        <p class="private-allowed-no" hidden>Private windows are currently <strong>not</strong> accessible to Winger. As far as Winger is concerned, they do not exist.</p>
+        <p class="private-allowed-no" hidden>Private windows are currently <strong>not</strong> accessible to Winger. As far as Winger is concerned they do not exist.</p>
         <p>To change access to private windows, go to the <em>Details</em> tab at the top this page and choose an option for <em>Run in Private Windows</em>.</p>
         <small>Learn more about <a class="help" href="#private">private windows</a></small>
       </fieldset>
