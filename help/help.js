@@ -1,5 +1,3 @@
-import { retrieve as retrieveSettings } from '../background/settings.js';
-import * as Theme from '../theme.js';
 import { getShortcut } from '../utils.js';
 
 const $body = document.body;
@@ -7,18 +5,11 @@ const $ = (selector, $scope = $body) => $scope.querySelector(selector); //@ (Obj
 const $$ = (selector, $scope = $body) => $scope.querySelectorAll(selector); //@ (Object, Object|null) -> ([Object])
 $body.onclick = onClick;
 
-applySettings();
 insertVersion();
 insertShortcut();
 doOSSpecific();
 updateMockPopups();
 handleCollapse();
-
-//@ state -> state
-async function applySettings() {
-    const SETTINGS = await retrieveSettings();
-    Theme.apply(SETTINGS.theme);
-}
 
 //@ (Object) -> state
 function onClick({ target }) {

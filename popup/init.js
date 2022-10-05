@@ -6,7 +6,6 @@ import {
     getScrollbarWidth,
     unsetActionAttr,
 } from './common.js';
-import * as Theme from '../theme.js';
 import * as Omnibox from './omnibox.js';
 import * as Filter from './filter.js';
 import * as Status from './status.js';
@@ -33,7 +32,6 @@ function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
     Tooltip.init(selectedTabCount);
     Filter.init();
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
-    Theme.apply(SETTINGS.theme);
 
     $omnibox.hidden = false;
     $otherWindowsList.hidden = false;

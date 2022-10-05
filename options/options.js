@@ -1,5 +1,4 @@
 import * as Settings from '../background/settings.js';
-import * as Theme from '../theme.js';
 import { getShortcut, GroupMap } from '../utils.js';
 import { validify } from '../background/name.js';
 import { openHelp } from '../background/action.js';
@@ -114,7 +113,6 @@ const staticText = {
 
 (async function init() {
     const SETTINGS = await browser.runtime.sendMessage({ settings: true });
-    Theme.apply(SETTINGS.theme);
     for (const $field of setting.$fields) {
         setting.load(SETTINGS[$field.name], $field);
         enablerMap.addTarget($field);

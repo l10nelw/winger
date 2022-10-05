@@ -1,11 +1,3 @@
-import * as Settings from '../background/settings.js';
-import * as Theme from '../theme.js';
-
-(async () => {
-    const SETTINGS = await Settings.retrieve();
-    Theme.apply(SETTINGS.theme);
-})();
-
 const params = new URL(location).searchParams;
 const url    = params.get('url');
 const title  = params.get('title');
