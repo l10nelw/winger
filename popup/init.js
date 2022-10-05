@@ -13,8 +13,7 @@ import * as Tooltip from './tooltip.js';
 import * as Request from './request.js';
 import { BRING, SEND } from '../modifier.js';
 
-const $currentWindowList = document.getElementById('currentWindow');
-const getTemplateContent = id => document.getElementById(id).content.firstElementChild; //@ (Number), state -> (Object)
+const $currentWindowRow = document.getElementById('currentWindow').firstElementChild;
 
 export default () => Request.popup().then(onSuccess).catch(onError);
 
@@ -24,7 +23,6 @@ function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
     if (!SETTINGS.enable_stash) delete Omnibox.commands.stash;
 
     populate(winfos);
-    const $currentWindowRow = $currentWindowList.firstElementChild;
     const $otherWindowRows = [...$otherWindowsList.children];
     initCommon({ $currentWindowRow, $otherWindowRows });
 
@@ -53,7 +51,7 @@ function onError() {
     browser.browserAction.setBadgeBackgroundColor({ color: 'transparent' });
     Status.show('⚠️ Winger needs to be restarted.');
 
-    const $restartBtn = getTemplateContent('restartTemplate');
+    const $restartBtn = document.getElementById('restartTemplate').content.firstElementChild;
     $restartBtn.onclick = () => browser.runtime.reload();
     $toolbar.innerHTML = '';
     $toolbar.appendChild($restartBtn);
@@ -63,50 +61,54 @@ function onError() {
 
 //@ ([Object]) -> state
 function populate(winfos) {
-    // Current window
     const currentWinfo = winfos.shift();
-    $currentWindowList.appendChild(row.create(currentWinfo, true));
+
     // Other windows
     const $fragment = document.createDocumentFragment();
     winfos.forEach((winfo, index) => {
-        const $row = row.create(winfo);
-        $row._index = index;
+        const $row = row.createOther(winfo);
+        $row._index = index; // Used by navigation.js restrictScroll()
         $fragment.appendChild($row);
     });
     $otherWindowsList.appendChild($fragment);
+
+    // Hydrate current-row only after all other-rows have been created
+    row.hydrateCurrent($currentWindowRow, currentWinfo);
 }
 
 const row = {
 
-    $TEMPLATE: getTemplateContent('rowTemplate'),
-    cellSelectors: new Set(['.send', '.bring', '.name', '.tabCount']),
+    CELL_SELECTORS: ['.send', '.bring', '.name', '.tabCount'],
 
-    //@ ({ Number, Boolean, String, String }, Boolean) -> (Object)
-    create({ id, incognito, givenName, defaultName }, isCurrent) {
-        const $row = document.importNode(this.$TEMPLATE, true);
+    //@ (Object, Object) -> (Object)
+    createOther(winfo) {
+        const $row = $currentWindowRow.cloneNode(true);
+        this.hydrate($row, winfo);
+        return $row;
+    },
 
-        // Add references to row's cells, and in each, a reference to the row
-        for (const selector of this.cellSelectors) {
+    //@ (Object, Object) -> state
+    hydrateCurrent($row, winfo) {
+        this.hydrate($row, winfo);
+        $row.$name.tabIndex = 0;
+        this.disableElement($row);
+        $row.querySelectorAll('.tabAction').forEach($button => this.disableElement($button));
+    },
+
+    //@ (Object, { Number, Boolean, String, String }) -> state
+    hydrate($row, { id, incognito, givenName, defaultName }) {
+        // Add references to row's cells, and in each cell a reference back to the row
+        for (const selector of this.CELL_SELECTORS) {
             const $cell = $row.querySelector(selector);
             const reference = selector.replace('.', '$');
             $cell.$row = $row;
             $row[reference] = $cell;
-            if (isCurrent && $cell.classList.contains('tabAction'))
-                this.disableElement($cell);
         }
-
         // Add data
-        if (isCurrent) {
-            $row.classList.replace('otherRow', 'currentRow');
-            $row.$name.tabIndex = 0;
-            this.disableElement($row);
-        }
         $row._id = id;
         $row.$name.value = givenName;
         $row.$name.placeholder = defaultName;
         $row.classList.toggle('private', incognito);
-
-        return $row;
     },
 
     //@ (Object) -> state

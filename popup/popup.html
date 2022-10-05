@@ -6,7 +6,16 @@
     <link rel="stylesheet" href="popup.css">
   </head>
   <body data-mode="normal">
-    <ul id="currentWindow"></ul>
+    <!-- initial state of this row (tabindexes, etc) is as an other-row -->
+    <!-- `readonly` easier to control focusability than `disabled` -->
+    <ul id="currentWindow">
+      <li tabindex="0" data-action="switch" title="Switch to: ">
+        <button type="button" class="tabAction send" data-action="send" title="Send # to: "></button>
+        <button type="button" class="tabAction bring" data-action="bring" title="Bring # to: "></button>
+        <input tabindex="-1" class="name" readonly autocomplete="off">
+        <div class="tabCount"></div>
+      </li>
+    </ul>
     <div id="omniboxWrapper">
       <input id="omnibox" type="text" hidden>
     </div>
@@ -16,15 +25,6 @@
       <button type="button" id="help"><img src="../icons/help.svg" width="18" height="18"> Help</button>
       <button type="button" id="settings"><img src="../icons/settings.svg" width="18" height="18"> Settings</button>
     </footer>
-
-    <template id="rowTemplate">
-      <li tabindex="0" class="otherRow" data-action="switch" title="Switch to: ">
-        <button type="button" class="tabAction send" data-action="send" title="Send # to: "></button>
-        <button type="button" class="tabAction bring" data-action="bring" title="Bring # to: "></button>
-        <input tabindex="-1" class="name" readonly autocomplete="off"><!-- `readonly` easier to control focusability than `disabled` -->
-        <div class="tabCount"></div>
-      </li>
-    </template>
 
     <template id="restartTemplate">
       <button type="button" id="restart"><img src="../icons/refresh.svg" width="18" height="18"> Restart</button>

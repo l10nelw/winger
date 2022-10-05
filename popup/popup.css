@@ -107,7 +107,7 @@ li > * {
     text-align: end;
 }
 
-[data-mode="normal"] .otherRow:is(:hover, :focus) {
+[data-mode="normal"] #otherWindows li:is(:hover, :focus) {
     background-color: var(--focused-row-color);
 }
 
@@ -150,23 +150,23 @@ input:read-only {
     background-color: transparent;
 }
 
-[data-mode="normal"] .currentRow .name {
+[data-mode="normal"] #currentWindow .name {
     font-weight: bold;
 }
 
-[data-mode="normal"] .currentRow .name:hover {
+[data-mode="normal"] #currentWindow .name:hover {
     background-color: var(--focused-row-color);
     cursor: pointer;
 }
 
-[data-mode="normal"] .otherRow .name {
+[data-mode="normal"] #otherWindows .name {
     outline: none;
 }
 
 input:focus,
 button:focus,
-.currentRow .name:focus,
-[data-mode="normal"] .otherRow:focus {
+#currentWindow .name:focus,
+[data-mode="normal"] #otherWindows li:focus {
     outline: 2px solid var(--focus-outline-color);
 }
 
@@ -248,7 +248,7 @@ li.reopenTabs button.tabAction {
     opacity: .1;
 }
 
-.currentRow .tabAction {
+#currentWindow .tabAction {
     visibility: hidden;
 }
 
