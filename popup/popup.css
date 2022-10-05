@@ -107,7 +107,7 @@ li > * {
     text-align: end;
 }
 
-[data-mode="normal"] #otherWindows li:is(:hover, :focus) {
+body[data-mode="normal"] #otherWindows li:is(:hover, :focus) {
     background-color: var(--focused-row-color);
 }
 
@@ -133,8 +133,8 @@ input:read-only {
     margin-left: .25rem;
 }
 
-[data-mode="normal"] .name,
-[data-mode="edit"] .name:not(:focus) {
+body[data-mode="normal"] .name,
+body[data-mode="edit"] .name:not(:focus) {
     background-color: transparent;
     border-color: transparent;
     cursor: default;
@@ -142,31 +142,31 @@ input:read-only {
     user-select: none;
 }
 
-[data-mode="normal"] .name::placeholder {
+body[data-mode="normal"] .name::placeholder {
     opacity: 1;
 }
 
-[data-mode="normal"] .name::selection {
+body[data-mode="normal"] .name::selection {
     background-color: transparent;
 }
 
-[data-mode="normal"] #currentWindow .name {
+body[data-mode="normal"] #currentWindow .name {
     font-weight: bold;
 }
 
-[data-mode="normal"] #currentWindow .name:hover {
+body[data-mode="normal"] #currentWindow .name:hover {
     background-color: var(--focused-row-color);
     cursor: pointer;
 }
 
-[data-mode="normal"] #otherWindows .name {
+body[data-mode="normal"] #otherWindows .name {
     outline: none;
 }
 
 input:focus,
 button:focus,
 #currentWindow .name:focus,
-[data-mode="normal"] #otherWindows li:focus {
+body[data-mode="normal"] #otherWindows li:focus {
     outline: 2px solid var(--focus-outline-color);
 }
 
@@ -243,7 +243,7 @@ li.reopenTabs button.tabAction {
     background-image: url("../icons/bring.svg");
 }
 
-[data-mode="edit"] li button {
+body[data-mode="edit"] li button {
     background-color: transparent;
     opacity: .1;
 }
