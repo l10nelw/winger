@@ -1,6 +1,5 @@
 import {
     init as initCommon,
-    $omnibox,
     $otherWindowsList,
     $toolbar,
     getScrollbarWidth,
@@ -20,7 +19,8 @@ export default () => Request.popup().then(onSuccess).catch(onError);
 
 //@ ({ Object, [Object], Number }), state -> ({String}), state
 function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
-    if (!SETTINGS.enable_stash) delete Omnibox.commands.stash;
+    if (!SETTINGS.enable_stash)
+        delete Omnibox.commands.stash;
 
     populate(winfos);
     const $otherWindowRows = [...$otherWindowsList.children];
@@ -31,11 +31,7 @@ function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
     Filter.init();
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
 
-    $omnibox.hidden = false;
-    $otherWindowsList.hidden = false;
     $toolbar.hidden = false;
-
-    $omnibox.focus();
     alignWithScrollbar($currentWindowRow, $otherWindowsList);
     lockHeight($otherWindowsList);
 
@@ -144,7 +140,8 @@ function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
 //@ (Object, Object) -> state | null
 function alignWithScrollbar($toAlign, $scrolling) {
     const scrollbarWidth = getScrollbarWidth($scrolling);
-    if (!scrollbarWidth) return;
+    if (!scrollbarWidth)
+        return;
     document.styleSheets[0].insertRule(`.scrollbarOffset { margin-right: ${scrollbarWidth}px }`);
     $toAlign.classList.add('scrollbarOffset');
 }
