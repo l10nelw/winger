@@ -79,9 +79,9 @@ function onWindowFocused(windowId) {
 //@ (Object), state -> (Promise: Object|Boolean|null), state|null
 async function onRequest(request) {
     if (request.popup) return {
-        SETTINGS:         Settings.SETTINGS,
         winfos:           Window.sortedWinfos(),
         selectedTabCount: (await Action.getSelectedTabs()).length,
+        stashEnabled:     !!Stash,
     };
     if (request.stash)     return Stash.stash(request.stash, request.close);
     if (request.action)    return Action.execute(request);

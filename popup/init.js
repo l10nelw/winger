@@ -18,8 +18,8 @@ export default () => Request.popup().then(onSuccess).catch(onError);
 
 
 //@ ({ Object, [Object], Number }), state -> ({String}), state
-function onSuccess({ SETTINGS, winfos, selectedTabCount }) {
-    if (!SETTINGS.enable_stash)
+function onSuccess({ winfos, selectedTabCount, stashEnabled }) {
+    if (!stashEnabled)
         delete Omnibox.commands.stash;
 
     populate(winfos);
