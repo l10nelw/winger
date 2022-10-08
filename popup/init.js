@@ -10,22 +10,19 @@ import * as Filter from './filter.js';
 import * as Status from './status.js';
 import * as Tooltip from './tooltip.js';
 import * as Request from './request.js';
-import { BRING, SEND } from '../modifier.js';
 
 const $currentWindowRow = document.getElementById('currentWindow').firstElementChild;
 
-export default () => Request.popup().then(onSuccess).catch(onError);
+Request.popup().then(onSuccess).catch(onError);
 
 
-//@ ({ Object, [Object], Number }), state -> ({String}), state
+//@ ({ [Object], Number, Boolean }) -> state
 function onSuccess({ winfos, selectedTabCount, stashEnabled }) {
-    if (!stashEnabled)
-        delete Omnibox.commands.stash;
-
     populate(winfos);
     const $otherWindowRows = [...$otherWindowsList.children];
     initCommon({ $currentWindowRow, $otherWindowRows });
 
+    Omnibox.init(selectedTabCount, stashEnabled);
     Status.init([$currentWindowRow, ...$otherWindowRows]);
     Tooltip.init(selectedTabCount);
     Filter.init();
@@ -34,9 +31,6 @@ function onSuccess({ winfos, selectedTabCount, stashEnabled }) {
     $toolbar.hidden = false;
     alignWithScrollbar($currentWindowRow, $otherWindowsList);
     lockHeight($otherWindowsList);
-
-    const modifierHints = createModifierHints(selectedTabCount);
-    return { modifierHints };
 }
 
 //@ -> state
@@ -115,15 +109,6 @@ const row = {
         unsetActionAttr($el);
     },
 
-}
-
-//@ (Number) -> ({String})
-function createModifierHints(selectedTabCount) {
-    const tabWord = selectedTabCount === 1 ? 'tab' : 'tabs';
-    return {
-        [BRING]: `${BRING.toUpperCase()}: Bring ${tabWord} to...`,
-        [SEND]:  `${SEND.toUpperCase()}: Send ${tabWord} to...`,
-    };
 }
 
 const isPrivate = $row => $row.classList.contains('private'); //@ (Object) -> (Boolean)
