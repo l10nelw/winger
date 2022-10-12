@@ -3,20 +3,27 @@ import * as Window from './window.js';
 import * as Name from './name.js';
 import * as Action from './action.js';
 import * as Chrome from './chrome.js';
-let Stash, Menu; // Optional modules
+import * as SendMenu from './menu.send.js';
+let Stash, UnstashMenu; // Optional modules
 
 //@ -> state
 function debug() {
-    const modules = { Settings, Window, Name, Action, Stash, Menu };
+    const modules = { Settings, Window, Name, Action, SendMenu, Stash, UnstashMenu };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
     Object.assign(window, modules);
 }
 
 init();
-browser.runtime.onInstalled.addListener    (onExtensionInstalled);
+
 browser.windows.onCreated.addListener      (onWindowCreated);
 browser.windows.onRemoved.addListener      (onWindowRemoved);
 browser.windows.onFocusChanged.addListener (onWindowFocused);
+
+browser.menus.onShown.addListener          (onMenuShown);
+browser.menus.onHidden.addListener         (onMenuHidden);
+browser.menus.onClicked.addListener        (onMenuClicked);
+
+browser.runtime.onInstalled.addListener    (onExtensionInstalled);
 browser.runtime.onMessage.addListener      (onRequest);
 
 //@ state -> state
@@ -27,29 +34,13 @@ async function init() {
     Chrome.init(SETTINGS);
 
     if (SETTINGS.enable_stash) {
-        import('./stash.js').then(module => {
-            Stash = module;
-            Stash.init(SETTINGS);
-        });
-    }
-    const menusEnabled = [];
-    if (SETTINGS.enable_tab_menu)  menusEnabled.push('tab');
-    if (SETTINGS.enable_link_menu) menusEnabled.push('link');
-    if (SETTINGS.enable_stash)     menusEnabled.push('bookmark');
-    if (menusEnabled.length) {
-        import('./menu.js').then(module => {
-            Menu = module;
-            Menu.init(menusEnabled);
-        });
+        [Stash, UnstashMenu] =
+            await Promise.all([ import('./stash.js'), import('./menu.unstash.js') ]);
+        Stash.init(SETTINGS);
     }
 
     await Window.add(windows);
     for (const window of windows) onWindowCreated(window, true);
-}
-
-//@ (Object) -> state
-function onExtensionInstalled(details) {
-    if (details.reason === 'install') Action.openHelp();
 }
 
 //@ (Object, Boolean), state -> state
@@ -61,19 +52,38 @@ async function onWindowCreated(window, isInit) {
 
     await Window.add([window]);
     Action.selectFocusedTab(windowId);
-    Menu?.update();
     Stash?.unstash.onWindowCreated(windowId);
 }
 
 //@ (Number), state -> state
 function onWindowRemoved(windowId) {
     Window.remove(windowId);
-    Menu?.update();
 }
 
 //@ (Number), state -> state
 function onWindowFocused(windowId) {
     if (windowId in Window.winfoDict) Window.winfoDict[windowId].lastFocused = Date.now();
+}
+
+//@ (Object, Object), state -> state|null
+async function onMenuShown(info, tab) {
+    await UnstashMenu?.handleShow(info) || SendMenu.handleShow(info, tab);
+}
+
+//@ -> state
+function onMenuHidden() {
+    SendMenu.handleHide();
+    UnstashMenu?.handleHide();
+}
+
+//@ (Object, Object), state -> state|null
+function onMenuClicked(info, tab) {
+    UnstashMenu?.handleClick(info) || SendMenu.handleClick(info, tab);
+}
+
+//@ (Object) -> state
+function onExtensionInstalled(details) {
+    if (details.reason === 'install') Action.openHelp();
 }
 
 //@ (Object), state -> (Promise: Object|Boolean|null), state|null
