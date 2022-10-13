@@ -5,8 +5,6 @@ const DEFAULT = {
     keep_moved_focused_tab_focused: true,
     keep_moved_tabs_selected: true,
 
-    show_badge: false,
-
     enable_stash: false,
     stash_home: 'toolbar_____',
     stash_home_name: 'Stashed Windows',

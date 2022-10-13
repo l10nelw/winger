@@ -2,7 +2,6 @@ import * as Settings from './settings.js';
 import * as Window from './window.js';
 import * as Name from './name.js';
 import * as Action from './action.js';
-import * as Chrome from './chrome.js';
 import * as SendMenu from './menu.send.js';
 let Stash, UnstashMenu; // Optional modules
 
@@ -31,7 +30,6 @@ async function init() {
     const [SETTINGS, windows] = await Promise.all([ Settings.get(), browser.windows.getAll() ]);
 
     Action.init(SETTINGS);
-    Chrome.init(SETTINGS);
 
     if (SETTINGS.enable_stash) {
         [Stash, UnstashMenu] =
