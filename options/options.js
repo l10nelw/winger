@@ -48,7 +48,7 @@ const enablerMap = Object.assign(new GroupMap(), {
     },
 
     // Enable/disable fields that $enabler controls.
-    //@ (Object), state -> state|null
+    //@ (Object), state -> state|nil
     trigger($enabler) {
         const $targets = this.get($enabler);
         if (!$targets)
@@ -67,7 +67,7 @@ const stashSection = {
     permission: { permissions: ['bookmarks'] },
     subfolderSymbol: $form.stash_home.options[1].text.slice(-1),
 
-    //@ (Object), state -> state|null
+    //@ (Object), state -> state|nil
     async onEnabled($field) {
         if ($field !== $form.enable_stash)
             return;

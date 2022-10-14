@@ -42,7 +42,7 @@ const modifierHint = {
         this[BRING] = `[${BRING}] Bring ${tabWord} to...`;
         this[SEND] = `[${SEND}] Send ${tabWord} to...`;
     },
-    //@ (String) -> (String), state | (null)
+    //@ (String) -> (String), state | (undefined)
     match(key) {
         if ($omnibox.value)
             return; // Placeholder not visible anyway

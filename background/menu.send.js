@@ -25,7 +25,7 @@ browser.menus.create({
 const isIntersect = (array1, array2) => array1.some(item => array2.includes(item));
 
 // Event handler: Enable menu and populate submenu if there is more than one window, when menu shown.
-//@ (Object, Object) -> (Boolean), state|null
+//@ (Object, Object) -> (Boolean), state|nil
 export function handleShow(info, tab) {
     if (isIntersect(info.contexts, contexts) && Window.isOverOne()) {
         populate(tab.windowId);
@@ -55,7 +55,7 @@ export function handleHide() {
 }
 
 // Event handler: Invoke submenu item click response based on context.
-//@ (Object, Object) -> (Boolean), state|null
+//@ (Object, Object) -> (Boolean), state|nil
 export function handleClick(info, tab) {
     const windowId = Number(info.menuItemId);
     if (windowId) {

@@ -71,19 +71,19 @@ export async function pop(incognito) {
     browser.tabs.remove(initTabId);
 }
 
-//@ (Number, [Object]), state -> state|null
+//@ (Number, [Object]), state -> state|nil
 async function bringTabs(windowId, tabs) {
     if (await sendTabs(windowId, tabs)) switchWindow(windowId);
 }
 
-//@ (Number, [Object]), state -> (Promise: [Object]|null), state|null
+//@ (Number, [Object]), state -> (Promise: [Object]|undefined), state|nil
 function sendTabs(windowId, tabs) {
     const originWindowId = tabs[0].windowId;
     const reopen = !isSamePrivateStatus(originWindowId, windowId);
     return (reopen ? reopenTabs : moveTabs)(windowId, tabs);
 }
 
-//@ (Number, [Object]), state -> (Promise: [Object]|null), state|null
+//@ (Number, [Object]), state -> (Promise: [Object]|undefined), state|nil
 async function moveTabs(windowId, tabs) {
     const pinnedTabIds = getPinnedTabs(tabs)?.map(tab => tab.id);
     if (pinnedTabIds) await Promise.all(pinnedTabIds.map(unpinTab)); // Unpin pinned tabs so they can be moved
@@ -102,7 +102,7 @@ async function moveTabs(windowId, tabs) {
     return movedTabs;
 }
 
-//@ ([Object]) -> ([Object]|null)
+//@ ([Object]) -> ([Object]|undefined)
 function getPinnedTabs(tabs) {
     const unpinnedIndex = tabs.findIndex(tab => !tab.pinned);
     if (unpinnedIndex === 0) return;
@@ -111,7 +111,7 @@ function getPinnedTabs(tabs) {
 }
 
 // Recreate given tabs in a given window, maintaining pinned states.
-//@ (Number, [Object]), state -> ([Object]), state | (null)
+//@ (Number, [Object]), state -> ([Object]), state | (undefined)
 async function reopenTabs(windowId, tabs) {
     const protoTabs = [];
     const tabIds = [];

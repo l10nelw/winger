@@ -19,7 +19,7 @@ export function help() {
 }
 
 // Gather action parameters from event and $action element. Request only if action and windowId found.
-//@ (Object, Object) -> state|null
+//@ (Object, Object) -> state|nil
 export function action(event, $action = event.target) {
     const $row = $action.$row || $action;
     const windowId = $row._id;

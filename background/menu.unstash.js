@@ -12,7 +12,7 @@ browser.menus.create({
 });
 
 // Event handler: Check if target is unstash-able when menu shown; enable menu item if so.
-//@ (Object) -> (Boolean), state|null
+//@ (Object) -> (Boolean), state|nil
 export async function handleShow(info) {
     const nodeId = info.bookmarkId;
     if (nodeId) {
@@ -31,7 +31,7 @@ export function handleHide() {
 }
 
 // Event handler: Unstash target on click.
-//@ (Object) -> (Boolean), state|null
+//@ (Object) -> (Boolean), state|nil
 export function handleClick(info) {
     const nodeId = info.bookmarkId;
     if (nodeId) {

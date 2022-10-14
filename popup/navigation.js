@@ -17,7 +17,7 @@ const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
 // Given an element and an arrow key, focus on the next focusable element in that direction and return true.
 // Return null if key not an arrow key.
 // Control vertical scrolling.
-//@ (Object, String, Object), state -> (Boolean), state|null
+//@ (Object, String, Object), state -> (Boolean), state|nil
 export default function navigateByArrow($el, key, event) {
     const navigatorKey = navigator[key];
     if (!navigatorKey) return;
@@ -38,7 +38,7 @@ export default function navigateByArrow($el, key, event) {
 const isUnfocusable = $el => row($el).hidden || $el.tabIndex === -1; //@ (Object) -> (Boolean)
 const isVerticalKey = key => VERTICAL_KEYS.includes(key); //@ (String) -> (Boolean)
 
-//@ (Object, Object) -> state|null
+//@ (Object, Object) -> state|nil
 function restrictScroll($el, event) {
     const index = row($el)._index;
     if (SCROLL_THRESHOLD <= index && ($shownRows.length - index) > SCROLL_THRESHOLD) return;

@@ -21,7 +21,7 @@ $body.addEventListener('keyup', onKeyUp);
 $body.addEventListener('input', onInput);
 $body.addEventListener('focusin', onFocusIn);
 
-//@ (Object) -> state|null
+//@ (Object) -> state|nil
 function onClick(event) {
     const { target } = event;
 
@@ -33,21 +33,21 @@ function onClick(event) {
     Request.action(event, target);
 }
 
-//@ (Object) -> state|null
+//@ (Object) -> state|nil
 function onContextMenu(event) {
     const { target } = event;
     if (target.matches('input:not([readonly])')) return; // Allow right-click only on non-readonly input
     event.preventDefault();
 }
 
-//@ (Object) -> state|null
+//@ (Object) -> state|nil
 function onKeyDown(event) {
     const { key, target } = event;
     if (navigateByArrow(target, key, event)) return;
     if (Omnibox.handleKeyDown(key)) return;
 }
 
-//@ (Object) -> state|null
+//@ (Object) -> state|nil
 function onKeyUp(event) {
     const { key, target } = event;
     $omnibox.placeholder = ''; // Clear any modifier hints
@@ -64,7 +64,7 @@ function onKeyUp(event) {
     }
 }
 
-//@ (Object) -> state|null
+//@ (Object) -> state|nil
 async function onInput(event) {
     const { target } = event;
     if (await EditMode.handleInput(target)) return;
@@ -73,7 +73,7 @@ async function onInput(event) {
     }
 }
 
-//@ (Object) -> state|null
+//@ (Object) -> state|nil
 function onFocusIn(event) {
     const { target: $focused, relatedTarget: $defocused } = event;
     if ($defocused === $omnibox) $omnibox.placeholder = ''; // Clear any modifier hints

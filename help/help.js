@@ -1,8 +1,8 @@
 import { getShortcut } from '../utils.js';
 
 const $body = document.body;
-const $ = (selector, $scope = $body) => $scope.querySelector(selector); //@ (Object, Object|null) -> (Object)
-const $$ = (selector, $scope = $body) => $scope.querySelectorAll(selector); //@ (Object, Object|null) -> ([Object])
+const $ = (selector, $scope = $body) => $scope.querySelector(selector); //@ (Object, Object|undefined) -> (Object)
+const $$ = (selector, $scope = $body) => $scope.querySelectorAll(selector); //@ (Object, Object|undefined) -> ([Object])
 $body.onclick = onClick;
 
 insertVersion();

@@ -41,7 +41,7 @@ function setActive(isActivate) {
     Status.show(isActivate ? HINT : null);
 }
 
-//@ (Object, Object) -> (Boolean), state|null
+//@ (Object, Object) -> (Boolean), state|nil
 export function handleFocusIn($focused, $defocused) {
     if (!isActive) return false;
 
@@ -70,7 +70,7 @@ export function handleFocusIn($focused, $defocused) {
     return isHandled;
 }
 
-//@ (Object) -> (Boolean), state|null
+//@ (Object) -> (Boolean), state|nil
 export async function handleInput($name) {
     if (!isActive || $name !== $focusedName) return false;
     const error = await Request.checkName($name.$row._id, $name.value.trim());
@@ -78,7 +78,7 @@ export async function handleInput($name) {
     return true;
 }
 
-//@ (Object, String) -> (Boolean), state|null
+//@ (Object, String) -> (Boolean), state|nil
 export function handleKeyUp($name, key) {
     if (!isActive || $name !== $focusedName) return false;
 
@@ -92,7 +92,7 @@ export function handleKeyUp($name, key) {
 }
 
 // Trim content of name field and try to save it. Return true if successful, false otherwise.
-//@ (Object) -> (Boolean), state|null
+//@ (Object) -> (Boolean), state|nil
 function trySaveName($name) {
     const name = $name.value = $name.value.trim();
 

@@ -63,7 +63,7 @@ function onWindowFocused(windowId) {
     if (windowId in Window.winfoDict) Window.winfoDict[windowId].lastFocused = Date.now();
 }
 
-//@ (Object, Object), state -> state|null
+//@ (Object, Object), state -> state|nil
 async function onMenuShown(info, tab) {
     await UnstashMenu?.handleShow(info) || SendMenu.handleShow(info, tab);
 }
@@ -74,7 +74,7 @@ function onMenuHidden() {
     UnstashMenu?.handleHide();
 }
 
-//@ (Object, Object), state -> state|null
+//@ (Object, Object), state -> state|nil
 function onMenuClicked(info, tab) {
     UnstashMenu?.handleClick(info) || SendMenu.handleClick(info, tab);
 }
@@ -84,7 +84,7 @@ function onExtensionInstalled(details) {
     if (details.reason === 'install') Action.openHelp();
 }
 
-//@ (Object), state -> (Promise: Object|Boolean|null), state|null
+//@ (Object), state -> (Promise: Object|Boolean|undefined), state|nil
 async function onRequest(request) {
     if (request.popup) return {
         winfos:           Window.sortedWinfos(),

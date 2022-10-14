@@ -122,7 +122,7 @@ function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
     }
 }
 
-//@ (Object, Object) -> state | null
+//@ (Object, Object) -> state|nil
 function alignWithScrollbar($toAlign, $scrolling) {
     const scrollbarWidth = getScrollbarWidth($scrolling);
     if (!scrollbarWidth)
