@@ -8,7 +8,6 @@ import {
 import * as Omnibox from './omnibox.js';
 import * as Filter from './filter.js';
 import * as Status from './status.js';
-import * as Tooltip from './tooltip.js';
 import * as Request from './request.js';
 
 const $currentWindowRow = document.getElementById('currentWindow').firstElementChild;
@@ -24,7 +23,6 @@ function onSuccess({ winfos, selectedTabCount, stashEnabled }) {
 
     Omnibox.init(selectedTabCount, stashEnabled);
     Status.init([$currentWindowRow, ...$otherWindowRows]);
-    Tooltip.init(selectedTabCount);
     Filter.init();
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
 
@@ -105,7 +103,6 @@ const row = {
     disableElement($el) {
         $el.disabled = true;
         $el.tabIndex = -1;
-        $el.title = '';
         unsetActionAttr($el);
     },
 
