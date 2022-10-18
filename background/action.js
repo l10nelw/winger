@@ -1,7 +1,6 @@
 // Common actions involving windows and tabs.
 
 import { BRING, SEND } from '../modifier.js';
-import { winfoDict } from './window.js';
 import { SETTINGS } from './settings.js';
 
 export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash); //@ (String) -> state
@@ -31,11 +30,12 @@ async function openUniqueExtensionPage(pathname, hash) {
     browser.tabs.create({ url: `/${pathname}` });
 }
 
+// Select focused tab to deselect other tabs
 // Is null function via init() if SETTINGS.keep_moved_tabs_selected
 //@ (Number), state -> state
 export async function selectFocusedTab(windowId) {
     const tab = (await browser.tabs.query({ windowId, active: true }))[0];
-    browser.tabs.highlight({ windowId, tabs: [tab.index], populate: false }); // Select focused tab to deselect other tabs
+    browser.tabs.highlight({ windowId, tabs: [tab.index], populate: false });
 }
 
 // Select action to execute based on `action` and `modifiers`.
@@ -76,11 +76,12 @@ async function bringTabs(windowId, tabs) {
     if (await sendTabs(windowId, tabs)) switchWindow(windowId);
 }
 
-//@ (Number, [Object]), state -> (Promise: [Object]|undefined), state|nil
-function sendTabs(windowId, tabs) {
-    const originWindowId = tabs[0].windowId;
-    const reopen = !isSamePrivateStatus(originWindowId, windowId);
-    return (reopen ? reopenTabs : moveTabs)(windowId, tabs);
+// Attempt moveTabs; if unsuccessful (e.g. windows are of different private statuses) then reopenTabs.
+//@ (Number, [Object]), state -> ([Object]), state | (undefined)
+async function sendTabs(windowId, tabs) {
+    const movedTabs = await moveTabs(windowId, tabs);
+    return movedTabs?.length ?
+        movedTabs : reopenTabs(windowId, tabs);
 }
 
 //@ (Number, [Object]), state -> ([Object]), state | (undefined)
@@ -180,8 +181,6 @@ function openPlaceholderTab(protoTab, title) {
 const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
 const focusTab  = tabId => browser.tabs.update(tabId, { active: true });
 const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
-
-const isSamePrivateStatus = (windowId1, windowId2) => winfoDict[windowId1].incognito === winfoDict[windowId2].incognito; //@ (Number, Number), state -> (Boolean)
 
 const READER_HEAD = 'about:reader?url=';
 const isReader = url => url.startsWith(READER_HEAD); //@ (String) -> (Boolean)
