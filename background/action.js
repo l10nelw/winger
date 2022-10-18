@@ -83,16 +83,19 @@ function sendTabs(windowId, tabs) {
     return (reopen ? reopenTabs : moveTabs)(windowId, tabs);
 }
 
-//@ (Number, [Object]), state -> (Promise: [Object]|undefined), state|nil
+//@ (Number, [Object]), state -> ([Object]), state | (undefined)
 async function moveTabs(windowId, tabs) {
-    const pinnedTabIds = getPinnedTabs(tabs)?.map(tab => tab.id);
-    if (pinnedTabIds) await Promise.all(pinnedTabIds.map(unpinTab)); // Unpin pinned tabs so they can be moved
+    const [pinnedTabs, unpinnedTabs] = splitTabsByPinnedState(tabs);
+    // Get destination index for pinned tabs, as they cannot be moved to index -1 where unpinned tabs exist
+    const index = pinnedTabs.length ?
+        (await browser.tabs.query({ windowId, pinned: true })).length : 0;
+    const movedTabs = (await Promise.all([
+        browser.tabs.move(pinnedTabs.map(tab => tab.id), { windowId, index }),
+        browser.tabs.move(unpinnedTabs.map(tab => tab.id), { windowId, index: -1 }),
+    ])).flat();
 
-    const tabIds = tabs.map(tab => tab.id);
-    const movedTabs = await browser.tabs.move(tabIds, { windowId, index: -1 }); // Ignores pinned tabs
-
-    if (pinnedTabIds) pinnedTabIds.forEach(pinTab); // Repin originally-pinned tabs
-    if (!movedTabs.length) return;
+    if (!movedTabs.length)
+        return;
 
     if (SETTINGS.keep_moved_focused_tab_focused) {
         const preMoveFocusedTab = tabs.find(tab => tab.active);
@@ -102,12 +105,12 @@ async function moveTabs(windowId, tabs) {
     return movedTabs;
 }
 
-//@ ([Object]) -> ([Object]|undefined)
-function getPinnedTabs(tabs) {
+//@ ([Object]) -> ([[Object], [Object]])
+function splitTabsByPinnedState(tabs) {
     const unpinnedIndex = tabs.findIndex(tab => !tab.pinned);
-    if (unpinnedIndex === 0) return;
-    if (unpinnedIndex === -1) return tabs;
-    return tabs.slice(0, unpinnedIndex);
+    if (unpinnedIndex === 0)  return [[], tabs];
+    if (unpinnedIndex === -1) return [tabs, []];
+    return [tabs.slice(0, unpinnedIndex), tabs.slice(unpinnedIndex)];
 }
 
 // Recreate given tabs in a given window, maintaining pinned states.
@@ -174,7 +177,6 @@ function openPlaceholderTab(protoTab, title) {
 }
 
 //@ (Number) -> (Promise: Object), state
-const unpinTab  = tabId => browser.tabs.update(tabId, { pinned: false });
 const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
 const focusTab  = tabId => browser.tabs.update(tabId, { active: true });
 const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
