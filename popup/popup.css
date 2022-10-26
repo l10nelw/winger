@@ -6,7 +6,7 @@
     --row-height: 34px;
     --max-list-height: calc(30rem + 4px); /* Slightly more to accommodate y-padding */
     --name-height: 28px;
-    --name-border-radius: 6px;
+    --border-radius: 6px;
 
     --text-color: #000;
     --muted-text-color: #333;
@@ -129,7 +129,7 @@ input:read-only {
 .name {
     height: var(--name-height);
     flex-grow: 1;
-    border-radius: var(--name-border-radius);
+    border-radius: var(--border-radius);
     margin-left: .25rem;
 }
 
@@ -223,7 +223,7 @@ li button {
     background-repeat: no-repeat;
     background-position: center;
     border: none;
-    border-radius: 50%;
+    border-radius: var(--border-radius);
 }
 
 li button:not(:disabled):is(:hover, :focus) {
