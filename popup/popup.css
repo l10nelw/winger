@@ -21,7 +21,7 @@ Test list:
     --max-list-height: 30rem;
 
     --text-color: #000;
-    --muted-text-color: #333;
+    --muted-text-color: #555;
     --private-text-color: purple;
 
     --row-color: #eee;
@@ -155,10 +155,6 @@ body[data-mode="edit"] .name:not(:focus) {
     background-color: transparent;
     border-color: transparent;
     user-select: none;
-}
-
-body[data-mode="normal"] .name::placeholder {
-    opacity: 1;
 }
 
 body[data-mode="normal"] .name::selection {
