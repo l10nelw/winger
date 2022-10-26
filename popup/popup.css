@@ -1,49 +1,67 @@
+/*
+Test list:
+- Hover, clicks
+- Focus, keyboard nav
+- Filtering
+- Slash command
+- Private window
+- Edit mode
+- Edit mode error
+- Light and dark themes
+*/
+
 /* * { outline: 1px solid red; } */
 :root {
-    --tabcount-width: 2rem;
+    --row-height: 36px;
     --button-width: 30px;
-    --popup-width: calc(20rem + var(--tabcount-width) + var(--button-width) * 2);
-    --row-height: 34px;
-    --max-list-height: calc(30rem + 4px); /* Slightly more to accommodate y-padding */
-    --name-height: 28px;
+    --name-height: 30px;
     --border-radius: 6px;
+    --tabcount-width: 2rem;
+    --popup-width: calc(var(--button-width) * 2 + 20rem + var(--tabcount-width));
+    --max-list-height: 30rem;
 
     --text-color: #000;
     --muted-text-color: #333;
     --private-text-color: purple;
 
     --row-color: #eee;
-    --focused-row-color: #ddd;
+    --hover-row-color: #ddd;
 
     --field-color: #fff;
     --slash-field-color: #ff6;
 
     --button-color: transparent;
-    --focused-button-color: #bbb;
+    --hover-button-color: #bbb;
     --private-button-color: darkorchid;
-    --editdone-button-color: lightgreen;
 
     --border-color: #ccc;
-    --focus-outline-color: #4a90d9;
-    --error-outline-color: red;
+    --focus-border-color: #4a90d9;
+    --error-border-color: red;
 }
 
 .dark {
     --text-color: #fff;
     --muted-text-color: #ccc;
-    --private-text-color: magenta;
+    --private-text-color: #f6f;
 
     --row-color: #42414d;
-    --focused-row-color: #52525e;
+    --hover-row-color: #52525e;
 
     --field-color: #223;
     --slash-field-color: #223;
     --slash-input-theme-color: gold;
 
-    --focused-button-color: #666;
+    --hover-button-color: #666;
 
     --border-color: #333;
-    --focus-outline-color: #0df;
+    --focus-border-color: #0df;
+}
+
+:focus,
+body[data-mode="normal"] #currentWindow .name:focus,
+#omnibox:focus {
+    outline: none;
+    border: 2px solid var(--focus-border-color);
 }
 
 
@@ -59,11 +77,6 @@ body {
 ul {
     margin: 0;
     padding: 0;
-}
-
-#currentWindow,
-#otherWindows {
-    padding: 2px 1px 2px 2px; /* Space to accommodate outlines */
 }
 
 #otherWindows {
@@ -93,6 +106,7 @@ li {
     height: var(--row-height);
     width: auto;
     scroll-snap-align: center;
+    border: 2px solid transparent;
     list-style: none;
 }
 
@@ -107,15 +121,15 @@ li > * {
     text-align: end;
 }
 
-body[data-mode="normal"] #otherWindows li:is(:hover, :focus) {
-    background-color: var(--focused-row-color);
+body[data-mode="normal"] #otherWindows li:hover {
+    background-color: var(--hover-row-color);
 }
 
 
-/* --- Input field --- */
+/* --- Input field (Omnibox and name) --- */
 
 input {
-    border: 1px solid var(--border-color);
+    border: 2px solid transparent;
     padding: 0 6px;
     text-align: start;
     background-color: var(--field-color);
@@ -125,6 +139,9 @@ input {
 input:read-only {
     cursor: default;
 }
+
+
+/* --- Name field --- */
 
 .name {
     height: var(--name-height);
@@ -137,8 +154,6 @@ body[data-mode="normal"] .name,
 body[data-mode="edit"] .name:not(:focus) {
     background-color: transparent;
     border-color: transparent;
-    cursor: default;
-    outline: none;
     user-select: none;
 }
 
@@ -154,20 +169,10 @@ body[data-mode="normal"] #currentWindow .name {
     font-weight: bold;
 }
 
+/* Indicate current-window name is clickable */
 body[data-mode="normal"] #currentWindow .name:hover {
-    background-color: var(--focused-row-color);
+    background-color: var(--hover-row-color);
     cursor: pointer;
-}
-
-body[data-mode="normal"] #otherWindows .name {
-    outline: none;
-}
-
-input:focus,
-button:focus,
-#currentWindow .name:focus,
-body[data-mode="normal"] #otherWindows li:focus {
-    outline: 2px solid var(--focus-outline-color);
 }
 
 .private .name {
@@ -175,34 +180,25 @@ body[data-mode="normal"] #otherWindows li:focus {
 }
 
 .nameError {
-    outline: 2px solid var(--error-outline-color) !important;
+    border-color: var(--error-border-color);
 }
 
 
 /* --- Omnibox --- */
 
-#omniboxWrapper {
-    position: relative;
-    z-index: 1; /* Keep omnibox outline from being covered by other elements e.g. buttons */
-    padding: 0 1px 0 2px; /* Space to accommodate outline */
-}
-
 #omnibox {
     height: var(--row-height);
     width: 100%;
-}
-
-#omnibox:disabled {
-    background-color: var(--focused-row-color);
+    border: 1px solid var(--border-color);
 }
 
 .slashCommand {
     background-color: var(--slash-field-color);
 }
 
-.dark .slashCommand {
+.dark #omnibox.slashCommand {
     color: var(--slash-input-theme-color);
-    outline-color: var(--slash-input-theme-color);
+    border-color: var(--slash-input-theme-color);
 }
 
 .dark .slashCommand::selection {
@@ -216,23 +212,27 @@ body[data-mode="normal"] #otherWindows li:focus {
 li button {
     width: var(--button-width);
     height: var(--button-width);
-    margin: 1px;
     opacity: .7;
     background-color: var(--button-color);
     background-size: 90%;
     background-repeat: no-repeat;
     background-position: center;
-    border: none;
     border-radius: var(--border-radius);
+    border: 1px solid var(--row-color);
 }
 
-li button:not(:disabled):is(:hover, :focus) {
+li:hover button:not(:focus) {
+    border-color: var(--hover-row-color);
+}
+
+li button:not(:disabled):hover,
+li button:focus {
     opacity: 1;
-    background-color: var(--focused-button-color);
+    background-color: var(--hover-button-color);
 }
 
 li.reopenTabs button.tabAction {
-    background-color: var(--private-button-color);
+    background-color: var(--private-button-color) !important;
 }
 
 .send {
