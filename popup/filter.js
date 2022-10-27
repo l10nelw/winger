@@ -9,6 +9,7 @@ export let $shownRows;
 //@ state -> state
 export function init() {
     $shownRows = $otherWindowRows;
+    // $otherWindowRows is never mutated; $shownRows is only assigned new arrays as needed
 }
 
 // Show only rows whose names contain str, and sort them by name length, shortest first.

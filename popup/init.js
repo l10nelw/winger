@@ -1,5 +1,6 @@
 import {
-    init as initCommon,
+    $currentWindowRow,
+    $otherWindowRows,
     $otherWindowsList,
     $toolbar,
 } from './common.js';
@@ -8,21 +9,18 @@ import * as Filter from './filter.js';
 import * as Status from './status.js';
 import * as Request from './request.js';
 
-const $currentWindowRow = document.getElementById('currentWindow').firstElementChild;
-
 Request.popup().then(onSuccess).catch(onError);
 
 
 //@ ({ [Object], Number, Boolean }) -> state
 function onSuccess({ winfos, selectedTabCount, stashEnabled }) {
     populate(winfos);
-    const $otherWindowRows = [...$otherWindowsList.children];
-    initCommon({ $currentWindowRow, $otherWindowRows });
+    $otherWindowRows.push(...$otherWindowsList.children);
 
     Omnibox.init(selectedTabCount, stashEnabled);
     Status.init([$currentWindowRow, ...$otherWindowRows]);
     Filter.init();
-    indicateReopenTabs($currentWindowRow, $otherWindowRows);
+    indicateReopenTabs();
 
     $toolbar.hidden = false;
     lockHeight($otherWindowsList);
@@ -107,8 +105,8 @@ const row = {
 
 const isPrivate = $row => $row.classList.contains('private'); //@ (Object) -> (Boolean)
 
-//@ (Object, [Object]) -> state
-function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
+//@ state -> state
+function indicateReopenTabs() {
     const currentIsPrivate = isPrivate($currentWindowRow);
     for (const $row of $otherWindowRows) {
         if (isPrivate($row) != currentIsPrivate)

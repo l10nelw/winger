@@ -1,14 +1,10 @@
 // Elements of the popup
 export const $body = document.body;
+export const $currentWindowRow = document.getElementById('currentWindow').firstElementChild;
 export const $omnibox = document.getElementById('omnibox');
 export const $otherWindowsList = document.getElementById('otherWindows');
+export const $otherWindowRows = [];
 export const $toolbar = $body.querySelector('footer');
-export let $currentWindowRow, $otherWindowRows;
-
-//@ ({ Object, [Object] }), state -> state
-export function init(data) {
-    ({ $currentWindowRow, $otherWindowRows } = data);
-}
 
 // Element type
 //@ (Object) -> (Boolean)
