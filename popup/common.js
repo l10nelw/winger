@@ -30,5 +30,3 @@ export function getName($el) {
     const $name = isNameField($el) && $el || $el.$name || $el.$row.$name;
     return $name.value || $name.placeholder;
 }
-
-export const getScrollbarWidth = $el => $el.offsetWidth - $el.clientWidth; //@ (Object) -> (Number)

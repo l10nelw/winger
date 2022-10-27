@@ -2,7 +2,6 @@ import {
     init as initCommon,
     $otherWindowsList,
     $toolbar,
-    getScrollbarWidth,
     unsetActionAttr,
 } from './common.js';
 import * as Omnibox from './omnibox.js';
@@ -27,7 +26,6 @@ function onSuccess({ winfos, selectedTabCount, stashEnabled }) {
     indicateReopenTabs($currentWindowRow, $otherWindowRows);
 
     $toolbar.hidden = false;
-    alignWithScrollbar($currentWindowRow, $otherWindowsList);
     lockHeight($otherWindowsList);
 }
 
@@ -117,15 +115,6 @@ function indicateReopenTabs($currentWindowRow, $otherWindowRows) {
         if (isPrivate($row) != currentIsPrivate)
             $row.classList.add('reopenTabs');
     }
-}
-
-//@ (Object, Object) -> state|nil
-function alignWithScrollbar($toAlign, $scrolling) {
-    const scrollbarWidth = getScrollbarWidth($scrolling);
-    if (!scrollbarWidth)
-        return;
-    document.styleSheets[0].insertRule(`.scrollbarOffset { margin-right: ${scrollbarWidth}px }`);
-    $toAlign.classList.add('scrollbarOffset');
 }
 
 //@ (Object) -> state

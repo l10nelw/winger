@@ -1,9 +1,7 @@
 import {
-    $currentWindowRow,
     $otherWindowsList,
     $otherWindowRows,
     getName,
-    getScrollbarWidth,
 } from './common.js';
 
 export let $shownRows;
@@ -29,10 +27,6 @@ export function execute(str) {
         $otherWindowsList.appendChild($row); // Move filtered row to the end of the list
         $row._index = index;
     });
-
-    // Add offset if scrollbar disappears
-    if ($currentWindowRow.classList.contains('scrollbarOffset') && !getScrollbarWidth($otherWindowsList))
-        $otherWindowsList.classList.add('scrollbarOffset');
 }
 
 const compareNameLength = ($a, $b) => $a._nameLength - $b._nameLength; //@ (Object, Object) -> (Number)
@@ -55,7 +49,7 @@ function filter(str) {
     return $filteredRows;
 }
 
-// Reverse all changes made by execute(): hidden rows, sort order, _index, scrollbar offset.
+// Reverse all changes made by execute(): hidden rows, sort order, _index.
 // Restore sort order by comparing 'live' $otherWindowsList.children against correctly-sorted $otherWindowRows.
 //@ state -> state
 function reset() {
@@ -68,6 +62,5 @@ function reset() {
             $row._index = index;
         }
     });
-    $otherWindowsList.classList.remove('scrollbarOffset');
     return $otherWindowRows;
 }

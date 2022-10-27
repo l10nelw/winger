@@ -37,6 +37,8 @@ Test list:
     --border-color: #ccc;
     --focus-border-color: #4a90d9;
     --error-border-color: red;
+
+    scrollbar-width: none;
 }
 
 .dark {
@@ -70,8 +72,6 @@ body[data-mode="normal"] #currentWindow .name:focus,
 body {
     width: var(--popup-width);
     background-color: var(--row-color);
-    overflow: hidden;
-    scrollbar-width: none;
 }
 
 ul {
@@ -82,8 +82,8 @@ ul {
 #otherWindows {
     max-height: var(--max-list-height);
     overflow-y: auto;
+    scrollbar-width: none;
     scroll-snap-type: y mandatory;
-    scrollbar-width: thin;
 
     /* Scroll shadows */
     background:
