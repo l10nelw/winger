@@ -2,7 +2,6 @@ import {
     $body,
     $currentWindowRow,
     $omnibox,
-    $actions,
     isField,
     isNameField,
 } from './common.js';
@@ -12,12 +11,12 @@ import * as Request from './request.js';
 const HINT = `Edit Mode: ENTER/↑/↓ to Save, ESC to Cancel`;
 
 export let isActive = false; // Indicates if popup is in Edit Mode
-let $names;
-let $focusedName;
+let $names, $actions, $focusedName;
 
 //@ (Object), state -> state
 export function activate($name = $currentWindowRow.$name) {
     $names ??= $body.querySelectorAll('.name');
+    $actions ??= $body.querySelectorAll('[data-action]');
     setActive(true);
     $name.focus();
     $focusedName = $name;

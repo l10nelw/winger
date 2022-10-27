@@ -2,7 +2,6 @@ import {
     init as initCommon,
     $otherWindowsList,
     $toolbar,
-    unsetActionAttr,
 } from './common.js';
 import * as Omnibox from './omnibox.js';
 import * as Filter from './filter.js';
@@ -101,7 +100,7 @@ const row = {
     disableElement($el) {
         $el.disabled = true;
         $el.tabIndex = -1;
-        unsetActionAttr($el);
+        $el.removeAttribute('data-action');
     },
 
 }

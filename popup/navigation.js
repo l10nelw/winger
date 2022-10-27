@@ -6,7 +6,6 @@ import {
     isButton,
     isRow,
     isField,
-    getActionAttr,
 } from './common.js';
 import { isActive as isEditMode } from './editmode.js';
 import { $shownRows } from './filter.js';
@@ -51,7 +50,7 @@ let column; // Currently-focused button column
 function setColumn($el) {
     column =
         isRow($el) ? null : // if row: null
-        isButton($el) ? getActionAttr($el) : // if cell: its action reference ("send", etc)
+        isButton($el) ? $el.dataset.action : // if cell: its action reference ("send", etc)
         column; // no change
 }
 

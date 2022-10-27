@@ -1,9 +1,6 @@
 /* Send messages to the background frame */
 
-import {
-    $currentWindowRow,
-    getActionAttr,
-} from './common.js';
+import { $currentWindowRow } from './common.js';
 import { get as getModifiers } from '../modifier.js';
 
 const sendMessage = browser.runtime.sendMessage;
@@ -24,7 +21,7 @@ export function action(event, $action = event.target) {
     const $row = $action.$row || $action;
     const windowId = $row._id;
     if (!windowId) return;
-    const action = getActionAttr($action) || getActionAttr($row);
+    const action = $action.dataset.action || $row.dataset.action;
     if (!action) return;
     sendMessage({
         action,
