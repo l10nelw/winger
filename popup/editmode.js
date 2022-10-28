@@ -11,12 +11,11 @@ import * as Request from './request.js';
 const HINT = `Edit Mode: ENTER/↑/↓ to Save, ESC to Cancel`;
 
 export let isActive = false; // Indicates if popup is in Edit Mode
-let $names, $actions;
+let $names;
 
 //@ (Object), state -> state
 export function activate($name = $currentWindowRow.$name) {
     $names = [...$body.querySelectorAll('.name')];
-    $actions ??= $body.querySelectorAll('[data-action]');
     setActive(true);
     $name.focus();
     $name._original = $name.value; // Remember name at focus time
@@ -34,9 +33,24 @@ function done() {
 function setActive(isActivate) {
     isActive = isActivate;
     $body.dataset.mode = isActivate ? 'edit' : 'normal';
-    toggleDisabledActions(isActivate);
     toggleNameFields(isActivate);
     Status.show(isActivate ? HINT : null);
+}
+
+//@ (Object) -> (Boolean), state|nil
+export function handleMouseDown($el) {
+    if (!isActive)
+        return false;
+
+    if (isNameField($el))
+        return true;
+
+    const $name = $el.closest('li')?.$name;
+    if ($name) {
+        $name.focus();
+        $name.select();
+    }
+    return true;
 }
 
 //@ (Object, Object) -> (Boolean), state|nil
@@ -126,11 +140,6 @@ function toggleError($name, error) {
 ///@ -> state|nil
 function clearErrors() {
     $names.forEach($name => $name.classList.remove('error'));
-}
-
-//@ (Boolean) -> state
-function toggleDisabledActions(isDisable) {
-    $actions.forEach($action => $action.disabled = isDisable);
 }
 
 //@ (Boolean) -> state

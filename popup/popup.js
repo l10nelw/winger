@@ -15,6 +15,7 @@ const CLICK_KEYS = ['Enter', ' '];
 const isClickKey = key => CLICK_KEYS.includes(key); //@ (String) -> (Boolean)
 
 $body.addEventListener('click', onClick);
+$body.addEventListener('mousedown', onMouseDown);
 $body.addEventListener('contextmenu', onContextMenu);
 $body.addEventListener('keydown', onKeyDown);
 $body.addEventListener('keyup', onKeyUp);
@@ -25,12 +26,23 @@ $body.addEventListener('focusin', onFocusIn);
 function onClick(event) {
     const { target } = event;
 
-    const id = target.id;
-    if (id in Toolbar) return Toolbar[id]();
+    if (target.id in Toolbar)
+        return Toolbar[target.id]();
 
-    if (EditMode.isActive) return;
-    if (target === $currentWindowRow.$name) return EditMode.activate();
+    if (EditMode.isActive)
+        return;
+
+    if (target === $currentWindowRow.$name)
+        return EditMode.activate();
+
     Request.action(event, target);
+}
+
+//@ (Object) -> state|nil
+function onMouseDown(event) {
+    const { target } = event;
+    if (EditMode.handleMouseDown(target))
+        return;
 }
 
 //@ (Object) -> state|nil

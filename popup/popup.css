@@ -222,10 +222,14 @@ li:hover button:not(:focus) {
     border-color: var(--hover-row-color);
 }
 
-li button:not(:disabled):hover,
-li button:focus {
+body[data-mode="normal"] li button:is(:hover, :focus) {
     opacity: 1;
     background-color: var(--hover-button-color);
+}
+
+body[data-mode="edit"] li button {
+    background-color: transparent;
+    opacity: .1;
 }
 
 li.reopenTabs button.tabAction {
@@ -238,11 +242,6 @@ li.reopenTabs button.tabAction {
 
 .bring {
     background-image: url("../icons/bring.svg");
-}
-
-body[data-mode="edit"] li button {
-    background-color: transparent;
-    opacity: .1;
 }
 
 #currentWindow .tabAction {
