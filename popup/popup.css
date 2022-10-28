@@ -36,7 +36,8 @@ Test list:
 
     --border-color: #ccc;
     --focus-border-color: #4a90d9;
-    --error-border-color: red;
+
+    --danger-color: red;
 
     scrollbar-width: none;
 }
@@ -175,8 +176,8 @@ body[data-mode="normal"] #currentWindow .name:hover {
     color: var(--private-text-color);
 }
 
-.nameError {
-    border-color: var(--error-border-color);
+.error {
+    border-color: var(--danger-color) !important;
 }
 
 

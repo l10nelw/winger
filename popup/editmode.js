@@ -25,7 +25,7 @@ export function activate($name = $currentWindowRow.$name) {
 //@ -> state
 function done() {
     setActive(false);
-    $names.forEach($name => $name.classList.remove('nameError'));
+    clearErrors();
     $currentWindowRow.$name.tabIndex = 0;
     $omnibox.focus();
 }
@@ -53,7 +53,7 @@ export function handleFocusIn($focused, $defocused) {
     let isHandled = false;
 
     if (isNameField($defocused)) {
-        if ($defocused.classList.contains('nameError')) {
+        if ($defocused.classList.contains('error')) {
             $defocused.value = $defocused._original;
             clearErrors();
         } else {
@@ -95,7 +95,7 @@ export function handleKeyUp($name, key) {
 //@ (Object) -> (Boolean), state|nil
 function trySaveName($name) {
     // Prevent save if marked invalid
-    if ($name.classList.contains('nameError'))
+    if ($name.classList.contains('error'))
         return false;
 
     const name =
@@ -111,10 +111,21 @@ function trySaveName($name) {
     return true;
 }
 
-// On name error, add error indicator.
+// On name error, add error indicators.
 //@ (Object, Number) -> state
 function toggleError($name, error) {
-    $name.classList.toggle('nameError', error);
+    if (!error)
+        return clearErrors();
+    if (error > 0) {
+        const $sameName = $names.find($name => $name.$row._id == error);
+        $sameName.classList.add('error');
+    }
+    $name.classList.add('error');
+}
+
+///@ -> state|nil
+function clearErrors() {
+    $names.forEach($name => $name.classList.remove('error'));
 }
 
 //@ (Boolean) -> state
