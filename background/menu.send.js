@@ -1,5 +1,5 @@
 import { BRING } from '../modifier.js';
-import { get as getName } from './name.js';
+import { NO_NAME, get as getName } from './name.js';
 import * as Window from './window.js';
 import * as Action from './action.js';
 
@@ -41,9 +41,10 @@ export function handleShow(info, tab) {
 function populate(currentWindowId) {
     for (let { id } of Window.sortedWinfos()) {
         id = String(id);
+        const title = getName(id) || NO_NAME;
         browser.menus.remove(id);
         if (id != currentWindowId)
-            browser.menus.create({ parentId, id, title: getName(id) });
+            browser.menus.create({ parentId, id, title });
     }
     browser.menus.remove(dummyId);
 }

@@ -13,9 +13,9 @@ export const isField = $el => $el?.tagName === 'INPUT';
 export const isNameField = $el => $el.classList.contains('name');
 export const isRow = $el => $el?._id;
 
-// Given a $row or any of its child elements, get the givenName or defaultName.
+// Given a $row or any of its child elements, get the givenName.
 //@ (Object) -> (String)
 export function getName($el) {
     const $name = isNameField($el) && $el || $el.$name || $el.$row.$name;
-    return $name.value || $name.placeholder;
+    return $name.value;
 }

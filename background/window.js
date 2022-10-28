@@ -12,7 +12,6 @@ export async function add(windows) {
         const windowId = window.id;
         windowIds.push(windowId);
         winfoDict[windowId] = createWinfo(window);
-        winfoDict[windowId].defaultName = Name.createDefault(windowId);
     }
     await Promise.all(windowIds.map(Name.restoreGiven));
 }

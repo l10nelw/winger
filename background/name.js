@@ -1,9 +1,8 @@
 import { winfoDict } from './window.js';
 import * as Chrome from './chrome.js';
 
-const DEFAULT_HEAD = 'Window ';
+export const NO_NAME = '(no name)';
 const NUMBER_POSTFIX = / (\d+)$/;
-let lastWindowNumber = 0;
 
 //@ (Number), state -> state
 export async function restoreGiven(windowId) {
@@ -12,19 +11,9 @@ export async function restoreGiven(windowId) {
     propagate(windowId);
 }
 
-//@ (Number), state -> (String), state
-export function createDefault(windowId) {
-    let name;
-    do {
-        name = DEFAULT_HEAD + (++lastWindowNumber);
-    } while (has(name, windowId));
-    return name;
-}
-
 //@ (Number), state -> (String)
 export function get(windowId) {
-    const winfo = winfoDict[windowId];
-    return winfo.givenName || winfo.defaultName;
+    return winfoDict[windowId].givenName;
 }
 
 //@ (Number, String) -> state
@@ -71,9 +60,8 @@ function isInvalid(name) {
 //@ (String, Number), state -> (Number)
 function has(name, excludeId) {
     for (const windowId in winfoDict) {
-        if (windowId == excludeId) continue;
-        const winfo = winfoDict[windowId];
-        if (winfo.givenName === name || winfo.defaultName === name) return windowId;
+        if (windowId != excludeId && winfoDict[windowId].givenName === name)
+            return windowId;
     }
     return 0;
 }

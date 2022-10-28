@@ -8,6 +8,7 @@ import * as Omnibox from './omnibox.js';
 import * as Filter from './filter.js';
 import * as Status from './status.js';
 import * as Request from './request.js';
+import { NO_NAME } from '../background/name.js';
 
 Request.popup().then(onSuccess).catch(onError);
 
@@ -78,8 +79,8 @@ const row = {
         $row.querySelectorAll('.tabAction').forEach($button => this.disableElement($button));
     },
 
-    //@ (Object, { Number, Boolean, String, String }) -> state
-    hydrate($row, { id, incognito, givenName, defaultName }) {
+    //@ (Object, { Number, Boolean, String }) -> state
+    hydrate($row, { id, incognito, givenName }) {
         // Add references to row's cells, and in each cell a reference back to the row
         for (const selector of this.CELL_SELECTORS) {
             const $cell = $row.querySelector(selector);
@@ -90,7 +91,7 @@ const row = {
         // Add data
         $row._id = id;
         $row.$name.value = givenName;
-        $row.$name.placeholder = defaultName;
+        $row.$name.placeholder = NO_NAME;
         $row.classList.toggle('private', incognito);
     },
 

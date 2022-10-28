@@ -31,7 +31,7 @@ const ButtonBadge = {
 
 //@ (Number, String) -> state
 export function update(windowId, name) {
-    const titlePreface = `${name} - `;
+    const titlePreface = name ? `${name} - ` : '';
     Titlebar.update(windowId, titlePreface);
     ButtonTitle.update(windowId, titlePreface);
     ButtonBadge.update(windowId, name);
