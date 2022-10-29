@@ -6,6 +6,7 @@ import {
     isButton,
     isRow,
     isField,
+    isInToolbar,
 } from './common.js';
 import { isActive as isEditMode } from './editmode.js';
 import { $shownRows } from './filter.js';
@@ -92,5 +93,5 @@ const row = $el => $el.$row || $el; // Element's parent row, else assume element
 const currentWindow = () => $currentWindowRow.$name || $currentWindowRow;
 const toolbar = () => $toolbar.firstElementChild || $toolbar;
 
-const isCurrentWindow = $el => $el.$row === $currentWindowRow || $el === $currentWindowRow;
-const isToolbar = $el => $el.parentElement === $toolbar || $el === $toolbar;
+const isCurrentWindow = $el => ($el.$row || $el) === $currentWindowRow;
+const isToolbar = $el => isInToolbar($el) || $el === $toolbar;

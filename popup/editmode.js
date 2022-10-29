@@ -4,6 +4,7 @@ import {
     $omnibox,
     isField,
     isNameField,
+    isInToolbar,
 } from './common.js';
 import * as Status from './status.js';
 import * as Request from './request.js';
@@ -59,7 +60,7 @@ export function handleFocusIn($focused, $defocused) {
         return false;
 
     // Disallow focus on non-fields
-    if (!isField($focused)) {
+    if (!(isField($focused) || isInToolbar($focused))) {
         $defocused.focus();
         return true;
     }
