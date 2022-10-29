@@ -13,11 +13,11 @@ Test list:
 /* * { outline: 1px solid red; } */
 :root {
     --row-height: 36px;
-    --button-width: 30px;
+    --button-size: 30px;
     --name-height: 30px;
     --border-radius: 6px;
     --tabcount-width: 2rem;
-    --popup-width: calc(var(--button-width) * 2 + 20rem + var(--tabcount-width));
+    --popup-width: calc(var(--button-size) * 2 + 20rem + var(--tabcount-width));
     --max-list-height: 30rem;
 
     --text-color: #000;
@@ -38,6 +38,10 @@ Test list:
     --focus-border-color: #4a90d9;
 
     --danger-color: red;
+    --success-color: #0b0;
+
+    --tick-size: 15px;
+    --tick-end-offset: 4rem;
 
     scrollbar-width: none;
 }
@@ -176,6 +180,27 @@ body[data-mode="normal"] #currentWindow .name:hover {
     color: var(--private-text-color);
 }
 
+.success {
+    position: relative;
+}
+.success::after {
+    content: "✓";
+    position: absolute;
+    right: var(--tick-end-offset);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: var(--tick-size);
+    width: var(--tick-size);
+    border-radius: 50%;
+    background-color: var(--success-color);
+    color: var(--field-color);
+    animation: shrink-away .2s .8s forwards;
+}
+@keyframes shrink-away {
+    to { transform: scale(0); }
+}
+
 .error {
     border-color: var(--danger-color) !important;
 }
@@ -207,8 +232,8 @@ body[data-mode="normal"] #currentWindow .name:hover {
 /* --- Button --- */
 
 li button {
-    width: var(--button-width);
-    height: var(--button-width);
+    width: var(--button-size);
+    height: var(--button-size);
     opacity: .7;
     background-color: var(--button-color);
     background-size: 90%;

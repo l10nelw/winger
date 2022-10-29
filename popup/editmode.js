@@ -121,8 +121,14 @@ function trySaveName($name) {
         return true;
 
     // Save
-    const windowId = $name.$row._id;
+    const $row = $name.$row;
+    const windowId = $row._id;
     Request.setName(windowId, name);
+
+    // Indicate success
+    $row.classList.add('success');
+    setTimeout(() => $row.classList.remove('success'), 1000);
+
     return true;
 }
 
