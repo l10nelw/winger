@@ -120,7 +120,8 @@ async function createBookmark(tab, parentId) {
 export async function unstash(nodeId, remove = true) {
     const node = (await browser.bookmarks.get(nodeId))[0];
 
-    if (isBookmark(node)) return unstashTab(node, remove);
+    if (isBookmark(node))
+        return unstashTab(node, remove);
 
     if (isFolder(node)) {
         const window = await browser.windows.create();
@@ -137,8 +138,10 @@ export async function unstash(nodeId, remove = true) {
 //@ (Object, Boolean), state -> state
 async function unstashTab(node, remove) {
     const currentWindow = await browser.windows.getLastFocused();
-    openTab(node, currentWindow.id, true);
-    if (remove) removeNode(node.id);
+    const tab = await openTab(node, currentWindow.id, true);
+    browser.tabs.update(tab.id, { active: true });
+    if (remove)
+        removeNode(node.id);
 }
 
 //@ (Number), state -> state
@@ -174,7 +177,7 @@ async function readFolder(folderId) {
     return nodesByType;
 }
 
-//@ ({String}, Number) -> (Promise: Object), state
+//@ ({String, String}, Number) -> (Promise: Object), state
 function openTab({ url, title }, windowId) {
     console.log('Unstashing', url, '|', title);
     return Action.openTab({ url, title, windowId, discarded: true });
