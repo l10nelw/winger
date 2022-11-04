@@ -170,8 +170,9 @@ body[data-mode="normal"] #currentWindow .name {
     font-weight: bold;
 }
 
-/* Indicate current-window name is clickable */
-body[data-mode="normal"] #currentWindow .name:hover {
+/* Indicate clickable name */
+body[data-mode="normal"] #currentWindow .name:hover,
+body[data-mode="edit"] .name:hover:not(:focus) {
     background-color: var(--hover-row-color);
     cursor: pointer;
 }
