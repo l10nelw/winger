@@ -47,6 +47,7 @@ async function init() {
 async function onWindowCreated(window) {
     const windowId = window.id;
 
+    Window.createdAt.set(windowId);
     if (window.focused)
         Window.lastFocused.save(windowId);
 

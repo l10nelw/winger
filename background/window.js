@@ -23,6 +23,14 @@ export const lastFocused = {
     },
 };
 
+export const createdAt = {
+    //@ (Number) -> state
+    async set(windowId) {
+        if (!await browser.sessions.getWindowValue(windowId, 'createdAt'))
+            browser.sessions.setWindowValue(windowId, 'createdAt', Date.now());
+    },
+};
+
 //@ ([Object]) -> state
 export async function add(windows) {
     const windowIds = [];
@@ -44,7 +52,6 @@ function createWinfo({ id, incognito }) {
     return {
         id,
         incognito,
-        created: Date.now(),
     };
 }
 
