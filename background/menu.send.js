@@ -26,26 +26,27 @@ const isIntersect = (array1, array2) => array1.some(item => array2.includes(item
 
 // Event handler: Enable menu and populate submenu if there is more than one window, when menu shown.
 //@ (Object, Object) -> (Boolean), state|nil
-export function handleShow(info, tab) {
+export async function handleShow(info, tab) {
     if (isIntersect(info.contexts, contexts) && Window.isOverOne()) {
-        populate(tab.windowId);
+        await populate();
         browser.menus.update(parentId, { enabled: true });
         browser.menus.refresh();
         return true;
     }
 }
 
-// Clear submenu and populate with other-windows, sorted by lastFocsued.
+// Clear submenu and populate with other-windows, sorted by lastFocused.
 // Submenu item ids are window ids.
 //@ (Number), state -> state
-function populate(currentWindowId) {
-    for (let { id } of Window.sortedWinfos()) {
-        id = String(id);
+async function populate() {
+    const { otherWinfos } = await Window.sortedWinfos();
+    for (let { id } of otherWinfos) {
+        id = `${id}`;
         const title = getName(id) || NO_NAME;
         browser.menus.remove(id);
-        if (id != currentWindowId)
-            browser.menus.create({ parentId, id, title });
+        browser.menus.create({ parentId, id, title });
     }
+    browser.menus.remove(`${Window.lastFocused.id}`);
     browser.menus.remove(dummyId);
 }
 

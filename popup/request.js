@@ -5,7 +5,7 @@ import { get as getModifiers } from '../modifier.js';
 
 const sendMessage = browser.runtime.sendMessage;
 
-//@ -> (Promise: { Object, [Object], Number })
+//@ -> (Promise: { Object, [Object], Number, Boolean })
 export function popup() {
     return sendMessage({ popup: true });
 }

@@ -16,7 +16,7 @@ init();
 
 browser.windows.onCreated.addListener      (onWindowCreated);
 browser.windows.onRemoved.addListener      (onWindowRemoved);
-browser.windows.onFocusChanged.addListener (onWindowFocused);
+browser.windows.onFocusChanged.addListener (Window.lastFocused.save);
 
 browser.menus.onShown.addListener          (onMenuShown);
 browser.menus.onHidden.addListener         (onMenuHidden);
@@ -27,7 +27,8 @@ browser.runtime.onMessage.addListener      (onRequest);
 
 //@ state -> state
 async function init() {
-    const [SETTINGS, windows] = await Promise.all([ Settings.get(), browser.windows.getAll() ]);
+    const [SETTINGS, windows]
+        = await Promise.all([ Settings.get(), browser.windows.getAll() ]);
 
     Action.init(SETTINGS);
 
@@ -37,35 +38,31 @@ async function init() {
         Stash.init(SETTINGS);
     }
 
-    await Window.add(windows);
-    for (const window of windows) onWindowCreated(window, true);
+    Window.add(windows);
+    const currentWindowId = windows.find(window => window.focused).id;
+    Window.lastFocused.save(currentWindowId);
 }
 
-//@ (Object, Boolean), state -> state
-async function onWindowCreated(window, isInit) {
+//@ (Object) -> state
+async function onWindowCreated(window) {
     const windowId = window.id;
-    if (window.focused) onWindowFocused(windowId);
 
-    if (isInit) return;
+    if (window.focused)
+        Window.lastFocused.save(windowId);
 
     await Window.add([window]);
     Action.selectFocusedTab(windowId);
     Stash?.unstash.onWindowCreated(windowId);
 }
 
-//@ (Number), state -> state
+//@ (Number) -> state
 function onWindowRemoved(windowId) {
     Window.remove(windowId);
 }
 
-//@ (Number), state -> state
-function onWindowFocused(windowId) {
-    if (windowId in Window.winfoDict) Window.winfoDict[windowId].lastFocused = Date.now();
-}
-
-//@ (Object, Object), state -> state|nil
+//@ (Object, Object) -> state|nil
 async function onMenuShown(info, tab) {
-    await UnstashMenu?.handleShow(info) || SendMenu.handleShow(info, tab);
+    await UnstashMenu?.handleShow(info) || await SendMenu.handleShow(info, tab);
 }
 
 //@ -> state
@@ -74,7 +71,7 @@ function onMenuHidden() {
     UnstashMenu?.handleHide();
 }
 
-//@ (Object, Object), state -> state|nil
+//@ (Object, Object) -> state|nil
 function onMenuClicked(info, tab) {
     UnstashMenu?.handleClick(info) || SendMenu.handleClick(info, tab);
 }
@@ -84,13 +81,9 @@ function onExtensionInstalled(details) {
     if (details.reason === 'install') Action.openHelp();
 }
 
-//@ (Object), state -> (Promise: Object|Boolean|undefined), state|nil
+//@ (Object), state -> (Object|Boolean|undefined), state|nil
 async function onRequest(request) {
-    if (request.popup) return {
-        winfos:           Window.sortedWinfos(),
-        selectedTabCount: (await Action.getSelectedTabs()).length,
-        stashEnabled:     !!Stash,
-    };
+    if (request.popup)     return popupResponse();
     if (request.stash)     return Stash.stash(request.stash, request.close);
     if (request.action)    return Action.execute(request);
     if (request.help)      return Action.openHelp();
@@ -98,4 +91,16 @@ async function onRequest(request) {
     if (request.setName)   return Name.set(request.setName, request.name);
     if (request.settings)  return Settings.SETTINGS;
     if (request.debug)     return debug();
+}
+
+//@ state -> ({ Object, [Object], Number, Boolean })
+async function popupResponse() {
+    const [{ currentWinfo, otherWinfos }, selectedTabs]
+        = await Promise.all([ Window.sortedWinfos(), Action.getSelectedTabs() ]);
+    return {
+        currentWinfo,
+        otherWinfos,
+        selectedTabCount: selectedTabs.length,
+        stashEnabled: !!Stash,
+    };
 }

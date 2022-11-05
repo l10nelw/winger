@@ -13,9 +13,9 @@ import { NO_NAME } from '../background/name.js';
 Request.popup().then(onSuccess).catch(onError);
 
 
-//@ ({ [Object], Number, Boolean }) -> state
-function onSuccess({ winfos, selectedTabCount, stashEnabled }) {
-    populate(winfos);
+//@ ({ Object, [Object], Number, Boolean }) -> state
+function onSuccess({ currentWinfo, otherWinfos, selectedTabCount, stashEnabled }) {
+    populate(currentWinfo, otherWinfos);
     $otherWindowRows.push(...$otherWindowsList.children);
 
     Omnibox.init(selectedTabCount, stashEnabled);
@@ -43,13 +43,10 @@ function onError() {
 }
 
 
-//@ ([Object]) -> state
-function populate(winfos) {
-    const currentWinfo = winfos.shift();
-
-    // Other windows
+//@ (Object, [Object]) -> state
+function populate(currentWinfo, otherWinfos) {
     const $fragment = document.createDocumentFragment();
-    winfos.forEach((winfo, index) => {
+    otherWinfos.forEach((winfo, index) => {
         const $row = row.createOther(winfo);
         $row._index = index; // Used by navigation.js restrictScroll()
         $fragment.appendChild($row);

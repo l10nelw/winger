@@ -2,8 +2,26 @@ import * as Name from './name.js';
 
 export const winfoDict = {};
 
-export const sortedWinfos = () => Object.values(winfoDict).sort(compareLastFocused); //@ state -> ([Object])
-const compareLastFocused = (a, b) => b.lastFocused - a.lastFocused; //@ (Number, Number) -> (Number)
+export const lastFocused = {
+    id: 0,
+    //@ (Number) -> state
+    save(windowId) {
+        if (windowId > 0) {
+            lastFocused.id = windowId;
+            browser.sessions.setWindowValue(windowId, 'lastFocused', Date.now());
+        }
+    },
+    // Add lastFocused prop to each winfo in given array.
+    //@ ([Object]), state -> (Promise: [Object]), state
+    load(winfos) {
+        return Promise.all(
+            winfos.map(async winfo => {
+                winfo.lastFocused = await browser.sessions.getWindowValue(winfo.id, 'lastFocused') ?? 0;
+                return winfo;
+            })
+        );
+    },
+};
 
 //@ ([Object]) -> state
 export async function add(windows) {
@@ -27,7 +45,6 @@ function createWinfo({ id, incognito }) {
         id,
         incognito,
         created: Date.now(),
-        lastFocused: 0,
     };
 }
 
@@ -38,4 +55,20 @@ export function isOverOne() {
         if (++count === 2) return true;
     }
     return false;
+}
+
+// Return current-winfo and an other-winfo array sorted by lastFocused descending.
+//@ state -> (Object, [Object])
+export async function sortedWinfos() {
+    const currentWindowId = lastFocused.id;
+    const currentWinfo = winfoDict[currentWindowId];
+    const otherWinfos = [];
+    for (const windowId in winfoDict)
+        if (windowId != currentWindowId)
+            otherWinfos.push(winfoDict[windowId]);
+
+    await lastFocused.load(otherWinfos);
+    otherWinfos.sort((a, b) => b.lastFocused - a.lastFocused);
+
+    return { currentWinfo, otherWinfos };
 }
