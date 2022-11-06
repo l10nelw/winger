@@ -258,8 +258,8 @@ body[data-mode="edit"] li button {
     opacity: .1;
 }
 
-li.reopenTabs button.tabAction {
-    background-color: var(--private-button-color) !important;
+li.reopenTabs button.tabAction:is(:hover, :focus) {
+    background-color: var(--private-button-color);
 }
 
 .send {
