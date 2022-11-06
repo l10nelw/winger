@@ -22,11 +22,11 @@ input {
 }
 .inline-fields > label {
     display: inline-flex;
-    margin-right: 1.5rem;
+    margin-right: 1rem;
 }
 
 p {
-    margin: 0 0 1rem;
+    margin: 0 0 .5rem;
 }
 
 button {

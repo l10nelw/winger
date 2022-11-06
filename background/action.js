@@ -14,12 +14,6 @@ const actionDict = {
     switch: switchWindow,
 };
 
-//@ state -> state
-export function init() {
-    // Disable functions according to settings:
-    if (SETTINGS.keep_moved_tabs_selected) selectFocusedTab = () => null;
-}
-
 // Open extension page tab, closing any duplicates found.
 //@ (String, String), state -> state
 async function openUniqueExtensionPage(pathname, hash) {
@@ -28,14 +22,6 @@ async function openUniqueExtensionPage(pathname, hash) {
     browser.tabs.remove(openedTabs.map(tab => tab.id));
     if (hash) pathname += hash;
     browser.tabs.create({ url: `/${pathname}` });
-}
-
-// Select focused tab to deselect other tabs
-// Is null function via init() if SETTINGS.keep_moved_tabs_selected
-//@ (Number), state -> state
-export async function selectFocusedTab(windowId) {
-    const tab = (await browser.tabs.query({ windowId, active: true }))[0];
-    browser.tabs.highlight({ windowId, tabs: [tab.index], populate: false });
 }
 
 // Select action to execute based on `action` and `modifiers`.
@@ -80,7 +66,7 @@ async function bringTabs(windowId, tabs) {
 //@ (Number, [Object]), state -> ([Object]), state | (undefined)
 async function sendTabs(windowId, tabs) {
     const movedTabs = await moveTabs(windowId, tabs);
-    return movedTabs?.length ?
+    return movedTabs.length ?
         movedTabs : reopenTabs(windowId, tabs);
 }
 
@@ -95,14 +81,12 @@ async function moveTabs(windowId, tabs) {
         browser.tabs.move(unpinnedTabs.map(tab => tab.id), { windowId, index: -1 }),
     ])).flat();
 
-    if (!movedTabs.length)
-        return;
-
-    if (SETTINGS.keep_moved_focused_tab_focused) {
+    if (SETTINGS.keep_moved_tabs_selected && tabs[0]?.highlighted) {
         const preMoveFocusedTab = tabs.find(tab => tab.active);
-        if (preMoveFocusedTab) focusTab(preMoveFocusedTab.id);
-        if (SETTINGS.keep_moved_tabs_selected) movedTabs.forEach(tab => selectTab(tab.id));
+        preMoveFocusedTab && focusTab(preMoveFocusedTab.id);
+        tabs.forEach(tab => !tab.active && selectTab(tab.id));
     }
+
     return movedTabs;
 }
 
@@ -127,7 +111,7 @@ async function reopenTabs(windowId, tabs) {
             pinned: tab.pinned,
             discarded: true,
         };
-        if (tab.active && SETTINGS.keep_moved_focused_tab_focused)
+        if (tab.active && SETTINGS.keep_moved_tabs_selected)
             protoTab.active = true;
         protoTabs.push(protoTab);
         tabIds.push(tab.id);
@@ -135,8 +119,8 @@ async function reopenTabs(windowId, tabs) {
     const openedTabs = await Promise.all(protoTabs.map(openTab));
     browser.tabs.remove(tabIds);
 
-    if (SETTINGS.keep_moved_tabs_selected)
-        openedTabs.forEach(tab => selectTab(tab.id));
+    if (SETTINGS.keep_moved_tabs_selected && tabs[0]?.highlighted)
+        openedTabs.forEach(tab => !tab.active && selectTab(tab.id));
 
     return openedTabs;
 }
@@ -179,8 +163,9 @@ function openPlaceholderTab(protoTab, title) {
 
 //@ (Number) -> (Promise: Object), state
 const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
-const focusTab  = tabId => browser.tabs.update(tabId, { active: true });
+const focusTab  = tabId => browser.tabs.update(tabId, { active: true }); // Deselects other tabs
 const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
+export { focusTab };
 
 const READER_HEAD = 'about:reader?url=';
 const isReader = url => url.startsWith(READER_HEAD); //@ (String) -> (Boolean)

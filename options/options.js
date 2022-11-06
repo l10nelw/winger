@@ -13,7 +13,7 @@ const setting = {
     load(value, $field) {
         const type = $field.type;
         if (type === 'radio')
-            $field.checked = ($field.value === value);
+            $field.checked = ($field.value === `${value}`); // Stringify any non-string
         else
             $field[this._relevantProp(type)] = value;
     },
@@ -23,13 +23,17 @@ const setting = {
         if (!$field.classList.contains('setting'))
             return;
         const { type, name } = $field;
-        if (type === 'radio')
-            return $field.checked ? Settings.set({ [name]: $field.value }) : null;
+        if (type === 'radio') {
+            // Any 'true' or 'false' string is booleanised
+            const value = ({ true: true, false: false })[$field.value] ?? $field.value;
+            return $field.checked ? Settings.set({ [name]: value }) : null;
+        }
         return Settings.set({ [name]: $field[this._relevantProp(type)] });
     },
 };
 
-// Checkboxes that enable/disable other fields (targets)
+// Maps enabler fields to arrays of target fields.
+// Enablers are checkboxes that enable/disable fields with data-enabled-by="{enabler_name}" attribute.
 const enablerMap = Object.assign(new GroupMap(), {
 
     //@ (Object, Boolean) -> state

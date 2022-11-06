@@ -30,8 +30,6 @@ async function init() {
     const [SETTINGS, windows]
         = await Promise.all([ Settings.get(), browser.windows.getAll() ]);
 
-    Action.init(SETTINGS);
-
     if (SETTINGS.enable_stash) {
         [Stash, UnstashMenu] =
             await Promise.all([ import('./stash.js'), import('./menu.unstash.js') ]);
@@ -46,13 +44,22 @@ async function init() {
 //@ (Object) -> state
 async function onWindowCreated(window) {
     const windowId = window.id;
+    if (windowId in Window.winfoDict)
+        return;
 
     Window.createdAt.set(windowId);
     if (window.focused)
         Window.lastFocused.save(windowId);
 
+    // Natively, detached tabs stay selected. To honour !SETTINGS.keep_moved_tabs_selected,
+    // refocus focused tab to deselect selected tabs.
+    if (!Settings.SETTINGS.keep_moved_tabs_selected) {
+        const focusedTab = (await browser.tabs.query({ windowId, active: true }))[0];
+        Action.focusTab(focusedTab.id);
+    }
+
     await Window.add([window]);
-    Action.selectFocusedTab(windowId);
+
     Stash?.unstash.onWindowCreated(windowId);
 }
 
