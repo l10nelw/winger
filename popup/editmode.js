@@ -85,7 +85,7 @@ export function handleFocusIn($focused, $defocused) {
 
 //@ (Object) -> (Boolean), state|nil
 export async function handleInput($name) {
-    if (!isActive || $name !== document.activeElement)
+    if (!isActive || !isNameField($name))
         return false;
 
     // Check name for validity, mark if invalid
@@ -97,7 +97,7 @@ export async function handleInput($name) {
 
 //@ (Object, String) -> (Boolean), state|nil
 export function handleKeyUp($name, key) {
-    if (!isActive || $name !== document.activeElement)
+    if (!isActive || !isNameField($name))
         return false;
 
     if (key === 'Enter' && trySaveName($name))

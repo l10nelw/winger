@@ -10,9 +10,9 @@ export const $toolbar = $body.querySelector('footer');
 //@ (Object) -> (Boolean)
 export const isButton = $el => $el?.tagName === 'BUTTON';
 export const isField = $el => $el?.tagName === 'INPUT';
-export const isNameField = $el => $el.classList.contains('name');
+export const isNameField = $el => $el?.classList.contains('name');
 export const isRow = $el => $el?._id;
-export const isInToolbar = $el => $el.parentElement === $toolbar;
+export const isInToolbar = $el => $el?.parentElement === $toolbar;
 
 // Given a $row or any of its child elements, get the givenName.
 //@ (Object) -> (String)
