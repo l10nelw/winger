@@ -73,7 +73,7 @@ export function handleClick(info, tab) {
 function openLink(url, windowId, modifiers) {
     browser.tabs.create({ windowId, url });
     if (modifiers.includes(BRING))
-        Action.switchWindow(windowId);
+        Action.switchWindow({ windowId });
 }
 
 // Move target tab to windowId.

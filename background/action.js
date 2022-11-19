@@ -5,10 +5,9 @@ import { SETTINGS } from './settings.js';
 
 export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash); //@ (String) -> state
 export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> ([Object])
-export const switchWindow = windowId => browser.windows.update(windowId, { focused: true }); //@ (Number), state -> (Promise: Object), state
+export const switchWindow = ({ windowId }) => browser.windows.update(windowId, { focused: true }); //@ ({ Number }), state -> (Promise: Object), state
 
-// fn(windowId) or fn(windowId, tabs)
-const actionDict = {
+const ACTION_DICT = {
     bring:  bringTabs,
     send:   sendTabs,
     switch: switchWindow,
@@ -25,11 +24,11 @@ async function openUniqueExtensionPage(pathname, hash) {
 }
 
 // Select action to execute based on `action` and `modifiers`.
-//@ ({ String, [String], Number, [Object] }), state -> state
-export async function execute({ action, modifiers, windowId, tabs }) {
+//@ ({ String, [String], [Object], Number }), state -> state
+export async function execute({ action, modifiers, tabs, windowId }) {
     tabs ??= await getSelectedTabs();
     action = modify(action, modifiers);
-    actionDict[action](windowId, tabs);
+    ACTION_DICT[action]({ tabs, windowId });
 }
 
 //@ (String, [String]) -> (String)
@@ -57,21 +56,21 @@ export async function pop(incognito) {
     browser.tabs.remove(initTabId);
 }
 
-//@ (Number, [Object]), state -> state|nil
-async function bringTabs(windowId, tabs) {
-    if (await sendTabs(windowId, tabs)) switchWindow(windowId);
+//@ ({ Number, [Object] }), state -> state|nil
+async function bringTabs(props) {
+    await sendTabs(props) && switchWindow(props);
 }
 
 // Attempt moveTabs; if unsuccessful (e.g. windows are of different private statuses) then reopenTabs.
-//@ (Number, [Object]), state -> ([Object]), state | (undefined)
-async function sendTabs(windowId, tabs) {
-    const movedTabs = await moveTabs(windowId, tabs);
+//@ ({ Number, [Object] }), state -> ([Object]), state | (undefined)
+async function sendTabs(props) {
+    const movedTabs = await moveTabs(props);
     return movedTabs.length ?
-        movedTabs : reopenTabs(windowId, tabs);
+        movedTabs : reopenTabs(props);
 }
 
-//@ (Number, [Object]), state -> ([Object]), state | (undefined)
-async function moveTabs(windowId, tabs) {
+//@ ({ Number, [Object] }), state -> ([Object]), state | (undefined)
+async function moveTabs({ tabs, windowId }) {
     const [pinnedTabs, unpinnedTabs] = splitTabsByPinnedState(tabs);
     // Get destination index for pinned tabs, as they cannot be moved to index -1 where unpinned tabs exist
     const index = pinnedTabs.length ?
@@ -98,9 +97,9 @@ function splitTabsByPinnedState(tabs) {
     return [tabs.slice(0, unpinnedIndex), tabs.slice(unpinnedIndex)];
 }
 
-// Recreate given tabs in a given window, maintaining pinned states.
-//@ (Number, [Object]), state -> ([Object]), state | (undefined)
-async function reopenTabs(windowId, tabs) {
+// Recreate given tabs in a given window, maintaining pinned states. Remove original tabs.
+//@ ({ Number, [Object] }), state -> ([Object]), state | (undefined)
+async function reopenTabs({ tabs, windowId }) {
     const protoTabs = [];
     const tabIds = [];
     for (const tab of tabs) {
