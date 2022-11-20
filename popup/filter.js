@@ -8,8 +8,7 @@ export let $shownRows;
 
 //@ state -> state
 export function init() {
-    $shownRows = $otherWindowRows;
-    // $otherWindowRows is never mutated; $shownRows is only assigned new arrays as needed
+    $shownRows = [...$otherWindowRows];
 }
 
 // Show only rows whose names contain str, and sort them by name length, shortest first.
@@ -21,13 +20,12 @@ export function execute(str) {
     }
 
     $shownRows = filter(str); // Show/hide rows and add _nameLength property to shown rows
-    if (!$shownRows.length) return;
+    if (!$shownRows.length)
+        return;
 
     $shownRows.sort(compareNameLength);
-    $shownRows.forEach(($row, index) => {
+    for (const $row of $shownRows)
         $otherWindowsList.appendChild($row); // Move filtered row to the end of the list
-        $row._index = index;
-    });
 }
 
 const compareNameLength = ($a, $b) => $a._nameLength - $b._nameLength; //@ (Object, Object) -> (Number)
@@ -50,17 +48,15 @@ function filter(str) {
     return $filteredRows;
 }
 
-// Reverse all changes made by execute(): hidden rows, sort order, _index.
+// Reverse all changes made by execute(): hidden rows, sort order.
 // Restore sort order by comparing 'live' $otherWindowsList.children against correctly-sorted $otherWindowRows.
 //@ state -> state
 function reset() {
     $otherWindowRows.forEach(($correctRow, index) => {
         $correctRow.hidden = false;
-        $correctRow._index = index;
         const $row = $otherWindowsList.children[index];
         if ($row !== $correctRow) {
             $otherWindowsList.insertBefore($correctRow, $row);
-            $row._index = index;
         }
     });
     return $otherWindowRows;

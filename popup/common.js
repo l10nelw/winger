@@ -3,7 +3,7 @@ export const $body = document.body;
 export const $currentWindowRow = document.getElementById('currentWindow').firstElementChild;
 export const $omnibox = document.getElementById('omnibox');
 export const $otherWindowsList = document.getElementById('otherWindows');
-export const $otherWindowRows = [];
+export const $otherWindowRows = []; // Original order of rows at init, unlike $otherWindowsList.children whose order can change
 export const $toolbar = $body.querySelector('footer');
 
 // Element type

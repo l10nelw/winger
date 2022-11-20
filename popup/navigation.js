@@ -40,8 +40,9 @@ const isVerticalKey = key => VERTICAL_KEYS.includes(key); //@ (String) -> (Boole
 
 //@ (Object, Object) -> state|nil
 function restrictScroll($el, event) {
-    const index = row($el)._index;
-    if (SCROLL_THRESHOLD <= index && ($shownRows.length - index) > SCROLL_THRESHOLD) return;
+    const index = [...$otherWindowsList.children].indexOf($el);
+    if (SCROLL_THRESHOLD <= index && ($shownRows.length - index) > SCROLL_THRESHOLD)
+        return;
     event.preventDefault(); // Suppress scrolling
 }
 

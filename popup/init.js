@@ -17,6 +17,7 @@ Request.popup().then(onSuccess).catch(onError);
 function onSuccess({ currentWinfo, otherWinfos, selectedTabCount, stashEnabled }) {
     populate(currentWinfo, otherWinfos);
     $otherWindowRows.push(...$otherWindowsList.children);
+    Object.freeze($otherWindowRows);
 
     Omnibox.init(selectedTabCount, stashEnabled);
     Status.init([$currentWindowRow, ...$otherWindowRows]);
@@ -45,12 +46,10 @@ function onError() {
 
 //@ (Object, [Object]) -> state
 function populate(currentWinfo, otherWinfos) {
+    // Create other-rows
     const $fragment = document.createDocumentFragment();
-    otherWinfos.forEach((winfo, index) => {
-        const $row = row.createOther(winfo);
-        $row._index = index; // Used by navigation.js restrictScroll()
-        $fragment.appendChild($row);
-    });
+    for (const winfo of otherWinfos)
+        $fragment.appendChild(row.createOther(winfo));
     $otherWindowsList.appendChild($fragment);
 
     // Hydrate current-row only after all other-rows have been created
