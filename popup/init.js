@@ -1,5 +1,6 @@
 import {
     $currentWindowRow,
+    $omnibox,
     $otherWindowRows,
     $otherWindowsList,
     $toolbar,
@@ -23,8 +24,6 @@ function onSuccess({ currentWinfo, otherWinfos, selectedTabCount, stashEnabled }
     Status.init([$currentWindowRow, ...$otherWindowRows]);
     Filter.init();
     indicateReopenTabs();
-
-    $toolbar.hidden = false;
     lockHeight($otherWindowsList);
 }
 
@@ -34,13 +33,17 @@ function onError() {
 
     browser.browserAction.setBadgeText({ text: '⚠️' });
     browser.browserAction.setBadgeBackgroundColor({ color: 'transparent' });
-    Status.show('⚠️ Winger needs to be restarted.');
 
+    $currentWindowRow.hidden = true;
+    $omnibox.hidden = true;
+    $otherWindowsList.hidden = true;
+
+    Status.show('⚠️ Winger needs to be restarted.');
+    $toolbar.querySelectorAll('button').forEach($button => $button.remove());
     const $restartBtn = document.getElementById('restartTemplate').content.firstElementChild;
-    $restartBtn.onclick = () => browser.runtime.reload();
-    $toolbar.innerHTML = '';
     $toolbar.appendChild($restartBtn);
-    $toolbar.hidden = false;
+    $restartBtn.onclick = () => browser.runtime.reload();
+    $restartBtn.focus();
 }
 
 

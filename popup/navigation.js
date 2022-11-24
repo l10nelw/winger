@@ -22,7 +22,7 @@ export default function navigateByArrow($el, key, event) {
     const navigatorKey = navigator[key];
     if (!navigatorKey) return;
 
-     // Repeat in same direction until focusable element found
+    // Repeat in same direction until focusable element found
     do { $el = navigatorKey($el) } while (isUnfocusable($el));
 
     if (isVerticalKey(key)) {
@@ -59,7 +59,7 @@ function setColumn($el) {
 //@ (Object) -> (Object)
 const navigator = {
     ArrowDown($el) {
-        if (isToolbar($el)) return currentWindow();
+        if (isInToolbar($el)) return currentWindow();
         if (isCurrentWindow($el)) return $omnibox;
         if ($el === $omnibox) return rowOrCell($otherWindowsList.firstElementChild) || toolbar();
         const $nextRow = row($el).nextElementSibling;
@@ -68,31 +68,29 @@ const navigator = {
     ArrowUp($el) {
         if ($el === $omnibox) return currentWindow();
         if (isCurrentWindow($el)) return toolbar();
-        if (isToolbar($el)) return rowOrCell($otherWindowsList.lastElementChild) || $omnibox;
+        if (isInToolbar($el)) return rowOrCell($otherWindowsList.lastElementChild) || $omnibox;
         const $nextRow = row($el).previousElementSibling;
         return rowOrCell($nextRow) || $omnibox;
     },
     ArrowRight($el) {
         if ($el === $omnibox) return $omnibox;
         if (isEditMode && isField($el)) return $el;
-        if (isToolbar($el)) return $el.nextElementSibling || $toolbar.firstElementChild;
+        if (isInToolbar($el)) return $el.nextElementSibling || $toolbar.querySelector('button');
         return isRow($el) ? $el.firstElementChild : ($el.nextElementSibling || $el.$row);
     },
     ArrowLeft($el) {
         if ($el === $omnibox) return $omnibox;
         if (isEditMode && isField($el)) return $el;
-        if (isToolbar($el)) return $el.previousElementSibling || $toolbar.lastElementChild;
+        if (isInToolbar($el)) return $el.previousElementSibling || $toolbar.querySelector('button:last-child');
         return isRow($el) ? $el.lastElementChild : ($el.previousElementSibling || $el.$row);
     },
-};
+}
 
 //@ (Object) -> (Object)
-
 const rowOrCell = $row => isEditMode && $row?.$name || $row?.['$'+column] || $row; // Take and return row, unless a cell can be returned instead.
 const row = $el => $el.$row || $el; // Element's parent row, else assume element is a row.
-
 const currentWindow = () => $currentWindowRow.$name || $currentWindowRow;
-const toolbar = () => $toolbar.firstElementChild || $toolbar;
+const toolbar = () => $toolbar.querySelector('button') || $toolbar;
 
+//@ (Object) -> (Boolean)
 const isCurrentWindow = $el => ($el.$row || $el) === $currentWindowRow;
-const isToolbar = $el => isInToolbar($el) || $el === $toolbar;

@@ -22,14 +22,12 @@ export async function init($rows) {
 export function show(text) {
     defaultText ||= tabCountText();
     $status.textContent = text || defaultText;
-    $status.classList.toggle('defaultStatus', !text);
 }
 
 // Update and show defaultText in status bar.
 //@ state -> state
 export function update() {
     $status.textContent = defaultText = tabCountText();
-    $status.classList.add('defaultStatus');
 }
 
 //@ state -> (String)

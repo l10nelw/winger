@@ -59,7 +59,7 @@ export function handleFocusIn($focused, $defocused) {
     if (!isActive)
         return false;
 
-    // Disallow focus on non-fields
+    // Allow focus only on fields and toolbar buttons
     if (!(isField($focused) || isInToolbar($focused))) {
         $defocused.focus();
         return true;
