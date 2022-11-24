@@ -1,3 +1,5 @@
+import { isOS } from '../utils.js';
+
 const $status = document.getElementById('status');
 const count = { tabs: 0, windows: 0 };
 let defaultText;
@@ -36,5 +38,7 @@ function tabCountText() {
     const windows = count.windows;
     const is1tab = tabs == 1;
     const is1window = windows == 1;
-    return `${tabs} ${is1tab ? 'tab' : 'tabs'} ${windows} ${is1window ? 'window' : 'windows'}`;
+    return is1window ?
+        `1 window - Press ${isOS('Mac OS') ? 'Cmd' : 'Ctrl'}+N to add more!` :
+        `${windows} windows / ${tabs} ${is1tab ? 'tab' : 'tabs'}`;
 }

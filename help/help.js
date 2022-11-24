@@ -1,4 +1,4 @@
-import { getShortcut } from '../utils.js';
+import { isOS, getShortcut } from '../utils.js';
 
 const $body = document.body;
 const $ = (selector, $scope = $body) => $scope.querySelector(selector); //@ (Object, Object|undefined) -> (Object)
@@ -31,7 +31,6 @@ async function insertShortcut() {
 
 //@ state -> state
 function doOSSpecific() {
-    const isOS = str => navigator.userAgent.indexOf(str) !== -1;
     const isMac = isOS('Mac OS');
     const isWin = isOS('Windows');
 
