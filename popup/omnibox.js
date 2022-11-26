@@ -21,7 +21,7 @@ const commands = {
     name:        editCurrentWindow,
 };
 
-let commandReady;
+let commandReady; // The current autocompleted command
 
 //@ (Object), state -> state
 const keyUpResponse = {
@@ -35,7 +35,8 @@ const keyUpResponse = {
             clear();
         } else {
             const $firstRow = Filter.$shownRows?.[0];
-            if ($firstRow) Request.action(event, $firstRow);
+            if ($firstRow)
+                Request.action(event, $firstRow);
         }
     },
 }
@@ -75,7 +76,8 @@ export function handleKeyDown(key) {
 
 //@ (String, Object), state -> state
 export function handleKeyUp(key, event) {
-    if (key in keyUpResponse) keyUpResponse[key](event);
+    if (key in keyUpResponse)
+        keyUpResponse[key](event);
 }
 
 const isDeletion = event => event.inputType.startsWith('delete'); //@ (Object) -> (Boolean)
@@ -88,20 +90,21 @@ export function handleInput(event) {
     $omnibox.classList.toggle('slashCommand', isSlashed);
 
     commandReady = isSlashed ? matchCommand(str) : null;
-    if (commandReady && !isDeletion(event)) {
+    if (commandReady && !isDeletion(event))
         autocompleteCommand(str, commandReady);
-    }
 
-    if (!isSlashed) Filter.execute(str);
+    if (!isSlashed)
+        Filter.execute(str);
 }
 
 //@ (String) -> (String)
 function matchCommand(str) {
     const strUnslashed = str.slice(1).toUpperCase();
-    for (const command in commands) {
-        if (command.toUpperCase().startsWith(strUnslashed)) return command;
-    }
-    if (strUnslashed === 'DEBUG') return 'debug';
+    for (const command in commands)
+        if (command.toUpperCase().startsWith(strUnslashed))
+            return command;
+    if (strUnslashed === 'DEBUG')
+        return 'debug';
 }
 
 //@ (String, String) -> state

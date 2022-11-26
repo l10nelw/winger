@@ -80,6 +80,7 @@ function openLink(url, windowId, modifiers) {
 // If target tab is a selected tab, move other selected tabs as well.
 //@ (Object, Number, [String]) -> state
 async function moveTab(tab, windowId, modifiers) {
-    const tabs = tab.highlighted ? await Action.getSelectedTabs() : [tab];
+    const tabs = tab.highlighted ?
+        await Action.getSelectedTabs() : [tab];
     Action.execute({ action: 'send', tabs, windowId, modifiers });
 }

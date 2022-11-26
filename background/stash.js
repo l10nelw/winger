@@ -32,7 +32,8 @@ export async function init(SETTINGS) {
 //@ ([Object]) -> (Number)
 function findSeparator(nodes) {
     for (let i = nodes.length; i--;) // Reverse iterate
-        if (isSeparator(nodes[i])) return i;
+        if (isSeparator(nodes[i]))
+            return i;
     return -1;
 }
 
@@ -49,7 +50,8 @@ folderMap.populate = async () => {
     for (let i = nodes.length; i--;) { // Reverse iterate
         const node = nodes[i];
         switch (node.type) {
-            case 'separator': return; // Stop at first separator from the end
+            case 'separator':
+                return; // Stop at first separator from the end
             case 'folder':
                 const { id, title } = node;
                 const bookmarkCount = nowProcessing.has(id) ? 0 : node.children.filter(isBookmark).length;
@@ -91,7 +93,8 @@ async function getTargetFolder(name) {
 //@ (String), state -> (Object)
 function findBookmarklessFolder(name) {
     for (const folder of folderMap.values()) {
-        if (folder.title === name && !folder.bookmarkCount) return folder;
+        if (folder.title === name && !folder.bookmarkCount)
+            return folder;
     }
 }
 
@@ -146,7 +149,8 @@ async function unstashTab(node, remove) {
 
 //@ (Number), state -> state
 unstash.onWindowCreated = async windowId => {
-    if (!nowProcessing.has(windowId)) return;
+    if (!nowProcessing.has(windowId))
+        return;
     const { folderId, name, initTabId, remove } = nowProcessing.get(windowId);
     console.log('Unstashing', name);
     Name.set(windowId, Name.uniquify(Name.validify(name), windowId));
@@ -186,7 +190,7 @@ function openTab({ url, title }, windowId) {
 
 /* --- */
 
-//@ (Number), state -> (Promise: Boolean)
+//@ (Number), state -> (Boolean)
 export const canUnstash = async nodeId =>
     !( isRootId(nodeId) || nowProcessing.has(nodeId) || isSeparator(await getNode(nodeId)) );
 
@@ -195,7 +199,7 @@ const isSeparator = node => node.type === 'separator'; //@ (Object) -> (Boolean)
 const isFolder    = node => node.type === 'folder';    //@ (Object) -> (Boolean)
 const isBookmark  = node => node.type === 'bookmark';  //@ (Object) -> (Boolean)
 
-const getNode = async nodeId => (await browser.bookmarks.get(nodeId))[0]; //@ (Number), state -> (Promise: Object)
+const getNode = async nodeId => (await browser.bookmarks.get(nodeId))[0]; //@ (Number), state -> (Object)
 const getChildNodes = parentId => browser.bookmarks.getChildren(parentId); //@ (Number), state -> (Promise: [Object])
 
 const createNode = properties => browser.bookmarks.create(properties); //@ (Object) -> (Promise: Object), state

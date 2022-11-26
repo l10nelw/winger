@@ -15,15 +15,18 @@ const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is thi
 const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
 
 // Given an element and an arrow key, focus on the next focusable element in that direction and return true.
-// Return null if key not an arrow key.
+// Return nothing if key not an arrow key.
 // Control vertical scrolling.
 //@ (Object, String, Object), state -> (Boolean), state|nil
 export default function navigateByArrow($el, key, event) {
     const navigatorKey = navigator[key];
-    if (!navigatorKey) return;
+    if (!navigatorKey)
+        return;
 
     // Repeat in same direction until focusable element found
-    do { $el = navigatorKey($el) } while (isUnfocusable($el));
+    do {
+        $el = navigatorKey($el);
+    } while (isUnfocusable($el));
 
     if (isVerticalKey(key)) {
         restrictScroll($el, event);
@@ -38,6 +41,7 @@ export default function navigateByArrow($el, key, event) {
 const isUnfocusable = $el => row($el).hidden || $el.tabIndex === -1; //@ (Object) -> (Boolean)
 const isVerticalKey = key => VERTICAL_KEYS.includes(key); //@ (String) -> (Boolean)
 
+// Prevent scrolling if focus is on first/last few rows
 //@ (Object, Object) -> state|nil
 function restrictScroll($el, event) {
     const index = [...$otherWindowsList.children].indexOf($el);
@@ -59,30 +63,44 @@ function setColumn($el) {
 //@ (Object) -> (Object)
 const navigator = {
     ArrowDown($el) {
-        if (isInToolbar($el)) return currentWindow();
-        if (isCurrentWindow($el)) return $omnibox;
-        if ($el === $omnibox) return rowOrCell($otherWindowsList.firstElementChild) || toolbar();
+        if (isInToolbar($el))
+            return currentWindow();
+        if (isCurrentWindow($el))
+            return $omnibox;
+        if ($el === $omnibox)
+            return rowOrCell($otherWindowsList.firstElementChild) || toolbar();
         const $nextRow = row($el).nextElementSibling;
         return rowOrCell($nextRow) || toolbar();
     },
     ArrowUp($el) {
-        if ($el === $omnibox) return currentWindow();
-        if (isCurrentWindow($el)) return toolbar();
-        if (isInToolbar($el)) return rowOrCell($otherWindowsList.lastElementChild) || $omnibox;
+        if ($el === $omnibox)
+            return currentWindow();
+        if (isCurrentWindow($el))
+            return toolbar();
+        if (isInToolbar($el))
+            return rowOrCell($otherWindowsList.lastElementChild) || $omnibox;
         const $nextRow = row($el).previousElementSibling;
         return rowOrCell($nextRow) || $omnibox;
     },
     ArrowRight($el) {
-        if ($el === $omnibox) return $omnibox;
-        if (isEditMode && isField($el)) return $el;
-        if (isInToolbar($el)) return $el.nextElementSibling || $toolbar.querySelector('button');
-        return isRow($el) ? $el.firstElementChild : ($el.nextElementSibling || $el.$row);
+        if ($el === $omnibox)
+            return $omnibox;
+        if (isEditMode && isField($el))
+            return $el;
+        if (isInToolbar($el))
+            return $el.nextElementSibling || $toolbar.querySelector('button');
+        return isRow($el) ? $el.firstElementChild :
+            ($el.nextElementSibling || $el.$row);
     },
     ArrowLeft($el) {
-        if ($el === $omnibox) return $omnibox;
-        if (isEditMode && isField($el)) return $el;
-        if (isInToolbar($el)) return $el.previousElementSibling || $toolbar.querySelector('button:last-child');
-        return isRow($el) ? $el.lastElementChild : ($el.previousElementSibling || $el.$row);
+        if ($el === $omnibox)
+            return $omnibox;
+        if (isEditMode && isField($el))
+            return $el;
+        if (isInToolbar($el))
+            return $el.previousElementSibling || $toolbar.querySelector('button:last-child');
+        return isRow($el) ? $el.lastElementChild :
+            ($el.previousElementSibling || $el.$row);
     },
 }
 

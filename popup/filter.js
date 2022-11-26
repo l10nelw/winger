@@ -55,9 +55,8 @@ function reset() {
     $otherWindowRows.forEach(($correctRow, index) => {
         $correctRow.hidden = false;
         const $row = $otherWindowsList.children[index];
-        if ($row !== $correctRow) {
+        if ($row !== $correctRow)
             $otherWindowsList.insertBefore($correctRow, $row);
-        }
     });
     return $otherWindowRows;
 }

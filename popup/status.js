@@ -29,7 +29,9 @@ export function show(text) {
 // Update and show defaultText in status bar.
 //@ state -> state
 export function update() {
-    $status.textContent = defaultText = tabCountText();
+    $status.textContent =
+        defaultText =
+        tabCountText();
 }
 
 //@ state -> (String)

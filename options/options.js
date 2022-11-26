@@ -85,10 +85,9 @@ const stashSection = {
     updateHomeSelect() {
         const name = $form.stash_home_name.value = validify($form.stash_home_name.value);
         const isSubfolder = $option => !$option.value.endsWith('_');
-        for (const $option of $form.stash_home.options) {
+        for (const $option of $form.stash_home.options)
             if (isSubfolder($option))
                 $option.text = `${$option.previousElementSibling.text} ${this.subfolderSymbol} ${name}`;
-        }
     },
 };
 

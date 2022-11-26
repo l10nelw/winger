@@ -114,7 +114,8 @@ function trySaveName($name) {
         return false;
 
     const name =
-        $name.value = $name.value.trim();
+        $name.value =
+        $name.value.trim();
 
     // Skip save if unchanged
     if (name === $name._original)

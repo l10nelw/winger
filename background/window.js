@@ -4,6 +4,7 @@ export const winfoDict = {};
 
 export const lastFocused = {
     id: 0,
+
     //@ (Number) -> state
     save(windowId) {
         if (windowId > 0) {
@@ -11,6 +12,7 @@ export const lastFocused = {
             browser.sessions.setWindowValue(windowId, 'lastFocused', Date.now());
         }
     },
+
     // Add lastFocused prop to each winfo in given array.
     //@ ([Object]), state -> (Promise: [Object]), state
     load(winfos) {
@@ -59,7 +61,8 @@ function createWinfo({ id, incognito }) {
 export function isOverOne() {
     let count = 0;
     for (const _ in winfoDict) {
-        if (++count === 2) return true;
+        if (++count === 2)
+            return true;
     }
     return false;
 }

@@ -42,7 +42,8 @@ function doOSSpecific() {
         const replaceCtrlWithCmd = $el => {
             const oldText = $el.textContent;
             const newText = oldText.replace(/Ctrl/i, match => `${match[0]}md`);
-            if (newText !== oldText) $el.textContent = newText;
+            if (newText !== oldText)
+                $el.textContent = newText;
         }
         $$('kbd, .js-cmdOnMac').forEach(replaceCtrlWithCmd);
     }
@@ -52,9 +53,11 @@ function doOSSpecific() {
 function updateMockPopups() {
     $$('.popup').forEach($popup => {
         const $status = $('.popup-status', $popup);
-        if (!$status) return;
+        if (!$status)
+            return;
         const statusText = $status.textContent;
-        if (!statusText.includes('#')) return;
+        if (!statusText.includes('#'))
+            return;
         const $tabCounts = [...$$('.popup-tabCount', $popup)];
         const tabCount = $tabCounts.reduce((total, $el) => total + parseInt($el.textContent), 0);
         const windowCount = $tabCounts.length;

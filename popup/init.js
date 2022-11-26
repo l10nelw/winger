@@ -108,10 +108,9 @@ const isPrivate = $row => $row.classList.contains('private'); //@ (Object) -> (B
 //@ state -> state
 function indicateReopenTabs() {
     const currentIsPrivate = isPrivate($currentWindowRow);
-    for (const $row of $otherWindowRows) {
+    for (const $row of $otherWindowRows)
         if (isPrivate($row) != currentIsPrivate)
             $row.classList.add('reopenTabs');
-    }
 }
 
 //@ (Object) -> state

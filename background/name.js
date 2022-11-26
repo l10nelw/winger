@@ -26,8 +26,10 @@ export function set(windowId, name) {
 // Return 0 if name is valid and unique or is blank, else return -1 or id of conflicting window.
 //@ (Number, String), state -> (Boolean)
 export function check(windowId, name) {
-    if (name === '') return 0;
-    if (isInvalid(name)) return -1;
+    if (name === '')
+        return 0;
+    if (isInvalid(name))
+        return -1;
     return has(name, windowId);
 }
 

@@ -86,7 +86,8 @@ function onMenuClicked(info, tab) {
 
 //@ (Object) -> state
 function onExtensionInstalled(details) {
-    if (details.reason === 'install') Action.openHelp();
+    if (details.reason === 'install')
+        Action.openHelp();
 }
 
 //@ (Object), state -> (Object|Boolean|undefined), state|nil

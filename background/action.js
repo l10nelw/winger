@@ -5,7 +5,7 @@ import { SETTINGS } from './settings.js';
 import { lastFocused } from './window.js';
 
 export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash); //@ (String) -> state
-export const getSelectedTabs = async () => await browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> ([Object])
+export const getSelectedTabs = () => browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> (Promise: [Object])
 export const switchWindow = ({ windowId }) => browser.windows.update(windowId, { focused: true }); //@ ({ Number }), state -> (Promise: Object), state
 
 const ACTION_DICT = {
@@ -177,16 +177,16 @@ export function openTab(protoTab) {
     // title only allowed if discarded
     delete protoTab[discarded ? 'pinned' : 'title'];
 
-    if (url === 'about:newtab')
+    if (url === 'about:newtab') {
         delete protoTab.url;
-    else
-    if (isReader(url)) {
+    } else if (isReader(url)) {
         protoTab.url = getReaderTarget(url);
         protoTab.openInReaderMode = true;
     }
 
     const tabPromise = browser.tabs.create(protoTab).catch(() => openPlaceholderTab(protoTab, title));
-    return (pinned && discarded) ? tabPromise.then(tab => pinTab(tab.id)) : tabPromise;
+    return (pinned && discarded) ?
+        tabPromise.then(tab => pinTab(tab.id)) : tabPromise;
 }
 
 //@ (Object, String) -> (Promise: Object), state
