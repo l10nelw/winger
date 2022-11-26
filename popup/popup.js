@@ -88,7 +88,11 @@ async function onInput(event) {
 //@ (Object) -> state|nil
 function onFocusIn(event) {
     const { target: $focused, relatedTarget: $defocused } = event;
-    if ($defocused === $omnibox) $omnibox.placeholder = ''; // Clear any modifier hints
+    if ($defocused === $omnibox)
+        $omnibox.placeholder = ''; // Clear any modifier hints
+    if (EditMode.handleFocusIn($focused, $defocused))
+        return;
+    if ($focused.tabIndex === -1)
+        return $defocused.focus();
     $focused.select?.();
-    if (EditMode.handleFocusIn($focused, $defocused)) return;
-}
+    }
