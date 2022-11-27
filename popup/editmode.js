@@ -68,12 +68,7 @@ export function handleFocusIn($focused, $defocused) {
     let isHandled = false;
 
     if (isNameField($defocused)) {
-        if ($defocused.classList.contains('error')) {
-            $defocused.value = $defocused._original;
-            clearErrors();
-        } else {
-            trySaveName($defocused);
-        }
+        trySaveName($defocused);
         isHandled = true;
     }
     if (isNameField($focused)) {
@@ -100,18 +95,23 @@ export function handleKeyUp($name, key) {
     if (!isActive || !isNameField($name))
         return false;
 
-    if (key === 'Enter' && trySaveName($name))
+    if (key === 'Enter') {
+        trySaveName($name);
         done();
-
+    }
     return true;
 }
 
-// Trim content of name field and try to save it. Return true if successful, false otherwise.
+// If name is invalid: restore original name and return false.
+// Otherwise: proceed to save, indicate success and return true.
 //@ (Object) -> (Boolean), state|nil
 function trySaveName($name) {
-    // Prevent save if marked invalid
-    if ($name.classList.contains('error'))
+    // Revert if marked invalid
+    if ($name.classList.contains('error')) {
+        $name.value = $name._original;
+        clearErrors();
         return false;
+    }
 
     const name =
         $name.value =
@@ -133,7 +133,7 @@ function trySaveName($name) {
     return true;
 }
 
-// On name error, add error indicators.
+// Indicate if name is invalid, as well as the duplicate name if any.
 //@ (Object, Number) -> state
 function toggleError($name, error) {
     if (!error)
