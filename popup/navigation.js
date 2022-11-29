@@ -14,18 +14,20 @@ import { $shownRows } from './filter.js';
 const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
 const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
 
-// Given an element and an arrow key, focus on the next focusable element in that direction and return true.
-// Return nothing if key not an arrow key.
+// Upon an arrow or tab keydown, focus on the next focusable element in that direction and return true.
+// Return nothing if key not an arrow or tab.
 // Control vertical scrolling.
-//@ (Object, String, Object), state -> (Boolean), state|nil
-export default function navigateByArrow($el, key, event) {
+//@ (Object), state -> (Boolean), state|nil
+export default function navigateByKey(event) {
+    const key = event.key;
     const navigatorKey = navigator[key];
     if (!navigatorKey)
         return;
 
+    let $el = event.target;
     // Repeat in same direction until focusable element found
     do {
-        $el = navigatorKey($el);
+        $el = navigatorKey($el, event);
     } while (isUnfocusable($el));
 
     if (isVerticalKey(key)) {
@@ -35,6 +37,7 @@ export default function navigateByArrow($el, key, event) {
     }
 
     $el.focus();
+    $el.select?.();
     return true;
 }
 
@@ -101,6 +104,16 @@ const navigator = {
             return $el.previousElementSibling || $toolbar.querySelector('button:last-child');
         return isRow($el) ? $el.lastElementChild :
             ($el.previousElementSibling || $el.$row);
+    },
+    Tab($el, event) {
+        if (event.shiftKey) {
+            if (isCurrentWindow($el))
+                return event.preventDefault(), toolbar();
+        } else {
+            if (isInToolbar($el))
+                return event.preventDefault(), currentWindow();
+        }
+        return $el;
     },
 }
 

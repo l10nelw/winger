@@ -10,7 +10,7 @@ import * as Toolbar from './toolbar.js';
 import * as Status from './status.js';
 import * as EditMode from './editmode.js';
 import * as Request from './request.js';
-import navigateByArrow from './navigation.js';
+import navigateByKey from './navigation.js';
 
 $body.addEventListener('click', onClick);
 $body.addEventListener('mousedown', onMouseDown);
@@ -55,9 +55,9 @@ function onContextMenu(event) {
 //@ (Object) -> state|nil
 function onKeyDown(event) {
     const { key, target } = event;
-    if (navigateByArrow(target, key, event))
         return;
     if (Status.modifierHint.match(key))
+    if (navigateByKey(event))
         return;
 }
 
