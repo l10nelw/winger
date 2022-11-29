@@ -11,9 +11,6 @@ import * as EditMode from './editmode.js';
 import * as Request from './request.js';
 import navigateByArrow from './navigation.js';
 
-const CLICK_KEYS = ['Enter', ' '];
-const isClickKey = key => CLICK_KEYS.includes(key); //@ (String) -> (Boolean)
-
 $body.addEventListener('click', onClick);
 $body.addEventListener('mousedown', onMouseDown);
 $body.addEventListener('contextmenu', onContextMenu);
@@ -74,7 +71,7 @@ function onKeyUp(event) {
     if (target === $omnibox)
         return Omnibox.handleKeyUp(key, event);
 
-    if (isClickKey(key)) {
+    if (key === 'Enter') {
         if (target === $currentWindowRow.$name)
             return EditMode.activate();
         if (isRow(target))
