@@ -45,7 +45,7 @@ export function setName(windowId, name) {
 }
 
 //@ (Number, Boolean) -> state
-export function stash(windowId = $currentWindowRow._id, close) {
+export function stash(close, windowId = $currentWindowRow._id) {
     sendMessage({ stash: windowId, close });
     window.close();
 }
