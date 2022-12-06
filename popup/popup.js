@@ -7,6 +7,7 @@ import {
 } from './common.js';
 import * as Omnibox from './omnibox.js';
 import * as Toolbar from './toolbar.js';
+import * as Status from './status.js';
 import * as EditMode from './editmode.js';
 import * as Request from './request.js';
 import navigateByArrow from './navigation.js';
@@ -56,14 +57,14 @@ function onKeyDown(event) {
     const { key, target } = event;
     if (navigateByArrow(target, key, event))
         return;
-    if (Omnibox.handleKeyDown(key))
+    if (Status.modifierHint.match(key))
         return;
 }
 
 //@ (Object) -> state|nil
 function onKeyUp(event) {
     const { key, target } = event;
-    $omnibox.placeholder = ''; // Clear any modifier hints
+    Status.show(); // Clear any modifier hints
 
     if (EditMode.handleKeyUp(target, key))
         return;
@@ -91,8 +92,6 @@ async function onInput(event) {
 //@ (Object) -> state|nil
 function onFocusIn(event) {
     const { target: $focused, relatedTarget: $defocused } = event;
-    if ($defocused === $omnibox)
-        $omnibox.placeholder = ''; // Clear any modifier hints
     if (EditMode.handleFocusIn($focused, $defocused))
         return;
     if ($focused.tabIndex === -1)

@@ -20,8 +20,8 @@ function onSuccess({ currentWinfo, otherWinfos, selectedTabCount, stashEnabled }
     $otherWindowRows.push(...$otherWindowsList.children);
     Object.freeze($otherWindowRows);
 
-    Omnibox.init(selectedTabCount, stashEnabled);
-    Status.init([$currentWindowRow, ...$otherWindowRows]);
+    Omnibox.init(stashEnabled);
+    Status.init([$currentWindowRow, ...$otherWindowRows], selectedTabCount);
     Filter.init();
     indicateReopenTabs();
     lockHeight($otherWindowsList);

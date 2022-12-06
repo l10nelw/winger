@@ -3,7 +3,6 @@ import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
 import * as Filter from './filter.js';
 import * as Request from './request.js';
-import { BRING, SEND } from '../modifier.js';
 
 const COMMAND_TO_CALLBACK = {
     help:        Toolbar.help,
@@ -53,37 +52,10 @@ const KEYUP_RESPONSE = {
     },
 }
 
-// Hint is shown if key matches; cleared by events handled in popup.js
-const modifierHint = {
-    //@ (Number) -> state
-    init(selectedTabCount) {
-        const tabWord = selectedTabCount === 1 ? 'tab' : 'tabs';
-        this[BRING] = `[${BRING}] Bring ${tabWord} to...`;
-        this[SEND] = `[${SEND}] Send ${tabWord} to...`;
-    },
-    //@ (String) -> (String), state | (undefined)
-    match(key) {
-        if ($omnibox.value)
-            return; // Placeholder not visible anyway
-        if (key === 'Control')
-            key = 'Ctrl';
-        const hint = this[key];
-        if (hint)
-            $omnibox.placeholder = hint;
-        return hint;
-    },
-}
-
-//@ (Number, Boolean) -> state
-export function init(selectedTabCount, stashEnabled) {
-    modifierHint.init(selectedTabCount);
+//@ (Boolean) -> state
+export function init(stashEnabled) {
     if (!stashEnabled)
         delete COMMAND_TO_CALLBACK.stash;
-}
-
-//@ (String), state -> state
-export function handleKeyDown(key) {
-    return modifierHint.match(key);
 }
 
 //@ (String, Object), state -> state

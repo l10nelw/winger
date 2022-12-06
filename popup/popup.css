@@ -280,10 +280,17 @@ footer {
 #status {
     align-self: center;
     flex-grow: 1;
-    padding: 0 5px;
+    padding: 1px 5px;
     overflow: hidden;
     text-overflow: ellipsis;
     color: var(--muted-text-color);
+}
+
+kbd {
+    padding: 0 3px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+    font-size: .9rem;
 }
 
 footer button {
