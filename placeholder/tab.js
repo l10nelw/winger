@@ -7,21 +7,21 @@ const $main  = document.body.querySelector('main');
 const $url   = $main.querySelector('input');
 const $btn   = $main.querySelector('button');
 
-const focusUrl = () => $url.select();
+const selectUrl = () => $url.select();
 const swapBtnText = () => [$btn.textContent, $btn.dataset.text] = [$btn.dataset.text, $btn.textContent];
 
 document.title = title;
 $head.textContent = title;
 $url.value = url;
-focusUrl();
+selectUrl();
 
 $main.addEventListener('click', ({ target }) => {
     switch (target) {
         case $btn:
             navigator.clipboard.writeText(url);
             swapBtnText();
-            setTimeout(swapBtnText, 1500);
+            setTimeout(swapBtnText, 1000);
         case $url:
-            focusUrl();
+            selectUrl();
     }
 });

@@ -23,6 +23,7 @@ body {
     color: var(--text-color);
     margin: 1rem;
     text-align: center;
+    line-height: 1.5;
 }
 
 header {
@@ -35,6 +36,10 @@ h1 {
     font-size: 1.75rem;
     margin-top: .25rem;
     margin-bottom: 1rem;
+}
+
+main {
+    margin-bottom: 2.5rem;
 }
 
 input {
@@ -67,6 +72,8 @@ button:hover {
     outline: 2px solid var(--focus-outline-color);
 }
 
-small kbd {
-    font-size: larger;
+kbd {
+    padding: 0 3px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
 }
