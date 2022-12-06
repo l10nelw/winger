@@ -30,7 +30,7 @@ function onClick(event) {
         return;
 
     if (target === $currentWindowRow.$name)
-        return EditMode.activate();
+        return EditMode.toggle();
 
     Request.action(event, target);
 }
@@ -73,7 +73,7 @@ function onKeyUp(event) {
 
     if (key === 'Enter') {
         if (target === $currentWindowRow.$name)
-            return EditMode.activate();
+            return EditMode.toggle();
         if (isRow(target))
             return Request.action(event, target);
     }

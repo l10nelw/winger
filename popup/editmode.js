@@ -6,6 +6,7 @@ import {
     isNameField,
     isInToolbar,
 } from './common.js';
+import * as Omnibox from './omnibox.js';
 import * as Status from './status.js';
 import * as Request from './request.js';
 
@@ -15,11 +16,18 @@ export let isActive = false; // Indicates if popup is in Edit Mode
 let $names;
 
 //@ (Object), state -> state
-export function activate($name = $currentWindowRow.$name) {
+export function toggle($name = $currentWindowRow.$name) {
+    isActive ? done() : activate($name);
+}
+
+//@ (Object), state -> state
+function activate($name) {
     $names = [...$body.querySelectorAll('.name')];
     setActive(true);
     $name.focus();
     $name._original = $name.value; // Remember name at focus time
+    if ($omnibox.value.startsWith('/'))
+        Omnibox.clear();
 }
 
 //@ -> state

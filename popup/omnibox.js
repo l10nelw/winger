@@ -5,7 +5,7 @@ import * as Filter from './filter.js';
 import * as Request from './request.js';
 import { BRING, SEND } from '../modifier.js';
 
-const editCurrentWindow = () => EditMode.activate();
+const editCurrentWindow = () => EditMode.toggle();
 const commands = {
     help:        Toolbar.help,
     settings:    Toolbar.settings,
