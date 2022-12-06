@@ -54,8 +54,7 @@ Test list:
     --hover-row-color: #52525e;
 
     --field-color: #223;
-    --slash-field-color: #223;
-    --slash-input-theme-color: gold;
+    --slash-field-color: #541;
 
     --hover-button-color: #666;
 
@@ -218,16 +217,6 @@ body[data-mode="edit"] .name:hover:not(:focus) {
 
 .slashCommand {
     background-color: var(--slash-field-color);
-}
-
-.dark #omnibox.slashCommand {
-    color: var(--slash-input-theme-color);
-    border-color: var(--slash-input-theme-color);
-}
-
-.dark .slashCommand::selection {
-    background-color: var(--slash-input-theme-color);
-    color: var(--field-color);
 }
 
 
