@@ -5,6 +5,7 @@ export const $omnibox = document.getElementById('omnibox');
 export const $otherWindowsList = document.getElementById('otherWindows');
 export const $otherWindowRows = []; // Original order of rows at init, unlike $otherWindowsList.children whose order can change
 export const $toolbar = $body.querySelector('footer');
+export const $status = document.getElementById('status');
 
 // Element type
 //@ (Object) -> (Boolean)

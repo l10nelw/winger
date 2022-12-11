@@ -30,54 +30,53 @@ function onClick(event) {
     if (EditMode.isActive)
         return;
 
-    if (target === $currentWindowRow.$name)
-        return EditMode.toggle();
+    if (target === $currentWindowRow.$name) {
+        EditMode.toggle();
+        Status.update(event);
+        return;
+    }
 
     Request.action(event, target);
 }
 
 //@ (Object) -> state|nil
 function onMouseDown(event) {
-    const { target } = event;
-    if (EditMode.handleMouseDown(target))
+    if (EditMode.handleMouseDown(event.target))
         return;
 }
 
 //@ (Object) -> state|nil
 function onContextMenu(event) {
-    const { target } = event;
     // Allow right-click only on non-readonly input
-    if (target.matches('input:not([readonly])'))
+    if (event.target.matches('input:not([readonly])'))
         return;
     event.preventDefault();
 }
 
 //@ (Object) -> state|nil
 function onKeyDown(event) {
-    const { key, target } = event;
-        return;
-    if (Status.modifierHint.match(key))
-    if (navigateByKey(event))
-        return;
+    navigateByKey(event);
+    Status.update(event);
 }
 
 //@ (Object) -> state|nil
 function onKeyUp(event) {
-    const { key, target } = event;
-    Status.show(); // Clear any modifier hints
+    const { target } = event;
+    (() => {
+        if (EditMode.handleKeyUp(event))
+            return;
 
-    if (EditMode.handleKeyUp(target, key))
-        return;
+        if (target === $omnibox)
+            return Omnibox.handleKeyUp(event);
 
-    if (target === $omnibox)
-        return Omnibox.handleKeyUp(key, event);
-
-    if (key === 'Enter') {
-        if (target === $currentWindowRow.$name)
-            return EditMode.toggle();
-        if (isRow(target))
-            return Request.action(event, target);
-    }
+        if (event.key === 'Enter') {
+            if (target === $currentWindowRow.$name)
+                return EditMode.toggle();
+            if (isRow(target))
+                return Request.action(event, target);
+        }
+    })();
+    Status.update(event);
 }
 
 //@ (Object) -> state|nil

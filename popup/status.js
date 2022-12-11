@@ -1,32 +1,46 @@
 import { isOS } from '../utils.js';
-import { BRING, SEND } from '../modifier.js';
+import { $status } from './common.js';
+import * as Omnibox from './omnibox.js';
+import * as EditMode from './editmode.js';
 
-const $status = document.getElementById('status');
-const count = { tabs: 0, windows: 0 };
-let defaultContent;
+const count = {
+    windows: 1,
+    tabs: 1,
+    selectedTabs: 1,
+};
 
-// Hint is shown if key matches; cleared by events handled in popup.js
-export const modifierHint = {
-    //@ (Number) -> state
-    init(selectedTabCount) {
-        const tabWord = selectedTabCount === 1 ? 'tab' : 'tabs';
-        this[BRING] = `<kbd>${BRING}</kbd>: Bring ${tabWord} to...`;
-        this[SEND] = `<kbd>${SEND}</kbd>: Send ${tabWord} to...`;
+const statusType = {
+    stashShift: {
+        condition: ({ key, type }) => type === 'keydown' && Omnibox.matchedCommand === 'stash' && key === 'Shift',
+        content: `<kbd>Shift</kbd>: Stash without closing window`,
     },
-    //@ (String) -> (String), state | (undefined)
-    match(key) {
-        if (key === 'Control')
-            key = 'Ctrl';
-        const hint = this[key];
-        if (hint)
-            show(hint);
-        return hint;
+    edit: {
+        condition: () => EditMode.isActive,
+        content: `Edit mode: <kbd>Enter</kbd> on a name when done`,
+    },
+    bring: {
+        condition: ({ key, type }) => type === 'keydown' && key === 'Shift',
+        content: `<kbd>Shift</kbd>: Bring tab to...`,
+    },
+    send: {
+        condition: ({ key, type }) => type === 'keydown' && key === 'Control',
+        content: `<kbd>Ctrl</kbd>: Send tab to...`,
+    },
+    oneWindow: {
+        condition: () => count.windows === 1,
+        content: `1 window - Press <kbd>${isOS('Mac OS') ? 'Cmd' : 'Ctrl'}</kbd>+<kbd>N</kbd> to add more!`,
+    },
+    default: {
+        condition: () => true,
+        content: () => `${count.windows} windows / ${count.tabs} ${count.tabs === 1 ? 'tab' : 'tabs'}`,
     },
 }
 
-//@ ([Object]) -> state
-export async function init($rows, selectedTabCount) {
-    modifierHint.init(selectedTabCount);
+//@ ([Object], Number), state -> state
+export async function init($rows, selectedTabCount, stashEnabled) {
+    count.selectedTabs = selectedTabCount;
+    if (!stashEnabled)
+        delete statusType.stashShift;
 
     const tabCounts = await Promise.all($rows.map(getAndShow));
     const sum = (a, b) => a + b; //@ (Number, Number) -> (Number)
@@ -34,6 +48,7 @@ export async function init($rows, selectedTabCount) {
     count.windows = $rows.length;
     update();
 
+    //! (Object), state -> (Number), state
     async function getAndShow($row) {
         const tabCount = (await browser.tabs.query({ windowId: $row._id })).length; // get
         $row.$tabCount.textContent = tabCount; // show
@@ -41,28 +56,15 @@ export async function init($rows, selectedTabCount) {
     }
 }
 
-// Show content in status bar. If none given, show last updated defaultContent.
-//@ (String) -> state
-export function show(content) {
-    defaultContent ||= totalsContent();
-    $status.innerHTML = content || defaultContent;
-}
-
-// Update and show defaultContent in status bar.
-//@ state -> state
-export function update() {
-    $status.innerHTML =
-        defaultContent =
-        totalsContent();
-}
-
-//@ state -> (String)
-function totalsContent() {
-    const tabs = count.tabs;
-    const windows = count.windows;
-    const is1tab = tabs == 1;
-    const is1window = windows == 1;
-    return is1window ?
-        `1 window - Press <kbd>${isOS('Mac OS') ? 'Cmd' : 'Ctrl'}</kbd>+<kbd>N</kbd> to add more!` :
-        `${windows} windows / ${tabs} ${is1tab ? 'tab' : 'tabs'}`;
+//@ (Object) -> (String), state
+export function update(event = {}) {
+    for (const type in statusType) {
+        const status = statusType[type];
+        if (status.condition(event)) {
+            if (typeof status.content === 'function')
+                status.content = status.content();
+            $status.innerHTML = status.content;
+            return type;
+        }
+    }
 }

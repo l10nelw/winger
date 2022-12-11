@@ -7,15 +7,12 @@ import {
     isInToolbar,
 } from './common.js';
 import * as Omnibox from './omnibox.js';
-import * as Status from './status.js';
 import * as Request from './request.js';
 
-const HINT = `Edit Mode: ENTER/↑/↓ to Save, ESC to Cancel`;
-
-export let isActive = false; // Indicates if popup is in Edit Mode
+export let isActive = false; // Indicates if popup is in edit mode
 let $names;
 
-//@ (Object), state -> state
+//@ (Object|undefined), state -> state
 export function toggle($name = $currentWindowRow.$name) {
     isActive ? done() : activate($name);
 }
@@ -43,7 +40,6 @@ function setActive(isActivate) {
     isActive = isActivate;
     $body.dataset.mode = isActivate ? 'edit' : 'normal';
     toggleNameFields(isActivate);
-    Status.show(isActivate ? HINT : null);
 }
 
 //@ (Object) -> (Boolean), state|nil
@@ -99,12 +95,12 @@ export async function handleInput($name) {
 }
 
 //@ (Object, String) -> (Boolean), state|nil
-export function handleKeyUp($name, key) {
-    if (!isActive || !isNameField($name))
+export function handleKeyUp({ target, key }) {
+    if (!isActive || !isNameField(target))
         return false;
 
     if (key === 'Enter') {
-        trySaveName($name);
+        trySaveName(target);
         done();
     }
     return true;

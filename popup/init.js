@@ -4,6 +4,7 @@ import {
     $otherWindowRows,
     $otherWindowsList,
     $toolbar,
+    $status,
 } from './common.js';
 import * as Omnibox from './omnibox.js';
 import * as Filter from './filter.js';
@@ -21,7 +22,7 @@ function onSuccess({ currentWinfo, otherWinfos, selectedTabCount, stashEnabled }
     Object.freeze($otherWindowRows);
 
     Omnibox.init(stashEnabled);
-    Status.init([$currentWindowRow, ...$otherWindowRows], selectedTabCount);
+    Status.init([$currentWindowRow, ...$otherWindowRows], selectedTabCount, stashEnabled);
     Filter.init();
     indicateReopenTabs();
     lockHeight($otherWindowsList);
@@ -38,7 +39,7 @@ function onError() {
     $omnibox.hidden = true;
     $otherWindowsList.hidden = true;
 
-    Status.show('⚠️ Winger needs to be restarted.');
+    $status.textContent = '⚠️ Close and try again. If issue persists, restart Winger.';
     $toolbar.querySelectorAll('button').forEach($button => $button.remove());
     const $restartBtn = document.getElementById('restartTemplate').content.firstElementChild;
     $toolbar.appendChild($restartBtn);
