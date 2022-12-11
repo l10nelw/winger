@@ -26,31 +26,7 @@ const SHORTFORM_TO_COMMAND = {
     kp: 'kickprivate',
 };
 
-let matchedCommand;
-
-//@ (Object), state -> state
-const KEYUP_RESPONSE = {
-    Enter(event) {
-        if (matchedCommand === 'debug') {
-            Request.debug();
-            clear();
-            return;
-        }
-        if (matchedCommand) {
-            const callback = COMMAND_TO_CALLBACK[matchedCommand] || COMMAND_TO_CALLBACK[ALIAS_TO_COMMAND[matchedCommand]];
-            callback?.(event);
-            clear();
-            return;
-        }
-        if ($omnibox.value.startsWith('/')) {
-            clear();
-            return;
-        }
-        const $firstRow = Filter.$shownRows?.[0];
-        if ($firstRow)
-            Request.action(event, $firstRow);
-    },
-}
+export let matchedCommand;
 
 //@ (Boolean) -> state
 export function init(stashEnabled) {
@@ -59,11 +35,32 @@ export function init(stashEnabled) {
 }
 
 //@ (String, Object), state -> state
-export function handleKeyUp(key, event) {
-    KEYUP_RESPONSE[key]?.(event);
+export function handleKeyUp(event) {
+    if (event.key === 'Enter')
+        handleEnter(event);
 }
 
-const isDeletion = event => event.inputType.startsWith('delete'); //@ (Object) -> (Boolean)
+//@ (Object), state -> state
+function handleEnter(event) {
+    if (matchedCommand === 'debug') {
+        Request.debug();
+        clear();
+        return;
+    }
+    if (matchedCommand) {
+        const callback = COMMAND_TO_CALLBACK[matchedCommand] || COMMAND_TO_CALLBACK[ALIAS_TO_COMMAND[matchedCommand]];
+        callback?.(event);
+        clear();
+        return;
+    }
+    if ($omnibox.value.startsWith('/')) {
+        clear();
+        return;
+    }
+    const $firstRow = Filter.$shownRows?.[0];
+    if ($firstRow)
+        Request.action(event, $firstRow);
+}
 
 //@ (Object), state -> state
 export function handleInput(event) {
@@ -81,6 +78,9 @@ export function handleInput(event) {
         Filter.execute(str);
     }
 }
+
+//@ (Object) -> (Boolean)
+const isDeletion = event => event.inputType.startsWith('delete');
 
 //@ (String) -> ([String, Boolean])
 function matchCommand(str) {
