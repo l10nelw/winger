@@ -14,6 +14,7 @@ export function init() {
 // Show only rows whose names contain str, and sort them by name length, shortest first.
 //@ (String) -> state
 export function execute(str) {
+    str = str.trim();
     if (!str) {
         $shownRows = reset();
         return;
