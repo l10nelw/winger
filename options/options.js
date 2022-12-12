@@ -115,7 +115,7 @@ const staticText = {
 };
 
 (async function init() {
-    const SETTINGS = await browser.runtime.sendMessage({ settings: true });
+    const SETTINGS = await browser.runtime.sendMessage({ type: 'settings' });
     for (const $field of setting.$fields) {
         setting.load(SETTINGS[$field.name], $field);
         enablerMap.addTarget($field);

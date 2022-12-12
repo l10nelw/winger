@@ -92,14 +92,16 @@ function onExtensionInstalled(details) {
 
 //@ (Object), state -> (Object|Boolean|undefined), state|nil
 async function onRequest(request) {
-    if (request.popup)     return popupResponse();
-    if (request.stash)     return Stash.stash(request.stash, request.close);
-    if (request.action)    return Action.execute(request);
-    if (request.help)      return Action.openHelp();
-    if (request.checkName) return Name.check(request.checkName, request.name);
-    if (request.setName)   return Name.set(request.setName, request.name);
-    if (request.settings)  return Settings.SETTINGS;
-    if (request.debug)     return debug();
+    switch (request.type) {
+        case 'popup':     return popupResponse();
+        case 'stash':     return Stash.stash(request.windowId, request.close);
+        case 'action':    return Action.execute(request);
+        case 'help':      return Action.openHelp();
+        case 'checkName': return Name.check(request.windowId, request.name);
+        case 'setName':   return Name.set(request.windowId, request.name);
+        case 'settings':  return Settings.SETTINGS;
+        case 'debug':     return debug();
+    }
 }
 
 //@ state -> ({ Object, [Object], Number, Boolean })

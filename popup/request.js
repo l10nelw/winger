@@ -7,18 +7,18 @@ const sendMessage = browser.runtime.sendMessage;
 
 //@ -> (Promise: { Object, [Object], Number, Boolean })
 export function popup() {
-    return sendMessage({ popup: true });
+    return sendMessage({ type: 'popup' });
 }
 
 //@ -> state
 export function help() {
-    sendMessage({ help: true });
+    sendMessage({ type: 'help' });
 }
 
 // Gather action parameters from event and action element or action string. Proceed only if action found.
 //@ (Object, String|Object) -> state|nil
 export function action(event, action) {
-    const request = {};
+    const request = { type: 'action' };
     if (typeof action === 'string') {
         request.action = action;
     } else {
@@ -36,21 +36,21 @@ export function action(event, action) {
 
 //@ (Number, String) -> (Promise: Boolean)
 export function checkName(windowId, name) {
-    return sendMessage({ checkName: windowId, name });
+    return sendMessage({ type: 'checkName', windowId, name });
 }
 
 //@ (Number, String) -> state
 export function setName(windowId, name) {
-    sendMessage({ setName: windowId, name });
+    sendMessage({ type: 'setName', windowId, name });
 }
 
 //@ (Number, Boolean) -> state
 export function stash(close, windowId = $currentWindowRow._id) {
-    sendMessage({ stash: windowId, close });
+    sendMessage({ type: 'stash', windowId, close });
     window.close();
 }
 
 //@ -> state
 export function debug() {
-    sendMessage({ debug: true });
+    sendMessage({ type: 'debug' });
 }
