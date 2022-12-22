@@ -12,6 +12,7 @@ import { isActive as isEditMode } from './editmode.js';
 import { $shownRows } from './filter.js';
 
 const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
+const HORIZONTAL_KEYS = ['ArrowRight', 'ArrowLeft'];
 const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
 
 // Upon an arrow or tab keydown, focus on the next focusable element in that direction and return true.
@@ -20,11 +21,15 @@ const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
 //@ (Object), state -> (Boolean), state|nil
 export default function navigateByKey(event) {
     const key = event.key;
+    let $el = event.target;
+
+    if (isHorizontalKey(key) && isField($el))
+        return;
+
     const navigatorKey = navigator[key];
     if (!navigatorKey)
         return;
 
-    let $el = event.target;
     // Repeat in same direction until focusable element found
     do {
         $el = navigatorKey($el, event);
@@ -43,6 +48,7 @@ export default function navigateByKey(event) {
 
 const isUnfocusable = $el => row($el).hidden || $el.tabIndex === -1; //@ (Object) -> (Boolean)
 const isVerticalKey = key => VERTICAL_KEYS.includes(key); //@ (String) -> (Boolean)
+const isHorizontalKey = key => HORIZONTAL_KEYS.includes(key); //@ (String) -> (Boolean)
 
 // Prevent scrolling if focus is on first/last few rows
 //@ (Object, Object) -> state|nil
