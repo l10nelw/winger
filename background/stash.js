@@ -153,7 +153,10 @@ unstash.onWindowCreated = async windowId => {
         return;
     const { folderId, name, initTabId, remove } = nowProcessing.get(windowId);
     console.log('Unstashing', name);
-    Name.set(windowId, Name.uniquify(Name.validify(name), windowId));
+
+    const validName = Name.validify(name);
+    if (validName)
+        Name.set(windowId, Name.uniquify(validName, windowId));
 
     nowProcessing.set(folderId);
     const { bookmark: bookmarks, folder: subfolders } = await readFolder(folderId);
