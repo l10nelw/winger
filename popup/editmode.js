@@ -17,14 +17,16 @@ export function toggle($name = $currentWindowRow.$name) {
     isActive ? done() : activate($name);
 }
 
-//@ (Object), state -> state
-function activate($name) {
+//@ state -> state
+function activate() {
     $names = [...$body.querySelectorAll('.name')];
     setActive(true);
-    $name.focus();
-    $name._original = $name.value; // Remember name at focus time
     if ($omnibox.value.startsWith('/'))
         Omnibox.clear();
+
+    const $name = $currentWindowRow.$name;
+    if ($name === document.activeElement)
+        $name._original = $name.value; // Remember name at focus time
 }
 
 //@ -> state

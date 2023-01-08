@@ -57,9 +57,11 @@ function handleEnter(event) {
         clear();
         return;
     }
-    const $firstRow = Filter.$shownRows?.[0];
-    if ($firstRow)
-        Request.action(event, $firstRow);
+    if (!EditMode.isActive) {
+        const $firstRow = Filter.$shownRows?.[0];
+        if ($firstRow)
+            Request.action(event, $firstRow);
+    }
 }
 
 //@ (Object), state -> state

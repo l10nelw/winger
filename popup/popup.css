@@ -14,7 +14,7 @@ Test list:
 :root {
     --row-height: 36px;
     --button-size: 30px;
-    --name-height: 30px;
+    --name-height: 28px;
     --border-radius: 8px; /* Matches FF popup's rounded corners */
     --tabcount-width: 2rem;
     --popup-width: calc(var(--button-size) * 2 + 20rem + var(--tabcount-width));
@@ -250,7 +250,7 @@ li:hover button:not(:focus) {
 
 body[data-mode="edit"] li button {
     background-color: transparent;
-    opacity: .1;
+    opacity: 0;
 }
 
 li.reopenTabs button.tabAction:is(:hover, :focus) {
