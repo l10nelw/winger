@@ -5,16 +5,29 @@ const $ = (selector, $scope = $body) => $scope.querySelector(selector); //@ (Obj
 const $$ = (selector, $scope = $body) => $scope.querySelectorAll(selector); //@ (Object, Object|undefined) -> ([Object])
 $body.onclick = onClick;
 
-insertVersion();
-insertShortcut();
-doOSSpecific();
-updateMockPopups();
-handleCollapse();
+Promise.all([
+    insertShortcut(),
+])
+.then(() => {
+    insertVersion();
+    formatKbd();
+    doOSSpecific();
+    updateMockPopups();
+});
 
 //@ (Object) -> state
 function onClick({ target }) {
+    if (target.classList.contains('themeBtn'))
+        return $body.classList.toggle('dark');
     if (target.classList.contains('settingsBtn'))
-        browser.runtime.openOptionsPage();
+        return browser.runtime.openOptionsPage();
+}
+
+//@ state -> state
+async function insertShortcut() {
+    const shortcut = await getShortcut();
+    if (shortcut !== 'F1')
+        $$('.js-shortcut').forEach($el => $el.textContent = $el.textContent.replace('F1', shortcut));
 }
 
 //@ state -> state
@@ -24,9 +37,13 @@ function insertVersion() {
 }
 
 //@ state -> state
-async function insertShortcut() {
-    const shortcut = await getShortcut();
-    $$('.js-shortcut').forEach($el => $el.textContent = shortcut);
+function formatKbd() {
+    $$('kbd').forEach($el => {
+        const innerHTML = $el.innerHTML
+            .replaceAll('+', '</kbd>+<kbd>')
+            .replaceAll(' ', '</kbd><samp>&nbsp;</samp><kbd>')
+        $el.outerHTML = `<kbd>${innerHTML}</kbd>`; // Note this removes any of $el's classes/attributes
+    });
 }
 
 //@ state -> state
@@ -34,18 +51,17 @@ function doOSSpecific() {
     const isMac = isOS('Mac OS');
     const isWin = isOS('Windows');
 
-    const addCSS = rule => document.styleSheets[0].insertRule(rule);
-    addCSS(`.js-${isMac ? 'hide' : 'show'}OnMac { visibility: hidden }`);
-    addCSS(`.js-${isWin ? 'hide' : 'show'}OnWin { visibility: hidden }`);
+    const addCSSRule = rule => document.styleSheets[0].insertRule(rule);
+    addCSSRule(`.js-${isMac ? 'hide' : 'show'}OnMac { visibility: hidden }`);
+    addCSSRule(`.js-${isWin ? 'hide' : 'show'}OnWin { visibility: hidden }`);
 
     if (isMac) {
-        const replaceCtrlWithCmd = $el => {
+        $$('.js-cmdOnMac kbd').forEach($el => {
             const oldText = $el.textContent;
-            const newText = oldText.replace(/Ctrl/i, match => `${match[0]}md`);
+            const newText = oldText.replace('Ctrl', 'Cmd');
             if (newText !== oldText)
                 $el.textContent = newText;
-        }
-        $$('kbd, .js-cmdOnMac').forEach(replaceCtrlWithCmd);
+        });
     }
 }
 
@@ -61,14 +77,6 @@ function updateMockPopups() {
         const $tabCounts = [...$$('.popup-tabCount', $popup)];
         const tabCount = $tabCounts.reduce((total, $el) => total + parseInt($el.textContent), 0);
         const windowCount = $tabCounts.length;
-        $status.textContent = statusText.replace('#', tabCount).replace('#', windowCount);
+        $status.textContent = statusText.replace('#', windowCount).replace('#', tabCount);
     });
-}
-
-//@ state -> state
-async function handleCollapse() {
-    const { help_collapse } = await browser.storage.local.get('help_collapse');
-    const $collapse = document.getElementById('collapse');
-    $collapse.checked = help_collapse;
-    $collapse.onchange = () => browser.storage.local.set({ help_collapse: $collapse.checked });
 }

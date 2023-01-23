@@ -1,3 +1,23 @@
+:root {
+  --bg-color: white;
+  --text-color: #223;
+  --accent-color: blue;
+  --button-bg-color: #ccc;
+  --highlight-bg-color: yellow;
+
+  --box-border-color: #ccc;
+
+  scroll-padding-top: 1rem;
+}
+
+.dark {
+  --bg-color: #223;
+  --text-color: white;
+  --accent-color: #0df;
+  --button-bg-color: #52525e;
+  --highlight-bg-color: #541;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -7,17 +27,15 @@ body {
   margin: 0 auto;
   padding: 1rem;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 1rem;
+  line-height: 1.5;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
-.dark {
-  background-color: #222;
-  color: white;
-}
-.dark a {
-  color: #0df;
+a {
+  color: var(--accent-color);
 }
 
-h1, h2, h3, h4, p {
+h1, h2, h3, h4, p, ul, ol, dl {
   margin-top: 0;
 }
 h1 b, h2, h3, h4 {
@@ -29,77 +47,108 @@ h1, h2 {
 ul {
   list-style-type: disc;
 }
+ul, ol {
+  padding-left: 1.5rem;
+}
+details[open] > summary {
+  margin-bottom: 1.5rem;
+}
+summary {
+  cursor: pointer;
+}
+summary.h2::marker { /* TODO: Use summary:has(h2)::marker once supported */
+  font-size: 1.5rem;
+}
 kbd {
-  font-family: 'Lucida Console', monospace;
+  padding: 0 3px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+}
+samp {
+  font-size: 1rem;
+  font-weight: bold;
+}
+cite {
+  font-weight: bold;
 }
 img {
   vertical-align: middle;
 }
 
-.button {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-  background-color: #ccc;
-  width: 3rem;
-  height: 3rem;
+.topTools {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 1rem;
+}
+
+.inlineLinkList {
+  list-style: none;
+}
+.inlineLinkList > li {
+  display: inline-block;
+}
+.inlineLinkList > li:not(:last-child)::after {
+  content: " | ";
+}
+
+.themeBtn {
+  --light-theme-icon: "☀️";
+  --light-theme-bg: skyblue;
+  --dark-theme-icon: "🌙";
+  --dark-theme-bg: indigo;
+
+  --theme-icon: var(--light-theme-icon);
+  --theme-bg: var(--light-theme-bg);
+
+  background-color: var(--theme-bg);
+  border: none;
   border-radius: 50%;
+  cursor: pointer;
+}
+.themeBtn::after {
+  content: var(--theme-icon);
+  font-size: x-large;
+}
+.dark .themeBtn {
+  --theme-icon: var(--dark-theme-icon);
+  --theme-bg: var(--dark-theme-bg);
+}
+
+.actionBtn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  background-color: var(--button-bg-color);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
   flex-shrink: 0;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.button img {
+.actionBtn img {
   width: 90%;
 }
 
 .row { display: flex; }
 .equal-col > .col { flex: 1; }
 
-.collapse-box {
-  display: block;
-  cursor: pointer;
-}
-.collapse-head {
-  transition: color .2s;
-}
-.collapse-arrow {
-  transition: all .2s;
-}
-.collapse-hide:checked ~ .collapse-body {
-  display: none;
-}
-.collapse-hide:checked ~ .collapse-head {
-  color: #ccc;
-}
-.collapse-hide:checked ~ .collapse-head > .collapse-arrow {
-  transform: rotate(.5turn);
-  border-bottom-color: #ccc;
-}
-.arrow-up {
-  width: 0;
-  height: 0;
-  border-top: none;
-  border-bottom: 12px solid black;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  margin: 0 5px;
-}
-.dark .arrow-up {
-  border-bottom-color: white;
-}
-
-button.settingsBtn {
+.settingsBtn {
   border-radius: 2px;
   padding: 2px 5px;
   line-height: 1;
 }
+.settingsBtn::before {
+  content: "⚙️ ";
+}
 
 .bordered-box {
-  border: 3px solid #ccc;
-  padding: 1rem;
+  border: 3px solid var(--box-border-color);
+  padding: .5rem 1rem;
   border-radius: 1rem;
 }
 .bordered-left {
-  border-left: 3px solid #ccc;
+  border-left: 3px solid var(--box-border-color);
 }
 
 .new {
@@ -115,38 +164,39 @@ button.settingsBtn {
   color: black;
 }
 
-.star-list {
-  list-style-type: "★ ";
-}
-
 :target {
-  --target-fading-highlight-color: yellow;
   animation: target-fading-highlight 2s 1;
 }
-.dark :target {
-  --target-fading-highlight-color: darkblue;
-}
 @keyframes target-fading-highlight {
-  0%   { background-color: var(--target-fading-highlight-color); }
+  0%   { background-color: var(--highlight-bg-color); }
   100% { background-color: none; }
 }
 
-.fg-private { color: var(--private-text-color); }
-.bg-private { background-color: var(--private-button-color); color: white; }
-
-.lastchild-mb-0 > :last-child { margin-bottom: 0; }
 .flex-grow { flex-grow: 1; }
 .w100 { width: 100%; }
-.m-0 { margin: 0; }
-.mr-1 { margin-right: 1rem; }
-.mx-1 { margin-left: 1rem; margin-right: 1rem; }
-.mb-1 { margin-bottom: 1rem; }
-.mb-2 { margin-bottom: 2rem; }
-.mb-5 { margin-bottom: 5rem; }
-.pt-2 { padding-top: 2rem; }
-.pl-1 { padding-left: 1rem; }
-.pl-2 { padding-left: 2rem; }
+.inline-block { display: inline-block; }
 .ai-center { align-items: center; }
+.jc-between { justify-content: space-between; }
 .center { text-align: center; }
+.right { text-align: right; }
+
+.lastchild-mb0 > :last-child { margin-bottom: 0; }
+.children-mb1 > * { margin-bottom: 1rem; }
+.m0 { margin: 0; }
+.mr1 { margin-right: 1rem; }
+.mx1, .mx1-content :is(p, ul, ol, dl) {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+.mb1 { margin-bottom: 1rem; }
+.mb2 { margin-bottom: 2rem; }
+.mb5 { margin-bottom: 5rem; }
+.pl1 { padding-left: 1rem; }
+.pl2 { padding-left: 2rem; }
+.px1 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
 small, .small { font-size: 80%; }
 .bold { font-weight: bold; }
+.nowrap { white-space: nowrap; }
