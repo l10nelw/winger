@@ -56,14 +56,13 @@ export async function init($rows, selectedTabCount, stashEnabled) {
     }
 }
 
+// Find the statusType that meets the current condition and assign its content to the status bar.
 //@ (Object) -> (String), state
 export function update(event = {}) {
     for (const type in statusType) {
-        const status = statusType[type];
-        if (status.condition(event)) {
-            if (typeof status.content === 'function')
-                status.content = status.content();
-            $status.innerHTML = status.content;
+        const { condition, content } = statusType[type];
+        if (condition(event)) {
+            $status.innerHTML = (typeof content === 'function') ? content() : content;
             return type;
         }
     }
