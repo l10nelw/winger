@@ -10,7 +10,6 @@ Promise.all([
 ])
 .then(() => {
     insertVersion();
-    formatKbd();
     doOSSpecific();
     updateMockPopups();
 });
@@ -34,16 +33,6 @@ async function insertShortcut() {
 function insertVersion() {
     const { version } = browser.runtime.getManifest();
     $$('.js-version').forEach($el => $el.textContent = version);
-}
-
-//@ state -> state
-function formatKbd() {
-    $$('kbd').forEach($el => {
-        const innerHTML = $el.innerHTML
-            .replaceAll('+', '</kbd>+<kbd>')
-            .replaceAll(' ', '</kbd><samp>&nbsp;</samp><kbd>')
-        $el.outerHTML = `<kbd>${innerHTML}</kbd>`; // Note this removes any of $el's classes/attributes
-    });
 }
 
 //@ state -> state
