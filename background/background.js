@@ -2,6 +2,7 @@ import * as Settings from './settings.js';
 import * as Window from './window.js';
 import * as Name from './name.js';
 import * as Action from './action.js';
+import * as Chrome from './chrome.js';
 import * as SendMenu from './menu.send.js';
 let Stash, UnstashMenu; // Optional modules
 
@@ -29,6 +30,9 @@ browser.runtime.onMessage.addListener      (onRequest);
 async function init() {
     const [SETTINGS, windows]
         = await Promise.all([ Settings.get(), browser.windows.getAll() ]);
+
+    if (SETTINGS.show_badge)
+        Chrome.showBadge();
 
     if (SETTINGS.enable_stash) {
         [Stash, UnstashMenu] =

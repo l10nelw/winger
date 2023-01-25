@@ -1,4 +1,4 @@
-// The 'chrome' refers to standard UI elements of the browser that frame the content.
+// The 'chrome' refers to UI elements of the browser that frame the content.
 
 import { getShortcut } from '../utils.js';
 
@@ -19,13 +19,15 @@ const ButtonTitle = {
 };
 
 const ButtonBadge = {
+    update() { },
+
     //@ -> state
     init() {
+        //@ (Number, String) -> state
+        this.update = (windowId, text) => {
+            browser.browserAction.setBadgeText({ windowId, text });
+        }
         browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
-    },
-    //@ (Number, String) -> state
-    update(windowId, name) {
-        browser.browserAction.setBadgeText({ windowId, text: name });
     },
 };
 
@@ -37,4 +39,7 @@ export function update(windowId, name) {
     ButtonBadge.update(windowId, name);
 }
 
-ButtonBadge.init();
+//@ -> state
+export function showBadge() {
+    ButtonBadge.init();
+}

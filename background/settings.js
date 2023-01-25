@@ -1,12 +1,15 @@
 const DEFAULT = {
 
-    theme: 'system',
-
     keep_moved_tabs_selected: true,
+    show_popup_bring: true,
+    show_popup_send: true,
 
     enable_stash: false,
     stash_home: 'toolbar_____',
     stash_home_name: 'Stashed Windows',
+
+    show_badge: false,
+    theme: 'system',
 
 };
 
