@@ -20,7 +20,7 @@ export function toggle($name = $currentWindowRow.$name) {
 //@ state -> state
 function activate() {
     $names = [...$body.querySelectorAll('.name')];
-    setActive(true);
+    toggleActive(true);
     if ($omnibox.value.startsWith('/'))
         Omnibox.clear();
 
@@ -31,14 +31,14 @@ function activate() {
 
 //@ -> state
 function done() {
-    setActive(false);
+    toggleActive(false);
     clearErrors();
     $currentWindowRow.$name.tabIndex = 0;
     $omnibox.focus();
 }
 
 //@ (Boolean) -> state
-function setActive(isActivate) {
+function toggleActive(isActivate) {
     isActive = isActivate;
     $body.dataset.mode = isActivate ? 'edit' : 'normal';
     toggleNameFields(isActivate);
@@ -119,9 +119,8 @@ function trySaveName($name) {
         return false;
     }
 
-    const name =
-        $name.value =
-        $name.value.trim();
+    const name = $name.value.trim();
+    $name.value = name;
 
     // Skip save if unchanged
     if (name === $name._original)

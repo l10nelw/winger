@@ -20,7 +20,7 @@ const ALIAS_TO_COMMAND = {
     options: 'settings',
     name: 'edit',
 };
-const SHORTFORM_TO_COMMAND = {
+const SHORTHAND_TO_COMMAND = {
     np: 'newprivate',
     pp: 'popprivate',
     kp: 'kickprivate',
@@ -72,10 +72,10 @@ export function handleInput(event) {
     $omnibox.classList.toggle('slashCommand', isSlashed);
 
     if (isSlashed) {
-        let isShortform;
-        [matchedCommand, isShortform] = matchCommand(str);
+        let isShorthand;
+        [matchedCommand, isShorthand] = matchCommand(str);
         if (matchedCommand && !isDeletion(event))
-            isShortform ? expandShortform(matchedCommand) : autocompleteCommand(str, matchedCommand);
+            isShorthand ? expandShorthand(matchedCommand) : autocompleteCommand(str, matchedCommand);
     } else {
         Filter.execute(str);
     }
@@ -99,9 +99,9 @@ function matchCommand(str) {
         if (alias.toUpperCase().startsWith(strUnslashed))
             return [alias, false];
 
-    for (const shortform in SHORTFORM_TO_COMMAND)
-        if (shortform.toUpperCase() === strUnslashed)
-            return [SHORTFORM_TO_COMMAND[shortform], true];
+    for (const shorthand in SHORTHAND_TO_COMMAND)
+        if (shorthand.toUpperCase() === strUnslashed)
+            return [SHORTHAND_TO_COMMAND[shorthand], true];
 
     return [null, false];
 }
@@ -113,7 +113,7 @@ function autocompleteCommand(str, command) {
 }
 
 //@ (String) -> state
-function expandShortform(command) {
+function expandShorthand(command) {
     $omnibox.value = `/${command}`;
     $omnibox.select();
 }

@@ -112,12 +112,17 @@ const navigator = {
             ($el.previousElementSibling || $el.$row);
     },
     Tab($el, event) {
+        // event.preventDefault() skips tabbing to 'nowhere' before the first or after the last focusable element
         if (event.shiftKey) {
-            if (isCurrentWindow($el))
-                return event.preventDefault(), toolbar();
+            if (isCurrentWindow($el)) {
+                event.preventDefault();
+                return toolbar();
+            }
         } else {
-            if (isInToolbar($el))
-                return event.preventDefault(), currentWindow();
+            if (isInToolbar($el)) {
+                event.preventDefault();
+                return currentWindow();
+            }
         }
         return $el;
     },
