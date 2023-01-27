@@ -15,14 +15,14 @@ import { NO_NAME } from '../background/name.js';
 Request.popup().then(onSuccess).catch(onError);
 
 
-//@ ({ Object, [Object], Number, Boolean }) -> state
-function onSuccess({ currentWinfo, otherWinfos, selectedTabCount, stashEnabled }) {
-    populate(currentWinfo, otherWinfos);
+//@ ({ Object, [Object], Number, Object }) -> state
+function onSuccess({ currentWinfo, otherWinfos, selectedTabCount, SETTINGS }) {
+    populate(currentWinfo, otherWinfos, SETTINGS);
     $otherWindowRows.push(...$otherWindowsList.children);
     Object.freeze($otherWindowRows);
 
-    Omnibox.init(stashEnabled);
-    Status.init([$currentWindowRow, ...$otherWindowRows], selectedTabCount, stashEnabled);
+    Omnibox.init(SETTINGS.enable_stash);
+    Status.init([$currentWindowRow, ...$otherWindowRows], selectedTabCount, SETTINGS.enable_stash);
     Filter.init();
     indicateReopenTabs();
     lockHeight($otherWindowsList);
@@ -48,21 +48,45 @@ function onError() {
 }
 
 
-//@ (Object, [Object]) -> state
-function populate(currentWinfo, otherWinfos) {
-    // Create other-rows
+//@ (Object, [Object], Object) -> state
+function populate(currentWinfo, otherWinfos, SETTINGS) {
+    Row.initCurrent(SETTINGS);
+
+    // Create other-rows by cloning current-row
     const $fragment = document.createDocumentFragment();
     for (const winfo of otherWinfos)
-        $fragment.appendChild(row.createOther(winfo));
+        $fragment.appendChild(Row.createOther(winfo));
     $otherWindowsList.appendChild($fragment);
 
     // Hydrate current-row only after all other-rows have been created
-    row.hydrateCurrent($currentWindowRow, currentWinfo);
+    Row.hydrateCurrent($currentWindowRow, currentWinfo);
 }
 
-const row = {
+const Row = {
 
-    CELL_SELECTORS: ['.send', '.bring', '.name', '.tabCount'],
+    CELL_SELECTORS: new Set(['.send', '.bring', '.name', '.tabCount']),
+
+    //@ (Object) -> state
+    initCurrent(SETTINGS) {
+        // Remove any toggled-off buttons
+        const buttons = [
+            ['show_popup_bring', '.bring'],
+            ['show_popup_send', '.send'],
+        ];
+        let buttonCount = buttons.length;
+        for (const [setting, selector] of buttons) {
+            const $button = $currentWindowRow.querySelector(selector);
+            if (SETTINGS[setting]) {
+                $button.hidden = false;
+            } else {
+                $button.remove();
+                this.CELL_SELECTORS.delete(selector);
+                buttonCount--;
+            }
+        }
+        if (buttonCount)
+            document.documentElement.style.setProperty('--button-count', buttonCount);
+    },
 
     //@ (Object, Object) -> (Object)
     createOther(winfo) {

@@ -10,6 +10,9 @@ fieldset {
 legend {
     font-weight: bold;
 }
+hr {
+    border-width: .5px;
+}
 
 label {
     display: flex;
@@ -45,7 +48,7 @@ button[type="submit"] {
     font-weight: bold;
 }
 
-.ml-1 { margin-left: 1rem; }
+.ms1 { margin-left: 1rem; }
 .muted { opacity: .5; }
 
 

@@ -14,11 +14,12 @@ Test list:
 :root {
     --row-height: 36px;
     --button-size: 30px;
+    --button-count: 0;
     --name-height: 28px;
-    --border-radius: 8px; /* Matches FF popup's rounded corners */
     --tabcount-width: 2rem;
-    --popup-width: calc(var(--button-size) * 2 + 20rem + var(--tabcount-width));
+    --popup-width: calc(var(--button-count) * var(--button-size) + 20rem + var(--tabcount-width));
     --max-list-height: 30rem;
+    --border-radius: 8px; /* Matches FF popup's rounded corners */
 
     --text-color: #000;
     --muted-text-color: #666;

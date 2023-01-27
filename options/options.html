@@ -10,9 +10,14 @@
 
       <fieldset>
         <legend>Send and bring</legend>
-        <p>When sending and bringing tabs, keep the selected/focused states of:</p>
-        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="true"> <span>the sent and brought tabs</span></label>
-        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="false"> <span>the destination window's tabs</span></label>
+        <label><input class="setting" type="checkbox" name="show_popup_send"> <span>Show send buttons</span></label>
+        <label><input class="setting" type="checkbox" name="show_popup_bring"> <span>Show bring buttons</span></label>
+        <hr>
+        <p>When sending or bringing tabs, keep the selected/focused states of:</p>
+        <div class="inline-fields ms1">
+          <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="true"> <span>the sent or brought tabs</span></label>
+          <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="false"> <span>the destination window's tabs</span></label>
+        </div>
         <small>Learn more about <a class="help" href="#common">send and bring</a></small>
       </fieldset>
 

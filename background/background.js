@@ -116,6 +116,6 @@ async function popupResponse() {
         currentWinfo,
         otherWinfos,
         selectedTabCount: selectedTabs.length,
-        stashEnabled: !!Stash,
+        SETTINGS: Settings.SETTINGS,
     };
 }
