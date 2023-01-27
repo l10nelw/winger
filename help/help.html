@@ -99,16 +99,15 @@
       <section class="row mb1">
         <div class="col mr1">
           <p>Every window is represented by a row, showing its <strong>name</strong> and <strong>tab count</strong>.</p>
-          <p>The topmost row represents the currently focused window (<strong>current window</strong>).</p>
-          <p>Below it is the panel <strong>omnibox</strong>.</p>
+          <p>Above the panel <strong>omnibox</strong> is the row representing the currently focused window (<strong>current window</strong>).</p>
           <p>If there are <strong>other windows</strong>, they are listed below the omnibox; the first row representing the most recently focused (last seen) window, followed by the next most recently focused window, and so on.</p>
-          <p>Lastly at the bottom is the <strong>status bar</strong> showing the total number of tabs and windows open, and the <strong>help button</strong>.</p>
+          <p>At the bottom is the <strong>status bar</strong> showing the total number of tabs and windows open, and the <strong>help button</strong>.</p>
           <p>You can navigate the panel by keyboard:</p>
           <ul>
             <li><kbd>▼Down</kbd> and <kbd>▲Up</kbd> to target next and previous rows.</li>
             <li><kbd>▶︎Right</kbd> and <kbd>◀︎Left</kbd> to target next and previous buttons and their containing row.</li>
             <li><kbd>Enter</kbd> to "click" a targeted item.</li>
-            <li><kbd>Tab</kbd> and <kbd>Shift+Tab</kbd> also work for targeting next and previous items (as an alternative to arrow keys).</li>
+            <li><kbd>Tab</kbd> and <kbd>Shift</kbd>+<kbd>Tab</kbd> also work for targeting next and previous items (as an alternative to arrow keys).</li>
           </ul>
         </div>
         <div class="col">
@@ -214,7 +213,7 @@
       <h2 class="center">Common actions</h2>
       <div class="row equal-col mb2">
         <section class="col mx1">
-          <h3>Switch window</h3>
+          <h3>Switch to window</h3>
           <figure class="popup mb1" role="img" aria-label="A window row">
             <div class="popup-row">
               <span class="popup-name muted">shopping</span><small class="popup-tabCount">20</small>
@@ -228,7 +227,7 @@
             <figure class="col actionBtn m0 mr1"><img src="../icons/send.svg" alt=""></figure>
             <p class="col">The <strong>send</strong> button "sends" the selected tabs to that window without leaving the current window.</p>
           </div>
-          <p><kbd>Ctrl</kbd>+<strong>switch</strong> becomes a <strong>send</strong>. Thus you can also <kbd>Ctrl</kbd>+click or <kbd>Ctrl+Enter</kbd> on a row to send tabs to that window.</p>
+          <p><kbd>Ctrl</kbd>+<strong>switch</strong> becomes a <strong>send</strong>. Thus you can also <kbd>Ctrl</kbd>+click or <kbd>Ctrl</kbd>+<kbd>Enter</kbd> on a row to send tabs to that window.</p>
         </section>
         <section class="col mx1">
           <h3>Bring tab</h3>
@@ -236,7 +235,7 @@
             <figure class="col actionBtn m0 mr1"><img src="../icons/bring.svg" alt=""></figure>
             <p class="col">The <strong>bring</strong> button switches to that window while "bringing" the selected tabs along. Essentially <em>switch</em> and <em>send</em> combined.</p>
           </div>
-          <p><kbd>Shift</kbd>+<strong>switch</strong> becomes a <strong>bring</strong>. Thus you can also <kbd>Shift</kbd>+click or <kbd>Shift+Enter</kbd> on a row to bring tabs to that window.</p>
+          <p><kbd>Shift</kbd>+<strong>switch</strong> becomes a <strong>bring</strong>. Thus you can also <kbd>Shift</kbd>+click or <kbd>Shift</kbd>+<kbd>Enter</kbd> on a row to bring tabs to that window.</p>
         </section>
       </div>
       <section id="private" class="mx1 mb2">
@@ -257,14 +256,14 @@
         </div>
         <p><strong>Reopened tabs</strong>...</p>
         <ul>
-          <li><p>preserve any pinned and reader-view tab states, but not most other tab/page states such as tab history, scroll position and unsubmitted form data.</p></li>
+          <li><p>...preserve any pinned and reader-view tab states, but not most other tab/page states such as tab history, scroll position and unsubmitted form data.</p></li>
           <li>
-            <p>start out in an unloaded state (a.k.a. suspended, discarded) if not focused.</p>
+            <p>...start out in an unloaded state (a.k.a. suspended, discarded) if not focused.</p>
             <ul>
               <li><p>Reopening multiple tabs in an unloaded state ensures that such actions remain non-intensive and instantaneous, no matter how many tabs. Otherwise, opening large numbers of tabs <em>all at once</em> may briefly strain your system, potentially slowing your browser to a crawl.</p></li>
             </ul>
           </li>
-          <li><p>with privileged URLs that Winger cannot directly open (e.g. <samp>about:addons</samp>) become temporary <strong>placeholder tabs</strong>. Placeholder tabs will inform you of a manual step required to properly restore them.</p></li>
+          <li><p>...with privileged URLs that Winger cannot directly open (e.g. <samp>about:addons</samp>) become temporary <strong>placeholder tabs</strong>. Placeholder tabs will inform you of a manual step required to properly restore them.</p></li>
         </ul>
       </section>
     </article>
@@ -330,7 +329,7 @@
           <dd class="mb1">Toggle <a href="#name">edit mode</a>.</dd>
           <dt><samp>/stash</samp> or <samp>/st</samp></dt>
           <dd class="mb1"><a href="#stash">Stash</a> the current window.<br>
-            <kbd>Shift+Enter</kbd> prevents the window from closing.</dd>
+            <kbd>Shift</kbd>+<kbd>Enter</kbd> prevents the window from closing.</dd>
           <dt><samp>/new</samp> or <samp>/n</samp></dt>
           <dd class="mb1">Open a new window.<br>
             <kbd>Shift</kbd>+<kbd>Enter</kbd> and <kbd>Ctrl</kbd>+<kbd>Enter</kbd> invoke <samp>/pop</samp> and <samp>/kick</samp> respectively.</dd>
@@ -351,7 +350,7 @@
       <div class="row">
         <section class="col mx1-content">
           <h3>Tab context menu</h3>
-          <p>Right-click on a tab to find <cite>Send to Window</cite> in the context menu, which shows a submenu listing all other windows. Then click on a window name to <strong>send</strong> the tab there. (<kbd>Shift</kbd>+click to <strong>bring</strong> the tab instead.) This works whether or not the tab was selected.</p>
+          <p>Right-click on a tab to find <cite>Send to Window</cite> in the context menu, which shows a submenu listing all other windows. Then click on a window name to <strong>send</strong> the tab there. (<kbd>Shift</kbd>+click to <strong>bring</strong> instead.) This works whether or not the tab was selected.</p>
           <p>If you right-clicked on one of multiple selected tabs, the action will apply to all of them, as you would expect.</p>
         </section>
         <section class="col mx1-content">
@@ -362,7 +361,7 @@
     </article>
 
     <article id="stash" class="mb5">
-      <h2 class="center">Stash Windows</h2>
+      <h2 class="center">Stash windows</h2>
       <section class="mb2">
         <p>If you want to close a window, but also be able to restore it at any time, you can <strong>stash</strong> it. Stashed windows are stored as bookmark folders, which you can then <strong>unstash</strong>.</p>
         <p>Stashing streamlines the multistep process of <em>saving</em> a window's tabs as bookmarks, into a newly-created folder you'd be manually <em>naming</em>, and then <em>closing</em> the window. Unstashing reverses the process just as smoothly.</p>
@@ -417,7 +416,7 @@
         <li><p>Use a <a href="https://addons.mozilla.org/en-US/firefox/search/?category=tabs&type=extension&q=tab%20discard" target="_blank">tab discarding</a> (a.k.a. <a href="https://addons.mozilla.org/en-US/firefox/search/?category=tabs&type=extension&q=tab%20unload" target="_blank">unloading</a>/<a href="https://addons.mozilla.org/en-US/firefox/search/?category=tabs&type=extension&q=tab%20suspend" target="_blank">suspending</a>) extension to minimise memory usage on less-visited tabs and windows.</p></li>
         <li><p>Divide and conquer with "window fission": split up a highly-populated window into several windows so you can focus on one set of tabs at a time. Hopefully this helps you work through them easier, and close them sooner.</p></li>
         <li>
-          <p>The <cite>List all tabs</cite> button, which appears whenever the tab strip overflows, opens a menu of all tabs in the current window. Its shortcut is <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd>.</p>
+          <p>The <cite>List all tabs</cite> button (shortcut <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd>), which appears whenever the tab strip overflows, opens a menu of all tabs in the current window.</p>
           <ul>
             <li><p>Each menu item can be right-clicked to open its own tab context menu. This is as close as Firefox currently gets to native vertical tabs!</p></li>
           </ul>
