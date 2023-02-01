@@ -27,8 +27,10 @@ function onClick(event) {
     if (target.id in Toolbar)
         return Toolbar[target.id]();
 
-    if (EditMode.isActive)
+    if (EditMode.isActive) {
+        Status.update(event);
         return;
+    }
 
     if (target === $currentWindowRow.$name) {
         EditMode.toggle();

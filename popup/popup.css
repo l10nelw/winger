@@ -156,8 +156,7 @@ input:read-only {
     margin-left: .25rem;
 }
 
-body[data-mode="normal"] .name,
-body[data-mode="edit"] .name:not(:focus) {
+body[data-mode="normal"] .name {
     background-color: transparent;
     border-color: transparent;
     user-select: none;
@@ -172,8 +171,7 @@ body[data-mode="normal"] #currentWindow .name {
 }
 
 /* Indicate clickable name */
-body[data-mode="normal"] #currentWindow .name:hover,
-body[data-mode="edit"] .name:hover:not(:focus) {
+body[data-mode="normal"] #currentWindow .name:hover {
     background-color: var(--hover-row-color);
     cursor: pointer;
 }
@@ -251,7 +249,7 @@ li:hover button:not(:focus) {
 
 body[data-mode="edit"] li button {
     background-color: transparent;
-    opacity: 0;
+    opacity: .1;
 }
 
 li.reopenTabs button.tabAction:is(:hover, :focus) {
@@ -281,7 +279,7 @@ footer {
 #status {
     align-self: center;
     flex-grow: 1;
-    padding: 1px 5px;
+    padding: 2px 5px;
     overflow: hidden;
     text-overflow: ellipsis;
     color: var(--muted-text-color);

@@ -1,5 +1,8 @@
 import { isOS } from '../utils.js';
-import { $status } from './common.js';
+import {
+    $status,
+    isNameField,
+} from './common.js';
 import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
 
@@ -9,14 +12,18 @@ const count = {
     selectedTabs: 1,
 };
 
-const statusType = {
+export const statusType = {
     stashShift: {
-        condition: ({ key, type }) => type === 'keydown' && Omnibox.matchedCommand === 'stash' && key === 'Shift',
+        condition: ({ key, type }) => Omnibox.matchedCommand === 'stash' && type === 'keydown' && key === 'Shift',
         content: `<kbd>Shift</kbd>: Stash without closing window`,
+    },
+    editName: {
+        condition: () => EditMode.isActive && isNameField(document.activeElement),
+        content: `Edit mode: Type a name then <kbd>▲</kbd>, <kbd>▼</kbd> or <kbd>Enter</kbd> to save`,
     },
     edit: {
         condition: () => EditMode.isActive,
-        content: `Edit mode: <kbd>Enter</kbd> on a name when done`,
+        content: `Edit mode: Click on a window row or navigate with <kbd>▲</kbd> and <kbd>▼</kbd>`,
     },
     bring: {
         condition: ({ key, type }) => type === 'keydown' && key === 'Shift',
