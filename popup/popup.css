@@ -317,9 +317,8 @@ footer button:last-child {
 }
 
 #restart {
-    padding: 0 1rem;
-    background-color: red;
-    color: white;
+    background-color: var(--hover-button-color);
+    color: var(--text-color);
     white-space: nowrap;
     border-top-right-radius: var(--border-radius);
 }

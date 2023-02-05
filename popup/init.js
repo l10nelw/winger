@@ -14,7 +14,6 @@ import { NO_NAME } from '../background/name.js';
 
 Request.popup().then(onSuccess).catch(onError);
 
-
 //@ ({ Object, [Object], Number, Object }) -> state
 function onSuccess({ currentWinfo, otherWinfos, selectedTabCount, SETTINGS }) {
     populate(currentWinfo, otherWinfos, SETTINGS);
@@ -39,7 +38,7 @@ function onError() {
     $omnibox.hidden = true;
     $otherWindowsList.hidden = true;
 
-    $status.textContent = '⚠️ Close and try again. If issue persists, restart Winger.';
+    $status.textContent = 'Close and try again. If issue persists, restart Winger.';
     $toolbar.querySelectorAll('button').forEach($button => $button.remove());
     const $restartBtn = document.getElementById('restartTemplate').content.firstElementChild;
     $toolbar.appendChild($restartBtn);
