@@ -27,11 +27,11 @@ export const statusType = {
     },
     bring: {
         condition: ({ key, type }) => type === 'keydown' && key === 'Shift',
-        content: `<kbd>Shift</kbd>: Bring tab to...`,
+        content: () => `<kbd>Shift</kbd>: Bring ${count.selectedTabs === 1 ? 'tab' : 'tabs'} to...`,
     },
     send: {
         condition: ({ key, type }) => type === 'keydown' && key === 'Control',
-        content: `<kbd>Ctrl</kbd>: Send tab to...`,
+        content: () => `<kbd>Ctrl</kbd>: Send ${count.selectedTabs === 1 ? 'tab' : 'tabs'} to...`,
     },
     oneWindow: {
         condition: () => count.windows === 1,
@@ -39,7 +39,10 @@ export const statusType = {
     },
     default: {
         condition: () => true,
-        content: () => `${count.windows} windows / ${count.tabs} ${count.tabs === 1 ? 'tab' : 'tabs'}`,
+        content: () => {
+            const summary = `${count.windows} windows / ${count.tabs} ${count.tabs === 1 ? 'tab' : 'tabs'}`;
+            return count.selectedTabs > 1 ? `${summary} (${count.selectedTabs} selected)` : summary;
+        },
     },
 }
 
