@@ -10,18 +10,19 @@ import * as Omnibox from './omnibox.js';
 import * as Filter from './filter.js';
 import * as Status from './status.js';
 import * as Request from './request.js';
-import { NO_NAME } from '../background/name.js';
+import { NO_NAME } from '../name.js';
 
 Request.popup().then(onSuccess).catch(onError);
 
-//@ ({ Object, [Object], Number, Object }) -> state
-function onSuccess({ currentWinfo, otherWinfos, selectedTabCount, SETTINGS }) {
+//@ ({ Object, [Object], Object }) -> state
+function onSuccess({ currentWinfo, otherWinfos, SETTINGS }) {
+    markReopen(otherWinfos, currentWinfo.incognito);
     populate(currentWinfo, otherWinfos, SETTINGS);
     $otherWindowRows.push(...$otherWindowsList.children);
     Object.freeze($otherWindowRows);
 
-    Omnibox.init(SETTINGS.enable_stash);
-    Status.init([$currentWindowRow, ...$otherWindowRows], selectedTabCount, SETTINGS.enable_stash);
+    Omnibox.init(SETTINGS);
+    Status.init(currentWinfo, otherWinfos, SETTINGS);
     Filter.init();
     indicateReopenTabs();
     lockHeight($otherWindowsList);
@@ -47,6 +48,14 @@ function onError() {
 }
 
 
+// Add reopen property to other-winfos that do not share the same private status as the current-winfo.
+// Indicates that a send/bring action to the other-window will be a reopen operation.
+//@ ([Object], Boolean) -> state
+function markReopen(otherWinfos, isCurrentIncognito) {
+    for (const winfo of otherWinfos)
+        winfo.reopen = winfo.incognito !== isCurrentIncognito;
+}
+
 //@ (Object, [Object], Object) -> state
 function populate(currentWinfo, otherWinfos, SETTINGS) {
     Row.initCurrent(SETTINGS);
@@ -67,6 +76,8 @@ const Row = {
 
     //@ (Object) -> state
     initCurrent(SETTINGS) {
+        $currentWindowRow.querySelector('.name').placeholder = NO_NAME;
+
         // Remove any toggled-off buttons
         const buttons = [
             ['show_popup_bring', '.bring'],
@@ -87,7 +98,7 @@ const Row = {
             document.documentElement.style.setProperty('--button-count', buttonCount);
     },
 
-    //@ (Object, Object) -> (Object)
+    //@ (Object) -> (Object)
     createOther(winfo) {
         const $row = $currentWindowRow.cloneNode(true);
         this.hydrate($row, winfo);
@@ -102,8 +113,8 @@ const Row = {
         $row.querySelectorAll('.tabAction').forEach($button => this.disableElement($button));
     },
 
-    //@ (Object, { Number, Boolean, String }) -> state
-    hydrate($row, { id, incognito, givenName }) {
+    //@ (Object, { Number, Boolean, String, Number }) -> state
+    hydrate($row, { id, incognito, givenName, tabCount }) {
         // Add references to row's cells, and in each cell a reference back to the row
         for (const selector of this.CELL_SELECTORS) {
             const $cell = $row.querySelector(selector);
@@ -114,7 +125,7 @@ const Row = {
         // Add data
         $row._id = id;
         $row.$name.value = givenName;
-        $row.$name.placeholder = NO_NAME;
+        $row.$tabCount.textContent = tabCount;
         $row.classList.toggle('private', incognito);
     },
 

@@ -1,75 +1,101 @@
 import * as Settings from './settings.js';
-import * as Window from './window.js';
-import * as Name from './name.js';
+import * as Winfo from './winfo.js';
 import * as Action from './action.js';
 import * as Chrome from './chrome.js';
 import * as SendMenu from './menu.send.js';
+import * as Name from '../name.js';
 let Stash, UnstashMenu; // Optional modules
 
 //@ -> state
 function debug() {
-    const modules = { Settings, Window, Name, Action, SendMenu, Stash, UnstashMenu };
+    const modules = { Settings, Winfo, Name, Action, SendMenu, Stash, UnstashMenu };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
     Object.assign(window, modules);
 }
 
 init();
 
-browser.windows.onCreated.addListener      (onWindowCreated);
-browser.windows.onRemoved.addListener      (onWindowRemoved);
-browser.windows.onFocusChanged.addListener (Window.lastFocused.save);
+browser.windows.onCreated.addListener(onWindowCreated);
+browser.windows.onFocusChanged.addListener(Winfo.saveLastFocused);
 
-browser.menus.onShown.addListener          (onMenuShown);
-browser.menus.onHidden.addListener         (onMenuHidden);
-browser.menus.onClicked.addListener        (onMenuClicked);
+browser.menus.onShown.addListener(onMenuShown);
+browser.menus.onHidden.addListener(onMenuHidden);
+browser.menus.onClicked.addListener(onMenuClicked);
 
-browser.runtime.onInstalled.addListener    (onExtensionInstalled);
-browser.runtime.onMessage.addListener      (onRequest);
+browser.runtime.onInstalled.addListener(onExtensionInstalled);
+browser.runtime.onMessage.addListener(onRequest);
 
 //@ state -> state
 async function init() {
-    const [SETTINGS, windows]
-        = await Promise.all([ Settings.get(), browser.windows.getAll() ]);
+    const [SETTINGS, winfos] = await Promise.all([ Settings.get(), Winfo.get(['focused', 'created', 'givenName']) ]);
 
+    // Init per settings
+    if (SETTINGS.enable_stash) {
+        [Stash, UnstashMenu] = await Promise.all([ import('./stash.js'), import('./menu.unstash.js') ]);
+        Stash.init(SETTINGS);
+    }
     if (SETTINGS.show_badge)
         Chrome.showBadge();
 
-    if (SETTINGS.enable_stash) {
-        [Stash, UnstashMenu] =
-            await Promise.all([ import('./stash.js'), import('./menu.unstash.js') ]);
-        Stash.init(SETTINGS);
+    // Init existing windows
+    for (const { id, focused, created, givenName } of uniquifyAllNames(winfos)) {
+        if (givenName)
+            Chrome.update(id, givenName);
+        if (!created)
+            Winfo.saveCreated(id); // TODO: Not accurate to say they are created at this point; consider calling it FirstSeen
+        if (focused)
+            Winfo.saveLastFocused(id);
     }
 
-    Window.add(windows);
-    const currentWindowId = windows.find(window => window.focused).id;
-    Window.lastFocused.save(currentWindowId);
+    // Resolve any duplicate names, in case named windows were restored while Winger was not active.
+    // The newer of any duplicate pair found is renamed.
+    //@ ([Object]) -> state|nil
+    function uniquifyAllNames(winfos) {
+        const nameMap = new Name.NameMap();
+        // `winfos` should be in id-ascending order, which shall be assumed as age-descending
+        for (let { id, givenName } of winfos) {
+            if (nameMap.findId(givenName)) {
+                givenName = nameMap.uniquify(givenName);
+                Name.save(id, givenName);
+            }
+            nameMap.set(id, givenName);
+        }
+        return winfos;
+    }
 }
 
 //@ (Object) -> state
 async function onWindowCreated(window) {
     const windowId = window.id;
-    if (windowId in Window.winfoDict)
-        return;
 
-    Window.createdAt.set(windowId);
-    if (window.focused)
-        Window.lastFocused.save(windowId);
+    const promises = [ Winfo.get(['givenName']), Winfo.loadCreated(windowId) ];
+    if (!Settings.SETTINGS.keep_moved_tabs_selected)
+        promises.push( browser.tabs.query({ windowId, active: true }) );
+    const [winfos, created, focusedTab] = await Promise.all(promises);
 
-    // Natively, detached tabs stay selected. To honour !SETTINGS.keep_moved_tabs_selected,
-    // refocus focused tab to deselect selected tabs.
-    if (!Settings.SETTINGS.keep_moved_tabs_selected) {
-        const focusedTab = (await browser.tabs.query({ windowId, active: true }))[0];
-        Action.focusTab(focusedTab.id);
-    }
+    if (!created)
+        Winfo.saveCreated(windowId);
 
-    await Window.add([window]);
+    // Natively, detached tabs stay selected; to honour !SETTINGS.keep_moved_tabs_selected, REFOCUS focused tab to deselect selected tabs
+    if (focusedTab)
+        Action.focusTab(focusedTab[0].id);
 
+    // In Firefox, windows cannot be created focused=false so a new window is always focused
+    Winfo.saveLastFocused(windowId);
+
+    // Follow up if window created via unstashing
     Stash?.unstash.onWindowCreated(windowId);
-}
 
-//@ (Number) -> state
-function onWindowRemoved(windowId) {
-    Window.remove(windowId);
+    const winfo = winfos.at(-1); // The new window should be last in the array
+    let givenName = winfo.givenName;
+    if (givenName) {
+        // Uniquify name, in case this is a restored named window
+        const nameMap = (new Name.NameMap()).bulkSet(winfos);
+        if (nameMap.findId(givenName) !== windowId)
+            Name.save(id, nameMap.uniquify(givenName));
+
+        Chrome.update(windowId, givenName);
+    }
 }
 
 //@ (Object, Object) -> state|nil
@@ -95,27 +121,23 @@ function onExtensionInstalled(details) {
 }
 
 //@ (Object), state -> (Object|Boolean|undefined), state|nil
-async function onRequest(request) {
+function onRequest(request) {
     switch (request.type) {
         case 'popup':     return popupResponse();
         case 'stash':     return Stash.stash(request.windowId, request.close);
         case 'action':    return Action.execute(request);
         case 'help':      return Action.openHelp();
-        case 'checkName': return Name.check(request.windowId, request.name);
-        case 'setName':   return Name.set(request.windowId, request.name);
+        case 'update':    return Chrome.update(request.windowId, request.name);
         case 'settings':  return Settings.SETTINGS;
         case 'debug':     return debug();
     }
 }
 
-//@ state -> ({ Object, [Object], Number, Boolean })
+//@ state -> ({ Object, [Object], Object })
 async function popupResponse() {
-    const [{ currentWinfo, otherWinfos }, selectedTabs]
-        = await Promise.all([ Window.sortedWinfos(), Action.getSelectedTabs() ]);
-    return {
-        currentWinfo,
-        otherWinfos,
-        selectedTabCount: selectedTabs.length,
-        SETTINGS: Settings.SETTINGS,
-    };
+    const winfos = Winfo.arrange(
+        await Winfo.get(['focused', 'givenName', 'incognito', 'lastFocused', 'tabCount'])
+    );
+    winfos.SETTINGS = Settings.SETTINGS;
+    return winfos;
 }

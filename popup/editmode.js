@@ -1,3 +1,4 @@
+import * as Name from '../name.js';
 import {
     $body,
     $currentWindowRow,
@@ -10,7 +11,9 @@ import * as Omnibox from './omnibox.js';
 import * as Request from './request.js';
 
 export let isActive = false; // Indicates if popup is in edit mode
-let $names;
+
+const $nameMap = new Map();
+const nameMap = new Name.NameMap();
 
 //@ (Object|undefined), state -> state
 export function toggle($name = $currentWindowRow.$name) {
@@ -19,14 +22,18 @@ export function toggle($name = $currentWindowRow.$name) {
 
 //@ state -> state
 function activate() {
-    $names = [...$body.querySelectorAll('.name')];
+    for (const $name of $body.querySelectorAll('.name')) {
+        const windowId = $name.$row._id;
+        const name = $name.value;
+        $nameMap.set(windowId, $name);
+        nameMap.set(windowId, name);
+    }
     toggleActive(true);
     if ($omnibox.value.startsWith('/'))
         Omnibox.clear();
 
-    const $name = $currentWindowRow.$name;
-    if ($name === document.activeElement)
-        $name._original = $name.value; // Remember name at focus time
+    if ($currentWindowRow.$name === document.activeElement)
+        rememberNameNow($currentWindowRow.$name);
 }
 
 //@ -> state
@@ -78,7 +85,7 @@ export function handleFocusIn($focused, $defocused) {
         isHandled = true;
     }
     if (isNameField($focused)) {
-        $focused._original = $focused.value; // Remember name at focus time
+        rememberNameNow($focused);
         isHandled = true;
     }
     return isHandled;
@@ -90,7 +97,7 @@ export async function handleInput($name) {
         return false;
 
     // Check name for validity, mark if invalid
-    const error = await Request.checkName($name.$row._id, $name.value.trim());
+    const error = nameMap.checkForErrors($name.value.trim(), $name.$row._id);
     toggleError($name, error);
 
     return true;
@@ -106,6 +113,12 @@ export function handleKeyUp({ target, key }) {
         done();
     }
     return true;
+}
+
+// Remember $name's value at this time (usual case: when focused).
+//@ (Object) -> state
+function rememberNameNow($name) {
+    $name._original = $name.value;
 }
 
 // If name is invalid: restore original name and return false.
@@ -129,11 +142,9 @@ function trySaveName($name) {
     // Save
     const $row = $name.$row;
     const windowId = $row._id;
-    Request.setName(windowId, name);
-
-    // Indicate success
-    $row.classList.add('success');
-    setTimeout(() => $row.classList.remove('success'), 1000);
+    Name.save(windowId, name);
+    Request.updateChrome(windowId, name);
+    indicateSuccess($row);
 
     return true;
 }
@@ -143,24 +154,28 @@ function trySaveName($name) {
 function toggleError($name, error) {
     if (!error)
         return clearErrors();
-    if (error > 0) {
-        const $sameName = $names.find($name => $name.$row._id == error);
-        $sameName.classList.add('error');
-    }
+    if (error > 0)
+        $nameMap.get(error).classList.add('error');
     $name.classList.add('error');
 }
 
 ///@ -> state|nil
 function clearErrors() {
-    $names.forEach($name => $name.classList.remove('error'));
+    $nameMap.forEach($name => $name.classList.remove('error'));
 }
 
 //@ (Boolean) -> state
 function toggleNameFields(isEnable) {
     const tabIndex = isEnable ? 0 : -1;
     const isReadOnly = !isEnable;
-    for (const $name of $names) {
+    for (const $name of $nameMap.values()) {
         $name.tabIndex = tabIndex;
         $name.readOnly = isReadOnly;
     }
+}
+
+//@ (Object) -> state
+function indicateSuccess($row) {
+    $row.classList.add('success');
+    setTimeout(() => $row.classList.remove('success'), 1000);
 }

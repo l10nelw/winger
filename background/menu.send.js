@@ -1,6 +1,6 @@
 import { BRING } from '../modifier.js';
-import { NO_NAME, get as getName } from './name.js';
-import * as Window from './window.js';
+import { NO_NAME } from '../name.js';
+import * as Winfo from './winfo.js';
 import * as Action from './action.js';
 
 const parentId = 'send';
@@ -21,32 +21,37 @@ browser.menus.create({
     title: dummyId,
 });
 
-//@ ([String], [String]) -> Boolean
+//@ ([String], [String]) -> (Boolean)
 const isIntersect = (array1, array2) => array1.some(item => array2.includes(item));
 
 // Event handler: Enable menu and populate submenu if there is more than one window, when menu shown.
 //@ (Object, Object) -> (Boolean), state|nil
 export async function handleShow(info, tab) {
-    if (isIntersect(info.contexts, contexts) && Window.isOverOne()) {
-        await populate();
+    if (!isIntersect(info.contexts, contexts))
+        return false;
+    const windows = await browser.windows.getAll();
+    if (windows.length > 1) {
+        await populate(windows);
         browser.menus.update(parentId, { enabled: true });
         browser.menus.refresh();
-        return true;
     }
+    return true;
 }
 
-// Clear submenu and populate with other-windows, sorted by lastFocused.
+// Clear submenu and populate with sorted other-windows.
 // Submenu item ids are window ids.
-//@ (Number), state -> state
-async function populate() {
-    const { otherWinfos } = await Window.sortedWinfos();
-    for (let { id } of otherWinfos) {
-        id = `${id}`;
-        const title = getName(id) || NO_NAME;
+//@ ([Object]) -> state
+async function populate(windows) {
+    const { currentWinfo, otherWinfos } = Winfo.arrange(
+        await Winfo.get(['focused', 'givenName', 'lastFocused'], windows)
+    );
+    for (let { id, givenName } of otherWinfos) {
+        const title = givenName || NO_NAME;
+        id = `${id}`; // Menu id must be string
         browser.menus.remove(id);
         browser.menus.create({ parentId, id, title });
     }
-    browser.menus.remove(`${Window.lastFocused.id}`);
+    browser.menus.remove(`${currentWinfo.id}`);
     browser.menus.remove(dummyId);
 }
 

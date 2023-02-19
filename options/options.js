@@ -1,7 +1,7 @@
 import * as Settings from '../background/settings.js';
-import { getShortcut, GroupMap } from '../utils.js';
-import { validify } from '../background/name.js';
 import { openHelp } from '../background/action.js';
+import { getShortcut, GroupMap } from '../utils.js';
+import { validify } from '../name.js';
 
 const $form = document.body.querySelector('form');
 

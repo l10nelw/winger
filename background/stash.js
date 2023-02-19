@@ -1,5 +1,7 @@
-import * as Name from './name.js';
+import * as Name from '../name.js';
 import * as Action from './action.js';
+import * as Chrome from './chrome.js';
+import * as Winfo from './winfo.js';
 
 let HOME_ID;
 const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
@@ -69,11 +71,13 @@ const getHomeContents = async () => (await browser.bookmarks.getSubTree(HOME_ID)
 // Create folder if nonexistent, save tabs as bookmarks in folder. Close window if remove is true.
 //@ (Number, Boolean), state -> state
 export async function stash(windowId, remove = true) {
-    const name = Name.get(windowId);
+    const [name, tabs] = await Promise.all([
+        Name.load(windowId),
+        browser.tabs.query({ windowId }),
+    ])
     console.log('Stashing', name);
-    const tabs = await browser.tabs.query({ windowId });
-    if (remove) browser.windows.remove(windowId);
-
+    if (remove)
+        browser.windows.remove(windowId);
     const folderId = (await getTargetFolder(name)).id;
     nowProcessing.set(folderId);
     await saveTabs(tabs, folderId);
@@ -84,18 +88,19 @@ export async function stash(windowId, remove = true) {
 //@ (String), state -> (Object), state
 async function getTargetFolder(name) {
     const isMapEmpty = !folderMap.size;
-    if (isMapEmpty) await folderMap.populate();
+    if (isMapEmpty)
+        await folderMap.populate();
     const folder = findBookmarklessFolder(name);
-    if (isMapEmpty) folderMap.clear();
+    if (isMapEmpty)
+        folderMap.clear();
     return folder || createFolder(name);
 }
 
 //@ (String), state -> (Object)
 function findBookmarklessFolder(name) {
-    for (const folder of folderMap.values()) {
+    for (const folder of folderMap.values())
         if (folder.title === name && !folder.bookmarkCount)
             return folder;
-    }
 }
 
 //@ ([Object], Number), state -> state
@@ -155,8 +160,11 @@ unstash.onWindowCreated = async windowId => {
     console.log('Unstashing', name);
 
     const validName = Name.validify(name);
-    if (validName)
-        Name.set(windowId, Name.uniquify(validName, windowId));
+    if (validName) {
+        const nameMap = (new Name.NameMap()).bulkSet(await Winfo.get(['givenName']));
+        Name.save(windowId, nameMap.uniquify(validName));
+        Chrome.update(windowId, validName);
+    }
 
     nowProcessing.set(folderId);
     const { bookmark: bookmarks, folder: subfolders } = await readFolder(folderId);

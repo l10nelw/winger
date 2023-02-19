@@ -2,7 +2,6 @@
 
 import { BRING, SEND } from '../modifier.js';
 import { SETTINGS } from './settings.js';
-import { lastFocused } from './window.js';
 
 export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash); //@ (String) -> state
 export const getSelectedTabs = () => browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> (Promise: [Object])
@@ -67,22 +66,23 @@ function modify(action, modifiers) {
 // Create a new window. If isMove=true, do so with the currently selected tabs.
 //@ ({ Boolean, Boolean, Boolean }), state -> (Object), state
 export async function createWindow({ isMove, focused = true, incognito }) {
-    const currentWindowProp = { windowId: lastFocused.id };
-    const [newWindow, allTabs] = await Promise.all([
+    const [currentWindow, newWindow] = await Promise.all([
+        browser.windows.getLastFocused(),
         browser.windows.create({ incognito }),
-        isMove && browser.tabs.query(currentWindowProp), // Get all tabs to check if all selected
     ]);
+    const currentWindowDetail = { windowId: currentWindow.id };
 
-    // FF ignores windows.create/update({ focused: false }), so if focused=false switch back to current window
+    // Firefox ignores windows.create/update({ focused: false }), so if focused=false switch back to current window
     if (!focused)
-        switchWindow(currentWindowProp);
+        switchWindow(currentWindowDetail);
 
     if (isMove) {
+        const allTabs = await browser.tabs.query(currentWindowDetail); // Get all tabs first for checking if all selected
         const selectedTabs = allTabs.filter(tab => tab.highlighted);
 
         // If all of the origin window's tabs are to be moved, add a tab to prevent the window from closing
         if (selectedTabs.length === allTabs.length)
-            await browser.tabs.create(currentWindowProp);
+            await browser.tabs.create(currentWindowDetail);
 
         await sendTabs({ tabs: selectedTabs, windowId: newWindow.id });
         browser.tabs.remove(newWindow.tabs[0].id);
@@ -173,7 +173,7 @@ export function openTab(protoTab) {
 
     const { discarded } = protoTab;
 
-    // Tab cannot be created both pinned and discarded
+    // Tab cannot be created both pinned and discarded - to pin later if needed
     // title only allowed if discarded
     delete protoTab[discarded ? 'pinned' : 'title'];
 

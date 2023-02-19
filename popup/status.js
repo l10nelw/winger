@@ -7,12 +7,12 @@ import * as Omnibox from './omnibox.js';
 import * as EditMode from './editmode.js';
 
 const count = {
-    windows: 1,
-    tabs: 1,
-    selectedTabs: 1,
+    windows: 0,
+    tabs: 0,
+    selectedTabs: 0,
 };
 
-export const statusType = {
+const statusType = {
     stashShift: {
         condition: ({ key, type }) => Omnibox.matchedCommand === 'stash' && type === 'keydown' && key === 'Shift',
         content: `<kbd>Shift</kbd>: Stash without closing window`,
@@ -47,23 +47,16 @@ export const statusType = {
 }
 
 //@ ([Object], Number), state -> state
-export async function init($rows, selectedTabCount, stashEnabled) {
-    count.selectedTabs = selectedTabCount;
-    if (!stashEnabled)
+export async function init(currentWinfo, otherWinfos, SETTINGS) {
+    if (!SETTINGS.enable_stash)
         delete statusType.stashShift;
 
-    const tabCounts = await Promise.all($rows.map(getAndShow));
-    const sum = (a, b) => a + b; //@ (Number, Number) -> (Number)
-    count.tabs = tabCounts.reduce(sum);
-    count.windows = $rows.length;
+    count.windows = 1 + otherWinfos.length;
+    count.selectedTabs = currentWinfo.selectedTabCount;
+    count.tabs = currentWinfo.tabCount;
+    for (const winfo of otherWinfos)
+        count.tabs += winfo.tabCount;
     update();
-
-    //! (Object), state -> (Number), state
-    async function getAndShow($row) {
-        const tabCount = (await browser.tabs.query({ windowId: $row._id })).length; // get
-        $row.$tabCount.textContent = tabCount; // show
-        return tabCount;
-    }
 }
 
 // Find the statusType that meets the current condition and assign its content to the status bar.

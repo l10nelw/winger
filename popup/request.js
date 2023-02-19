@@ -34,14 +34,9 @@ export function action(event, action) {
     window.close();
 }
 
-//@ (Number, String) -> (Promise: Boolean)
-export function checkName(windowId, name) {
-    return sendMessage({ type: 'checkName', windowId, name });
-}
-
 //@ (Number, String) -> state
-export function setName(windowId, name) {
-    sendMessage({ type: 'setName', windowId, name });
+export function updateChrome(windowId, name) {
+    sendMessage({ type: 'update', windowId, name });
 }
 
 //@ (Number, Boolean) -> state

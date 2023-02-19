@@ -24,12 +24,15 @@ const ButtonBadge = {
     //@ -> state
     init() {
         //@ (Number, String) -> state
-        this.update = (windowId, text) => {
-            browser.browserAction.setBadgeText({ windowId, text });
-        }
+        this.update = (windowId, text) => browser.browserAction.setBadgeText({ windowId, text });
         browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
     },
 };
+
+//@ -> state
+export function showBadge() {
+    ButtonBadge.init();
+}
 
 //@ (Number, String) -> state
 export function update(windowId, name) {
@@ -37,9 +40,4 @@ export function update(windowId, name) {
     Titlebar.update(windowId, titlePreface);
     ButtonTitle.update(windowId, titlePreface);
     ButtonBadge.update(windowId, name);
-}
-
-//@ -> state
-export function showBadge() {
-    ButtonBadge.init();
 }
