@@ -29,8 +29,8 @@ const SHORTHAND_TO_COMMAND = {
 export let matchedCommand;
 
 //@ (Boolean) -> state
-export function init(SETTINGS) {
-    if (!SETTINGS.enable_stash)
+export function init(settings) {
+    if (!settings.enable_stash)
         delete COMMAND_TO_CALLBACK.stash;
 }
 

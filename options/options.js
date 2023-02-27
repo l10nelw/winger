@@ -1,7 +1,7 @@
-import * as Settings from '../background/settings.js';
-import { openHelp } from '../background/action.js';
+import * as Settings from '../settings.js';
 import { getShortcut, GroupMap } from '../utils.js';
 import { validify } from '../name.js';
+import { openHelp } from '../background/action.js';
 
 const $form = document.body.querySelector('form');
 
@@ -26,9 +26,10 @@ const setting = {
         if (type === 'radio') {
             // Any 'true' or 'false' string is booleanised
             const value = ({ true: true, false: false })[$field.value] ?? $field.value;
-            return $field.checked ? Settings.set({ [name]: value }) : null;
+            if ($field.checked)
+                return Settings.set({ [name]: value });
         }
-        return Settings.set({ [name]: $field[this._relevantProp(type)] });
+        Settings.set({ [name]: $field[this._relevantProp(type)] });
     },
 };
 
@@ -114,8 +115,9 @@ const staticText = {
     },
 };
 
+
 (async function init() {
-    const SETTINGS = await browser.runtime.sendMessage({ type: 'settings' });
+    const SETTINGS = await Settings.getAll();
     for (const $field of setting.$fields) {
         setting.load(SETTINGS[$field.name], $field);
         enablerMap.addTarget($field);

@@ -1,7 +1,7 @@
 // Common actions involving windows and tabs.
 
 import { BRING, SEND } from '../modifier.js';
-import { SETTINGS } from './settings.js';
+import * as Settings from '../settings.js';
 
 export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash); //@ (String) -> state
 export const getSelectedTabs = () => browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> (Promise: [Object])
@@ -91,31 +91,34 @@ export async function createWindow({ isMove, focused = true, incognito }) {
     return newWindow;
 }
 
-//@ ({ Number, [Object] }), state -> state|nil
+//@ ({ [Object], Number }), state -> state|nil
 async function bringTabs(props) {
     await sendTabs(props) && switchWindow(props);
 }
 
 // Attempt moveTabs; if unsuccessful (e.g. windows are of different private statuses) then reopenTabs.
-//@ ({ Number, [Object] }), state -> ([Object]), state | (undefined)
+//@ ({ [Object], Number }), state -> ([Object]), state | (undefined)
 async function sendTabs(props) {
+    props.keep_moved_tabs_selected = await Settings.get('keep_moved_tabs_selected');
     const movedTabs = await moveTabs(props);
     return movedTabs.length ?
         movedTabs : reopenTabs(props);
 }
 
-//@ ({ Number, [Object] }), state -> ([Object]), state | (undefined)
-async function moveTabs({ tabs, windowId }) {
+//@ ({ [Object], Number, Boolean }), state -> ([Object]), state | (undefined)
+async function moveTabs({ tabs, windowId, keep_moved_tabs_selected }) {
     const [pinnedTabs, unpinnedTabs] = splitTabsByPinnedState(tabs);
+
     // Get destination index for pinned tabs, as they cannot be moved to index -1 where unpinned tabs exist
     const index = pinnedTabs.length ?
         (await browser.tabs.query({ windowId, pinned: true })).length : 0;
+
     const movedTabs = (await Promise.all([
         browser.tabs.move(pinnedTabs.map(tab => tab.id), { windowId, index }),
         browser.tabs.move(unpinnedTabs.map(tab => tab.id), { windowId, index: -1 }),
     ])).flat();
 
-    if (SETTINGS.keep_moved_tabs_selected && tabs[0]?.highlighted) {
+    if (keep_moved_tabs_selected && tabs[0]?.highlighted) {
         const preMoveFocusedTab = tabs.find(tab => tab.active);
         preMoveFocusedTab && focusTab(preMoveFocusedTab.id);
         tabs.forEach(tab => !tab.active && selectTab(tab.id));
@@ -132,9 +135,9 @@ function splitTabsByPinnedState(tabs) {
     return [tabs.slice(0, unpinnedIndex), tabs.slice(unpinnedIndex)];
 }
 
-// Recreate given tabs in a given window, maintaining pinned states. Remove original tabs.
-//@ ({ Number, [Object] }), state -> ([Object]), state | (undefined)
-async function reopenTabs({ tabs, windowId }) {
+// Recreate given tabs in a given window and remove original tabs.
+//@ ({ [Object], Number, Boolean }) -> ([Object]), state | (undefined)
+async function reopenTabs({ tabs, windowId, keep_moved_tabs_selected }) {
     const protoTabs = [];
     const tabIds = [];
     for (const tab of tabs) {
@@ -145,7 +148,7 @@ async function reopenTabs({ tabs, windowId }) {
             pinned: tab.pinned,
             discarded: true,
         };
-        if (tab.active && SETTINGS.keep_moved_tabs_selected)
+        if (keep_moved_tabs_selected && tab.active)
             protoTab.active = true;
         protoTabs.push(protoTab);
         tabIds.push(tab.id);
@@ -153,7 +156,7 @@ async function reopenTabs({ tabs, windowId }) {
     const openedTabs = await Promise.all(protoTabs.map(openTab));
     browser.tabs.remove(tabIds);
 
-    if (SETTINGS.keep_moved_tabs_selected && tabs[0]?.highlighted)
+    if (keep_moved_tabs_selected && tabs[0]?.highlighted)
         openedTabs.forEach(tab => !tab.active && selectTab(tab.id));
 
     return openedTabs;

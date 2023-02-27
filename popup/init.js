@@ -15,14 +15,14 @@ import { NO_NAME } from '../name.js';
 Request.popup().then(onSuccess).catch(onError);
 
 //@ ({ Object, [Object], Object }) -> state
-function onSuccess({ currentWinfo, otherWinfos, SETTINGS }) {
+function onSuccess({ currentWinfo, otherWinfos, settings }) {
     markReopen(otherWinfos, currentWinfo.incognito);
-    populate(currentWinfo, otherWinfos, SETTINGS);
+    populate(currentWinfo, otherWinfos, settings);
     $otherWindowRows.push(...$otherWindowsList.children);
     Object.freeze($otherWindowRows);
 
-    Omnibox.init(SETTINGS);
-    Status.init(currentWinfo, otherWinfos, SETTINGS);
+    Omnibox.init(settings);
+    Status.init(currentWinfo, otherWinfos, settings);
     Filter.init();
     indicateReopenTabs();
     lockHeight($otherWindowsList);
@@ -57,8 +57,8 @@ function markReopen(otherWinfos, isCurrentIncognito) {
 }
 
 //@ (Object, [Object], Object) -> state
-function populate(currentWinfo, otherWinfos, SETTINGS) {
-    Row.initCurrent(SETTINGS);
+function populate(currentWinfo, otherWinfos, settings) {
+    Row.initCurrent(settings);
 
     // Create other-rows by cloning current-row
     const $fragment = document.createDocumentFragment();
@@ -75,7 +75,7 @@ const Row = {
     CELL_SELECTORS: new Set(['.send', '.bring', '.name', '.tabCount']),
 
     //@ (Object) -> state
-    initCurrent(SETTINGS) {
+    initCurrent(settings) {
         $currentWindowRow.querySelector('.name').placeholder = NO_NAME;
 
         // Remove any toggled-off buttons
@@ -86,7 +86,7 @@ const Row = {
         let buttonCount = buttons.length;
         for (const [setting, selector] of buttons) {
             const $button = $currentWindowRow.querySelector(selector);
-            if (SETTINGS[setting]) {
+            if (settings[setting]) {
                 $button.hidden = false;
             } else {
                 $button.remove();
