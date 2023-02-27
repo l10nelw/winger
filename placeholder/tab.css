@@ -29,9 +29,7 @@ body {
 header {
     color: var(--muted-text-color);
 }
-header img {
-    vertical-align: middle;
-}
+
 h1 {
     font-size: 1.75rem;
     margin-top: .25rem;
