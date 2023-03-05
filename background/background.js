@@ -92,9 +92,6 @@ async function onWindowCreated(window) {
 
     // In Firefox, windows cannot be created focused=false so a new window is always focused
     Winfo.saveLastFocused(windowId);
-
-    // Follow up if window created via unstashing
-    Stash?.unstash.onWindowCreated(windowId);
 }
 
 //@ (Object, Object) -> state|nil
