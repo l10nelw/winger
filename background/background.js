@@ -27,7 +27,10 @@ browser.runtime.onMessage.addListener(onRequest);
 
 //@ state -> state
 async function init() {
-    const [settings, winfos] = await Promise.all([ Settings.getAll(), Winfo.getAll(['focused', 'created', 'givenName']) ])
+    const [settings, winfos] = await Promise.all([
+        Settings.getAll(),
+        Winfo.getAll(['focused', 'created', 'firstSeen', 'givenName']),
+    ]);
 
     Chrome.init(settings);
 
@@ -41,7 +44,7 @@ async function init() {
 
     const nameMap = new Name.NameMap();
 
-    for (let { id, focused, created, givenName } of winfos) {
+    for (let { id, focused, created, firstSeen, givenName } of winfos) {
         if (givenName && nameMap.findId(givenName)) {
             givenName = nameMap.uniquify(givenName);
             Name.save(id, givenName);
@@ -49,29 +52,37 @@ async function init() {
         nameMap.set(id, givenName);
         Chrome.update(id, givenName);
 
-        if (!created)
-            Winfo.saveCreated(id); // TODO: Not accurate to say they are created at this point; consider calling it FirstSeen
-
         if (focused)
             Winfo.saveLastFocused(id);
+
+        if (!firstSeen) {
+            // TODO: Revise after v2.1.0
+            if (created) {
+                // Migrate `created` -> `firstSeen`
+                browser.sessions.setWindowValue(id, 'firstSeen', created);
+                browser.sessions.removeWindowValue(id, 'created');
+            } else {
+                Winfo.saveFirstSeen(id);
+            }
+        }
     }
 }
 
 //@ (Object) -> state
 async function onWindowCreated(window) {
     const windowId = window.id;
-    const [focusedTabs, created, winfos] = await Promise.all([
+    const [focusedTabs, firstSeen, winfos] = await Promise.all([
         !await Settings.get('keep_moved_tabs_selected') && browser.tabs.query({ windowId, active: true }),
-        Winfo.loadCreated(windowId),
-        Winfo.get(['givenName']),
+        Winfo.loadFirstSeen(windowId),
+        Winfo.getAll(['givenName']),
     ]);
 
     // Natively, detached tabs stay selected; to honour !keep_moved_tabs_selected, REFOCUS focused tab to deselect selected tabs
     if (focusedTabs)
         Action.focusTab(focusedTabs[0].id);
 
-    if (!created)
-        Winfo.saveCreated(windowId);
+    if (!firstSeen)
+        Winfo.saveFirstSeen(windowId);
 
     // Resolve any name duplication and update chrome, in case this is a restored named window
     let { givenName } = winfos.at(-1); // The new window should be last in the array

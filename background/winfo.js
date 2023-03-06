@@ -7,7 +7,7 @@ and/or previously saved via browser.sessions.
 // Dict of keys for sessions.getWindowValue() mapped to default values.
 const PROPS_TO_LOAD = {
     givenName: '',
-    created: 0,
+    firstSeen: 0,
     lastFocused: 0,
 };
 
@@ -94,11 +94,11 @@ export function saveLastFocused(windowId) {
 }
 
 //@ (Number), state -> (Promise: Number|nil)
-export function loadCreated(windowId) {
-    return browser.sessions.getWindowValue(windowId, 'created');
+export function loadFirstSeen(windowId) {
+    return browser.sessions.getWindowValue(windowId, 'firstSeen');
 }
 
 //@ (Number) -> state
-export function saveCreated(windowId) {
-    browser.sessions.setWindowValue(windowId, 'created', Date.now());
+export function saveFirstSeen(windowId) {
+    browser.sessions.setWindowValue(windowId, 'firstSeen', Date.now());
 }
