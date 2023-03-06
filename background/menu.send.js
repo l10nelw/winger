@@ -43,7 +43,7 @@ export async function handleShow(info, tab) {
 //@ ([Object]) -> state
 async function populate(windows) {
     const { currentWinfo, otherWinfos } = Winfo.arrange(
-        await Winfo.get(['focused', 'givenName', 'lastFocused'], windows)
+        await Winfo.getAll(['focused', 'givenName', 'lastFocused'], windows)
     );
     for (let { id, givenName } of otherWinfos) {
         const title = givenName || NO_NAME;

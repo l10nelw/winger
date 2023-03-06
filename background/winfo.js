@@ -26,7 +26,7 @@ const PROPS_TO_DERIVE = {
 // `windows` is optional; include if already procured via browser.windows.getAll() before.
 // Refer to PROPS_TO_LOAD, PROPS_TO_DERIVE and the standard window-object for property candidiates. 'id' is always included.
 //@ ([String], undefined|[Object]), state -> ([Object])
-export async function get(wantedProps = [], windows = null) {
+export async function getAll(wantedProps = [], windows = null) {
     wantedProps = new Set(wantedProps);
     wantedProps.add('id');
 

@@ -27,7 +27,7 @@ browser.runtime.onMessage.addListener(onRequest);
 
 //@ state -> state
 async function init() {
-    const [settings, winfos] = await Promise.all([ Settings.getAll(), Winfo.get(['focused', 'created', 'givenName']) ])
+    const [settings, winfos] = await Promise.all([ Settings.getAll(), Winfo.getAll(['focused', 'created', 'givenName']) ])
 
     Chrome.init(settings);
 
@@ -125,7 +125,7 @@ function onRequest(request) {
 //@ state -> ({ Object, [Object], Object })
 async function popupResponse() {
     const [winfos, settings] = await Promise.all([
-        Winfo.get(['focused', 'givenName', 'incognito', 'lastFocused', 'tabCount']),
+        Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'tabCount']),
         Settings.getAll(),
     ]);
     return { ...Winfo.arrange(winfos), settings };
