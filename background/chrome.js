@@ -2,42 +2,39 @@
 
 import { getShortcut } from '../utils.js';
 
-const Titlebar = {
-    //@ (Number, String) -> state
-    update(windowId, titlePreface) {
-        browser.windows.update(windowId, { titlePreface });
-    },
-};
-
-const ButtonTitle = {
-    base: `${browser.runtime.getManifest().name} (${await getShortcut()})`,
-
-    //@ (Number, String), state -> state
-    update(windowId, titlePreface) {
-        browser.browserAction.setTitle({ windowId, title: titlePreface + this.base });
-    },
-};
-
-const ButtonBadge = {
-    update() { },
-
-    //@ -> state
-    init() {
-        //@ (Number, String) -> state
-        this.update = (windowId, text) => browser.browserAction.setBadgeText({ windowId, text });
-        browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
-    },
-};
-
-//@ -> state
-export function showBadge() {
-    ButtonBadge.init();
+//@ (Object) -> state
+export function init({ show_badge }) {
+    if (show_badge)
+        initButtonBadge();
+    else
+        updateButtonBadge = () => {};
 }
 
 //@ (Number, String) -> state
 export function update(windowId, name) {
     const titlePreface = name ? `${name} - ` : '';
-    Titlebar.update(windowId, titlePreface);
-    ButtonTitle.update(windowId, titlePreface);
-    ButtonBadge.update(windowId, name);
+    updateTitlebar(windowId, titlePreface);
+    updateButtonTitle(windowId, titlePreface);
+    updateButtonBadge(windowId, name);
+}
+
+//@ -> state
+function initButtonBadge() {
+    browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
+}
+
+//@ (Number, String) -> state
+function updateButtonBadge(windowId, text) {
+    browser.browserAction.setBadgeText({ windowId, text });
+}
+
+//@ (Number, String), state -> state
+async function updateButtonTitle(windowId, titlePreface) {
+    const title = `${titlePreface}${browser.runtime.getManifest().name} (${await getShortcut()})`;
+    browser.browserAction.setTitle({ windowId, title });
+}
+
+//@ (Number, String) -> state
+function updateTitlebar(windowId, titlePreface) {
+    browser.windows.update(windowId, { titlePreface });
 }

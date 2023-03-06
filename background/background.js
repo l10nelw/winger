@@ -13,8 +13,7 @@ function debug() {
     Object.assign(window, modules);
 }
 
-initPerSettings();
-initOpenWindows();
+init();
 
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onFocusChanged.addListener(Winfo.saveLastFocused);
@@ -27,26 +26,21 @@ browser.runtime.onInstalled.addListener(onExtensionInstalled);
 browser.runtime.onMessage.addListener(onRequest);
 
 //@ state -> state
-async function initPerSettings() {
-    const settings = await Settings.getAll();
+async function init() {
+    const [settings, winfos] = await Promise.all([ Settings.getAll(), Winfo.get(['focused', 'created', 'givenName']) ])
 
-    if (settings.show_badge)
-        Chrome.showBadge();
+    Chrome.init(settings);
 
     if (settings.enable_stash) {
         [Stash, UnstashMenu] = await Promise.all([ import('./stash.js'), import('./menu.unstash.js') ]);
         Stash.init(settings);
     }
-}
 
-// Update chromes with names; save created and lastFocused timestamps if needed.
-// Resolve any name duplication, in case any named windows were restored while Winger was not active.
-//@ state -> state
-async function initOpenWindows() {
-    const winfos = await Winfo.get(['focused', 'created', 'givenName']);
+    // Update chromes with names; resolve any name duplication, in case any named windows were restored while Winger was not active
+    // winfos should be in id-ascending order, which shall be assumed as age-descending; the newer of any duplicate pair found is renamed
+
     const nameMap = new Name.NameMap();
 
-    // winfos should be in id-ascending order, which shall be assumed as age-descending; the newer of any duplicate pair found is renamed
     for (let { id, focused, created, givenName } of winfos) {
         if (givenName && nameMap.findId(givenName)) {
             givenName = nameMap.uniquify(givenName);
