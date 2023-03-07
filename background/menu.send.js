@@ -24,7 +24,7 @@ browser.menus.create({
 //@ ([String], [String]) -> (Boolean)
 const isIntersect = (array1, array2) => array1.some(item => array2.includes(item));
 
-// Event handler: Enable menu and populate submenu if there is more than one window, when menu shown.
+// Event handler: When menu shown and there is more than one window, enable menu and populate submenu.
 //@ (Object, Object) -> (Boolean), state|nil
 export async function handleShow(info, tab) {
     if (!isIntersect(info.contexts, contexts))
@@ -43,7 +43,7 @@ export async function handleShow(info, tab) {
 //@ ([Object]) -> state
 async function populate(windows) {
     const { currentWinfo, otherWinfos } = Winfo.arrange(
-        await Winfo.getAll(['focused', 'givenName', 'lastFocused'], windows)
+        await Winfo.getAll(['focused', 'givenName', 'lastFocused', 'minimized'], windows)
     );
     for (let { id, givenName } of otherWinfos) {
         const title = givenName || NO_NAME;
@@ -55,7 +55,7 @@ async function populate(windows) {
     browser.menus.remove(dummyId);
 }
 
-// Event handler: Re-disable menu item when menu disappears.
+// Event handler: When menu closes, re-disable menu item.
 //@ -> state
 export function handleHide() {
     browser.menus.update(parentId, { enabled: false });

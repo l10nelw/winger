@@ -13,6 +13,9 @@ const PROPS_TO_LOAD = {
 // Dict of keys mapped to functions that derive new values, adding new properties to (i.e. mutating) `winfo`.
 //@ (Object, Object) -> state
 const PROPS_TO_DERIVE = {
+    minimized(window, winfo) {
+        winfo.minimized = window.state === 'minimized';
+    },
     // Requires populated `window.tabs`
     // Also adds `winfo.selectedTabCount` if window is focused
     tabCount(window, winfo) {
@@ -80,7 +83,7 @@ export function arrange(winfos) {
     if (currentIndex === -1)
         throw 'Expected winfo.focused property';
     const currentWinfo = winfos.splice(currentIndex, 1)[0];
-    winfos.sort((a, b) => b.lastFocused - a.lastFocused);
+    winfos.sort((a, b) => (a.minimized - b.minimized) || (b.lastFocused - a.lastFocused));
     return {
         currentWinfo,
         otherWinfos: winfos,
