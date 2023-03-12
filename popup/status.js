@@ -46,9 +46,9 @@ const statusType = {
     },
 }
 
-//@ ([Object], Number), state -> state
-export async function init(currentWinfo, otherWinfos, settings) {
-    if (!settings.enable_stash)
+//@ ([Object], Number, {Boolean}), state -> state
+export async function init(currentWinfo, otherWinfos, { enable_stash }) {
+    if (!enable_stash)
         delete statusType.stashShift;
 
     count.windows = 1 + otherWinfos.length;
