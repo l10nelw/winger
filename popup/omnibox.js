@@ -4,7 +4,7 @@ import * as EditMode from './editmode.js';
 import * as Filter from './filter.js';
 import * as Request from './request.js';
 
-const COMMAND_TO_CALLBACK = {
+const COMMAND__CALLBACK = {
     help:        Toolbar.help,
     settings:    Toolbar.settings,
     edit:        () => EditMode.toggle(),
@@ -16,22 +16,91 @@ const COMMAND_TO_CALLBACK = {
     kickprivate: event => Request.action(event, 'kickprivate'),
     stash:       event => Request.stash(!event.shiftKey),
 };
-const ALIAS_TO_COMMAND = {
+const ALIAS__COMMAND = {
     options: 'settings',
     name: 'edit',
 };
-const SHORTHAND_TO_COMMAND = {
+const SHORTHAND__COMMAND = {
     np: 'newprivate',
     pp: 'popprivate',
     kp: 'kickprivate',
 };
 
-export let matchedCommand;
+const Parsed = {
+
+    clear() {
+        Parsed.startsSlashed = false;
+        Parsed.command = '';
+        Parsed.argument = '';
+        Parsed.shorthand = '';
+    },
+
+    parse(text) {
+        if (!text.startsWith('/')) {
+            Parsed.clear();
+            return;
+        }
+        text = text.slice(1); // Remove slash
+        Parsed.startsSlashed = true;
+
+        // Split text at first space into command and argument
+        const [command, ...argument] = text.split(' ');
+        Parsed.command = command.toLowerCase();
+        Parsed.argument = argument?.filter(Boolean).join(' ') ?? '';
+
+        Parsed._matchCommand();
+    },
+
+    _matchCommand() {
+        Parsed.shorthand = '';
+
+        const word = Parsed.command;
+        if (word === 'debug')
+            return;
+        for (const command in COMMAND__CALLBACK) {
+            if (command.startsWith(word)) {
+                Parsed.command = command;
+                return;
+            }
+        }
+        for (const alias in ALIAS__COMMAND) {
+            if (alias.startsWith(word)) {
+                Parsed.command = alias;
+                return;
+            }
+        }
+        for (const shorthand in SHORTHAND__COMMAND) {
+            if (word === shorthand) {
+                Parsed.command = SHORTHAND__COMMAND[shorthand];
+                Parsed.shorthand = shorthand;
+                return;
+            }
+        }
+        Parsed.command = '';
+    },
+
+}
 
 //@ (Boolean) -> state
-export function init(settings) {
-    if (!settings.enable_stash)
-        delete COMMAND_TO_CALLBACK.stash;
+export function init({ enable_stash }) {
+    Parsed.clear();
+    if (!enable_stash)
+        delete COMMAND__CALLBACK.stash;
+}
+
+//@ (Object), state -> state
+export function handleInput(event) {
+    const str = $omnibox.value;
+    Parsed.parse(str);
+
+    $omnibox.classList.toggle('slashCommand', Parsed.startsSlashed);
+
+    if (Parsed.startsSlashed) {
+        if (Parsed.command && !isDeletion(event))
+            Parsed.shorthand ? expandShorthand(Parsed.command) : autocompleteCommand(str, Parsed.command);
+    } else {
+        Filter.execute(str);
+    }
 }
 
 //@ (String, Object), state -> state
@@ -42,18 +111,18 @@ export function handleKeyUp(event) {
 
 //@ (Object), state -> state
 function handleEnter(event) {
-    if (matchedCommand === 'debug') {
+    if (Parsed.command === 'debug') {
         Request.debug();
         clear();
         return;
     }
-    if (matchedCommand) {
-        const callback = COMMAND_TO_CALLBACK[matchedCommand] || COMMAND_TO_CALLBACK[ALIAS_TO_COMMAND[matchedCommand]];
+    if (Parsed.command) {
+        const callback = COMMAND__CALLBACK[Parsed.command] || COMMAND__CALLBACK[ALIAS__COMMAND[Parsed.command]];
         callback?.(event);
         clear();
         return;
     }
-    if ($omnibox.value.startsWith('/')) {
+    if (Parsed.startsSlashed) {
         clear();
         return;
     }
@@ -64,50 +133,13 @@ function handleEnter(event) {
     }
 }
 
-//@ (Object), state -> state
-export function handleInput(event) {
-    const str = $omnibox.value;
-    const isSlashed = str.startsWith('/');
-
-    $omnibox.classList.toggle('slashCommand', isSlashed);
-
-    if (isSlashed) {
-        let isShorthand;
-        [matchedCommand, isShorthand] = matchCommand(str);
-        if (matchedCommand && !isDeletion(event))
-            isShorthand ? expandShorthand(matchedCommand) : autocompleteCommand(str, matchedCommand);
-    } else {
-        Filter.execute(str);
-    }
-}
-
 //@ (Object) -> (Boolean)
 const isDeletion = event => event.inputType.startsWith('delete');
 
-//@ (String) -> ([String, Boolean])
-function matchCommand(str) {
-    const strUnslashed = str.slice(1).toUpperCase();
-
-    if (strUnslashed === 'DEBUG')
-        return ['debug', false];
-
-    for (const command in COMMAND_TO_CALLBACK)
-        if (command.toUpperCase().startsWith(strUnslashed))
-            return [command, false];
-
-    for (const alias in ALIAS_TO_COMMAND)
-        if (alias.toUpperCase().startsWith(strUnslashed))
-            return [alias, false];
-
-    for (const shorthand in SHORTHAND_TO_COMMAND)
-        if (shorthand.toUpperCase() === strUnslashed)
-            return [SHORTHAND_TO_COMMAND[shorthand], true];
-
-    return [null, false];
-}
-
 //@ (String, String) -> state
 function autocompleteCommand(str, command) {
+    if (str.includes(' '))
+        return;
     $omnibox.value = `/${command}`;
     $omnibox.setSelectionRange(str.length, command.length + 1);
 }
@@ -115,12 +147,11 @@ function autocompleteCommand(str, command) {
 //@ (String) -> state
 function expandShorthand(command) {
     $omnibox.value = `/${command}`;
-    $omnibox.select();
 }
 
 //@ -> state
 export function clear() {
-    $omnibox.value = $omnibox.placeholder = '';
+    Parsed.clear();
+    $omnibox.value = '';
     $omnibox.classList.remove('slashCommand');
-    matchedCommand = null;
 }
