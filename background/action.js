@@ -4,7 +4,6 @@ import { BRING, SEND } from '../modifier.js';
 import * as Settings from '../settings.js';
 
 export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash); //@ (String) -> state
-export const getSelectedTabs = () => browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> (Promise: [Object])
 export const switchWindow = ({ windowId }) => browser.windows.update(windowId, { focused: true }); //@ ({ Number }), state -> (Promise: Object), state
 
 const ACTION_DICT = {
@@ -197,6 +196,8 @@ function openPlaceholderTab(protoTab, title) {
     protoTab.url = buildPlaceholderURL(protoTab.url, title);
     return browser.tabs.create(protoTab);
 }
+
+const getSelectedTabs = () => browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> (Promise: [Object])
 
 //@ (Number) -> (Promise: Object), state
 const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
