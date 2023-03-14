@@ -4,6 +4,7 @@ export const $currentWindowRow = document.getElementById('currentWindow').firstE
 export const $omnibox = document.getElementById('omnibox');
 export const $otherWindowsList = document.getElementById('otherWindows');
 export const $otherWindowRows = []; // Original order of rows at init, unlike $otherWindowsList.children whose order can change
+export const $names = [];
 export const $toolbar = $body.querySelector('footer');
 export const $status = document.getElementById('status');
 
@@ -12,7 +13,7 @@ export const $status = document.getElementById('status');
 export const isButton = $el => $el?.tagName === 'BUTTON';
 export const isField = $el => $el?.tagName === 'INPUT';
 export const isNameField = $el => $el?.classList.contains('name');
-export const isRow = $el => $el?._id;
+export const isRow = $el => $el?.tagName === 'LI';
 export const isInToolbar = $el => $el?.parentElement === $toolbar;
 
 // Given a $row or any of its child elements, get the givenName.

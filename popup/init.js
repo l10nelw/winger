@@ -1,8 +1,10 @@
 import {
+    $body,
     $currentWindowRow,
     $omnibox,
-    $otherWindowRows,
     $otherWindowsList,
+    $otherWindowRows,
+    $names,
     $toolbar,
     $status,
 } from './common.js';
@@ -19,7 +21,7 @@ function onSuccess({ currentWinfo, otherWinfos, settings }) {
     markReopen(otherWinfos, currentWinfo.incognito);
     populate(currentWinfo, otherWinfos, settings);
     $otherWindowRows.push(...$otherWindowsList.children);
-    Object.freeze($otherWindowRows);
+    $names.push(...$body.querySelectorAll('.name'));
 
     Omnibox.init(settings);
     Status.init(currentWinfo, otherWinfos, settings);
@@ -124,6 +126,7 @@ const Row = {
         }
         // Add data
         $row._id = id;
+        $row.$name._id = id;
         $row.$name.value = givenName;
         $row.$tabCount.textContent = tabCount;
         $row.classList.toggle('private', incognito);

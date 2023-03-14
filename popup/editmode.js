@@ -3,6 +3,7 @@ import {
     $body,
     $currentWindowRow,
     $omnibox,
+    $names,
     isField,
     isNameField,
     isInToolbar,
@@ -12,7 +13,6 @@ import * as Request from './request.js';
 
 export let isActive = false; // Indicates if popup is in edit mode
 
-const $nameMap = new Map();
 const nameMap = new Name.NameMap();
 
 //@ (Object|undefined), state -> state
@@ -22,12 +22,7 @@ export function toggle($name = $currentWindowRow.$name) {
 
 //@ state -> state
 function activate() {
-    for (const $name of $body.querySelectorAll('.name')) {
-        const windowId = $name.$row._id;
-        const name = $name.value;
-        $nameMap.set(windowId, $name);
-        nameMap.set(windowId, name);
-    }
+    nameMap.bulkSet($names);
     toggleActive(true);
     if ($omnibox.value.startsWith('/'))
         Omnibox.clear();
@@ -97,7 +92,7 @@ export async function handleInput($name) {
         return false;
 
     // Check name for validity, mark if invalid
-    const error = nameMap.checkForErrors($name.value.trim(), $name.$row._id);
+    const error = nameMap.checkForErrors($name.value.trim(), $name._id);
     toggleError($name, error);
 
     return true;
@@ -140,11 +135,10 @@ function trySaveName($name) {
         return true;
 
     // Save
-    const $row = $name.$row;
-    const windowId = $row._id;
+    const windowId = $name._id;
     Name.save(windowId, name);
     Request.updateChrome(windowId, name);
-    indicateSuccess($row);
+    indicateSuccess($name.$row);
 
     return true;
 }
@@ -155,20 +149,20 @@ function toggleError($name, error) {
     if (!error)
         return clearErrors();
     if (error > 0)
-        $nameMap.get(error).classList.add('error');
+        $names.find($name => $name._id === error).classList.add('error');
     $name.classList.add('error');
 }
 
 ///@ -> state|nil
 function clearErrors() {
-    $nameMap.forEach($name => $name.classList.remove('error'));
+    $names.forEach($name => $name.classList.remove('error'));
 }
 
 //@ (Boolean) -> state
 function toggleNameFields(isEnable) {
     const tabIndex = isEnable ? 0 : -1;
     const isReadOnly = !isEnable;
-    for (const $name of $nameMap.values()) {
+    for (const $name of $names) {
         $name.tabIndex = tabIndex;
         $name.readOnly = isReadOnly;
     }

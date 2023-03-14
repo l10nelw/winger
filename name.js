@@ -16,14 +16,16 @@ export function save(windowId, name) {
 //@ (String) -> (String)
 function addNumberPostfix(name) {
     const found = name.match(NUMBER_POSTFIX);
-    return found ? `${name.slice(0, found.index)} ${Number(found[1]) + 1}` : `${name} 2`;
+    return found ?
+        `${name.slice(0, found.index)} ${Number(found[1]) + 1}` : `${name} 2`;
 }
 
 // Remove spaces and illegal characters from name.
 //@ (String) -> (String)
 export function validify(name) {
     name = name.trim();
-    return startsWithSlash(name) ? validify(name.slice(1)) : name;
+    return startsWithSlash(name) ?
+        validify(name.slice(1)) : name;
 }
 
 //@ (String) -> (Boolean)
@@ -34,38 +36,48 @@ function startsWithSlash(name) {
 // NameMap maps windowIds to names (Number:String), and provides methods that require all present names as context.
 export class NameMap extends Map {
 
+    // `objects` should be an array of winfos containing givenNames, or an array of $names.
     //@ ([Object]) -> (Map(Number:String)), state
-    bulkSet(winfos) {
-        for (const { id, givenName } of winfos)
-            this.set(id, givenName);
+    bulkSet(objects) {
+        if ('givenName' in objects[0]) {
+            for (const { id, givenName } of objects) // winfos
+                this.set(id, givenName);
+        } else
+        if ('value' in objects[0]) {
+            for (const { _id, value } of objects) // $names
+                this.set(_id, value);
+        }
         return this;
     }
 
-    // Find name in map. Return associated id if found, else return 0.
+    // Find name in map. Ignores blank. Return associated id if found, else return 0.
     //@ (String), state -> (Number)
     findId(name) {
-        for (const [id, _name] of this)
-            if (name === _name)
-                return id;
+        if (name)
+            for (const [id, _name] of this)
+                if (name === _name)
+                    return id;
         return 0;
     }
 
     // Check name against map for errors, including duplication.
-    // Return 0 if name is valid-and-unique or is blank or conflicting windowId is excludeId.
+    // Return 0 if name is blank or valid-and-unique or conflicting windowId is excludeId.
     // Else return -1 or conflicting windowId.
     //@ (String, Number), state -> (Number)
     checkForErrors(name, excludeId) {
-        if (name === '')
+        if (!name)
             return 0;
         if (startsWithSlash(name))
             return -1;
         const foundId = this.findId(name);
-        return foundId === excludeId ? 0 : foundId;
+        return foundId === excludeId ?
+            0 : foundId;
     }
 
-    // Check valid name against map for duplication. If name is not unique, add/increment number postfix. Return unique result.
+    // Check valid name against map for duplication. Ignores blank. If name is not unique, add/increment number postfix. Return unique result.
     //@ (String), state -> (String)
     uniquify(name) {
-        return this.findId(name) ? this.uniquify(addNumberPostfix(name)) : name;
+        return this.findId(name) ?
+            this.uniquify(addNumberPostfix(name)) : name;
     }
 }
