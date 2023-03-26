@@ -2,6 +2,8 @@
 
 import { BRING, SEND } from '../modifier.js';
 import * as Settings from '../settings.js';
+import * as Name from '../name.js';
+import * as Chrome from './chrome.js';
 
 export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash); //@ (String) -> state
 export const switchWindow = ({ windowId }) => browser.windows.update(windowId, { focused: true }); //@ ({ Number }), state -> (Promise: Object), state
@@ -10,12 +12,12 @@ const ACTION_DICT = {
     bring:       bringTabs,
     send:        sendTabs,
     switch:      switchWindow,
-    new:         createWindow,
-    newprivate:  () => createWindow({ incognito: true }),
-    pop:         () => createWindow({ isMove: true, focused: true }),
-    popprivate:  () => createWindow({ isMove: true, focused: true, incognito: true }),
-    kick:        () => createWindow({ isMove: true, focused: false }),
-    kickprivate: () => createWindow({ isMove: true, focused: false, incognito: true }),
+    new:         ({ argument: name }) => createWindow({ name }),
+    newprivate:  ({ argument: name }) => createWindow({ name, incognito: true }),
+    pop:         ({ argument: name }) => createWindow({ name, isMove: true }),
+    popprivate:  ({ argument: name }) => createWindow({ name, isMove: true, incognito: true }),
+    kick:        ({ argument: name }) => createWindow({ name, isMove: true, focused: false }),
+    kickprivate: ({ argument: name }) => createWindow({ name, isMove: true, focused: false, incognito: true }),
 };
 
 const MODIFIABLE_ACTIONS_TABLE = {
@@ -35,17 +37,17 @@ const MODIFIABLE_ACTIONS_TABLE = {
 async function openUniqueExtensionPage(pathname, hash) {
     const url = browser.runtime.getURL(pathname);
     const openedTabs = await browser.tabs.query({ url });
-    browser.tabs.remove(openedTabs.map(tab => tab.id));
-    if (hash) pathname += hash;
+    if (hash)
+        pathname += hash;
     browser.tabs.create({ url: `/${pathname}` });
+    browser.tabs.remove(openedTabs.map(tab => tab.id));
 }
 
-// Select action to execute based on `action` and `modifiers`.
-//@ ({ String, [String], [Object], Number }), state -> state
-export async function execute({ action, modifiers, tabs, windowId }) {
-    tabs ??= await getSelectedTabs();
-    action = modify(action, modifiers);
-    ACTION_DICT[action]({ tabs, windowId });
+// Select action to execute based on content of request.
+//@ (Object), state -> state
+export async function execute(request) {
+    request.action = modify(request.action, request.modifiers);
+    ACTION_DICT[request.action](request);
 }
 
 // Change an action to another based on any modifiers given.
@@ -63,15 +65,21 @@ function modify(action, modifiers) {
 }
 
 // Create a new window. If isMove=true, do so with the currently selected tabs.
-//@ ({ Boolean, Boolean, Boolean }), state -> (Object), state
-export async function createWindow({ isMove, focused = true, incognito }) {
+//@ ({ String, Boolean, Boolean, Boolean }), state -> (Object), state
+export async function createWindow({ name, isMove, focused = true, incognito }) {
     const [currentWindow, newWindow] = await Promise.all([
         browser.windows.getLastFocused(),
         browser.windows.create({ incognito }),
     ]);
+    const newWindowId = newWindow.id;
     const currentWindowDetail = { windowId: currentWindow.id };
 
-    // Firefox ignores windows.create/update({ focused: false }), so if focused=false switch back to current window
+    if (name) {
+        Name.save(newWindowId, name);
+        Chrome.update(newWindowId, name);
+    }
+
+    // Firefox ignores windows.create/update({ focused: false }), so if focused=false, switch back to current window
     if (!focused)
         switchWindow(currentWindowDetail);
 
@@ -83,25 +91,31 @@ export async function createWindow({ isMove, focused = true, incognito }) {
         if (selectedTabs.length === allTabs.length)
             await browser.tabs.create(currentWindowDetail);
 
-        await sendTabs({ tabs: selectedTabs, windowId: newWindow.id });
+        await sendTabs({ tabs: selectedTabs, windowId: newWindowId });
         browser.tabs.remove(newWindow.tabs[0].id);
     }
 
     return newWindow;
 }
 
-//@ ({ [Object], Number }), state -> state|nil
-async function bringTabs(props) {
-    await sendTabs(props) && switchWindow(props);
+//@ (Object), state -> state|nil
+async function bringTabs(request) {
+    await sendTabs(request) && switchWindow(request);
 }
 
 // Attempt moveTabs; if unsuccessful (e.g. windows are of different private statuses) then reopenTabs.
-//@ ({ [Object], Number }), state -> ([Object]), state | (undefined)
-async function sendTabs(props) {
-    props.keep_moved_tabs_selected = await Settings.get('keep_moved_tabs_selected');
-    const movedTabs = await moveTabs(props);
+//@ (Object), state -> ([Object]), state | (undefined)
+async function sendTabs(request) {
+    const [keep_moved_tabs_selected, tabs] = await Promise.all([
+        Settings.get('keep_moved_tabs_selected'),
+        request.tabs ?? getSelectedTabs(),
+    ]);
+    request.tabs ??= tabs;
+    request.keep_moved_tabs_selected = keep_moved_tabs_selected;
+
+    const movedTabs = await moveTabs(request);
     return movedTabs.length ?
-        movedTabs : reopenTabs(props);
+        movedTabs : reopenTabs(request);
 }
 
 //@ ({ [Object], Number, Boolean }), state -> ([Object]), state | (undefined)
@@ -209,8 +223,8 @@ const READER_HEAD = 'about:reader?url=';
 const isReader = url => url.startsWith(READER_HEAD); //@ (String) -> (Boolean)
 const getReaderTarget = readerURL => decodeURIComponent(readerURL.slice(READER_HEAD.length)); //@ (String) -> (String)
 
-const PLACEHOLDER_PATH = browser.runtime.getURL('../placeholder/tab.html');
+const PLACEHOLDER_PATH = '../placeholder/tab.html';
 const buildPlaceholderURL = (url, title) => `${PLACEHOLDER_PATH}?${new URLSearchParams({ url, title })}`; //@ (String, String) -> (String)
-const isPlaceholder = url => url.startsWith(PLACEHOLDER_PATH); //@ (String) -> (Boolean)
+const isPlaceholder = url => url.startsWith(browser.runtime.getURL(PLACEHOLDER_PATH)); //@ (String) -> (Boolean)
 const getPlaceholderTarget = placeholderUrl => (new URL(placeholderUrl)).searchParams.get('url'); //@ (String) -> (String)
 export const deplaceholderize = url => isPlaceholder(url) ? getPlaceholderTarget(url) : url; //@ (String) -> (String)

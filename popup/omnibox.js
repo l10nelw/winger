@@ -1,20 +1,24 @@
-import { $omnibox } from './common.js';
+import {
+    $omnibox,
+    nameMap,
+} from './common.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
 import * as Filter from './filter.js';
 import * as Request from './request.js';
+import * as Name from '../name.js';
 
 const COMMAND__CALLBACK = {
     help:        Toolbar.help,
     settings:    Toolbar.settings,
     edit:        () => EditMode.toggle(),
-    new:         event => Request.action(event, 'new'),
-    newprivate:  event => Request.action(event, 'newprivate'),
-    pop:         event => Request.action(event, 'pop'),
-    popprivate:  event => Request.action(event, 'popprivate'),
-    kick:        event => Request.action(event, 'kick'),
-    kickprivate: event => Request.action(event, 'kickprivate'),
-    stash:       event => Request.stash(!event.shiftKey),
+    new:         ({ event, argument }) => Request.action({ event, argument, command: 'new' }),
+    newprivate:  ({ event, argument }) => Request.action({ event, argument, command: 'newprivate' }),
+    pop:         ({ event, argument }) => Request.action({ event, argument, command: 'pop' }),
+    popprivate:  ({ event, argument }) => Request.action({ event, argument, command: 'popprivate' }),
+    kick:        ({ event, argument }) => Request.action({ event, argument, command: 'kick' }),
+    kickprivate: ({ event, argument }) => Request.action({ event, argument, command: 'kickprivate' }),
+    stash:       ({ event }) => Request.stash(!event.shiftKey),
 };
 const ALIAS__COMMAND = {
     options: 'settings',
@@ -25,6 +29,7 @@ const SHORTHAND__COMMAND = {
     pp: 'popprivate',
     kp: 'kickprivate',
 };
+const COMMANDS_WITH_ARG = new Set(['new', 'newprivate', 'pop', 'popprivate', 'kick', 'kickprivate']);
 
 const Parsed = {
 
@@ -97,7 +102,7 @@ export function handleInput(event) {
 
     if (Parsed.startsSlashed) {
         if (Parsed.command && !isDeletion(event))
-            Parsed.shorthand ? expandShorthand(Parsed.command) : autocompleteCommand(str, Parsed.command);
+            autocompleteCommand(str, Parsed.command);
     } else {
         Filter.execute(str);
     }
@@ -116,16 +121,22 @@ function handleEnter(event) {
         clear();
         return;
     }
-    if (Parsed.command) {
-        const callback = COMMAND__CALLBACK[Parsed.command] || COMMAND__CALLBACK[ALIAS__COMMAND[Parsed.command]];
-        callback?.(event);
+
+    let { command, argument } = Parsed;
+    if (command) {
+        const callback = COMMAND__CALLBACK[command] || COMMAND__CALLBACK[ALIAS__COMMAND[command]];
+        if (COMMANDS_WITH_ARG.has(command))
+            argument = validifyName(argument);
+        callback?.({ event, argument });
         clear();
         return;
     }
+
     if (Parsed.startsSlashed) {
         clear();
         return;
     }
+
     if (!EditMode.isActive) {
         const $action = Filter.$shownRows?.[0]; // First row below omnibox
         if ($action)
@@ -136,17 +147,27 @@ function handleEnter(event) {
 //@ (Object) -> (Boolean)
 const isDeletion = event => event.inputType.startsWith('delete');
 
+//@ (String), state -> (String)
+function validifyName(name) {
+    name = Name.validify(name);
+    return name ?
+        nameMap.ready().uniquify(name) : '';
+}
+
 //@ (String, String) -> state
 function autocompleteCommand(str, command) {
     if (str.includes(' '))
         return;
+    command = addSpaceIfAcceptsArgument(command);
     $omnibox.value = `/${command}`;
-    $omnibox.setSelectionRange(str.length, command.length + 1);
+    $omnibox.setSelectionRange(str.length - !!Parsed.shorthand, command.length + 1);
 }
 
-//@ (String) -> state
-function expandShorthand(command) {
-    $omnibox.value = `/${command}`;
+// Add space after an argument-accepting command for user convenience.
+//@ (String) -> (String)
+function addSpaceIfAcceptsArgument(command) {
+    return COMMANDS_WITH_ARG.has(command) ?
+        command + ' ' : command;
 }
 
 //@ -> state
