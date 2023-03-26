@@ -127,9 +127,9 @@ function handleEnter(event) {
         return;
     }
     if (!EditMode.isActive) {
-        const $firstRow = Filter.$shownRows?.[0];
-        if ($firstRow)
-            Request.action(event, $firstRow);
+        const $action = Filter.$shownRows?.[0]; // First row below omnibox
+        if ($action)
+            Request.action({ event, $action });
     }
 }
 

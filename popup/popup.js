@@ -38,7 +38,7 @@ function onClick(event) {
         return;
     }
 
-    Request.action(event, target);
+    Request.action({ event, $action: target });
 }
 
 //@ (Object) -> state|nil
@@ -75,7 +75,7 @@ function onKeyUp(event) {
             if (target === $currentWindowRow.$name)
                 return EditMode.toggle();
             if (isRow(target))
-                return Request.action(event, target);
+                return Request.action({ event, $action: target });
         }
     })();
     Status.update(event);

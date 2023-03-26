@@ -5,7 +5,7 @@ import { get as getModifiers } from '../modifier.js';
 
 const sendMessage = browser.runtime.sendMessage;
 
-//@ -> (Promise: { Object, [Object], Number, Boolean })
+//@ -> (Promise: Object)
 export function popup() {
     return sendMessage({ type: 'popup' });
 }
@@ -15,20 +15,21 @@ export function help() {
     sendMessage({ type: 'help' });
 }
 
-// Gather action parameters from event and action element or action string. Proceed only if action found.
-//@ (Object, String|Object) -> state|nil
-export function action(event, action) {
+// Gather action parameters to create request. Proceed only if action string given via `command` or derived from `$action`.
+//@ (Object) -> state|nil
+export function action({ event, $action, command, argument }) {
     const request = { type: 'action' };
-    if (typeof action === 'string') {
-        request.action = action;
-    } else {
-        // action is an element
-        const $row = action.$row || action;
+    if (command) {
+        request.action = command;
+    } else
+    if ($action) {
+        const $row = $action.$row || $action;
         request.windowId = $row._id;
-        request.action = action.dataset.action || $row.dataset.action;
+        request.action = $action.dataset.action || $row.dataset.action;
     }
     if (!request.action)
         return;
+    request.argument = argument;
     request.modifiers = getModifiers(event);
     sendMessage(request);
     window.close();
