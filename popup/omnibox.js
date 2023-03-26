@@ -98,14 +98,12 @@ export function handleInput(event) {
     const str = $omnibox.value;
     Parsed.parse(str);
 
+    Filter.execute(Parsed.startsSlashed ? '' : str);
+
     $omnibox.classList.toggle('slashCommand', Parsed.startsSlashed);
 
-    if (Parsed.startsSlashed) {
-        if (Parsed.command && !isDeletion(event))
-            autocompleteCommand(str, Parsed.command);
-    } else {
-        Filter.execute(str);
-    }
+    if (Parsed.command && !isDeletion(event))
+        autocompleteCommand(str, Parsed.command);
 }
 
 //@ (String, Object), state -> state
