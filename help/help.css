@@ -34,6 +34,14 @@ body {
 a {
   color: var(--accent-color);
 }
+a[target="_blank"]::after {
+  content: "↗️";
+  font-variant-position: super;
+}
+a[href^="mailto:"]::after {
+  content: "✉️";
+  font-variant-position: super;
+}
 
 h1, h2, h3, h4, p, ul, ol, dl {
   margin-top: 0;
@@ -151,6 +159,38 @@ img {
   border-left: 3px solid var(--box-border-color);
 }
 
+.tabPanelGroup nav {
+  display: flex;
+}
+.tabPanelGroup button {
+  flex-grow: 1;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 3px solid var(--box-border-color);
+  white-space: nowrap;
+  font-size: 1rem;
+  padding: .5rem 2rem;
+  border-radius: 1rem 1rem 0 0;
+  cursor: pointer;
+}
+.tabPanelGroup button:not(:first-child) {
+  margin-left: -3px;
+}
+.tabPanelGroup button[aria-selected="true"] {
+  border-bottom-width: 0;
+  padding-bottom: calc(.5rem + 3px);
+}
+.tabPanelGroup summary,
+.tabPanelGroup details:not([open]) {
+  display: none;
+}
+.tabPanelGroup details {
+  border: 3px solid var(--box-border-color);
+  border-radius: 0 0 1rem 1rem;
+  margin-top: -3px;
+  padding: 1rem;
+}
+
 .new {
   vertical-align: middle;
   padding: 2px 5px;
@@ -168,8 +208,8 @@ img {
   animation: target-fading-highlight 2s 1;
 }
 @keyframes target-fading-highlight {
-  0%   { background-color: var(--highlight-bg-color); }
-  100% { background-color: none; }
+  from { background-color: var(--highlight-bg-color); }
+  to   { background-color: none; }
 }
 
 .flex-grow { flex-grow: 1; }

@@ -21,8 +21,8 @@
         <br><small class="js-version"></small>
         <br><b>A Complete Guide</b>
       </h1>
-      <p class="small">Last updated v2.1.0</p>
-      <p><a href="https://addons.mozilla.org/firefox/addon/winger/" target="_blank">View release notes on the Winger addon page</a></p>
+      <p class="small">Last updated v2.2.0</p>
+      <p><a href="https://addons.mozilla.org/firefox/addon/winger/" target="_blank">View latest release notes on the Winger addon page</a></p>
     </header>
 
     <article id="intro" class="center mb5" style="max-width: 720px; margin-left: auto; margin-right: auto;">
@@ -60,11 +60,11 @@
               <p><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> to open a new private window.</p>
             </div>
             <div class="col bordered-left lastchild-mb0 pl1 mx1">
-              <p>Tear off tabs: With your pointer, drag-and-drop a tab off the tab strip to create a new window containing the selected tabs.</p>
+              <p>Tear off tabs: With your pointer, drag-and-drop a tab off the tabs bar to create a new window containing the selected tabs.</p>
             </div>
             <div class="col bordered-left lastchild-mb0 pl1 mx1">
               <p><kbd>Shift</kbd>+click a link to open the link in a new window.</p>
-              <p>(<kbd>Ctrl</kbd>+click opens it in a new tab.)</p>
+              <p>(<kbd>Ctrl</kbd>+click or middle-click opens it in a new tab.)</p>
             </div>
           </div>
         </section>
@@ -98,7 +98,8 @@
         <div class="col flex-grow mx1 mb1">
           <p>Click on the Winger button on your browser toolbar, or press <kbd class="js-shortcut">F1</kbd>, to open Winger's pop-up panel. (You can always check what the keyboard shortcut is by hovering your pointer over the Winger button.)</p>
           <ul class="mx1">
-            <li>Tip: You can move browser toolbar buttons onto the tab strip &ndash; a reasonable spot for tab/window-related buttons! To be able to move buttons around, right-click the toolbar and click <cite>Customize Toolbar</cite>.</li>
+            <li>If you don't see it on your browser toolbar, click on the 🧩 Extensions button, look for Winger, right-click it and choose <cite>Pin to Toolbar</cite>.</li>
+            <li>Tip: You can move browser toolbar buttons onto the tabs bar &ndash; a reasonable spot for tab/window-related buttons! To be able to move buttons around, right-click the toolbar and click <cite>Customize Toolbar</cite>.</li>
           </ul>
         </div>
       </section>
@@ -148,35 +149,21 @@
     </article>
 
     <article id="name" class="mb5">
-      <h2 class="center">Name windows</h2>
+      <h2 class="center">Name windows / Edit mode</h2>
       <div class="row">
         <div class="col flex-grow mr1">
           <section class="mb2">
-            <p>To enter <strong>edit mode</strong>, click on the current window's name, or press <kbd>Up</kbd> <kbd>Enter</kbd> from the omnibox.</p>
+            <p>
+              To enter <strong>edit mode</strong>, click on the current window's name, or press <kbd>Up</kbd> <kbd>Enter</kbd> from the omnibox.
+              <br>(Alternatively, type <samp>/edit</samp> <kbd>Enter</kbd> in the omnibox to toggle edit mode on or off.)
+            </p>
             <p>In edit mode, all names become targetable and editable, and <a href="#common">common actions</a> are disabled.</p>
             <p>To exit edit mode without closing the panel, press <kbd>Enter</kbd> while in a name field.</p>
             <p>Names should be unique and may not start with a forward slash (<samp>/</samp>).</p>
-            <p>A valid window name is saved when you de-target it (by clicking or navigating away from it), or when you press <kbd>Enter</kbd> in a name field. Invalid names are reverted upon any save attempts.</p>
+            <p>A valid window name is saved when you de-target it (by clicking or navigating away from it), or when you press <kbd>Enter</kbd> in a name field. Invalid names, such as duplicates, are reverted upon any save attempts.</p>
             <p>To cancel and not save any changes to the currently targeted name, close the panel by clicking outside it or by pressing <kbd>Esc</kbd>. This also exits edit mode.</p>
           </section>
-          <details class="bordered-box mr1">
-            <summary>
-              <h4 class="inline-block m0">Window naming tips</h4>
-            </summary>
-            <ul>
-              <li><p>Another way to enter and exit edit mode is to type <samp>/edit</samp> <kbd>Enter</kbd> in the omnibox.</p></li>
-              <li><p>Use easily <a href="#find">find</a>able/typeable names. In general this means using emojis and hard-to-type symbols sparingly &ndash; best to use them as visual flair, not to replace actual words.</p></li>
-              <li><p>To help you easily find related windows, use a shared keyword in their names e.g. <i>"work"</i>, <i>"work: Client Z"</i>, <i>"work: Project A"</i>, etc.</p></li>
-              <li>
-                <p>Apart from the Winger panel, where else do window names appear?</p>
-                <ul>
-                  <li><p>Window title bar. Even if you don't see the title bar, its contents show up in your operating system's task manager or switcher, for example while <span class="nowrap"><kbd>Alt</kbd>+<kbd>Tab</kbd>-ing</span> or in MacOS's Mission Control view.</p></li>
-                  <li><p>Button badge on the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon">, showing the first few characters.</p></li>
-                  <li><p>Tooltip that appears when you hover your pointer over the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon">. </p></li>
-                </ul>
-              </li>
-            </ul>
-          </details>
+
         </div>
         <div class="col">
           <figure class="popup popup-rounded edit" role="img" aria-label="Winger panel in edit mode">
@@ -208,7 +195,54 @@
           </figure>
         </div>
       </div>
-      <section class="mb2">
+      <section class="tabPanelGroup">
+        <nav role="tablist">
+          <button type="button" role="tab" aria-selected="true" aria-controls="where-names-appear">Where names appear</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="naming-tips">Naming tips</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="auto-de-duplication">Auto de-duplication</button>
+        </nav>
+        <details role="tabpanel" id="where-names-appear" open>
+          <summary></summary>
+          <p>Apart from the Winger panel and Winger's tab context submenu, where else do window names appear?</p>
+          <ul>
+            <li>
+              <p class="m0">
+                Window title bar. Its content, in turn, shows up in:
+                <ul>
+                  <li>your operating system's task manager or switcher, for example while <span class="nowrap"><kbd>Alt</kbd>+<kbd>Tab</kbd>-ing</span>, or in MacOS's App Exposé/Mission Control view.</li>
+                  <li>your browser's <cite>Window</cite> menu (which lists window titles in alphabetical order).</li>
+                </ul>
+              </p>
+            </li>
+            <li><p>Tooltip that appears when you hover your pointer over the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon">. </p></li>
+            <li><p>If enabled, the button badge on the Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon">, showing the first few characters.</p></li>
+          </ul>
+        </details>
+        <details role="tabpanel" id="naming-tips">
+          <summary></summary>
+          <ul>
+            <li>
+              <p>To help you easily find related windows, use a shared keyword in their names e.g.<br>
+                <em class="inline-block pl1">
+                  work<br>
+                  work: Client Z<br>
+                  work: Project A
+                </em>
+              </p>
+            </li>
+            <li><p>🔥 You can include emojis in names. Windows and Mac have built-in emoji pickers (<kbd>Win</kbd>+<kbd>.</kbd> and <kbd>Cmd</kbd>+<kbd>Ctrl</kbd>+<kbd>Space</kbd> respectively), or you can install emoji picker addons. They can help make a name stand out and, if placed at the start of a name, may even help you identify a window via the Winger button badge more easily.</p></li>
+            <li><p>Use easily <a href="#find">find</a>able/typeable names. This means using emojis and other hard-to-type symbols <em>sparingly</em> &ndash; best use them as visual flair, not to replace actual words.</p></li>
+          </ul>
+        </details>
+        <details role="tabpanel" id="auto-de-duplication">
+          <summary></summary>
+          <p>Outside of edit mode, if a <em>named window</em> is opened whose name happens to be in use by another currently open window, Winger will automatically resolve the name conflict by adding or incrementing a number suffix to the new window's name. This can happen when:</p>
+          <ul>
+            <li>creating a named window using the <a href="#slash">new/pop/kick commands</a></li>
+            <li><a href="#stash">unstashing</a> a bookmark folder</li>
+            <li>restoring a recently closed named window (<cite>History</cite> menu → <cite>Recently Closed Windows</cite>)</li>
+          </ul>
+        </details>
       </section>
     </article>
 
@@ -241,8 +275,8 @@
           <p><kbd>Shift</kbd>+<strong>switch</strong> becomes a <strong>bring</strong>. Thus you can also <kbd>Shift</kbd>+click or <kbd>Shift</kbd>+<kbd>Enter</kbd> on a row to bring tabs to that window.</p>
         </section>
       </div>
-      <section id="private" class="mx1 mb2">
-        <h3>Private windows and reopened tabs</h3>
+      <section id="private">
+        <h3>Private windows</h3>
         <div class="row">
           <div class="col flex-grow mr1">
             <p>Winger can list and interact with private windows if it is allowed private window access. Check your <button type="button" class="settingsBtn">Settings</button>.</p>
@@ -258,7 +292,9 @@
             <p>Send/bring buttons that will reopen tabs appear purple when targeted or hovered over.</p>
           </div>
         </div>
-        <p><strong>Reopened tabs</strong>...</p>
+      </section>
+      <section id="reopened" class="mb2">
+        <h3>Reopened tabs...</h3>
         <ul>
           <li><p>...preserve any pinned and reader-view tab states, but not most other tab/page states such as tab history, scroll position and unsubmitted form data.</p></li>
           <li>
@@ -285,11 +321,11 @@
       <section id="find" class="row">
         <div class="col flex-grow mx1-content mb2">
           <h3>Find/filter windows</h3>
-          <p>Start typing a name to find it; in other words, to filter the list of other windows.</p>
-          <p>This way you can quickly change which window appears below the omnibox, and thus pinpoint your action target. Alternatively, the now shorter window list can be traversed with arrow keys more quickly.</p>
-          <p>Filtering works in <a href="#name">edit mode</a> too.</p>
-          <p>Combine these two abilities to quickly, say, switch to another window by keyboard like so:</p>
-          <ol class="m0">
+          <p>Looking for a window? Type its name.</p>
+          <p>Typing in something filters the list of other windows. This way you can change which window appears below the omnibox, pinpointing your destination. Alternatively, the now shortened window list can also be traversed with arrow keys more quickly.</p>
+          <p>Filtering works in <a href="#name">edit mode</a> too, for hunting down a window you want to rename.</p>
+          <p class="m0">Combine these two abilities to quickly, say, switch to another window by keyboard like so:</p>
+          <ol class="pl2 m0">
             <li><kbd class="js-shortcut">F1</kbd> to open the panel.</li>
             <li>If the desired window is not immediately below the omnibox, start typing its name until it is.</li>
             <li><kbd>Enter</kbd>.</li>
@@ -321,33 +357,37 @@
       </section>
       <section id="slash" class="mx1-content mb2">
         <h3>Slash commands</h3>
-        <p>Certain actions can be performed by typing one of these in the omnibox, followed by <kbd>Enter</kbd>. Slash commands auto-complete as you type.</p>
+        <p>Certain actions can be performed by typing one of these in the omnibox, followed by <kbd>Enter</kbd>. Slash commands auto-complete as you type, and work if partially typed too.</p>
         <dl>
           <dt><samp>/help</samp> or <samp>/h</samp> or <samp>/</samp></dt>
-          <dd class="mb1">Open this help page.</dd>
+          <dd class="mb1">Opens this help page.</dd>
           <dt><samp>/settings</samp> or <samp>/s</samp> or</dt>
           <dt><samp>/options</samp> or <samp>/o</samp></dt>
-          <dd class="mb1">Open <button type="button" class="settingsBtn">Settings</button>.</dd>
+          <dd class="mb1">Opens <button type="button" class="settingsBtn">Settings</button>.</dd>
           <dt><samp>/edit</samp> or <samp>/e</samp> or</dt>
           <dt><samp>/name</samp> or <samp>/na</samp></dt>
-          <dd class="mb1">Toggle <a href="#name">edit mode</a>.</dd>
+          <dd class="mb1">Toggles <a href="#name">edit mode</a>.</dd>
           <dt><samp>/stash</samp> or <samp>/st</samp></dt>
           <dd class="mb1">
-            <a href="#stash">Stash</a> the current window.<br>
-            <kbd>Shift</kbd>+<kbd>Enter</kbd> prevents the window from closing.
+            <a href="#stash">Stashes</a> the current window.<br>
+            <kbd>Shift</kbd>+<kbd>Enter</kbd> to prevent the window from closing.
           </dd>
           <dt><samp>/new</samp> or <samp>/n</samp></dt>
           <dd class="mb1">
-            Open a new window.<br>
-            <kbd>Shift</kbd>+<kbd>Enter</kbd> and <kbd>Ctrl</kbd>+<kbd>Enter</kbd> invoke <samp>/pop</samp> and <samp>/kick</samp> respectively.
+            Opens a new window.<br>
+            Optionally, add a name after it to also name the new window, e.g. <samp>/new Eng homework</samp><br>
+            <kbd>Shift</kbd>+<kbd>Enter</kbd> or <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to invoke <samp>/pop</samp> or <samp>/kick</samp> respectively.
           </dd>
           <dt><samp>/pop</samp> or <samp>/p</samp></dt>
           <dd class="mb1">
-            <strong>Bring</strong> selected tabs to a new window ("Pop" tabs out of the current window).<br>
-            Equivalent to dragging selected tabs off the tab strip with your pointer.
+            <strong>Brings</strong> selected tabs to a new window ("Pop" tabs out of the current window). Equivalent to dragging selected tabs off the tabs bar.<br>
+            Optionally, add a name after it to also name the new window, e.g. <samp>/pop News</samp>
           </dd>
           <dt><samp>/kick</samp> or <samp>/k</samp></dt>
-          <dd class="mb1"><strong>Send</strong> selected tabs to a new window in the background ("Kick" tabs out of the current window).</dd>
+          <dd class="mb1">
+            <strong>Sends</strong> selected tabs to a new window in the background ("Kick" tabs out of the current window).<br>
+            Optionally, add a name after it to also name the new window, e.g. <samp>/kick read later</samp>
+          </dd>
           <dt><samp>/newprivate</samp> or <samp>/np</samp></dt>
           <dt><samp>/popprivate</samp> or <samp>/pp</samp></dt>
           <dt><samp>/kickprivate</samp> or <samp>/kp</samp></dt>
@@ -362,11 +402,11 @@
         <section class="col mx1-content">
           <h3>Tab context menu</h3>
           <p>Right-click on a tab to find <cite>Send to Window</cite> in the context menu, which shows a submenu listing all other windows. Then click on a window name to <strong>send</strong> the tab there. (<kbd>Shift</kbd>+click to <strong>bring</strong> instead.) This works whether or not the tab was selected.</p>
-          <p>If you right-clicked on one of multiple selected tabs, the action will apply to all of them, as you would expect.</p>
+          <p>If you had right-clicked on one of multiple selected tabs, the action will apply to all of them, as you would expect.</p>
         </section>
         <section class="col mx1-content">
           <h3>Link context menu</h3>
-          <p>Right-click on a link in a page to find the same <cite>Send to Window</cite> menu command. Then click on a window name to <strong>open</strong> the link there. (<kbd>Shift</kbd>+click will also <strong>switch</strong> to that window.)</p>
+          <p>Right-click on a link in a page to find the same <cite>Send to Window</cite> menu command. Then click on a window name to <strong>open</strong> the link there. (<kbd>Shift</kbd>+click will also <strong>switch</strong> to the window.)</p>
         </section>
       </div>
     </article>
@@ -390,7 +430,7 @@
             <ul class="children-mb1">
               <li><cite>Unstash</cite> also works on individual bookmarks. The command will delete the bookmark and open it as a new tab in the current window.</li>
               <li>
-                <p>Unstashed tabs are created just like <a href="#private">reopened tabs</a>: unloaded if possible, as placeholder tabs if necessary. This makes <cite>Unstash</cite> a superior bookmark folder command compared to the browser's native <cite>Open All Bookmarks</cite>.</p>
+                <p>Unstashed tabs are similar to <a href="#reopened">reopened tabs</a>: unloaded if possible, as placeholder tabs if necessary. This makes <cite>Unstash</cite> a superior bookmark folder command compared to the browser's native <cite>Open All Bookmarks</cite>.</p>
               </li>
             </ul>
           </li>
@@ -423,23 +463,22 @@
 
     <article id="tips" class="bordered-box mx1 mb5">
       <h2 class="center">Tips for managing <em>lots</em> of tabs and windows</h2>
-      <p><em>This section makes a few suggestions for other extensions that you can search and browse at <a href="https://addons.mozilla.org" target="_blank">addons.mozilla.org</a>.</em></p>
       <ul>
         <li><p>Divide and conquer with "window fission": split up a highly-populated window into several windows so you can focus on one set of tabs at a time. Hopefully this helps you work through them easier, and close them sooner.</p></li>
         <li>
-          <p>The <cite>List all tabs</cite> button (shortcut <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd>), which appears whenever the tab strip overflows, opens a menu of all tabs in the current window.</p>
+          <p>The <cite>List all tabs</cite> button, which appears whenever the tabs bar overflows, opens a menu of all tabs in the current window. Keyboard shortcut: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd>.</p>
           <ul>
             <li><p>Each menu item can be right-clicked to open its own tab context menu. This is as close as Firefox currently gets to native vertical tabs!</p></li>
-            <li><p>That said, Winger works well with vertical tabs, tab group and other extensions if you'd like extra tab management within individual windows.</p></li>
+            <li><p>That said, Winger works well with vertical tabs, tab groups and other addons if you'd like the extra tab management help within individual windows.</p></li>
           </ul>
         </li>
         <li>
           <p>Search tabs natively in the address bar by typing <kbd>%</kbd> <kbd>Space</kbd> followed by your search terms.</p>
           <ul>
-            <li><p>If you need more powerful ways to search and grab tabs, there are various extensions to help (e.g. <a href="https://addons.mozilla.org/firefox/addon/select-tabs/" target="_blank">Select Tabs</a>, a simple bulk tab selector I made).</p></li>
+            <li><p>If you need more powerful ways to search and grab tabs, there are various addons to help (e.g. <a href="https://addons.mozilla.org/firefox/addon/select-tabs/" target="_blank">Select Tabs</a>, a simple bulk tab selector I made).</p></li>
           </ul>
         </li>
-        <li><p>Use an automatic tab discarding (a.k.a. unloading/suspending) extension to minimise system resouce usage on less-visited tabs and windows. Recommended for the freedom to spawn as many windows as you like for more granular tab organisation.</p></li>
+        <li><p>Use an automatic tab discarding (a.k.a. unloading/suspending) addon to minimise system resouce usage on less-visited tabs and windows. Recommended for the freedom to spawn as many windows as you need for granular tab organisation.</p></li>
         <li><p>If you are not ready to permanently close windows you hardly use, consider <a href="#stash">stashing</a> them.</p></li>
       </ul>
     </article>

@@ -16,10 +16,12 @@ Promise.all([
 
 //@ (Object) -> state
 function onClick({ target }) {
-    if (target.classList.contains('themeBtn'))
+    if (target.matches('.themeBtn'))
         return $body.classList.toggle('dark');
-    if (target.classList.contains('settingsBtn'))
+    if (target.matches('.settingsBtn'))
         return browser.runtime.openOptionsPage();
+    if (target.matches('.tabPanelGroup button'))
+        return onTabClick(target);
 }
 
 //@ state -> state
@@ -68,4 +70,16 @@ function updateMockPopups() {
         const windowCount = $tabCounts.length;
         $status.textContent = statusText.replace('#', windowCount).replace('#', tabCount);
     });
+}
+
+function onTabClick($tab) {
+    const $panel = document.getElementById($tab.getAttribute('aria-controls'));
+    const $tabPanelGroup = $tab.closest('.tabPanelGroup');
+    const $tabs = $$('button', $tabPanelGroup);
+    const $panels = $$('details', $tabPanelGroup);
+    $tabs.forEach($t => $t.setAttribute('aria-selected', false));
+    $tab.setAttribute('aria-selected', true)
+    $panels.forEach($p => $p.removeAttribute('open'));
+    $panel.setAttribute('open', '');
+    return $panel;
 }
