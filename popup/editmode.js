@@ -4,6 +4,7 @@ import {
     $currentWindowRow,
     $omnibox,
     $names,
+    nameMap,
     isField,
     isNameField,
     isInToolbar,
@@ -13,8 +14,6 @@ import * as Request from './request.js';
 
 export let isActive = false; // Indicates if popup is in edit mode
 
-const nameMap = new Name.NameMap();
-
 //@ (Object|undefined), state -> state
 export function toggle($name = $currentWindowRow.$name) {
     isActive ? done() : activate($name);
@@ -22,7 +21,7 @@ export function toggle($name = $currentWindowRow.$name) {
 
 //@ state -> state
 function activate() {
-    nameMap.bulkSet($names);
+    nameMap.ready();
     toggleActive(true);
     if ($omnibox.value.startsWith('/'))
         Omnibox.clear();
@@ -138,8 +137,8 @@ function trySaveName($name) {
     const windowId = $name._id;
     Name.save(windowId, name);
     Request.updateChrome(windowId, name);
+    nameMap.set(windowId, name);
     indicateSuccess($name.$row);
-
     return true;
 }
 
