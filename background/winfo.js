@@ -12,9 +12,10 @@ const PROPS_TO_LOAD = {
 };
 
 // Dict of keys mapped to functions that derive new values, adding new properties to (i.e. mutating) `winfo`.
-// - `tabCount` also adds `selectedTabCount` if window is focused.
 //@ (Object, Object) -> state
 const PROPS_TO_DERIVE = {
+    // Requires populated `window.tabs`
+    // Also adds `winfo.selectedTabCount` if window is focused
     tabCount(window, winfo) {
         winfo.tabCount = window.tabs.length;
         if (window.focused)
@@ -23,7 +24,7 @@ const PROPS_TO_DERIVE = {
 };
 
 // Given a list of wanted properties, produce winfos for all windows.
-// `windows` is optional; include if already procured via browser.windows.getAll() before.
+// `windows` is optional; include if already procured before via browser.windows.getAll() or similar.
 // Refer to PROPS_TO_LOAD, PROPS_TO_DERIVE and the standard window-object for property candidiates. 'id' is always included.
 //@ ([String], undefined|[Object]), state -> ([Object])
 export async function getAll(wantedProps = [], windows = null) {

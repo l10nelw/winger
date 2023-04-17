@@ -1,3 +1,4 @@
+import { onExternalRequest } from './external.js';
 import * as Winfo from './winfo.js';
 import * as Action from './action.js';
 import * as Chrome from './chrome.js';
@@ -24,6 +25,7 @@ browser.menus.onClicked.addListener(onMenuClicked);
 
 browser.runtime.onInstalled.addListener(onExtensionInstalled);
 browser.runtime.onMessage.addListener(onRequest);
+browser.runtime.onMessageExternal.addListener(onExternalRequest)
 
 //@ state -> state
 async function init() {
