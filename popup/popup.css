@@ -264,7 +264,7 @@ li.reopenTabs button.tabAction:is(:hover, :focus) {
     background-image: url("../icons/bring.svg");
 }
 
-#currentWindow .tabAction {
+.tabAction[disabled] {
     visibility: hidden;
 }
 

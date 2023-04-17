@@ -24,6 +24,8 @@ export function action({ event, $action, command, argument }) {
     } else
     if ($action) {
         const $row = $action.$row || $action;
+        if ($row.matches('.tabless') && (event.ctrlKey || event.shiftKey))
+            return; // Do not allow send/bring to a "tabless" window
         request.windowId = $row._id;
         request.action = $action.dataset.action || $row.dataset.action;
     }
@@ -31,7 +33,7 @@ export function action({ event, $action, command, argument }) {
         return;
     request.argument = argument;
     request.modifiers = getModifiers(event);
-    sendMessage(request);
+    sendMessage(request); // { type: 'action', action, argument, modifiers, windowId }
     window.close();
 }
 

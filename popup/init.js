@@ -112,11 +112,11 @@ const Row = {
         this.hydrate($row, winfo);
         $row.$name.tabIndex = 0;
         this.disableElement($row);
-        $row.querySelectorAll('.tabAction').forEach($button => this.disableElement($button));
+        $row.querySelectorAll('.tabAction').forEach(this.disableElement);
     },
 
     //@ (Object, { Number, Boolean, String, Number }) -> state
-    hydrate($row, { id, incognito, givenName, tabCount }) {
+    hydrate($row, { id, incognito, givenName, tabCount, type }) {
         // Add references to row's cells, and in each cell a reference back to the row
         for (const selector of this.CELL_SELECTORS) {
             const $cell = $row.querySelector(selector);
@@ -130,6 +130,11 @@ const Row = {
         $row.$name.value = givenName;
         $row.$tabCount.textContent = tabCount;
         $row.classList.toggle('private', incognito);
+        // Disable tab action buttons if popup/panel-type window
+        if (type !== 'normal') {
+            $row.querySelectorAll('.tabAction').forEach(this.disableElement);
+            $row.classList.add('tabless');
+        }
     },
 
     //@ (Object) -> state
