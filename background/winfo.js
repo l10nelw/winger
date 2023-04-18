@@ -1,7 +1,6 @@
 /*
 A winfo ("window info") is similar to but distinct from a standard browser.windows window-object.
-It may contain as few or as many props as required; copied and/or derived from a window-object,
-and/or previously saved via browser.sessions.
+May contain as few or as many props as required; copied and/or derived from a window-object, and/or previously saved via browser.sessions.
 */
 
 // Dict of keys for sessions.getWindowValue() mapped to default values.

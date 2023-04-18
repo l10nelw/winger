@@ -31,7 +31,7 @@ browser.runtime.onMessageExternal.addListener(onExternalRequest)
 async function init() {
     const [settings, winfos] = await Promise.all([
         Settings.getAll(),
-        Winfo.getAll(['focused', 'created', 'firstSeen', 'givenName']),
+        Winfo.getAll(['focused', 'firstSeen', 'givenName']),
     ]);
 
     Chrome.init(settings);
@@ -46,7 +46,7 @@ async function init() {
 
     const nameMap = new Name.NameMap();
 
-    for (let { id, focused, created, firstSeen, givenName } of winfos) {
+    for (let { id, focused, firstSeen, givenName } of winfos) {
         if (givenName && nameMap.findId(givenName)) {
             givenName = nameMap.uniquify(givenName);
             Name.save(id, givenName);
@@ -57,16 +57,8 @@ async function init() {
         if (focused)
             Winfo.saveLastFocused(id);
 
-        if (!firstSeen) {
-            // TODO: Revise after v2.1.0
-            if (created) {
-                // Migrate `created` -> `firstSeen`
-                browser.sessions.setWindowValue(id, 'firstSeen', created);
-                browser.sessions.removeWindowValue(id, 'created');
-            } else {
-                Winfo.saveFirstSeen(id);
-            }
-        }
+        if (!firstSeen)
+            Winfo.saveFirstSeen(id);
     }
 }
 
