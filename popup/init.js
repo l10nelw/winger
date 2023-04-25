@@ -92,7 +92,7 @@ const Row = {
                 $button.hidden = false;
             } else {
                 $button.remove();
-                this.CELL_SELECTORS.delete(selector);
+                Row.CELL_SELECTORS.delete(selector);
                 buttonCount--;
             }
         }
@@ -103,22 +103,27 @@ const Row = {
     //@ (Object) -> (Object)
     createOther(winfo) {
         const $row = $currentWindowRow.cloneNode(true);
-        this.hydrate($row, winfo);
+        Row.hydrate($row, winfo);
+        // Disable tab action buttons if popup/panel-type window
+        if (winfo.type !== 'normal') {
+            $row.querySelectorAll('.tabAction').forEach(Row.disableElement);
+            $row.classList.add('tabless');
+        }
         return $row;
     },
 
     //@ (Object, Object) -> state
     hydrateCurrent($row, winfo) {
-        this.hydrate($row, winfo);
+        Row.hydrate($row, winfo);
+        Row.disableElement($row);
+        $row.querySelectorAll('.tabAction').forEach(Row.disableElement);
         $row.$name.tabIndex = 0;
-        this.disableElement($row);
-        $row.querySelectorAll('.tabAction').forEach(this.disableElement);
     },
 
     //@ (Object, { Number, Boolean, String, Number }) -> state
-    hydrate($row, { id, incognito, givenName, tabCount, type }) {
+    hydrate($row, { id, incognito, givenName, tabCount }) {
         // Add references to row's cells, and in each cell a reference back to the row
-        for (const selector of this.CELL_SELECTORS) {
+        for (const selector of Row.CELL_SELECTORS) {
             const $cell = $row.querySelector(selector);
             const reference = selector.replace('.', '$');
             $cell.$row = $row;
@@ -130,11 +135,6 @@ const Row = {
         $row.$name.value = givenName;
         $row.$tabCount.textContent = tabCount;
         $row.classList.toggle('private', incognito);
-        // Disable tab action buttons if popup/panel-type window
-        if (type !== 'normal') {
-            $row.querySelectorAll('.tabAction').forEach(this.disableElement);
-            $row.classList.add('tabless');
-        }
     },
 
     //@ (Object) -> state
