@@ -1,4 +1,3 @@
-import { onExternalRequest } from './external.js';
 import * as Winfo from './winfo.js';
 import * as Action from './action.js';
 import * as Chrome from './chrome.js';
@@ -25,7 +24,7 @@ browser.menus.onClicked.addListener(onMenuClicked);
 
 browser.runtime.onInstalled.addListener(onExtensionInstalled);
 browser.runtime.onMessage.addListener(onRequest);
-browser.runtime.onMessageExternal.addListener(onExternalRequest)
+browser.runtime.onMessageExternal.addListener(onExternalRequest);
 
 //@ state -> state
 async function init() {
@@ -134,4 +133,26 @@ async function popupResponse() {
         Settings.getAll(),
     ]);
     return { ...Winfo.arrange(winfos), settings };
+}
+
+//@ (Object), state -> (Promise: [Object]|Error)
+function onExternalRequest(request) {
+    switch (request.type) {
+        case 'info': {
+            // Return winfos with the specified `properties` (required [String])
+            // If `windowIds` (optional [Number]) given, return only the winfos for them
+
+            const { properties } = request;
+            if (!Array.isArray(properties))
+                return Promise.reject(new Error('`properties` array is required'));
+
+            const { windowIds } = request;
+            if (windowIds && !windowIds.every?.(Number.isInteger))
+                return Promise.reject(new Error('`windowIds` must be an array of integers'));
+
+            const bareWinfos = windowIds?.map(id => ({ id }));
+            return Winfo.getAll(properties, bareWinfos);
+        }
+    }
+    return Promise.reject(new Error('Missing or unrecognized `type`'));
 }
