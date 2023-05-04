@@ -26,4 +26,4 @@ export function getName($el) {
 }
 
 export const nameMap = new NameMap();
-nameMap.ready = () => nameMap.size ? nameMap : nameMap.bulkSet($names); //@ state -> (Map(Number:String)), state|nil
+nameMap.ready = () => nameMap.size ? nameMap : nameMap.populate($names); //@ state -> (Map(Number:String)), state|nil

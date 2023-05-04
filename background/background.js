@@ -81,7 +81,7 @@ async function onWindowCreated(window) {
     let { givenName } = winfos.at(-1); // The new window should be last in the array
     if (givenName) {
         // Uniquify name
-        const nameMap = (new Name.NameMap()).bulkSet(winfos);
+        const nameMap = (new Name.NameMap()).populate(winfos);
         if (nameMap.findId(givenName) !== windowId)
             Name.save(id, nameMap.uniquify(givenName));
 

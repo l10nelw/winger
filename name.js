@@ -33,12 +33,12 @@ function startsWithSlash(name) {
     return name.startsWith('/');
 }
 
-// NameMap maps windowIds to names (Number:String), and provides methods that require all present names as context.
+// Map windowIds to names, and provide methods that work in the context of all present names.
 export class NameMap extends Map {
 
-    // `objects` should be an array of winfos containing givenNames, or an array of $names.
+    // `objects` should either be an array of winfos containing givenNames, or an array of $names.
     //@ ([Object]) -> (Map(Number:String)), state
-    bulkSet(objects) {
+    populate(objects) {
         if ('givenName' in objects[0]) {
             for (const { id, givenName } of objects) // winfos
                 this.set(id, givenName);
