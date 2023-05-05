@@ -4,10 +4,14 @@ import { getShortcut } from '../utils.js';
 
 //@ (Object) -> state
 export function init({ show_badge }) {
-    if (show_badge)
-        initButtonBadge();
-    else
-        updateButtonBadge = () => {};
+    if (!show_badge)
+        updateBadge = () => {};
+}
+
+//@ -> state
+export function showWarningBadge() {
+    browser.browserAction.setBadgeBackgroundColor({ color: 'transparent' });
+    browser.browserAction.setBadgeText({ text: '⚠️' });
 }
 
 //@ (Number, String) -> state
@@ -15,16 +19,12 @@ export function update(windowId, name) {
     const titlePreface = name ? `${name} - ` : '';
     updateTitlebar(windowId, titlePreface);
     updateButtonTitle(windowId, titlePreface);
-    updateButtonBadge(windowId, name);
-}
-
-//@ -> state
-function initButtonBadge() {
-    browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
+    updateBadge(windowId, name);
 }
 
 //@ (Number, String) -> state
-function updateButtonBadge(windowId, text) {
+function updateBadge(windowId, text) {
+    browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
     browser.browserAction.setBadgeText({ windowId, text });
 }
 

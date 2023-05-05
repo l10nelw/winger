@@ -33,9 +33,7 @@ function onSuccess({ currentWinfo, otherWinfos, settings }) {
 //@ -> state
 function onError() {
     Request.debug();
-
-    browser.browserAction.setBadgeText({ text: '⚠️' });
-    browser.browserAction.setBadgeBackgroundColor({ color: 'transparent' });
+    Request.showWarningBadge();
 
     $currentWindowRow.hidden = true;
     $omnibox.hidden = true;

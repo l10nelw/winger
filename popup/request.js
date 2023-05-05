@@ -6,14 +6,13 @@ import { get as getModifiers } from '../modifier.js';
 const sendMessage = browser.runtime.sendMessage;
 
 //@ -> (Promise: Object)
-export function popup() {
-    return sendMessage({ type: 'popup' });
-}
-
+export const popup = () => sendMessage({ type: 'popup' });
+//@ (Number, String) -> state
+export const updateChrome = (windowId, name) => sendMessage({ type: 'update', windowId, name });
 //@ -> state
-export function help() {
-    sendMessage({ type: 'help' });
-}
+export const showWarningBadge = () => sendMessage({ type: 'warn' });
+export const help = () => sendMessage({ type: 'help' });
+export const debug = () => sendMessage({ type: 'debug' });
 
 // Gather action parameters to create request. Proceed only if action string given via `command` or derived from `$action`.
 //@ (Object) -> state|nil
@@ -33,22 +32,12 @@ export function action({ event, $action, command, argument }) {
         return;
     request.argument = argument;
     request.modifiers = getModifiers(event);
-    sendMessage(request); // { type: 'action', action, argument, modifiers, windowId }
+    sendMessage(request); // request = { type: 'action', action, argument, modifiers, windowId }
     window.close();
-}
-
-//@ (Number, String) -> state
-export function updateChrome(windowId, name) {
-    sendMessage({ type: 'update', windowId, name });
 }
 
 //@ (Number, Boolean) -> state
 export function stash(close, windowId = $currentWindowRow._id) {
     sendMessage({ type: 'stash', windowId, close });
     window.close();
-}
-
-//@ -> state
-export function debug() {
-    sendMessage({ type: 'debug' });
 }

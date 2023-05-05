@@ -122,6 +122,7 @@ function onRequest(request) {
         case 'action': return Action.execute(request);
         case 'help':   return Action.openHelp();
         case 'update': return Chrome.update(request.windowId, request.name);
+        case 'warn':   return Chrome.showWarningBadge();
         case 'debug':  return debug();
     }
 }
