@@ -57,7 +57,13 @@ function onContextMenu(event) {
 
 //@ (Object) -> state|nil
 function onKeyDown(event) {
-    navigateByKey(event);
+    const { target } = event;
+    if (target === $omnibox && event.key === 'Tab' && hasSelectedText(target)) {
+        event.preventDefault();
+        target.setSelectionRange(-1, -1);
+    } else {
+        navigateByKey(event);
+    }
     Status.update(event);
 }
 
@@ -98,4 +104,6 @@ function onFocusIn(event) {
     if ($focused.tabIndex === -1)
         return $defocused.focus();
     $focused.select?.();
-    }
+}
+
+const hasSelectedText = field => field.selectionStart !== field.selectionEnd;
