@@ -7,6 +7,7 @@ import {
     isRow,
     isField,
     isInToolbar,
+    isNameField,
 } from './common.js';
 import { isActive as isEditMode } from './editmode.js';
 import { $shownRows } from './filter.js';
@@ -112,16 +113,37 @@ const navigator = {
             ($el.previousElementSibling || $el.$row);
     },
     Tab($el, event) {
-        // event.preventDefault() skips tabbing to 'nowhere' before the first or after the last focusable element
         if (event.shiftKey) {
             if (isCurrentWindow($el)) {
                 event.preventDefault();
                 return toolbar();
             }
-        } else {
-            if (isInToolbar($el)) {
+            if (isEditMode && isNameField($el)) {
+                const $row = $el.$row;
+                if ($row === $shownRows[0]) {
+                    event.preventDefault();
+                    return $omnibox;
+                }
+                return $row.previousElementSibling.$name;
+            }
+            return $el;
+        }
+        if (isInToolbar($el)) {
+            event.preventDefault();
+            return currentWindow();
+        }
+        if (isEditMode) {
+            if ($el === $omnibox) {
                 event.preventDefault();
-                return currentWindow();
+                return $shownRows[0]?.$name || toolbar();
+            }
+            if (isNameField($el)) {
+                const $row = $el.$row;
+                if ($row !== $currentWindowRow && $row !== $shownRows.at(-1)) {
+                    // A name field that is not the first or last
+                    event.preventDefault();
+                    return $row.nextElementSibling.$name;
+                }
             }
         }
         return $el;
