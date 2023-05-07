@@ -1,6 +1,5 @@
 import {
     $currentWindowRow,
-    $otherWindowsList,
     $omnibox,
     $toolbar,
     isButton,
@@ -54,7 +53,7 @@ const isHorizontalKey = key => HORIZONTAL_KEYS.includes(key); //@ (String) -> (B
 // Prevent scrolling if focus is on first/last few rows
 //@ (Object, Object) -> state|nil
 function restrictScroll($el, event) {
-    const index = [...$otherWindowsList.children].indexOf($el);
+    const index = $shownRows.indexOf($el);
     if (SCROLL_THRESHOLD <= index && ($shownRows.length - index) > SCROLL_THRESHOLD)
         return;
     event.preventDefault(); // Suppress scrolling
@@ -78,7 +77,7 @@ const navigator = {
         if (isCurrentWindow($el))
             return $omnibox;
         if ($el === $omnibox)
-            return rowOrCell($otherWindowsList.firstElementChild) || toolbar();
+            return rowOrCell($shownRows[0]) || toolbar();
         const $nextRow = row($el).nextElementSibling;
         return rowOrCell($nextRow) || toolbar();
     },
@@ -88,7 +87,7 @@ const navigator = {
         if (isCurrentWindow($el))
             return toolbar();
         if (isInToolbar($el))
-            return rowOrCell($otherWindowsList.lastElementChild) || $omnibox;
+            return rowOrCell($shownRows.at(-1)) || $omnibox;
         const $nextRow = row($el).previousElementSibling;
         return rowOrCell($nextRow) || $omnibox;
     },
