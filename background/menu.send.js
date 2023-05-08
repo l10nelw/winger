@@ -43,13 +43,16 @@ export async function handleShow(info, tab) {
 //@ ([Object]) -> state
 async function populate(windows) {
     const { currentWinfo, otherWinfos } = Winfo.arrange(
-        await Winfo.getAll(['focused', 'givenName', 'lastFocused', 'minimized'], windows)
-    );
-    for (let { id, givenName } of otherWinfos) {
+        await Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized'], windows));
+    const privateIcon = { 16: 'icons/private.svg' };
+    for (let { id, givenName, incognito } of otherWinfos) {
         const title = givenName || NO_NAME;
         id = `${id}`; // Menu id must be string
         browser.menus.remove(id);
-        browser.menus.create({ parentId, id, title });
+        const menuToCreate = { parentId, id, title };
+        if (incognito)
+            menuToCreate.icons = privateIcon;
+        browser.menus.create(menuToCreate);
     }
     browser.menus.remove(`${currentWinfo.id}`);
     browser.menus.remove(dummyId);
