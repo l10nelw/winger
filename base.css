@@ -1,0 +1,51 @@
+/* popup, tab, options, help */
+
+:root {
+    --border-radius: 8px; /* Matches FF popup's rounded corners */
+
+    --popup-button-size: 30px;
+    --popup-row-height: 36px;
+    --popup-name-height: 28px;
+    --popup-private-button-color: darkorchid;
+    --danger-color: red;
+    --success-color: #0b0;
+
+    --accent-color: #0061e0;
+    --text-color: black;
+    --muted-text-color: #666;
+    --private-text-color: purple;
+    --page-bg-color: white;
+    --popup-field-color: white;
+    --popup-row-color: #eee;
+    --popup-hover-row-color: #ddd;
+    --popup-border-color: #ccc;
+    --popup-hover-button-color: #ccc;
+}
+
+.dark {
+    --accent-color: #0df;
+    --text-color: white;
+    --muted-text-color: #ccc;
+    --private-text-color: #f6f;
+    --page-bg-color: #23222b;
+    --popup-field-color: #23222b;
+    --popup-row-color: #42414d;
+    --popup-hover-row-color: #52525e;
+    --popup-border-color: #333;
+    --popup-hover-button-color: #666;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    accent-color: var(--accent-color);
+}
+
+a {
+    color: var(--accent-color);
+}
+
+kbd {
+    padding: 0 3px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+}

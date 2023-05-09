@@ -1,21 +1,15 @@
 :root {
-  --bg-color: white;
-  --text-color: #223;
-  --accent-color: blue;
-  --button-bg-color: #ccc;
-  --highlight-bg-color: yellow;
+  --page-box-border-color: #ccc;
 
-  --box-border-color: #ccc;
+  --page-button-bg-color: #ccc;
+  --page-highlight-bg-color: yellow;
 
   scroll-padding-top: 1rem;
 }
 
 .dark {
-  --bg-color: #223;
-  --text-color: white;
-  --accent-color: #0df;
-  --button-bg-color: #52525e;
-  --highlight-bg-color: #541;
+  --page-button-bg-color: #52525e;
+  --page-highlight-bg-color: #541;
 }
 
 *, *::before, *::after {
@@ -26,13 +20,9 @@ body {
   max-width: 80rem;
   margin: 0 auto;
   padding: 1rem;
-  font-family: Arial, Helvetica, sans-serif;
   line-height: 1.5;
-  background-color: var(--bg-color);
+  background-color: var(--page-bg-color);
   color: var(--text-color);
-}
-a {
-  color: var(--accent-color);
 }
 a[target="_blank"]::after {
   content: "↗️";
@@ -66,11 +56,6 @@ summary {
 }
 summary.h2::marker { /* TODO: Use summary:has(h2)::marker once supported */
   font-size: 1.5rem;
-}
-kbd {
-  padding: 0 3px;
-  border: 1px solid currentColor;
-  border-radius: 3px;
 }
 samp {
   font-size: 1rem;
@@ -124,8 +109,7 @@ img {
 }
 
 .actionBtn {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-  background-color: var(--button-bg-color);
+  background-color: var(--page-button-bg-color);
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 8px;
@@ -151,12 +135,12 @@ img {
 }
 
 .bordered-box {
-  border: 3px solid var(--box-border-color);
+  border: 3px solid var(--page-box-border-color);
   padding: .5rem 1rem;
   border-radius: 1rem;
 }
 .bordered-left {
-  border-left: 3px solid var(--box-border-color);
+  border-left: 3px solid var(--page-box-border-color);
 }
 
 .tabPanelGroup nav {
@@ -164,9 +148,9 @@ img {
 }
 .tabPanelGroup button {
   flex-grow: 1;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  border: 3px solid var(--box-border-color);
+  background-color: var(--page-bg-color);
+  color: var(--page-text-color);
+  border: 3px solid var(--page-box-border-color);
   white-space: nowrap;
   font-size: 1rem;
   padding: .5rem 2rem;
@@ -185,7 +169,7 @@ img {
   display: none;
 }
 .tabPanelGroup details {
-  border: 3px solid var(--box-border-color);
+  border: 3px solid var(--page-box-border-color);
   border-radius: 0 0 1rem 1rem;
   margin-top: -3px;
   padding: 1rem;
@@ -208,7 +192,7 @@ img {
   animation: target-fading-highlight 2s 1;
 }
 @keyframes target-fading-highlight {
-  from { background-color: var(--highlight-bg-color); }
+  from { background-color: var(--page-highlight-bg-color); }
   to   { background-color: none; }
 }
 

@@ -1,52 +1,15 @@
 .popup {
     --popup-width: 280px;
-    --border-radius: 8px;
-    --row-height: 36px;
-    --button-width: 30px;
     --input-width: 200px;
-    --name-height: 28px;
     --tabcount-width: 20px;
 
-    --text-color: black;
-    --muted-text-color: #666;
-    --private-text-color: purple;
-
-    --row-color: #eee;
-    --focused-row-color: #ddd;
-
-    --input-color: #fff;
-
-    --button-color: #d0d0d0;
-    --private-button-color: darkorchid;
-
-    --border-color: #ddd;
-    --focus-outline-color: #4a90d9;
-}
-.dark .popup {
-    --text-color: #fff;
-    --muted-text-color: #ccc;
-    --private-text-color: magenta;
-
-    --row-color: #42414d;
-    --focused-row-color: #52525e;
-
-    --input-color: #223;
-
-    --button-color: #50505c;
-    --focused-button-color: #666;
-
-    --border-color: #444;
-    --focus-outline-color: #0df;
-}
-
-.popup {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     font-size: .9rem;
     display: inline-block;
     margin: 0;
-    background-color: var(--row-color);
+    background-color: var(--popup-row-color);
     color: var(--text-color);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--popup-border-color);
     cursor: default;
     user-select: none;
 }
@@ -60,27 +23,28 @@
 
 .popup-row,
 .popup-toolbar {
-    height: var(--row-height);
+    height: var(--popup-row-height);
     display: flex;
     align-items: center;
 }
 
 .popup-omnibox {
-    height: var(--row-height);
+    height: var(--popup-row-height);
     line-height: 2;
     padding: 0 .25rem;
-    background-color: var(--input-color);
-    border: 2px solid var(--border-color);
+    background-color: var(--popup-field-color);
+    border: 2px solid var(--popup-border-color);
 }
 
 .popup .focused {
-    border: 2px solid var(--focus-outline-color) !important;
+    border: 2px solid var(--accent-color) !important;
 }
 
 .popup-name {
     width: var(--input-width);
-    height: var(--name-height);
+    height: var(--popup-name-height);
     margin-left: .5rem;
+    border: 2px solid transparent;
 }
 :is(.popup-omnibox, .popup-name).focused::after {
     content: "|";
@@ -90,7 +54,7 @@
     color: var(--private-text-color);
 }
 .popup-row.private .popup-btn.focused {
-    background-color: var(--private-button-color);
+    background-color: var(--popup-private-button-color);
 }
 .popup-tabCount {
     width: var(--tabcount-width);
@@ -100,33 +64,30 @@
 }
 
 .popup-btn {
-    width: var(--button-width);
-    height: var(--button-width);
+    width: var(--popup-button-size);
+    height: var(--popup-button-size);
     margin: 1px;
     opacity: .7;
     background-size: 90%;
     background-repeat: no-repeat;
     background-position: center;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
 }
 .popup-btn.send {
     background-image: url("../icons/send.svg");
-    background-color: var(--button-color);
 }
 .popup-btn.bring {
     background-image: url("../icons/bring.svg");
-    background-color: var(--button-color);
 }
 .popup-btn.reopen {
-    background-color: var(--private-button-color);
+    background-color: var(--popup-private-button-color);
 }
 
 .popup.edit .popup-name {
     padding-left: 4px;
-    border-radius: 8px;
-    background-color: var(--input-color);
-    border: 2px solid var(--input-color);
+    border-radius: var(--border-radius);
+    background-color: var(--popup-field-color);
 }
 .popup.edit .popup-btn {
     opacity: .1;
@@ -145,7 +106,7 @@
     font-size: 90%;
 }
 .popup-tool {
-    flex: 0 0 var(--row-height);
+    flex: 0 0 var(--popup-row-height);
     text-align: center;
 }
 .popup-tool.help::before {

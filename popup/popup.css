@@ -12,53 +12,15 @@ Test list:
 
 /* * { outline: 1px solid red; } */
 :root {
-    --row-height: 36px;
-    --button-size: 30px;
     --button-count: 0;
-    --name-height: 28px;
     --tabcount-width: 2rem;
-    --popup-width: calc(var(--button-count) * var(--button-size) + 20rem + var(--tabcount-width));
+    --popup-width: calc(var(--button-count) * var(--popup-button-size) + 20rem + var(--tabcount-width));
     --max-list-height: 30rem;
-    --border-radius: 8px; /* Matches FF popup's rounded corners */
-
-    --text-color: #000;
-    --muted-text-color: #666;
-    --private-text-color: purple;
-
-    --row-color: #eee;
-    --hover-row-color: #ddd;
-
-    --field-color: #fff;
-
-    --hover-button-color: #ccc;
-    --private-button-color: darkorchid;
-
-    --border-color: #ccc;
-    --accent-color: #0061e0;
-
-    --danger-color: red;
-    --success-color: #0b0;
 
     --tick-size: 15px;
     --tick-end-offset: 4rem;
 
     scrollbar-width: none;
-}
-
-.dark {
-    --text-color: #fff;
-    --muted-text-color: #ccc;
-    --private-text-color: #f6f;
-
-    --row-color: #42414d;
-    --hover-row-color: #52525e;
-
-    --field-color: #223;
-
-    --hover-button-color: #666;
-
-    --border-color: #333;
-    --accent-color: #0df;
 }
 
 /* Focus ring */
@@ -74,7 +36,7 @@ body[data-mode="normal"] #currentWindow .name:focus,
 
 body {
     width: var(--popup-width);
-    background-color: var(--row-color);
+    background-color: var(--popup-row-color);
     color: var(--text-color);
 }
 
@@ -91,8 +53,8 @@ ul {
 
     /* Scroll shadows */
     background:
-        linear-gradient(var(--row-color) 30%, transparent),
-        linear-gradient(transparent, var(--row-color) 70%) 0 100%,
+        linear-gradient(var(--popup-row-color) 30%, transparent),
+        linear-gradient(transparent, var(--popup-row-color) 70%) 0 100%,
         radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.3), transparent),
         radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.3), transparent) 0 100%;
     background-repeat: no-repeat;
@@ -107,7 +69,7 @@ li {
     display: flex;
     align-items: center;
     position: relative;
-    height: var(--row-height);
+    height: var(--popup-row-height);
     width: auto;
     scroll-snap-align: start;
     border: 2px solid transparent;
@@ -126,7 +88,7 @@ li > * {
 }
 
 body[data-mode="normal"] #otherWindows li:hover {
-    background-color: var(--hover-row-color);
+    background-color: var(--popup-hover-row-color);
 }
 
 
@@ -136,7 +98,7 @@ input {
     border: 2px solid transparent;
     padding: 0 6px;
     text-align: start;
-    background-color: var(--field-color);
+    background-color: var(--popup-field-color);
     color: var(--text-color);
 }
 
@@ -148,7 +110,7 @@ input:read-only {
 /* --- Name field --- */
 
 .name {
-    height: var(--name-height);
+    height: var(--popup-name-height);
     flex-grow: 1;
     border-radius: var(--border-radius);
     margin-left: .25rem;
@@ -170,7 +132,7 @@ body[data-mode="normal"] #currentWindow .name {
 
 /* Indicate clickable name */
 body[data-mode="normal"] #currentWindow .name:hover {
-    background-color: var(--hover-row-color);
+    background-color: var(--popup-hover-row-color);
     cursor: pointer;
 }
 
@@ -192,7 +154,7 @@ body[data-mode="normal"] #currentWindow .name:hover {
     width: var(--tick-size);
     border-radius: 50%;
     background-color: var(--success-color);
-    color: var(--field-color);
+    color: var(--popup-field-color);
     animation: shrink-away .2s .8s forwards;
 }
 @keyframes shrink-away {
@@ -207,9 +169,9 @@ body[data-mode="normal"] #currentWindow .name:hover {
 /* --- Omnibox --- */
 
 #omnibox {
-    height: var(--row-height);
+    height: var(--popup-row-height);
     width: 100%;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--popup-border-color);
 }
 
 .slashCommand {
@@ -217,7 +179,7 @@ body[data-mode="normal"] #currentWindow .name:hover {
     font-weight: bold;
 }
 .slashCommand::selection {
-    color: var(--field-color);
+    color: var(--popup-field-color);
     background-color: var(--accent-color);
 }
 
@@ -231,24 +193,24 @@ button {
 
 button:hover,
 body[data-mode="normal"] li button:focus {
-    background-color: var(--hover-button-color);
+    background-color: var(--popup-hover-button-color);
     background-size: 97%; /* Counteract shrinkage caused by focus-ring border, but also a nice hover effect */
     opacity: 1;
 }
 
 li button {
-    width: var(--button-size);
-    height: var(--button-size);
+    width: var(--popup-button-size);
+    height: var(--popup-button-size);
     background-size: 90%;
     background-repeat: no-repeat;
     background-position: center;
     border-radius: var(--border-radius);
-    border: 1px solid var(--row-color); /* Provide 2px space between buttons to accommodate focus-ring border */
+    border: 1px solid var(--popup-row-color); /* Provide 2px space between buttons to accommodate focus-ring border */
     opacity: .7;
 }
 
 li:hover button:not(:focus) {
-    border-color: var(--hover-row-color);
+    border-color: var(--popup-hover-row-color);
 }
 
 body[data-mode="edit"] li button {
@@ -257,7 +219,7 @@ body[data-mode="edit"] li button {
 }
 
 li.reopenTabs button.tabAction:is(:hover, :focus) {
-    background-color: var(--private-button-color);
+    background-color: var(--popup-private-button-color);
 }
 
 .send  { background-image: url("../icons/send.svg"); }
@@ -272,7 +234,7 @@ li.reopenTabs button.tabAction:is(:hover, :focus) {
 
 footer {
     display: flex;
-    height: var(--row-height);
+    height: var(--popup-row-height);
 }
 
 #status {
@@ -285,14 +247,11 @@ footer {
 }
 
 kbd {
-    padding: 0 3px;
-    border: 1px solid currentColor;
-    border-radius: 3px;
     font-size: .9rem;
 }
 
 footer button {
-    flex-basis: var(--row-height);
+    flex-basis: var(--popup-row-height);
     flex-shrink: 0;
     border: 2px solid transparent;
     text-align: center;
@@ -316,7 +275,7 @@ footer button:last-child {
 }
 
 #restart {
-    background-color: var(--hover-button-color);
+    background-color: var(--popup-hover-button-color);
     color: var(--text-color);
     white-space: nowrap;
     border-top-right-radius: var(--border-radius);
