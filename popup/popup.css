@@ -29,13 +29,12 @@ Test list:
     --hover-row-color: #ddd;
 
     --field-color: #fff;
-    --slash-field-color: #ff6;
 
-    --hover-button-color: #bbb;
+    --hover-button-color: #ccc;
     --private-button-color: darkorchid;
 
     --border-color: #ccc;
-    --focus-border-color: #4a90d9;
+    --accent-color: #0061e0;
 
     --danger-color: red;
     --success-color: #0b0;
@@ -55,20 +54,19 @@ Test list:
     --hover-row-color: #52525e;
 
     --field-color: #223;
-    --slash-field-color: #541;
 
     --hover-button-color: #666;
 
     --border-color: #333;
-    --focus-border-color: #0df;
+    --accent-color: #0df;
 }
 
 /* Focus ring */
-:focus,
+:focus-visible,
 body[data-mode="normal"] #currentWindow .name:focus,
 #omnibox:focus {
     outline: none;
-    border: 2px solid var(--focus-border-color);
+    border: 2px solid var(--accent-color);
 }
 
 
@@ -111,7 +109,7 @@ li {
     position: relative;
     height: var(--row-height);
     width: auto;
-    scroll-snap-align: center;
+    scroll-snap-align: start;
     border: 2px solid transparent;
     list-style: none;
 }
@@ -215,7 +213,12 @@ body[data-mode="normal"] #currentWindow .name:hover {
 }
 
 .slashCommand {
-    background-color: var(--slash-field-color);
+    color: var(--accent-color);
+    font-weight: bold;
+}
+.slashCommand::selection {
+    color: var(--field-color);
+    background-color: var(--accent-color);
 }
 
 
@@ -229,6 +232,7 @@ button {
 button:hover,
 body[data-mode="normal"] li button:focus {
     background-color: var(--hover-button-color);
+    background-size: 97%; /* Counteract shrinkage caused by focus-ring border, but also a nice hover effect */
     opacity: 1;
 }
 
@@ -239,7 +243,7 @@ li button {
     background-repeat: no-repeat;
     background-position: center;
     border-radius: var(--border-radius);
-    border: 1px solid var(--row-color); /* Provide 2px space between buttons */
+    border: 1px solid var(--row-color); /* Provide 2px space between buttons to accommodate focus-ring border */
     opacity: .7;
 }
 
@@ -256,13 +260,8 @@ li.reopenTabs button.tabAction:is(:hover, :focus) {
     background-color: var(--private-button-color);
 }
 
-.send {
-    background-image: url("../icons/send.svg");
-}
-
-.bring {
-    background-image: url("../icons/bring.svg");
-}
+.send  { background-image: url("../icons/send.svg"); }
+.bring { background-image: url("../icons/bring.svg"); }
 
 .tabAction[disabled] {
     visibility: hidden;
