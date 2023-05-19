@@ -64,24 +64,21 @@ function modify(action, modifiers) {
     return action;
 }
 
-// Create a new window. If isMove=true, do so with the currently selected tabs.
+// Create a new window. If isMove=true, do so with currently selected tabs. If focused=false, minimize the window.
+// Note: A new minimized window will briefly have focus. Firefox ignores windows.create/update({ focused: false }).
 //@ ({ String, Boolean, Boolean, Boolean }), state -> (Object), state
 export async function createWindow({ name, isMove, focused = true, incognito }) {
     const [currentWindow, newWindow] = await Promise.all([
         browser.windows.getLastFocused(),
-        browser.windows.create({ incognito }),
+        browser.windows.create({ incognito, state: focused ? null : 'minimized' }),
     ]);
-    const newWindowId = newWindow.id;
     const currentWindowDetail = { windowId: currentWindow.id };
+    const newWindowId = newWindow.id;
 
     if (name) {
         Name.save(newWindowId, name);
         Chrome.update(newWindowId, name);
     }
-
-    // Firefox ignores windows.create/update({ focused: false }), so if focused=false, switch back to current window
-    if (!focused)
-        switchWindow(currentWindowDetail);
 
     if (isMove) {
         const allTabs = await browser.tabs.query(currentWindowDetail); // Get all tabs first for checking if all selected
