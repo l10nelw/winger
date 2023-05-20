@@ -15,6 +15,7 @@ body {
 
 header {
     color: var(--muted-text-color);
+    font-size: small;
 }
 
 h1 {
