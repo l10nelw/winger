@@ -204,7 +204,8 @@ export function openTab(protoTab) {
 
 //@ (Object, String) -> (Promise: Object), state
 function openPlaceholderTab(protoTab, title) {
-    protoTab.url = buildPlaceholderURL(protoTab.url, title);
+    const url = protoTab.url;
+    protoTab.url = buildPlaceholderURL(url, title || url);
     return browser.tabs.create(protoTab);
 }
 
