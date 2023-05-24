@@ -4,8 +4,21 @@ Name windows, switch windows, move tabs between windows, and more. A Firefox web
 
 Install Winger from here: https://addons.mozilla.org/firefox/addon/winger/
 
-## Naming conventions
+## Code and documentation conventions
 
-- A variable prefixed with a `$` sigil represents a DOM node or a collection of DOM nodes. (Generally found in the popup and options frames.)
-    - Some DOM nodes are given custom properties (a.k.a. expandos) prefixed with `_` or `$`.
-- `active` tabs are "focused"; `highlighted` tabs are "selected".
+### Terminology
+
+- `active` tabs are "focused"
+- `highlighted` tabs are "selected"
+
+### Variable names
+
+- Arrays are usually plural
+- Objects are usually singular
+- Objects that group similar things together are usually suffixed with `Dict`
+- Maps are usually suffixed with `Map`
+- Sets are usually suffixed with `Set`
+- Booleans are usually prefixed with words like `is` and `has`
+- Classes, modules and some objects acting as namespaces are first-letter-capitalized
+- DOM nodes and collections of DOM nodes are usually prefixed with `$`
+- Custom properties (a.k.a. expandos) in DOM nodes are prefixed with `_`, or `$` if referencing DOM nodes
