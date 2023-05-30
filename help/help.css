@@ -57,6 +57,9 @@ summary {
 summary.h2::marker { /* TODO: Use summary:has(h2)::marker once supported */
   font-size: 1.5rem;
 }
+kbd + kbd {
+  margin-left: .25rem;
+}
 cite {
   font-weight: bold;
 }
@@ -171,19 +174,6 @@ img {
   padding: 1rem;
 }
 
-.new {
-  vertical-align: middle;
-  padding: 2px 5px;
-  border-radius: 1rem;
-  background-color: yellow;
-  font-size: .5rem;
-  cursor: default;
-  user-select: none;
-}
-.dark .new {
-  color: black;
-}
-
 :target {
   animation: target-fading-highlight 2s 1;
 }
@@ -192,31 +182,29 @@ img {
   to   { background-color: none; }
 }
 
-.flex-grow { flex-grow: 1; }
 .w100 { width: 100%; }
 .inline-block { display: inline-block; }
-.ai-center { align-items: center; }
-.jc-between { justify-content: space-between; }
 .center { text-align: center; }
-.right { text-align: right; }
+.grid { display: grid; }
+.gcol-span3 { grid-column: span 3; }
+.gcol-span2 { grid-column: span 2; }
 
 .lastchild-mb0 > :last-child { margin-bottom: 0; }
 .children-mb1 > * { margin-bottom: 1rem; }
+.children-m0 > * { margin: 0; }
 .m0 { margin: 0; }
 .mr1 { margin-right: 1rem; }
-.mx1, .mx1-content :is(p, ul, ol, dl) {
-  margin-left: 1rem;
-  margin-right: 1rem;
-}
+.mx { margin-inline: auto; }
+.mx1, .mx1-content :is(p, ul, ol, dl) { margin-inline: 1rem; }
 .mb1 { margin-bottom: 1rem; }
 .mb2 { margin-bottom: 2rem; }
 .mb5 { margin-bottom: 5rem; }
 .pl1 { padding-left: 1rem; }
 .pl2 { padding-left: 2rem; }
-.px1 {
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
+.px1 { padding-inline: 1rem; }
+
 small, .small { font-size: 80%; }
-.bold { font-weight: bold; }
+.fw-normal { font-weight: normal; }
 .nowrap { white-space: nowrap; }
+
+.bulleted::before { content: "• "; }

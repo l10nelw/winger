@@ -93,6 +93,24 @@
     opacity: .1;
 }
 
+.popup-heading {
+    position: relative;
+    opacity: .5;
+}
+.popup-heading > hr {
+    border: .5px solid var(--muted-text-color);
+}
+.popup-heading > header {
+    position: absolute;
+    top: -.65rem;
+    left: 50%;
+    translate: -50%;
+    padding-inline: 2px;
+    font-size: 90%;
+    background-color: var(--popup-row-color);
+    color: var(--muted-text-color);
+}
+
 .popup-toolbar {
     color: var(--muted-text-color);
 }
