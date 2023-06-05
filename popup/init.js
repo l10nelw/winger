@@ -20,7 +20,6 @@ Request.popup().then(onSuccess).catch(onError);
 function onSuccess({ currentWinfo, otherWinfos, settings }) {
     markReopen(otherWinfos, currentWinfo.incognito);
     populate(currentWinfo, otherWinfos, settings);
-    $otherWindowRows.push(...$otherWindowsList.children);
     $names.push(...$body.querySelectorAll('.name'));
 
     Omnibox.init(settings);
@@ -56,18 +55,40 @@ function markReopen(otherWinfos, isCurrentIncognito) {
         winfo.reopen = winfo.incognito !== isCurrentIncognito;
 }
 
+// Populate $otherWindowsList and $otherWindowRows with rows
 //@ (Object, [Object], Object) -> state
 function populate(currentWinfo, otherWinfos, settings) {
     Row.initCurrent(settings);
-
-    // Create other-rows by cloning current-row
-    const $fragment = document.createDocumentFragment();
-    for (const winfo of otherWinfos)
-        $fragment.appendChild(Row.createOther(winfo));
-    $otherWindowsList.appendChild($fragment);
-
+    const $rowsFragment = document.createDocumentFragment();
+    let $heading = $otherWindowsList.firstElementChild; // "---Minimized---"
+    let headingIndex = -1;
+    let index = 0;
+    // Create other-rows (by cloning current-row)
+    for (const winfo of otherWinfos) {
+        if (headingIndex === -1 && winfo.minimized)
+            headingIndex = index;
+        $rowsFragment.appendChild(Row.createOther(winfo));
+        index++;
+    }
+    $otherWindowsList.appendChild($rowsFragment);
     // Hydrate current-row only after all other-rows have been created
     Row.hydrateCurrent($currentWindowRow, currentWinfo);
+
+    if (headingIndex === -1) {
+        $heading.remove();
+        const $otherRows = [...$otherWindowsList.children];
+        $otherWindowRows.$withHeading = $otherRows;
+        $otherWindowRows.$heading = {};
+        $otherWindowRows.push(...$otherRows);
+    } else {
+        $otherWindowsList.insertBefore($heading, $otherWindowsList.querySelector('.minimized'));
+        $heading.hidden = false;
+        const $otherRows = [...$otherWindowsList.children];
+        $otherWindowRows.$withHeading = [...$otherRows];
+        $otherWindowRows.$heading = $heading;
+        $otherRows.splice(headingIndex, 1);
+        $otherWindowRows.push(...$otherRows); // Sans heading
+    }
 }
 
 const Row = {
@@ -132,6 +153,7 @@ const Row = {
         $row.$name._id = id;
         $row.$name.value = givenName;
         $row.$tabCount.textContent = tabCount;
+        $row.classList.toggle('minimized', minimized);
         $row.classList.toggle('private', incognito);
     },
 

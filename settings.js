@@ -4,6 +4,7 @@ const ALL_DEFAULTS = {
     show_popup_bring: true,
     show_popup_send: true,
 
+
     enable_stash: false,
     stash_home: 'toolbar_____',
     stash_home_name: 'Stashed Windows',

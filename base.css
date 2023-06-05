@@ -6,6 +6,7 @@
     --popup-button-size: 30px;
     --popup-row-height: 36px;
     --popup-name-height: 28px;
+    --popup-heading-height: 22px;
     --popup-private-button-color: darkorchid;
     --danger-color: red;
     --success-color: #0b0;
@@ -38,6 +39,11 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     accent-color: var(--accent-color);
+}
+
+hr {
+    border-width: .5px;
+    opacity: .5;
 }
 
 a {

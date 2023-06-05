@@ -15,9 +15,6 @@ fieldset {
 legend {
     font-weight: bold;
 }
-hr {
-    border-width: .5px;
-}
 
 label {
     display: flex;
