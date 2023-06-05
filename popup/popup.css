@@ -91,6 +91,27 @@ body[data-mode="normal"] #otherWindows li:hover {
     background-color: var(--popup-hover-row-color);
 }
 
+.heading {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    justify-content: center;
+    height: var(--popup-heading-height);
+    background-color: var(--popup-row-color) !important;
+}
+.heading > hr {
+    width: 97%;
+    margin: .5rem 0 .4rem;
+    border: .5px solid var(--muted-text-color);
+}
+.heading > header {
+    position: absolute;
+    background-color: var(--popup-row-color);
+    color: var(--muted-text-color);
+    padding: 0 2px;
+    font-size: 95%;
+}
+
 
 /* --- Input field (Omnibox and name) --- */
 
