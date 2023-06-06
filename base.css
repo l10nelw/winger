@@ -49,3 +49,8 @@ kbd {
     border: 1px solid currentColor;
     border-radius: 3px;
 }
+
+samp {
+    font-size: 1rem;
+    font-weight: bold;
+}

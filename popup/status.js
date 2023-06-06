@@ -19,11 +19,11 @@ const statusType = {
     },
     editName: {
         condition: () => EditMode.isActive && isNameField(document.activeElement),
-        content: `Edit mode: Type a name then <kbd>▲</kbd>, <kbd>▼</kbd> or <kbd>Enter</kbd> to save`,
+        content: `Edit mode: Type a name then <kbd>▲</kbd> or <kbd>▼</kbd> to save, or <kbd>Enter</kbd> to save and exit`,
     },
     edit: {
         condition: () => EditMode.isActive,
-        content: `Edit mode: Click on a window row or navigate with <kbd>▲</kbd> and <kbd>▼</kbd>`,
+        content: `Edit mode: Click on a window row or navigate with <kbd>▲</kbd> and <kbd>▼</kbd>. Enter <samp>/edit</samp> to exit`,
     },
     bring: {
         condition: ({ key, type }) => type === 'keydown' && key === 'Shift',
