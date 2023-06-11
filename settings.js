@@ -4,6 +4,7 @@ const ALL_DEFAULTS = {
     show_popup_bring: true,
     show_popup_send: true,
 
+    unload_minimized_window_tabs: false,
 
     enable_stash: false,
     stash_home: 'toolbar_____',

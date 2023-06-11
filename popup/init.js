@@ -139,8 +139,8 @@ const Row = {
         $row.$name.tabIndex = 0;
     },
 
-    //@ (Object, { Number, Boolean, String, Number }) -> state
-    hydrate($row, { id, incognito, givenName, tabCount }) {
+    //@ (Object, { Number, Boolean, Boolean, String, Number }) -> state
+    hydrate($row, { id, incognito, minimized, givenName, tabCount }) {
         // Add references to row's cells, and in each cell a reference back to the row
         for (const selector of Row.CELL_SELECTORS) {
             const $cell = $row.querySelector(selector);

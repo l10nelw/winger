@@ -16,7 +16,7 @@ function debug() {
 init();
 
 browser.windows.onCreated.addListener(onWindowCreated);
-browser.windows.onFocusChanged.addListener(Winfo.saveLastFocused);
+browser.windows.onFocusChanged.addListener(onWindowFocusChanged);
 
 browser.menus.onShown.addListener(onMenuShown);
 browser.menus.onHidden.addListener(onMenuHidden);
@@ -30,7 +30,7 @@ browser.runtime.onMessageExternal.addListener(onExternalRequest);
 async function init() {
     const [settings, winfos] = await Promise.all([
         Settings.getAll(),
-        Winfo.getAll(['focused', 'firstSeen', 'givenName']),
+        Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized']),
     ]);
 
     Chrome.init(settings);
@@ -45,7 +45,7 @@ async function init() {
 
     const nameMap = new Name.NameMap();
 
-    for (let { id, focused, firstSeen, givenName } of winfos) {
+    for (let { id, focused, firstSeen, givenName, minimized } of winfos) {
         if (givenName && nameMap.findId(givenName)) {
             givenName = nameMap.uniquify(givenName);
             Name.save(id, givenName);
@@ -58,6 +58,9 @@ async function init() {
 
         if (!firstSeen)
             Winfo.saveFirstSeen(id);
+
+        if (minimized && settings.unload_minimized_window_tabs)
+            Action.unloadWindow(id);
     }
 }
 
@@ -87,9 +90,26 @@ async function onWindowCreated(window) {
 
         Chrome.update(windowId, givenName);
     }
+}
 
-    // In Firefox, windows cannot be created focused=false so a new window is always focused
+//@ (Number) -> state|nil
+async function onWindowFocusChanged(windowId) {
+    // windowId is -1 when a window loses focus in Windows/Linux, or when no window has focus in MacOS
+    if (windowId <= 0)
+        return;
+
     Winfo.saveLastFocused(windowId);
+
+    if (await Settings.get('unload_minimized_window_tabs')) {
+        // Detect minimize action, by checking if this focus change occurred because the previously focused window was minimized
+        const prevFocusedWindowId = await Winfo.focusedWindowId.get();
+        try {
+            const prevFocusedWindow = await browser.windows.get(prevFocusedWindowId);
+            if (prevFocusedWindow.state === 'minimized')
+                Action.unloadWindow(prevFocusedWindowId);
+        } catch {}
+    }
+    Winfo.focusedWindowId.set(windowId);
 }
 
 //@ (Object, Object) -> state|nil
