@@ -11,28 +11,34 @@
 
       <fieldset>
         <legend>Send and bring</legend>
-        <label><input class="setting" type="checkbox" name="show_popup_send"> <span>Show send buttons</span></label>
-        <label><input class="setting" type="checkbox" name="show_popup_bring"> <span>Show bring buttons</span></label>
+        <label><input class="setting" type="checkbox" name="show_popup_send"> <span>Show send buttons in pop-up panel</span></label>
+        <label><input class="setting" type="checkbox" name="show_popup_bring"> <span>Show bring buttons in pop-up panel</span></label>
         <hr>
-        <p>When sending or bringing tabs, keep the selected/focused states of:</p>
-        <div class="inline-fields ms1">
-          <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="true"> <span>the sent or brought tabs</span></label>
-          <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="false"> <span>the destination window's tabs</span></label>
-        </div>
+        <p>When sending or bringing tabs...</p>
+        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="true"> <span>selected sent or brought tabs stay selected</span></label>
+        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="false"> <span>selected tabs in the destination window stay selected</span></label>
         <small>Learn more about <a class="help" href="#common">send and bring</a></small>
       </fieldset>
 
       <fieldset>
-        <legend>Minimized windows</legend>
+        <legend>Button badge</legend>
+        <label><input class="setting" type="checkbox" name="show_badge"> <span>Show window name on the Winger button
+          <br><small>(Limited to the first few characters)</small>
+        </span></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tab unloading</legend>
         <label><input class="setting" type="checkbox" name="unload_minimized_window_tabs"> <span>Unload tabs in minimized windows</span></label>
       </fieldset>
 
       <fieldset>
         <legend>Stashing</legend>
         <label><input class="setting" type="checkbox" name="enable_stash"> <span>Enable stashing
-          <br><small>(Requires permission to read and modify bookmarks)</small></span></label>
+          <br><small>(Requires permission to read and modify bookmarks)</small>
+        </span></label>
         <label>
-          <span>Stash home:</span>&nbsp;
+          <span>Stash home</span>
           <select class="setting" data-enabled-by="enable_stash" name="stash_home">
             <option value="toolbar_____" >Bookmarks Toolbar</option>
             <option value="toolbar_____/">Bookmarks Toolbar ›</option>
@@ -47,15 +53,9 @@
       </fieldset>
 
       <fieldset>
-        <legend>Button badge</legend>
-        <label><input class="setting" type="checkbox" name="show_badge"> <span>Show window name on the Winger button
-          <br><small>(Limited to the first few characters)</small></span></label>
-      </fieldset>
-
-      <fieldset>
         <legend>Theme</legend>
         <div class="inline-fields">
-          <label><input class="setting" type="radio" name="theme" value="system"> <span>Match system theme</span></label>
+          <label><input class="setting" type="radio" name="theme" value=""> <span>Auto</span></label>
           <label><input class="setting" type="radio" name="theme" value="light"> <span>Light</span></label>
           <label><input class="setting" type="radio" name="theme" value="dark"> <span>Dark</span></label>
         </div>
@@ -65,7 +65,7 @@
 
       <fieldset>
         <legend>Private windows</legend>
-        <p class="private-allowed-yes" hidden>Private windows are currently accessible to Winger. Winger can list and interact with them.</p>
+        <p class="private-allowed-yes" hidden>Winger can list and interact with private windows.</p>
         <p class="private-allowed-no" hidden>Private windows are currently <strong>not</strong> accessible to Winger. As far as Winger is concerned they do not exist.</p>
         <p>To change access to private windows, go to the <cite>Details</cite> tab at the top this page and choose an option for <cite>Run in Private Windows</cite>.</p>
         <small>Learn more about <a class="help" href="#private">private windows</a></small>

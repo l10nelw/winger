@@ -1,17 +1,18 @@
 const ALL_DEFAULTS = {
 
-    keep_moved_tabs_selected: true,
     show_popup_bring: true,
     show_popup_send: true,
+    keep_moved_tabs_selected: true,
 
     unload_minimized_window_tabs: false,
+
+    show_badge: false,
 
     enable_stash: false,
     stash_home: 'toolbar_____',
     stash_home_name: 'Stashed Windows',
 
-    show_badge: false,
-    theme: 'system',
+    theme: '',
 
 };
 
