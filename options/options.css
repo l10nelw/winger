@@ -4,11 +4,12 @@ body {
     background-color: var(--page-bg-color);
     color: var(--text-color);
 }
-:focus {
+:focus-visible {
     outline: 2px solid var(--accent-color);
 }
 
 fieldset {
+    padding-top: 1rem;
     margin-bottom: 1rem;
     border-radius: .5rem;
 }
@@ -20,14 +21,15 @@ label {
     display: flex;
     align-items: flex-start;
     margin-bottom: .5rem;
-}
-input {
-    margin-left: 0;
-    margin-right: .5rem;
+    gap: .3rem;
 }
 .inline-fields > label {
     display: inline-flex;
     margin-right: 1rem;
+}
+
+hr {
+    margin: 1rem 0;
 }
 
 p {
@@ -50,7 +52,6 @@ button[type="submit"] {
     font-weight: bold;
 }
 
-.ms1 { margin-left: 1rem; }
 .muted { opacity: .5; }
 
 

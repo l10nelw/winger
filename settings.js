@@ -1,9 +1,6 @@
 const ALL_DEFAULTS = {
 
     keep_moved_tabs_selected: true,
-    show_popup_bring: true,
-    show_popup_send: true,
-
     unload_minimized_window_tabs: false,
 
     enable_stash: false,
@@ -11,7 +8,10 @@ const ALL_DEFAULTS = {
     stash_home_name: 'Stashed Windows',
 
     show_badge: false,
-    theme: 'system',
+
+    show_popup_bring: true,
+    show_popup_send: true,
+    theme: '',
 
 };
 
