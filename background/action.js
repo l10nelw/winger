@@ -44,6 +44,7 @@ async function openUniqueExtensionPage(pathname, hash) {
 }
 
 // Select action to execute based on content of request.
+// request = { type: 'action', action, argument, modifiers, windowId }
 //@ (Object), state -> state
 export async function execute(request) {
     request.action = modify(request.action, request.modifiers);
@@ -95,6 +96,12 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
     return newWindow;
 }
 
+//@ (Number) -> state
+export async function unloadWindow(windowId) {
+    const tabs = await browser.tabs.query({ windowId, active: false, discarded: false });
+    unloadTabs(tabs);
+}
+
 //@ (Object), state -> state|nil
 async function bringTabs(request) {
     await sendTabs(request) && switchWindow(request);
@@ -103,16 +110,23 @@ async function bringTabs(request) {
 // Attempt moveTabs; if unsuccessful (e.g. windows are of different private statuses) then reopenTabs.
 //@ (Object), state -> ([Object]), state | (undefined)
 async function sendTabs(request) {
-    const [keep_moved_tabs_selected, tabs] = await Promise.all([
-        Settings.get('keep_moved_tabs_selected'),
+    const [tabs, keep_moved_tabs_selected, unload_minimized_window_tabs] = await Promise.all([
         request.tabs ?? getSelectedTabs(),
+        Settings.get('keep_moved_tabs_selected'),
+        Settings.get('unload_minimized_window_tabs'),
     ]);
     request.tabs ??= tabs;
     request.keep_moved_tabs_selected = keep_moved_tabs_selected;
 
     const movedTabs = await moveTabs(request);
-    return movedTabs.length ?
-        movedTabs : reopenTabs(request);
+    if (movedTabs.length) {
+        // If relevant setting is enabled and destination window is minimized, unload moved tabs
+        if (unload_minimized_window_tabs && request.minimized)
+            unloadTabs(movedTabs);
+        return movedTabs;
+    }
+    // If movedTabs is empty, moveTabs() must have failed so reopenTabs() instead
+    return reopenTabs(request);
 }
 
 //@ ({ [Object], Number, Boolean }), state -> ([Object]), state | (undefined)
@@ -210,6 +224,8 @@ function openPlaceholderTab(protoTab, title) {
 }
 
 const getSelectedTabs = () => browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> (Promise: [Object])
+
+const unloadTabs = tabs => browser.tabs.discard(tabs.map(tab => tab.id)); //@ ([Object]) -> state
 
 //@ (Number) -> (Promise: Object), state
 const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });

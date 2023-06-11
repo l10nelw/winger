@@ -26,6 +26,7 @@ export function action({ event, $action, command, argument }) {
         if ($row.matches('.tabless') && (event.ctrlKey || event.shiftKey))
             return; // Do not allow send/bring to a "tabless" window
         request.windowId = $row._id;
+        request.minimized = $row.matches('.minimized');
         request.action = $action.dataset.action || $row.dataset.action;
     }
     if (!request.action)

@@ -90,13 +90,24 @@ export function arrange(winfos) {
     };
 }
 
-//@ (Number) -> state
-export function saveLastFocused(windowId) {
-    if (windowId > 0) // onFocusChanged event fires with windowId -1 when a window loses focus
-        browser.sessions.setWindowValue(windowId, 'lastFocused', Date.now());
+export const focusedWindowId = {
+    //@ (Number) -> state
+    set(windowId) {
+        browser.storage.local.set({ focusedWindowId: windowId });
+    },
+    //@ state -> (Number)
+    async get() {
+        const key = 'focusedWindowId';
+        return (await browser.storage.local.get(key))[key];
+    },
 }
 
-//@ (Number), state -> (Promise: Number|nil)
+//@ (Number) -> state
+export function saveLastFocused(windowId) {
+    browser.sessions.setWindowValue(windowId, 'lastFocused', Date.now());
+}
+
+//@ (Number), state -> (Promise: Number|undefined)
 export function loadFirstSeen(windowId) {
     return browser.sessions.getWindowValue(windowId, 'firstSeen');
 }
