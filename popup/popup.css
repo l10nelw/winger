@@ -152,9 +152,22 @@ body[data-mode="normal"] #currentWindow .name {
 }
 
 /* Indicate clickable name */
+body[data-mode="normal"] #currentWindow .tabCount::before {
+    display: none;
+    pointer-events: none;
+    content: "✎";
+    position: absolute;
+    right: calc(2rem + var(--tabcount-width));
+    top: 50%;
+    transform: translateY(-50%) scaleX(-1);
+    font-size: 1.5rem;
+}
 body[data-mode="normal"] #currentWindow .name:hover {
     background-color: var(--popup-hover-row-color);
     cursor: pointer;
+}
+body[data-mode="normal"] #currentWindow .name:is(:hover, :focus) + .tabCount::before {
+    display: block;
 }
 
 .private .name {
