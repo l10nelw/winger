@@ -205,7 +205,10 @@ body[data-mode="normal"] #currentWindow .name:is(:hover, :focus) + .tabCount::be
 #omnibox {
     height: var(--popup-row-height);
     width: 100%;
-    border: 1px solid var(--popup-border-color);
+    border-color: transparent var(--popup-border-color);
+}
+#omnibox::placeholder {
+    opacity: .33;
 }
 
 .slashCommand {
