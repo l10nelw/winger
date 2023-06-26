@@ -5,6 +5,7 @@ const ALL_DEFAULTS = {
     keep_moved_tabs_selected: true,
 
     unload_minimized_window_tabs: false,
+    minimize_kick_windows: false,
 
     show_badge: false,
 
