@@ -104,7 +104,8 @@ body[data-mode="normal"] #otherWindows li:hover {
     margin: .5rem 0 .4rem;
     border: .5px solid var(--muted-text-color);
 }
-.heading > header {
+.heading::after {
+    content: attr(data-heading);
     position: absolute;
     background-color: var(--popup-row-color);
     color: var(--muted-text-color);
