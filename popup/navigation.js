@@ -50,13 +50,12 @@ const isUnfocusable = $el => row($el).hidden || $el.tabIndex === -1; //@ (Object
 const isVerticalKey = key => VERTICAL_KEYS.includes(key); //@ (String) -> (Boolean)
 const isHorizontalKey = key => HORIZONTAL_KEYS.includes(key); //@ (String) -> (Boolean)
 
-// Prevent scrolling if focus is on first/last few rows
+// Prevent scrolling if focus is on first/last few rows, to control the default scoll-ahead
 //@ (Object, Object) -> state|nil
 function restrictScroll($el, event) {
     const index = $shownRows.indexOf($el);
-    if (SCROLL_THRESHOLD <= index && ($shownRows.length - index) > SCROLL_THRESHOLD)
-        return;
-    event.preventDefault(); // Suppress scrolling
+    if (index < SCROLL_THRESHOLD || ($shownRows.length - index) <= SCROLL_THRESHOLD)
+        event.preventDefault(); // Suppress scrolling
 }
 
 let column; // Currently-focused button column
