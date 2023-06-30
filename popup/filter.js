@@ -31,12 +31,12 @@ export function execute(str) {
 
 const compareNameLength = ($a, $b) => $a._nameLength - $b._nameLength; //@ (Object, Object) -> (Number)
 
-// Hide heading row, and window rows whose names do not contain str, case-insensitive.
+// Hide minimized-heading row, and window rows whose names do not contain str, case-insensitive.
 // The rest are shown, given _nameLength property and returned as an array.
 //@ (String), state -> ([Object]), state
 function filter(str) {
     str = str.toUpperCase();
-    $otherWindowRows.$heading.hidden = true;
+    $otherWindowRows.$minHeading.hidden = true;
     const $filteredRows = [];
     for (const $row of $otherWindowRows) {
         const name = getName($row).toUpperCase();
@@ -54,7 +54,7 @@ function filter(str) {
 // Restore sort order by comparing 'live' $otherWindowsList.children against correctly-sorted $otherWindowRows.
 //@ state -> state
 function reset() {
-    $otherWindowRows.$withHeading.forEach(($correctRow, index) => {
+    $otherWindowRows.$withMinHeading.forEach(($correctRow, index) => {
         $correctRow.hidden = false;
         const $row = $otherWindowsList.children[index];
         if ($row !== $correctRow)
