@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Winger",
   "description": "Window Manager: Name windows, switch windows, move tabs between windows, and more.",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "icons": {
     "48": "icons/winger.svg",
     "96": "icons/winger.svg"
