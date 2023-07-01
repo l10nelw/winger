@@ -30,6 +30,7 @@ const SHORTHAND__COMMAND = {
     kp: 'kickprivate',
 };
 const COMMANDS_WITH_ARG = new Set(['new', 'newprivate', 'pop', 'popprivate', 'kick', 'kickprivate']);
+const EDITMODE_VALID_COMMANDS = new Set(['help', 'settings', 'options', 'edit', 'name']);
 
 const Parsed = {
 
@@ -58,10 +59,22 @@ const Parsed = {
 
     _matchCommand() {
         Parsed.shorthand = '';
-
         const word = Parsed.command;
+
         if (word === 'debug')
             return;
+
+        if (EditMode.isActive) {
+            for (const command of EDITMODE_VALID_COMMANDS) {
+                if (command.startsWith(word)) {
+                    Parsed.command = command;
+                    return;
+                }
+            }
+            Parsed.command = '';
+            return;
+        }
+
         for (const command in COMMAND__CALLBACK) {
             if (command.startsWith(word)) {
                 Parsed.command = command;
