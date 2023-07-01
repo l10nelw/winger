@@ -22,7 +22,7 @@
         <br><small class="js-version"></small>
         <br><b>A Complete Guide</b>
       </h1>
-      <p class="small">Last updated v2.3.0 (27 June 2023)</p>
+      <p class="small">Last updated v2.3.1 (1 Jul 2023)</p>
       <p><a href="https://addons.mozilla.org/firefox/addon/winger/" target="_blank">View latest release notes on the Winger addon page</a></p>
     </header>
 
@@ -244,7 +244,7 @@
         </details>
         <details role="tabpanel" id="auto-de-duplication">
           <summary></summary>
-          <p>Outside of edit mode, if a <em>named window</em> is opened whose name happens to be in use by another currently open window, Winger will automatically resolve the name conflict by adding or incrementing a number suffix to the new window's name. This can happen in a few ways:</p>
+          <p>Outside of edit mode, if a <em>named window</em> is opened whose name is already in use by another currently open window, Winger will automatically resolve the conflict by adding or incrementing a number suffix to the new window's name. This may happen in a few ways:</p>
           <ul>
             <li>creating a named window using the <a href="#slash">new/pop/kick commands</a></li>
             <li><a href="#stash">unstashing</a> a bookmark folder</li>
@@ -395,12 +395,12 @@
             <dt><samp>/pop</samp> or <samp>/p</samp></dt>
             <dd class="mb1">
               <strong>Bring</strong> selected tabs to a new window ("Pop" tabs out of the current window). Equivalent to dragging selected tabs off the tabs bar.<br>
-              Optionally name it as well by adding a name after the command e.g. <samp class="nowrap">/pop News</samp>
+              Optionally name the window as well by adding a name after the command e.g. <samp class="nowrap">/pop News</samp>
             </dd>
             <dt><samp>/kick</samp> or <samp>/k</samp></dt>
             <dd class="mb1">
               <strong>Send</strong> selected tabs to a new window without losing focus on the current window ("Kick" tabs out of the current window).<br>
-              Optionally name it as well by adding a name after the command e.g. <samp class="nowrap">/kick read later</samp>
+              Optionally name the window as well by adding a name after the command e.g. <samp class="nowrap">/kick read later</samp>
             </dd>
             <dt><samp>/newprivate</samp> or <samp>/np</samp></dt>
             <dt><samp>/popprivate</samp> or <samp>/pp</samp></dt>
@@ -445,7 +445,7 @@
             <ul class="children-mb1">
               <li><cite>Unstash</cite> also works on individual bookmarks. The command will delete the bookmark and open it as a new tab in the current window.</li>
               <li>
-                <p>Unstashed tabs are similar to <a href="#reopened">reopened tabs</a>: unloaded if possible, as placeholder tabs if necessary. This makes <cite>Unstash</cite> a superior bookmark folder command compared to the browser's native <cite>Open All Bookmarks</cite>.</p>
+                <p>Unstashed tabs are similar to <a href="#reopened">reopened tabs</a>: unloaded if possible, as placeholder tabs if necessary. Opening tabs unloaded makes <cite>Unstash</cite> a great alternative to the browser's native <cite>Open All Bookmarks</cite> command.</p>
               </li>
             </ul>
           </li>
@@ -470,7 +470,7 @@
         <div class="col">
           <section class="bordered-box mx1">
             <h4 class="mb1">Handy tip 💡</h4>
-            With Firefox's bookmark syncing, you can stash a window and then unstash it on another computer.
+            With Firefox's bookmark syncing, you can stash a window and then unstash it in another Firefox profile, perhaps on a different computer.
           </section>
         </div>
       </div>
@@ -485,19 +485,23 @@
             <li><p>Divide and conquer with "window fission": split up a highly-populated window into several windows so you can focus on one set of tabs at a time. Hopefully this helps you work through them easier, and close them sooner.</p></li>
           </ul>
         </li>
-        <li><p>If you are not ready to permanently close windows you hardly use, consider <a href="#stash">stashing</a> them.</p></li>
-        <li><p>Minimize windows to mark them as "put away for later" &ndash; Winger pushes them to the bottom of the panel, out of your way, so to speak. You can think of it as shorter term quasi-stashing.</p></li>
+        <li>
+          <p>If you are not ready to permanently close a window you hardly use, consider <a href="#stash">stashing</a> it.</p>
+          <ul>
+            <li><p>If you are more likely to use a window on another profile or computer (and have bookmark syncing on), definitely stash, then unstash it there.</p></li>
+          </ul>
+        </li>
+        <li><p>Minimize windows to mark them as "put away for later" &ndash; Winger pushes them to the bottom of the panel, temporarily out of your way, so to speak.</p></li>
         <li>
           <p>Key to the freedom to have lots of tabs open is unloading ones you are not using, which frees up memory. Firefox does this automatically; its tab unloading queue can be seen on the <a href="/placeholder/tab.html?url=about:unloads&title=about:unloads" target="_blank">about:unloads</a> page (where you can also manually unload the next in queue).</p>
           <ul>
-            <li><p>Tab unload (a.k.a. discard, suspend) extensions are a popular way to wield this ability with greater control, for example if you prefer a more agressive treatment than Firefox's, or if you want to manually unload selected tabs, and so on.</p></li>
+            <li><p>Tab unload (a.k.a. discard, suspend) extensions are a popular way to wield this ability with greater control, for example if you prefer a more agressive treatment than Firefox's (recommended with <em>lots</em> of tabs), or if you want to manually unload selected tabs, and so on.</p></li>
             <li><p>Winger can provide a straightforward treatment: unload tabs in minimized windows, including any tabs sent to them. If this suits you, enable it in <button type="button" class="settingsBtn">Settings</button>.</p></li>
           </ul>
         </li>
         <li>
-          <p>The <cite>List all tabs</cite> button, which appears whenever the tabs bar overflows, opens a menu of all tabs in the current window.</p>
+          <p>The <cite>List all tabs</cite> button, which appears whenever the tabs bar overflows, opens a menu of all tabs in the current window. It can be opened with <kbd>Ctrl</kbd><small>+</small><kbd>Shift</kbd><small>+</small><kbd>Tab</kbd>, if you have the <cite>Ctrl+Tab cycles through tabs in recently used order</cite> Firefox setting enabled.</p>
           <ul>
-            <li><p>Can be opened with <kbd>Ctrl</kbd><small>+</small><kbd>Shift</kbd><small>+</small><kbd>Tab</kbd>, if you have the "Ctrl+Tab cycles through tabs in recently used order" Firefox setting enabled.</p></li>
             <li><p>Each menu item can be right-clicked to open its own tab context menu. This is as close as Firefox currently gets to native vertical tabs!</p></li>
             <li><p>That said, Winger works well with vertical tabs, tab groups and other extensions if you'd like the extra tab management help within individual windows.</p></li>
           </ul>
