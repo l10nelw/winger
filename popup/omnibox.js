@@ -95,6 +95,9 @@ export function init({ enable_stash }) {
 
 //@ (Object), state -> state
 export function handleInput(event) {
+    if (event.target !== $omnibox)
+        return false;
+
     const str = $omnibox.value;
     Parsed.parse(str);
 
@@ -104,16 +107,33 @@ export function handleInput(event) {
 
     if (Parsed.command && !isDeletion(event))
         autocompleteCommand(str, Parsed.command);
-}
 
-//@ (String, Object), state -> state
-export function handleKeyUp(event) {
-    if (event.key === 'Enter')
-        handleEnter(event);
+    return true;
 }
 
 //@ (Object), state -> state
-function handleEnter(event) {
+export function handleKeyDown(event) {
+    const { target } = event;
+    if (target === $omnibox && event.key === 'Tab' && hasSelectedText(target)) {
+        event.preventDefault();
+        target.setSelectionRange(-1, -1);
+        return true;
+    }
+}
+
+//@ (Object), state -> state
+export function handleKeyUp(event) {
+    if (event.target !== $omnibox)
+        return false;
+
+    if (event.key === 'Enter')
+        handleEnterKey(event);
+
+    return true;
+}
+
+//@ (Object), state -> state
+function handleEnterKey(event) {
     if (Parsed.command === 'debug') {
         Request.debug();
         clear();
@@ -144,6 +164,7 @@ function handleEnter(event) {
 
 //@ (Object) -> (Boolean)
 const isDeletion = event => event.inputType.startsWith('delete');
+const hasSelectedText = $field => $field.selectionStart !== $field.selectionEnd;
 
 //@ (String), state -> (String)
 function validifyName(name) {

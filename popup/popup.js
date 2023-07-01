@@ -1,7 +1,6 @@
 import './init.js';
 import {
     $body,
-    $omnibox,
     $currentWindowRow,
     isRow,
 } from './common.js';
@@ -57,27 +56,21 @@ function onContextMenu(event) {
 
 //@ (Object) -> state|nil
 function onKeyDown(event) {
-    const { target } = event;
-    if (target === $omnibox && event.key === 'Tab' && hasSelectedText(target)) {
-        event.preventDefault();
-        target.setSelectionRange(-1, -1);
-    } else {
-        navigateByKey(event);
-    }
+    if (Omnibox.handleKeyDown(event))
+        return;
+    navigateByKey(event);
     Status.update(event);
 }
 
 //@ (Object) -> state|nil
 function onKeyUp(event) {
-    const { target } = event;
     (() => {
         if (EditMode.handleKeyUp(event))
             return;
-
-        if (target === $omnibox)
-            return Omnibox.handleKeyUp(event);
-
+        if (Omnibox.handleKeyUp(event))
+            return;
         if (event.key === 'Enter') {
+            const { target } = event;
             if (target === $currentWindowRow.$name)
                 return EditMode.toggle();
             if (isRow(target))
@@ -89,11 +82,10 @@ function onKeyUp(event) {
 
 //@ (Object) -> state|nil
 async function onInput(event) {
-    const { target } = event;
-    if (await EditMode.handleInput(target))
+    if (await EditMode.handleInput(event.target))
         return;
-    if (target === $omnibox)
-        return Omnibox.handleInput(event);
+    if (Omnibox.handleInput(event))
+        return;
 }
 
 //@ (Object) -> state|nil
@@ -105,5 +97,3 @@ function onFocusIn(event) {
         return $defocused.focus();
     $focused.select?.();
 }
-
-const hasSelectedText = field => field.selectionStart !== field.selectionEnd;
