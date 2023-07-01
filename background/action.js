@@ -70,7 +70,7 @@ function modify(action, modifiers) {
 export async function createWindow({ name, isMove, focused = true, incognito }) {
     const [minimize_kick_windows, currentWindow] = await Promise.all([
         Settings.get('minimize_kick_windows'),
-        browser.windows.getLastFocused(),
+        browser.windows.getLastFocused({ populate: isMove }),
     ]);
     const currentWindowDetail = { windowId: currentWindow.id };
 
@@ -89,11 +89,10 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
         switchWindow(currentWindowDetail);
 
     if (isMove) {
-        const allTabs = await browser.tabs.query(currentWindowDetail); // Get all tabs first for checking if all selected
-        const selectedTabs = allTabs.filter(tab => tab.highlighted);
+        const selectedTabs = currentWindow.tabs.filter(tab => tab.highlighted);
 
         // If all of the origin window's tabs are to be moved, add a tab to prevent the window from closing
-        if (selectedTabs.length === allTabs.length)
+        if (selectedTabs.length === currentWindow.tabs.length)
             await browser.tabs.create(currentWindowDetail);
 
         await sendTabs({ tabs: selectedTabs, windowId: newWindowId });
