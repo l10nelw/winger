@@ -163,7 +163,7 @@ function handleEnterKey(event) {
     }
 
     if (!EditMode.isActive) {
-        const $action = Filter.$shownRows?.[0]; // First row below omnibox
+        const $action = Filter.$shownRows[0]; // First row below omnibox
         if ($action)
             Request.action({ event, $action });
     }

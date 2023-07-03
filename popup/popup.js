@@ -1,4 +1,4 @@
-import './init.js';
+import * as Init from './init.js';
 import {
     $body,
     $currentWindowRow,
@@ -18,25 +18,20 @@ $body.addEventListener('keydown', onKeyDown);
 $body.addEventListener('keyup', onKeyUp);
 $body.addEventListener('input', onInput);
 $body.addEventListener('focusin', onFocusIn);
+Init.init();
 
 //@ (Object) -> state|nil
 function onClick(event) {
     const { target } = event;
-
     if (target.id in Toolbar)
         return Toolbar[target.id]();
-
-    if (EditMode.isActive) {
-        Status.update(event);
-        return;
-    }
-
+    if (EditMode.isActive)
+        return Status.update(event);
     if (target === $currentWindowRow.$name) {
         EditMode.toggle();
         Status.update(event);
         return;
     }
-
     Request.action({ event, $action: target });
 }
 
@@ -59,11 +54,14 @@ function onKeyDown(event) {
     if (Omnibox.handleKeyDown(event))
         return;
     navigateByKey(event);
-    Status.update(event);
+    if (Init.completed)
+        Status.update(event);
 }
 
 //@ (Object) -> state|nil
 function onKeyUp(event) {
+    if (!Init.completed)
+        return;
     (() => {
         if (EditMode.handleKeyUp(event))
             return;

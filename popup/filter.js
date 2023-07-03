@@ -4,7 +4,7 @@ import {
     getName,
 } from './common.js';
 
-export let $shownRows; // Visible other window rows
+export let $shownRows = []; // Visible other window rows
 
 //@ state -> state
 export function init() {
@@ -35,11 +35,11 @@ const compareNameLength = ($a, $b) => $a._nameLength - $b._nameLength; //@ (Obje
 // The rest are shown, given _nameLength property and returned as an array.
 //@ (String), state -> ([Object]), state
 function filter(str) {
-    str = str.toUpperCase();
+    str = str.toLowerCase();
     $otherWindowRows.$minHeading.hidden = true;
     const $filteredRows = [];
     for (const $row of $otherWindowRows) {
-        const name = getName($row).toUpperCase();
+        const name = getName($row).toLowerCase();
         const isMatch = name.includes(str);
         $row.hidden = !isMatch;
         if (isMatch) {

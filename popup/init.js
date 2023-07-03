@@ -14,38 +14,47 @@ import * as Status from './status.js';
 import * as Request from './request.js';
 import { NO_NAME } from '../name.js';
 
-Request.popup().then(onSuccess).catch(onError);
-
-//@ ({ Object, [Object], Object }) -> state
-function onSuccess({ currentWinfo, otherWinfos, settings }) {
-    markReopen(otherWinfos, currentWinfo.incognito);
-    populate(currentWinfo, otherWinfos, settings);
-    $names.push(...$body.querySelectorAll('.name'));
-
-    Omnibox.init(settings);
-    Status.init(currentWinfo, otherWinfos, settings);
-    Filter.init();
-    indicateReopenTabs();
-    lockHeight($otherWindowsList);
-}
+export let completed = false;
 
 //@ -> state
-function onError() {
-    Request.debug();
-    Request.showWarningBadge();
+export function init() {
+    Request.popup().then(onSuccess).catch(onError).finally(onDone);
 
-    $currentWindowRow.hidden = true;
-    $omnibox.hidden = true;
-    $otherWindowsList.hidden = true;
+    //@ ({ Object, [Object], Object }) -> state
+    function onSuccess({ currentWinfo, otherWinfos, settings }) {
+        markReopen(otherWinfos, currentWinfo.incognito);
+        populate(currentWinfo, otherWinfos, settings);
+        $names.push(...$body.querySelectorAll('.name'));
 
-    $status.textContent = 'Close and try again. If issue persists, restart Winger.';
-    $toolbar.querySelectorAll('button').forEach($button => $button.remove());
-    const $restartBtn = document.getElementById('restartTemplate').content.firstElementChild;
-    $toolbar.appendChild($restartBtn);
-    $restartBtn.onclick = () => browser.runtime.reload();
-    $restartBtn.focus();
+        Omnibox.init(settings);
+        Status.init(currentWinfo, otherWinfos, settings);
+        Filter.init();
+        indicateReopenTabs();
+        lockHeight($otherWindowsList);
+    }
+
+    //@ -> state
+    function onError() {
+        Request.debug();
+        Request.showWarningBadge();
+
+        $currentWindowRow.hidden = true;
+        $omnibox.hidden = true;
+        $otherWindowsList.hidden = true;
+
+        $status.textContent = 'Close and try again. If issue persists, restart Winger.';
+        $toolbar.querySelectorAll('button').forEach($button => $button.remove());
+        const $restartBtn = document.getElementById('restartTemplate').content.firstElementChild;
+        $toolbar.appendChild($restartBtn);
+        $restartBtn.onclick = () => browser.runtime.reload();
+        $restartBtn.focus();
+    }
+
+    //@ -> state
+    function onDone() {
+        completed = true;
+    }
 }
-
 
 // Add reopen property to other-winfos that do not share the same private status as the current-winfo.
 // Indicates that a send/bring action to the other-window will be a reopen operation.
@@ -55,7 +64,7 @@ function markReopen(otherWinfos, isCurrentIncognito) {
         winfo.reopen = winfo.incognito !== isCurrentIncognito;
 }
 
-// Populate $otherWindowsList and $otherWindowRows with rows
+// Populate $otherWindowsList and $otherWindowRows with rows.
 //@ (Object, [Object], Object) -> state
 function populate(currentWinfo, otherWinfos, settings) {
     Row.initCurrent(settings);
@@ -93,11 +102,11 @@ function populate(currentWinfo, otherWinfos, settings) {
 }
 
 const Row = {
-
     CELL_SELECTORS: new Set(['.send', '.bring', '.name', '.tabCount']),
 
     //@ (Object) -> state
     initCurrent(settings) {
+        $currentWindowRow.tabIndex = 0;
         $currentWindowRow.querySelector('.name').placeholder = NO_NAME;
 
         // Remove any toggled-off buttons
@@ -164,10 +173,7 @@ const Row = {
         $el.tabIndex = -1;
         $el.removeAttribute('data-action');
     },
-
 }
-
-const isPrivate = $row => $row.classList.contains('private'); //@ (Object) -> (Boolean)
 
 //@ state -> state
 function indicateReopenTabs() {
@@ -176,6 +182,8 @@ function indicateReopenTabs() {
         if (isPrivate($row) != currentIsPrivate)
             $row.classList.add('reopenTabs');
 }
+
+const isPrivate = $row => $row.classList.contains('private'); //@ (Object) -> (Boolean)
 
 //@ (Object) -> state
 function lockHeight($el) {
