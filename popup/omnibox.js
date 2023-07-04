@@ -101,14 +101,15 @@ export function init({ enable_stash }) {
 }
 
 //@ (Object), state -> state
-export function handleInput(event) {
+export function handleInput(event, initCompleted) {
     if (event.target !== $omnibox)
         return false;
 
     const str = $omnibox.value;
     Parsed.parse(str);
 
-    Filter.execute(Parsed.startsSlashed ? '' : str);
+    if (initCompleted)
+        Filter.execute(Parsed.startsSlashed ? '' : str);
 
     $omnibox.classList.toggle('slashCommand', Parsed.startsSlashed);
 

@@ -79,10 +79,10 @@ function onKeyUp(event) {
 }
 
 //@ (Object) -> state|nil
-async function onInput(event) {
-    if (await EditMode.handleInput(event.target))
+function onInput(event) {
+    if (Omnibox.handleInput(event, Init.completed))
         return;
-    if (Omnibox.handleInput(event))
+    if (EditMode.handleInput(event.target))
         return;
 }
 
