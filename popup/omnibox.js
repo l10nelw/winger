@@ -20,10 +20,10 @@ const COMMAND__CALLBACK = {
     kickprivate: ({ event, argument }) => Request.action({ event, argument, command: 'kickprivate' }),
     stash:       ({ event }) => Request.stash(!event.shiftKey),
 };
-const ALIAS__COMMAND = {
-    options: 'settings',
-    name: 'edit',
-};
+// Aliases
+COMMAND__CALLBACK.options = () => COMMAND__CALLBACK.settings();
+COMMAND__CALLBACK.name = () => COMMAND__CALLBACK.edit();
+
 const SHORTHAND__COMMAND = {
     np: 'newprivate',
     pp: 'popprivate',
@@ -65,12 +65,6 @@ const Parsed = {
         for (const command in COMMAND__CALLBACK) {
             if (command.startsWith(word)) {
                 Parsed.command = command;
-                return;
-            }
-        }
-        for (const alias in ALIAS__COMMAND) {
-            if (alias.startsWith(word)) {
-                Parsed.command = alias;
                 return;
             }
         }
@@ -142,7 +136,7 @@ function handleEnterKey(event) {
 
     let { command, argument } = Parsed;
     if (command) {
-        const callback = COMMAND__CALLBACK[command] || COMMAND__CALLBACK[ALIAS__COMMAND[command]];
+        const callback = COMMAND__CALLBACK[command];
         if (COMMANDS_WITH_ARG.has(command))
             argument = validifyName(argument);
         callback?.({ event, argument });
