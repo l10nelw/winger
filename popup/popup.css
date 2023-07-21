@@ -25,7 +25,7 @@ Test list:
 
 /* Focus ring */
 :focus-visible,
-body[data-mode="normal"] #currentWindow .name:focus,
+#currentWindow .name:focus,
 #omnibox:focus {
     outline: none;
     border: 2px solid var(--accent-color);
@@ -87,7 +87,7 @@ li > * {
     text-align: end;
 }
 
-body[data-mode="normal"] #otherWindows li:hover {
+body:not([data-mode="edit"]) #otherWindows li:hover {
     background-color: var(--popup-hover-row-color);
 }
 
@@ -138,22 +138,22 @@ input:read-only {
     margin-left: .25rem;
 }
 
-body[data-mode="normal"] .name {
+body:not([data-mode="edit"]) .name {
     background-color: transparent;
     border-color: transparent;
     user-select: none;
 }
 
-body[data-mode="normal"] .name::selection {
+body:not([data-mode="edit"]) .name::selection {
     background-color: transparent;
 }
 
-body[data-mode="normal"] #currentWindow .name {
+body:not([data-mode="edit"]) #currentWindow .name {
     font-weight: bold;
 }
 
-/* Indicate clickable name */
-body[data-mode="normal"] #currentWindow .tabCount::before {
+/* Pencil icon to indicate clickable name */
+body:not([data-mode="edit"]) #currentWindow .tabCount::before {
     display: none;
     pointer-events: none;
     content: "✎";
@@ -163,11 +163,11 @@ body[data-mode="normal"] #currentWindow .tabCount::before {
     transform: translateY(-50%) scaleX(-1);
     font-size: 1.5rem;
 }
-body[data-mode="normal"] #currentWindow .name:hover {
+body:not([data-mode="edit"]) #currentWindow .name:hover {
     background-color: var(--popup-hover-row-color);
     cursor: pointer;
 }
-body[data-mode="normal"] #currentWindow .name:is(:hover, :focus) + .tabCount::before {
+body:not([data-mode="edit"]) #currentWindow .name:is(:hover, :focus) + .tabCount::before {
     display: block;
 }
 
@@ -230,7 +230,7 @@ button {
 }
 
 button:hover,
-body[data-mode="normal"] li button:focus {
+body:not([data-mode="edit"]) li button:focus {
     background-color: var(--popup-hover-button-color);
     background-size: 97%; /* Counteract shrinkage caused by focus-ring border, but also a nice hover effect */
     opacity: 1;
