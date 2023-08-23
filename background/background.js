@@ -92,24 +92,20 @@ async function onWindowCreated(window) {
     }
 }
 
-//@ (Number) -> state|nil
+//@ (Number), state -> state|nil
 async function onWindowFocusChanged(windowId) {
     // windowId is -1 when a window loses focus in Windows/Linux, or when no window has focus in MacOS
     if (windowId <= 0)
         return;
 
-    Winfo.saveLastFocused(windowId);
-
     if (await Settings.get('unload_minimized_window_tabs')) {
-        // Detect minimize action, by checking if this focus change occurred because the previously focused window was minimized
-        const prevFocusedWindowId = await Winfo.focusedWindowId.get();
-        try {
-            const prevFocusedWindow = await browser.windows.get(prevFocusedWindowId);
-            if (prevFocusedWindow.state === 'minimized')
-                Action.unloadWindow(prevFocusedWindowId);
-        } catch {}
+        const defocusedWindowId = await loadFocusedWindowId();
+        if (await isMinimized(defocusedWindowId))
+            Action.unloadWindow(defocusedWindowId);
     }
-    Winfo.focusedWindowId.set(windowId);
+
+    saveFocusedWindowId(windowId);
+    Winfo.saveLastFocused(windowId);
 }
 
 //@ (Object, Object) -> state|nil
@@ -177,3 +173,10 @@ function onExternalRequest(request) {
     }
     return Promise.reject(new Error('Missing or unrecognized `type`'));
 }
+
+//@ (Number), state -> (Boolean)
+const isMinimized = async windowId => (await browser.windows.get(windowId).catch(() => null))?.state === 'minimized';
+//@ (Number) -> state
+const saveFocusedWindowId = windowId => browser.storage.local.set({ focusedWindowId: windowId });
+//@ state -> (Number)
+const loadFocusedWindowId = async () => (await browser.storage.local.get('focusedWindowId')).focusedWindowId;

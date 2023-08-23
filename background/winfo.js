@@ -90,29 +90,9 @@ export function arrange(winfos) {
     };
 }
 
-export const focusedWindowId = {
-    //@ (Number) -> state
-    set(windowId) {
-        browser.storage.local.set({ focusedWindowId: windowId });
-    },
-    //@ state -> (Number)
-    async get() {
-        const key = 'focusedWindowId';
-        return (await browser.storage.local.get(key))[key];
-    },
-}
-
 //@ (Number) -> state
-export function saveLastFocused(windowId) {
-    browser.sessions.setWindowValue(windowId, 'lastFocused', Date.now());
-}
-
+export const saveLastFocused = windowId => browser.sessions.setWindowValue(windowId, 'lastFocused', Date.now());
+//@ (Number) -> state
+export const saveFirstSeen = windowId => browser.sessions.setWindowValue(windowId, 'firstSeen', Date.now());
 //@ (Number), state -> (Promise: Number|undefined)
-export function loadFirstSeen(windowId) {
-    return browser.sessions.getWindowValue(windowId, 'firstSeen');
-}
-
-//@ (Number) -> state
-export function saveFirstSeen(windowId) {
-    browser.sessions.setWindowValue(windowId, 'firstSeen', Date.now());
-}
+export const loadFirstSeen = windowId => browser.sessions.getWindowValue(windowId, 'firstSeen');
