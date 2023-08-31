@@ -32,6 +32,7 @@ async function init() {
         Settings.getAll(),
         Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized']),
     ]);
+    await Settings.migrate(settings);
 
     Chrome.init(settings);
 
@@ -59,7 +60,7 @@ async function init() {
         if (!firstSeen)
             Winfo.saveFirstSeen(id);
 
-        if (minimized && settings.unload_minimized_window_tabs)
+        if (minimized && settings.unload_minimized_window)
             Action.unloadWindow(id);
     }
 }
@@ -98,7 +99,7 @@ async function onWindowFocusChanged(windowId) {
     if (windowId <= 0)
         return;
 
-    if (await Settings.get('unload_minimized_window_tabs')) {
+    if (await Settings.get('unload_minimized_window')) {
         const defocusedWindowId = await loadFocusedWindowId();
         if (await isMinimized(defocusedWindowId))
             Action.unloadWindow(defocusedWindowId);

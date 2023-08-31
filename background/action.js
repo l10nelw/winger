@@ -68,14 +68,14 @@ function modify(action, modifiers) {
 // Create a new window. If isMove=true, do so with currently selected tabs. If focused=false, minimize the window.
 //@ ({ String, Boolean, Boolean, Boolean }), state -> (Object), state
 export async function createWindow({ name, isMove, focused = true, incognito }) {
-    const [minimize_kick_windows, currentWindow] = await Promise.all([
-        Settings.get('minimize_kick_windows'),
+    const [minimize_kick_window, currentWindow] = await Promise.all([
+        Settings.get('minimize_kick_window'),
         browser.windows.getLastFocused({ populate: isMove }),
     ]);
     const currentWindowDetail = { windowId: currentWindow.id };
 
     const kick = !focused;
-    const state = kick && minimize_kick_windows ? 'minimized' : null;
+    const state = kick && minimize_kick_window ? 'minimized' : null;
     const newWindow = await browser.windows.create({ incognito, state });
     const newWindowId = newWindow.id;
 
@@ -85,7 +85,7 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
     }
 
     // Firefox ignores windows.create/update({ focused: false }), so if focused=false, switch back to current window
-    if (kick && !minimize_kick_windows)
+    if (kick && !minimize_kick_window)
         switchWindow(currentWindowDetail);
 
     if (isMove) {
@@ -116,10 +116,10 @@ async function bringTabs(request) {
 // Attempt moveTabs; if unsuccessful (e.g. windows are of different private statuses) then reopenTabs.
 //@ (Object), state -> ([Object]), state | (undefined)
 async function sendTabs(request) {
-    const [tabs, keep_moved_tabs_selected, unload_minimized_window_tabs] = await Promise.all([
+    const [tabs, keep_moved_tabs_selected, unload_minimized_window] = await Promise.all([
         request.tabs ?? getSelectedTabs(),
         Settings.get('keep_moved_tabs_selected'),
-        Settings.get('unload_minimized_window_tabs'),
+        Settings.get('unload_minimized_window'),
     ]);
     request.tabs ??= tabs;
     request.keep_moved_tabs_selected = keep_moved_tabs_selected;
@@ -127,7 +127,7 @@ async function sendTabs(request) {
     const movedTabs = await moveTabs(request);
     if (movedTabs.length) {
         // If relevant setting is enabled and destination window is minimized, unload moved tabs
-        if (unload_minimized_window_tabs && request.minimized)
+        if (unload_minimized_window && request.minimized)
             unloadTabs(movedTabs);
         return movedTabs;
     }
