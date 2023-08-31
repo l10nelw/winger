@@ -69,7 +69,7 @@ function modify(action, modifiers) {
 //@ ({ String, Boolean, Boolean, Boolean }), state -> (Object), state
 export async function createWindow({ name, isMove, focused = true, incognito }) {
     const [minimize_kick_window, currentWindow] = await Promise.all([
-        Settings.get('minimize_kick_window'),
+        Settings.getValue('minimize_kick_window'),
         browser.windows.getLastFocused({ populate: isMove }),
     ]);
     const currentWindowDetail = { windowId: currentWindow.id };
@@ -116,10 +116,9 @@ async function bringTabs(request) {
 // Attempt moveTabs; if unsuccessful (e.g. windows are of different private statuses) then reopenTabs.
 //@ (Object), state -> ([Object]), state | (undefined)
 async function sendTabs(request) {
-    const [tabs, keep_moved_tabs_selected, unload_minimized_window] = await Promise.all([
+    const [tabs, [keep_moved_tabs_selected, unload_minimized_window]] = await Promise.all([
         request.tabs ?? getSelectedTabs(),
-        Settings.get('keep_moved_tabs_selected'),
-        Settings.get('unload_minimized_window'),
+        Settings.getValue(['keep_moved_tabs_selected', 'unload_minimized_window']),
     ]);
     request.tabs ??= tabs;
     request.keep_moved_tabs_selected = keep_moved_tabs_selected;

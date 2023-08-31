@@ -117,7 +117,7 @@ const staticText = {
 
 
 (async function init() {
-    const SETTINGS = await Settings.getAll();
+    const SETTINGS = await Settings.getDict();
 
     // Handle legacy theme value
     if (SETTINGS.theme === 'system') {

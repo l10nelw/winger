@@ -46,13 +46,29 @@ export function migrate(settings) {
 //@ (Object) -> state
 export const set = dict => browser.storage.local.set(dict);
 
-//@ state -> (Promise: Object)
-export const getAll = (keys = ALL_DEFAULTS) => browser.storage.local.get(keys);
+//@ (Object|[String]|undefined), state -> (Promise: Object)
+export function getDict(keys = ALL_DEFAULTS) {
+    if (Array.isArray(keys))
+        keys = arrayToDict(keys);
+    return browser.storage.local.get(keys);
+}
 
-//@ (String), state -> (Any)
-export async function get(key) {
+//@ (String|[String]), state -> (Any|[Any])
+export async function getValue(key) {
+    if (Array.isArray(key)) {
+        const dict = await getDict(arrayToDict(key));
+        return Object.values(dict);
+    }
     if (!(key in ALL_DEFAULTS))
         return;
-    const dict = await browser.storage.local.get({ [key]: ALL_DEFAULTS[key] });
+    const dict = await getDict({ [key]: ALL_DEFAULTS[key] });
     return dict[key];
+}
+
+//@ ([String]) -> (Object)
+function arrayToDict(array) {
+    const dict = {};
+    for (const key of array)
+        dict[key] = ALL_DEFAULTS[key];
+    return dict;
 }

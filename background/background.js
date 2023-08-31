@@ -29,7 +29,7 @@ browser.runtime.onMessageExternal.addListener(onExternalRequest);
 //@ state -> state
 async function init() {
     const [settings, winfos] = await Promise.all([
-        Settings.getAll(),
+        Settings.getDict(),
         Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized']),
     ]);
     await Settings.migrate(settings);
@@ -69,7 +69,7 @@ async function init() {
 async function onWindowCreated(window) {
     const windowId = window.id;
     const [focusedTabs, firstSeen, winfos] = await Promise.all([
-        !await Settings.get('keep_moved_tabs_selected') && browser.tabs.query({ windowId, active: true }),
+        !await Settings.getValue('keep_moved_tabs_selected') && browser.tabs.query({ windowId, active: true }),
         Winfo.loadFirstSeen(windowId),
         Winfo.getAll(['givenName']),
     ]);
@@ -99,7 +99,7 @@ async function onWindowFocusChanged(windowId) {
     if (windowId <= 0)
         return;
 
-    if (await Settings.get('unload_minimized_window')) {
+    if (await Settings.getValue('unload_minimized_window')) {
         const defocusedWindowId = await loadFocusedWindowId();
         if (await isMinimized(defocusedWindowId))
             Action.unloadWindow(defocusedWindowId);
@@ -148,7 +148,7 @@ function onRequest(request) {
 async function popupResponse() {
     const [winfos, settings] = await Promise.all([
         Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type']),
-        Settings.getAll(),
+        Settings.getDict(['show_popup_bring', 'show_popup_send', 'enable_stash']),
     ]);
     return { ...Winfo.arrange(winfos), settings };
 }
