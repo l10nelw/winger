@@ -5,7 +5,7 @@ import * as Settings from '../settings.js';
 import * as Name from '../name.js';
 import * as Chrome from './chrome.js';
 
-export const openHelp = hash => openUniqueExtensionPage('help/help.html', hash); //@ (String) -> state
+export const openHelp = hash => openUniquePage('page/help.html', hash); //@ (String) -> state
 export const switchWindow = ({ windowId }) => browser.windows.update(windowId, { focused: true }); //@ ({ Number }), state -> (Promise: Object), state
 
 const ACTION_DICT = {
@@ -34,7 +34,7 @@ const MODIFIABLE_ACTIONS_TABLE = {
 
 // Open extension page tab, closing any duplicates found.
 //@ (String, String), state -> state
-async function openUniqueExtensionPage(pathname, hash) {
+async function openUniquePage(pathname, hash) {
     const url = browser.runtime.getURL(pathname);
     const openedTabs = await browser.tabs.query({ url });
     if (hash)
@@ -242,8 +242,8 @@ const READER_HEAD = 'about:reader?url=';
 const isReader = url => url.startsWith(READER_HEAD); //@ (String) -> (Boolean)
 const getReaderTarget = readerURL => decodeURIComponent(readerURL.slice(READER_HEAD.length)); //@ (String) -> (String)
 
-const PLACEHOLDER_PATH = '../placeholder/tab.html';
-const buildPlaceholderURL = (url, title) => `${PLACEHOLDER_PATH}?${new URLSearchParams({ url, title })}`; //@ (String, String) -> (String)
-const isPlaceholder = url => url.startsWith(browser.runtime.getURL(PLACEHOLDER_PATH)); //@ (String) -> (Boolean)
+const PLACEHOLDER_PAGE = '../page/placeholder.html';
+const buildPlaceholderURL = (url, title) => `${PLACEHOLDER_PAGE}?${new URLSearchParams({ url, title })}`; //@ (String, String) -> (String)
+const isPlaceholder = url => url.startsWith(browser.runtime.getURL(PLACEHOLDER_PAGE)); //@ (String) -> (Boolean)
 const getPlaceholderTarget = placeholderUrl => (new URL(placeholderUrl)).searchParams.get('url'); //@ (String) -> (String)
 export const deplaceholderize = url => isPlaceholder(url) ? getPlaceholderTarget(url) : url; //@ (String) -> (String)
