@@ -1,5 +1,6 @@
 import * as Name from '../name.js';
 import * as Action from './action.js';
+import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
 import * as Winfo from './winfo.js';
 
@@ -113,7 +114,7 @@ async function saveTabs(tabs, folderId, name) {
 
 //@ (Object, Number) -> (Object), state
 async function createBookmark(tab, parentId, name) {
-    const url = Action.deplaceholderize(tab.url);
+    const url = Auto.deplaceholderize(tab.url);
     const { title } = tab;
     console.log(`Stashing ${name} | ${url} | ${title}`);
     return createNode({ parentId, url, title });

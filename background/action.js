@@ -1,11 +1,12 @@
-// Common actions involving windows and tabs.
+// User actions involving windows and tabs.
 
 import { BRING, SEND } from '../modifier.js';
 import * as Settings from '../settings.js';
 import * as Name from '../name.js';
 import * as Chrome from './chrome.js';
+import * as Auto from './action.auto.js';
 
-export const openHelp = hash => openUniquePage('page/help.html', hash); //@ (String) -> state
+export const openHelp = hash => Auto.openUniquePage('page/help.html', hash); //@ (String) -> state
 export const switchWindow = ({ windowId }) => browser.windows.update(windowId, { focused: true }); //@ ({ Number }), state -> (Promise: Object), state
 
 const ACTION_DICT = {
@@ -32,19 +33,8 @@ const MODIFIABLE_ACTIONS_TABLE = {
     kickprivate: { [BRING]: 'popprivate' },
 }
 
-// Open extension page tab, closing any duplicates found.
-//@ (String, String), state -> state
-async function openUniquePage(pathname, hash) {
-    const url = browser.runtime.getURL(pathname);
-    const openedTabs = await browser.tabs.query({ url });
-    if (hash)
-        pathname += hash;
-    browser.tabs.create({ url: `/${pathname}` });
-    browser.tabs.remove(openedTabs.map(tab => tab.id));
-}
-
-// Select action to execute based on content of request.
-// request = { type: 'action', action, argument, modifiers, windowId }
+// Select action to execute based on content of action request.
+// A request contains: { type: 'action', action, argument, modifiers, windowId }
 //@ (Object), state -> state
 export async function execute(request) {
     request.action = modify(request.action, request.modifiers);
@@ -102,12 +92,6 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
     return newWindow;
 }
 
-//@ (Number) -> state
-export async function unloadWindow(windowId) {
-    const tabs = await browser.tabs.query({ windowId, active: false, discarded: false });
-    unloadTabs(tabs);
-}
-
 //@ (Object), state -> state|nil
 async function bringTabs(request) {
     await sendTabs(request) && switchWindow(request);
@@ -127,7 +111,7 @@ async function sendTabs(request) {
     if (movedTabs.length) {
         // If relevant setting is enabled and destination window is minimized, unload moved tabs
         if (unload_minimized_window && request.minimized)
-            unloadTabs(movedTabs);
+            Auto.unloadTabs(movedTabs);
         return movedTabs;
     }
     // If movedTabs is empty, moveTabs() must have failed so reopenTabs() instead
@@ -209,28 +193,19 @@ export function openTab(protoTab) {
     // title only allowed if discarded
     delete protoTab[discarded ? 'pinned' : 'title'];
 
-    if (url === 'about:newtab') {
+    if (url === 'about:newtab') { // Illegal url for tabs.create()
         delete protoTab.url;
     } else if (isReader(url)) {
         protoTab.url = getReaderTarget(url);
         protoTab.openInReaderMode = true;
     }
 
-    const tabPromise = browser.tabs.create(protoTab).catch(() => openPlaceholderTab(protoTab, title));
+    const tabPromise = browser.tabs.create(protoTab).catch(() => Auto.openPlaceholder(protoTab, title));
     return (pinned && discarded) ?
         tabPromise.then(tab => pinTab(tab.id)) : tabPromise;
 }
 
-//@ (Object, String) -> (Promise: Object), state
-function openPlaceholderTab(protoTab, title) {
-    const url = protoTab.url;
-    protoTab.url = buildPlaceholderURL(url, title || url);
-    return browser.tabs.create(protoTab);
-}
-
 const getSelectedTabs = () => browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> (Promise: [Object])
-
-const unloadTabs = tabs => browser.tabs.discard(tabs.map(tab => tab.id)); //@ ([Object]) -> state
 
 //@ (Number) -> (Promise: Object), state
 const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
@@ -241,9 +216,3 @@ export { focusTab };
 const READER_HEAD = 'about:reader?url=';
 const isReader = url => url.startsWith(READER_HEAD); //@ (String) -> (Boolean)
 const getReaderTarget = readerURL => decodeURIComponent(readerURL.slice(READER_HEAD.length)); //@ (String) -> (String)
-
-const PLACEHOLDER_PAGE = '../page/placeholder.html';
-const buildPlaceholderURL = (url, title) => `${PLACEHOLDER_PAGE}?${new URLSearchParams({ url, title })}`; //@ (String, String) -> (String)
-const isPlaceholder = url => url.startsWith(browser.runtime.getURL(PLACEHOLDER_PAGE)); //@ (String) -> (Boolean)
-const getPlaceholderTarget = placeholderUrl => (new URL(placeholderUrl)).searchParams.get('url'); //@ (String) -> (String)
-export const deplaceholderize = url => isPlaceholder(url) ? getPlaceholderTarget(url) : url; //@ (String) -> (String)

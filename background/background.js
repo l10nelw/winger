@@ -1,5 +1,6 @@
 import * as Winfo from './winfo.js';
 import * as Action from './action.js';
+import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
 import * as SendMenu from './menu.send.js';
 import * as Settings from '../settings.js';
@@ -60,7 +61,7 @@ async function init() {
             Winfo.saveFirstSeen(id);
 
         if (minimized && settings.unload_minimized_window)
-            Action.unloadWindow(id);
+            Auto.unloadWindow(id);
     }
     Chrome.update(nameMap);
 }
@@ -108,7 +109,7 @@ async function onWindowFocusChanged(windowId) {
     if (await Settings.getValue('unload_minimized_window')) {
         const defocusedWindowId = await loadFocusedWindowId();
         if (await isMinimized(defocusedWindowId))
-            Action.unloadWindow(defocusedWindowId);
+            Auto.unloadWindow(defocusedWindowId);
     }
 
     saveFocusedWindowId(windowId);
