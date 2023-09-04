@@ -68,15 +68,11 @@ async function init() {
 //@ (Object) -> state
 async function onWindowCreated(window) {
     const windowId = window.id;
-    const [focusedTabs, firstSeen, winfos] = await Promise.all([
-        !await Settings.getValue('keep_moved_tabs_selected') && browser.tabs.query({ windowId, active: true }),
+    const [_, firstSeen, winfos] = await Promise.all([
+        handleDetachedTabs(windowId), // In case window created from detached tabs
         Winfo.loadFirstSeen(windowId),
         Winfo.getAll(['givenName']),
     ]);
-
-    // Natively, detached tabs stay selected; to honour !keep_moved_tabs_selected, REFOCUS focused tab to deselect selected tabs
-    if (focusedTabs)
-        Action.focusTab(focusedTabs[0].id);
 
     if (!firstSeen)
         Winfo.saveFirstSeen(windowId);
@@ -91,6 +87,16 @@ async function onWindowCreated(window) {
 
         Chrome.update(windowId, givenName);
     }
+}
+
+// Natively, detached tabs stay selected. To honour !keep_moved_tabs_selected, REFOCUS focused tab to deselect selected tabs.
+//@ (Number) -> state
+async function handleDetachedTabs(windowId) {
+    if (await Settings.getValue('keep_moved_tabs_selected'))
+        return;
+    const focusedTab = (await browser.tabs.query({ windowId, active: true }))[0];
+    if (focusedTab)
+        Action.focusTab(focusedTab.id);
 }
 
 //@ (Number), state -> state|nil
