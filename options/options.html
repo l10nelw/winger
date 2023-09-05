@@ -15,13 +15,18 @@
         <label><input class="setting" type="checkbox" name="show_popup_bring"> <span>Show bring buttons in pop-up panel</span></label>
         <hr>
         <p>When sending or bringing tabs...</p>
-        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="true"> <span>selected sent or brought tabs stay selected</span></label>
-        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="false"> <span>selected tabs in the destination window stay selected</span></label>
+        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="true"> <span>selected sent/brought tabs stay selected</span></label>
+        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="false"> <span>the destination window's originally selected tabs stay selected</span></label>
         <small>Learn more about <a class="help" href="#common">send and bring</a></small>
       </fieldset>
 
       <fieldset>
-        <legend>Button badge</legend>
+        <legend>Window name display</legend>
+        <div class="inline-fields">
+          <label><span>Prefix</span> <input class="setting affixField" type="text" name="title_preface_prefix"></label>
+          <label><span>Postfix</span> <input class="setting affixField" type="text" name="title_preface_postfix"></label>
+        </div>
+        <hr>
         <label><input class="setting" type="checkbox" name="show_badge"> <span>Show window name on the Winger button
           <br><small>(Limited to the first few characters)</small>
         </span></label>

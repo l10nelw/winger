@@ -52,7 +52,6 @@ async function init() {
             Name.save(id, givenName);
         }
         nameMap.set(id, givenName);
-        Chrome.update(id, givenName);
 
         if (focused)
             Winfo.saveLastFocused(id);
@@ -63,6 +62,7 @@ async function init() {
         if (minimized && settings.unload_minimized_window)
             Action.unloadWindow(id);
     }
+    Chrome.update(nameMap);
 }
 
 //@ (Object) -> state
@@ -85,7 +85,7 @@ async function onWindowCreated(window) {
         if (nameMap.findId(givenName) !== windowId)
             Name.save(id, nameMap.uniquify(givenName));
 
-        Chrome.update(windowId, givenName);
+        Chrome.update([[windowId, givenName]]);
     }
 }
 
@@ -144,7 +144,7 @@ function onRequest(request) {
         case 'stash':  return Stash.stash(request.windowId, request.close);
         case 'action': return Action.execute(request);
         case 'help':   return Action.openHelp();
-        case 'update': return Chrome.update(request.windowId, request.name);
+        case 'update': return Chrome.update([[request.windowId, request.name]]);
         case 'warn':   return Chrome.showWarningBadge();
         case 'debug':  return debug();
     }

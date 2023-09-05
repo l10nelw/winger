@@ -1,5 +1,6 @@
 // The 'chrome' refers to UI elements of the browser that frame the content.
 
+import * as Settings from '../settings.js';
 import { getShortcut } from '../utils.js';
 
 //@ (Object) -> state
@@ -14,12 +15,16 @@ export function showWarningBadge() {
     browser.browserAction.setBadgeText({ text: '⚠️' });
 }
 
-//@ (Number, String) -> state
-export function update(windowId, name) {
-    const titlePreface = name ? `${name} - ` : '';
-    updateTitlebar(windowId, titlePreface);
-    updateButtonTitle(windowId, titlePreface);
-    updateBadge(windowId, name);
+//@ (Map(Number:String)|[[Number, String]]), state -> state
+export async function update(nameMap) {
+    const [prefix, postfix] = await Settings.getValue(['title_preface_prefix', 'title_preface_postfix']);
+    for (const [windowId, name] of nameMap) {
+        const titlePreface = name ?
+            (prefix + name + postfix) : '';
+        updateTitlebar(windowId, titlePreface);
+        updateButtonTitle(windowId, titlePreface);
+        updateBadge(windowId, name);
+    }
 }
 
 //@ (Number, String) -> state

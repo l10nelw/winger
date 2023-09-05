@@ -161,7 +161,7 @@ async function nameWindow(windowId, name) {
     if (name) {
         const nameMap = (new Name.NameMap()).populate(await Winfo.getAll(['givenName']));
         Name.save(windowId, nameMap.uniquify(name));
-        Chrome.update(windowId, name);
+        Chrome.update([[windowId, name]]);
     }
 }
 

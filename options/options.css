@@ -28,6 +28,11 @@ label {
     margin-right: 1rem;
 }
 
+.affixField {
+    width: 3.5rem;
+    text-align: center;
+}
+
 hr {
     margin: 1rem 0;
 }

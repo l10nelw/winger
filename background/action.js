@@ -81,7 +81,7 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
 
     if (name) {
         Name.save(newWindowId, name);
-        Chrome.update(newWindowId, name);
+        Chrome.update([[newWindowId, name]]);
     }
 
     // Firefox ignores windows.create/update({ focused: false }), so if focused=false, switch back to current window
