@@ -119,12 +119,6 @@ const staticText = {
 (async function init() {
     const SETTINGS = await Settings.getDict();
 
-    // Handle legacy theme value
-    if (SETTINGS.theme === 'system') {
-        SETTINGS.theme = '';
-        Settings.set({ theme: '' });
-    }
-
     for (const $field of setting.$fields) {
         setting.load(SETTINGS[$field.name], $field);
         enablerMap.addTarget($field);
