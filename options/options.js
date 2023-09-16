@@ -3,6 +3,7 @@ import { getShortcut, GroupMap } from '../utils.js';
 import { validify } from '../name.js';
 import { openHelp } from '../background/action.js';
 import { isDark } from '../theme.js';
+import indicateSuccess from '../success.js';
 
 const $form = document.body.querySelector('form');
 
@@ -39,14 +40,14 @@ const Setting = {
             $field[relevantProp($field.type)] = value;
     },
 
-    //@ (Object) -> state
+    //@ (Object) ->  (Promise:Boolean | undefined), state
     save($field) {
         if (!$field.classList.contains('setting'))
             return;
         if ($field.type === 'radio' && !$field.checked)
             return;
         const value = parse($field[relevantProp($field.type)]);
-        Settings.set({ [$field.name]: value });
+        return Settings.set({ [$field.name]: value });
     },
 };
 
@@ -69,19 +70,22 @@ const enablerMap = Object.assign(new GroupMap(), {
         this._updateTarget($target, $enabler.disabled || !$enabler.checked);
     },
 
-    // Enable/disable fields that $enabler controls.
-    //@ (Object), state -> state|nil
-    trigger($enabler) {
+    // Enable/disable fields that $enabler controls and save their associated settings.
+    // Return true if no save failures.
+    //@ (Object), state -> (Boolean), state|nil
+    async trigger($enabler) {
         const $targets = this.get($enabler);
         if (!$targets)
-            return;
+            return true;
         // Disable targets if enabler is unchecked or is itself disabled
         const disable = $enabler.disabled || !$enabler.checked;
+        const saving = [];
         for (const $target of $targets) {
             this._updateTarget($target, disable);
             this.trigger($target); // In case $target is itself an enabler
-            Setting.save($target);
+            saving.push(Setting.save($target));
         }
+        return (await Promise.all(saving)).every(Boolean);
     },
 });
 
@@ -148,8 +152,15 @@ const StaticText = {
 
 $form.addEventListener('change', async ({ target: $field }) => {
     await StashSection.onEnabled($field);
-    enablerMap.trigger($field);
-    Setting.save($field);
+    const allSaved = (
+        await Promise.all([
+            enablerMap.trigger($field),
+            Setting.save($field),
+        ])
+    ).every(Boolean);
+    if (allSaved)
+        indicateSuccess($field.closest('.inline-fields') || $field.closest('label'));
+
     switch ($field.name) {
         case 'title_preface_prefix':
         case 'title_preface_postfix':

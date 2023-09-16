@@ -52,6 +52,10 @@ button {
 .muted { opacity: .5; } /* Used in options.js */
 
 
+.success::after {
+    top: 1.5ex;
+}
+
 /* Dark theme */
 
 .dark fieldset {

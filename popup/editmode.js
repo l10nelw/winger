@@ -11,6 +11,7 @@ import {
 } from './common.js';
 import * as Omnibox from './omnibox.js';
 import * as Request from './request.js';
+import indicateSuccess from '../success.js';
 
 export let isActive = false; // Indicates if popup is in edit mode
 
@@ -118,7 +119,7 @@ function rememberNameNow($name) {
 // If name is invalid: restore original name and return false.
 // Otherwise: proceed to save, indicate success and return true.
 //@ (Object) -> (Boolean), state|nil
-function trySaveName($name) {
+async function trySaveName($name) {
     // Revert if marked invalid
     if ($name.classList.contains('error')) {
         $name.value = $name._original;
@@ -135,11 +136,16 @@ function trySaveName($name) {
 
     // Save
     const windowId = $name._id;
-    Name.save(windowId, name);
-    Request.updateChrome(windowId, name);
-    nameMap.set(windowId, name);
-    indicateSuccess($name.$row);
-    return true;
+    if (await Name.save(windowId, name)) {
+        Request.updateChrome(windowId, name);
+        nameMap.set(windowId, name);
+        indicateSuccess($name.$row);
+        return true;
+    }
+
+    // Save failed
+    $name.value = $name._original;
+    return false;
 }
 
 // Indicate if name is invalid, as well as the duplicate name if any.
@@ -165,10 +171,4 @@ function toggleNameFields(isEnable) {
         $name.tabIndex = tabIndex;
         $name.readOnly = isReadOnly;
     }
-}
-
-//@ (Object) -> state
-function indicateSuccess($row) {
-    $row.classList.add('success');
-    setTimeout(() => $row.classList.remove('success'), 1000);
 }

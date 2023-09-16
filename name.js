@@ -7,9 +7,9 @@ export async function load(windowId) {
     return givenName || '';
 }
 
-//@ (Number, String) -> state
+//@ (Number, String) -> (Boolean), state
 export function save(windowId, name) {
-    browser.sessions.setWindowValue(windowId, 'givenName', name);
+    return browser.sessions.setWindowValue(windowId, 'givenName', name).then(() => true).catch(() => false);
 }
 
 // Add " 2" at the end of name, or increment an existing number postfix.
