@@ -11,40 +11,53 @@
 
       <fieldset>
         <legend>Send and bring</legend>
-        <label><input class="setting" type="checkbox" name="show_popup_send"> <span>Show send buttons in pop-up panel</span></label>
-        <label><input class="setting" type="checkbox" name="show_popup_bring"> <span>Show bring buttons in pop-up panel</span></label>
+        <label><input class="setting" type="checkbox" name="show_popup_send"> Show send buttons in pop-up panel</label>
+        <label><input class="setting" type="checkbox" name="show_popup_bring"> Show bring buttons in pop-up panel</label>
         <hr>
         <p>When sending or bringing tabs...</p>
-        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="true"> <span>selected sent/brought tabs stay selected</span></label>
-        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="false"> <span>the destination window's originally selected tabs stay selected</span></label>
+        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="true"> selected sent/brought tabs stay selected</label>
+        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="false"> the destination window's originally selected tabs stay selected</label>
         <small>Learn more about <a class="help" href="#common">send and bring</a></small>
       </fieldset>
 
       <fieldset>
         <legend>Window name display</legend>
         <div class="inline-fields">
-          <label><span>Prefix</span> <input class="setting affixField" type="text" name="title_preface_prefix"></label>
-          <label><span>Postfix</span> <input class="setting affixField" type="text" name="title_preface_postfix"></label>
+          <label>Prefix <input class="setting short-field" type="text" name="title_preface_prefix"></label>
+          <label>Postfix <input class="setting short-field" type="text" name="title_preface_postfix"></label>
+          <small>Spaces count</small>
         </div>
         <hr>
-        <label><input class="setting" type="checkbox" name="show_badge"> <span>Show window name on the Winger button
-          <br><small>(Limited to the first few characters)</small>
-        </span></label>
+        <label>
+          <input class="setting" type="checkbox" name="show_badge"> Show window name on the Winger button
+          <small>Limited to the first few characters</small>
+        </label>
       </fieldset>
 
       <fieldset>
-        <legend>Minimized windows</legend>
-        <label><input class="setting" type="checkbox" name="unload_minimized_window"> <span>Unload tabs in minimized windows</span></label>
-        <label><input class="setting" type="checkbox" name="minimize_kick_window"> <span>Minimize <samp>/kick</samp> windows</span></label>
+        <legend>Background windows</legend>
+        <label>
+          <input class="setting" type="checkbox" name="plug_unfocused_window"> Add active blank tab in unfocused windows
+          <small>Allows originally active tabs to be unloaded. Only add if unloadable and non-media-playing</small>
+        </label>
+        <label>
+          ...after <input class="setting short-field" type="number" min="0" max="30" data-enabled-by="plug_unfocused_window" name="plug_unfocused_window_delay_mins"> minutes without focus
+          <small>Except in minimized windows (always instant)</small>
+        </label>
+        <label><input class="setting" type="checkbox" name="unplug_focused_window"> Remove active blank tab when a window receives focus</label>
+        <hr>
+        <label><input class="setting" type="checkbox" name="unload_minimized_window"> Unload tabs in minimized windows</label>
+        <label><input class="setting" type="checkbox" name="minimize_kick_window"> Minimize <samp>/kick</samp> windows</label>
       </fieldset>
 
       <fieldset>
         <legend>Stashing</legend>
-        <label><input class="setting" type="checkbox" name="enable_stash"> <span>Enable stashing
-          <br><small>(Requires permission to read and modify bookmarks)</small>
-        </span></label>
         <label>
-          <span>Stash home</span>
+          <input class="setting" type="checkbox" name="enable_stash"> Enable stashing
+          <small>Requires permission to read and modify bookmarks</small>
+        </label>
+        <label>
+          Stash home
           <select class="setting" data-enabled-by="enable_stash" name="stash_home">
             <option value="toolbar_____" >Bookmarks Toolbar</option>
             <option value="toolbar_____/">Bookmarks Toolbar ›</option>
@@ -61,9 +74,9 @@
       <fieldset>
         <legend>Theme</legend>
         <div class="inline-fields">
-          <label><input class="setting" type="radio" name="theme" value=""> <span>Auto</span></label>
-          <label><input class="setting" type="radio" name="theme" value="light"> <span>Light</span></label>
-          <label><input class="setting" type="radio" name="theme" value="dark"> <span>Dark</span></label>
+          <label><input class="setting" type="radio" name="theme" value=""> Auto</label>
+          <label><input class="setting" type="radio" name="theme" value="light"> Light</label>
+          <label><input class="setting" type="radio" name="theme" value="dark"> Dark</label>
         </div>
       </fieldset>
 

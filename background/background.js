@@ -9,7 +9,7 @@ let Stash, UnstashMenu; // Optional modules
 
 //@ -> state
 function debug() {
-    const modules = { Settings, Winfo, Name, Action, SendMenu, Stash, UnstashMenu };
+    const modules = { Settings, Winfo, Name, Action, Auto, SendMenu, Stash, UnstashMenu, FocusedWindowId };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
     Object.assign(window, modules);
 }
@@ -19,6 +19,8 @@ init();
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onFocusChanged.addListener(onWindowFocusChanged);
 
+browser.alarms.onAlarm.addListener(onAlarm);
+
 browser.menus.onShown.addListener(onMenuShown);
 browser.menus.onHidden.addListener(onMenuHidden);
 browser.menus.onClicked.addListener(onMenuClicked);
@@ -26,6 +28,7 @@ browser.menus.onClicked.addListener(onMenuClicked);
 browser.runtime.onInstalled.addListener(onExtensionInstalled);
 browser.runtime.onMessage.addListener(onRequest);
 browser.runtime.onMessageExternal.addListener(onExternalRequest);
+
 
 //@ state -> state
 async function init() {
@@ -58,7 +61,13 @@ async function init() {
         if (!firstSeen)
             Winfo.saveFirstSeen(id);
 
-        if (minimized && settings.unload_minimized_window)
+        const doPlug = !focused && settings.plug_unfocused_window;
+        const doUnload = minimized && settings.unload_minimized_window;
+        if (doPlug && doUnload)
+            Auto.plugWindow(id).then(() => Auto.unloadWindow(id)); // Plug before unload
+        else if (doPlug)
+            Auto.plugWindow(id);
+        else if (doUnload)
             Auto.unloadWindow(id);
     }
     Chrome.update(nameMap);
@@ -99,19 +108,65 @@ async function handleDetachedTabs(windowId) {
 }
 
 //@ (Number), state -> state|nil
-async function onWindowFocusChanged(windowId) {
-    // windowId is -1 when a window loses focus in Windows/Linux, or when no window has focus in MacOS
-    if (windowId <= 0)
-        return;
+async function onWindowFocusChanged(focusedWindowId) {
 
-    if (await Settings.getValue('unload_minimized_window')) {
-        const defocusedWindowId = await loadFocusedWindowId();
-        if (await isMinimized(defocusedWindowId))
-            Auto.unloadWindow(defocusedWindowId);
+    // focusedWindowId is -1 when a window loses focus in Windows and some Linux window managers, or only when no window has focus in MacOS and others
+    // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/windows/onFocusChanged
+    // Hence when a window switch happens, this event is fired twice in Windows et al: from the defocused window (-1) and from the focused window
+    if (focusedWindowId === -1) {
+        const lastFocusedWindow = await browser.windows.getLastFocused();
+        if (lastFocusedWindow.focused) {
+            // We are in Windows et al - the counterpart event capture will handle the focused window separately
+        } else {
+            // No window is focused
+            handleDefocusedWindow(lastFocusedWindow);
+            FocusedWindowId.save(null);
+        }
+        return;
     }
 
-    saveFocusedWindowId(windowId);
-    Winfo.saveLastFocused(windowId);
+    const [defocusedWindowId, unplug_focused_window] = await Promise.all([
+        FocusedWindowId.load(),
+        Settings.getValue(['unplug_focused_window']),
+    ]);
+    const defocusedWindow = defocusedWindowId && await browser.windows.get(defocusedWindowId).catch(() => null);
+    if (defocusedWindow)
+        handleDefocusedWindow(defocusedWindow);
+    if (unplug_focused_window)
+        Auto.unplugWindow(focusedWindowId);
+
+    Auto.deschedulePlugWindow(focusedWindowId);
+    Winfo.saveLastFocused(focusedWindowId);
+    FocusedWindowId.save(focusedWindowId);
+}
+
+//@ (Object) -> state
+async function handleDefocusedWindow(window) {
+    const windowId = window.id;
+    const minimized = window.state === 'minimized';
+    const [unload_minimized_window, plug_unfocused_window] = await Promise.all([
+        minimized && Settings.getValue('unload_minimized_window'),
+        Settings.getValue('plug_unfocused_window'),
+    ]);
+    // If unload and immediate plug, plug before unload
+    plug_unfocused_window && await Auto.schedulePlugWindow(windowId, minimized);
+    unload_minimized_window && Auto.unloadWindow(windowId);
+}
+
+const FocusedWindowId = {
+    save: focusedWindowId => browser.storage.local.set({ focusedWindowId }), //@ (Number|null) -> state
+    load: async () => (await browser.storage.local.get('focusedWindowId')).focusedWindowId, //@ state -> (Number|null)
+}
+
+//@ (Object) -> state
+async function onAlarm({ name }) {
+    const [action, id] = name.split('-');
+    // If plug, check if conditions are still valid
+    if (action === 'plugWindow' && await Settings.getValue('plug_unfocused_window')) {
+        const windowId = +id;
+        if (!(await browser.windows.get(windowId)).focused)
+            Auto.plugWindow(windowId);
+    }
 }
 
 //@ (Object, Object) -> state|nil
@@ -186,10 +241,3 @@ function onExternalRequest(request) {
     }
     return Promise.reject(new Error('Missing or unrecognized `type`'));
 }
-
-//@ (Number), state -> (Boolean)
-const isMinimized = async windowId => (await browser.windows.get(windowId).catch(() => null))?.state === 'minimized';
-//@ (Number) -> state
-const saveFocusedWindowId = windowId => browser.storage.local.set({ focusedWindowId: windowId });
-//@ state -> (Number)
-const loadFocusedWindowId = async () => (await browser.storage.local.get('focusedWindowId')).focusedWindowId;

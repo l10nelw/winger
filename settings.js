@@ -4,6 +4,9 @@ const ALL_DEFAULTS = {
     show_popup_send: true,
     keep_moved_tabs_selected: true,
 
+    plug_unfocused_window: false,
+    plug_unfocused_window_delay_mins: 10,
+    unplug_focused_window: false,
     unload_minimized_window: false,
     minimize_kick_window: false,
 

@@ -151,6 +151,14 @@ const StaticText = {
 })();
 
 $form.addEventListener('change', async ({ target: $field }) => {
+    if ($field.type === 'number') {
+        const value = $field.valueAsNumber;
+        if (value > $field.max)
+            $field.value = $field.max;
+        else
+        if (value < $field.min)
+            $field.value = $field.min;
+    }
     await StashSection.onEnabled($field);
     const allSaved = (
         await Promise.all([
