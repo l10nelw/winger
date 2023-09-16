@@ -5,31 +5,47 @@ import { openHelp } from '../background/action.js';
 
 const $form = document.body.querySelector('form');
 
+const relevantProp = type => (type === 'checkbox') ? 'checked' : 'value';
+
+const PARSE_CONSTANTS = Object.entries({
+    true: true,
+    false: false,
+    null: null,
+    undefined: undefined,
+});
+function parse(value) {
+    if (value === '')
+        return '';
+    for (const [key, val] of PARSE_CONSTANTS) // Is it one of these words or values?
+        if (value === val || value === key)
+            return val;
+    if (Number.isFinite(value)) // Is it already a number?
+        return value;
+    const number = +value;
+    if (!isNaN(number))
+        return number;
+    return value;
+}
+
 const setting = {
     $fields: [...$form.querySelectorAll('.setting')],
-    _relevantProp: type => (type === 'checkbox') ? 'checked' : 'value',
 
     //@ (Boolean|String, Object) -> state
     load(value, $field) {
-        const type = $field.type;
-        if (type === 'radio')
-            $field.checked = ($field.value === `${value}`); // Stringify any non-string
+        if ($field.type === 'radio')
+            $field.checked = ($field.value === `${value}`);
         else
-            $field[this._relevantProp(type)] = value;
+            $field[relevantProp($field.type)] = value;
     },
 
     //@ (Object) -> state
     save($field) {
         if (!$field.classList.contains('setting'))
             return;
-        const { type, name } = $field;
-        if (type === 'radio') {
-            // Any 'true' or 'false' string is booleanised
-            const value = ({ true: true, false: false })[$field.value] ?? $field.value;
-            if ($field.checked)
-                return Settings.set({ [name]: value });
-        }
-        Settings.set({ [name]: $field[this._relevantProp(type)] });
+        if ($field.type === 'radio' && !$field.checked)
+            return;
+        const value = parse($field[relevantProp($field.type)]);
+        Settings.set({ [$field.name]: value });
     },
 };
 
@@ -77,8 +93,8 @@ const stashSection = {
         if ($field !== $form.enable_stash)
             return;
         if (!$field.checked)
-            return browser.permissions.remove(this.permission);
-        $field.checked = await browser.permissions.request(this.permission);
+            return browser.permissions.remove(stashSection.permission);
+        $field.checked = await browser.permissions.request(stashSection.permission);
     },
 
     // Add/update subfolder name in the stash home <select>.
@@ -88,7 +104,7 @@ const stashSection = {
         const isSubfolder = $option => !$option.value.endsWith('_');
         for (const $option of $form.stash_home.options)
             if (isSubfolder($option))
-                $option.text = `${$option.previousElementSibling.text} ${this.subfolderSymbol} ${name}`;
+                $option.text = `${$option.previousElementSibling.text} ${stashSection.subfolderSymbol} ${name}`;
     },
 };
 

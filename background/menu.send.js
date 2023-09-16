@@ -67,7 +67,7 @@ export function handleHide() {
 // Event handler: Invoke submenu item click response based on context.
 //@ (Object, Object) -> (Boolean), state|nil
 export function handleClick(info, tab) {
-    const windowId = Number(info.menuItemId);
+    const windowId = +info.menuItemId;
     if (windowId) {
         const url = info.linkUrl;
         url ? openLink (url, windowId, info.modifiers)

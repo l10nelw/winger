@@ -17,7 +17,7 @@ export function save(windowId, name) {
 function addNumberPostfix(name) {
     const found = name.match(NUMBER_POSTFIX);
     return found ?
-        `${name.slice(0, found.index)} ${Number(found[1]) + 1}` : `${name} 2`;
+        `${name.slice(0, found.index)} ${+found[1] + 1}` : `${name} 2`;
 }
 
 // Remove spaces and illegal characters from name.
