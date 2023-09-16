@@ -45,8 +45,10 @@ export function migrate(settings) {
     return settings;
 }
 
-//@ (Object) -> state
-export const set = dict => browser.storage.local.set(dict);
+//@ (Object) -> (Boolean), state
+export function set(dict) {
+    return browser.storage.local.set(dict).then(() => true).catch(() => false);
+}
 
 //@ (Object|[String]|undefined), state -> (Promise: Object)
 export function getDict(keys = ALL_DEFAULTS) {
