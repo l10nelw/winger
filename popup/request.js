@@ -33,7 +33,7 @@ export function action({ event, $action, command, argument }) {
         return;
     request.argument = argument;
     request.modifiers = getModifiers(event);
-    sendMessage(request); // request = { type: 'action', action, argument, modifiers, windowId }
+    sendMessage(request); // request = { type: 'action', action, argument, minimized, modifiers, windowId }
     window.close();
 }
 
