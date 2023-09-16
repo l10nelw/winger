@@ -2,6 +2,7 @@ import * as Settings from '../settings.js';
 import { getShortcut, GroupMap } from '../utils.js';
 import { validify } from '../name.js';
 import { openHelp } from '../background/action.js';
+import { isDark } from '../theme.js';
 
 const $form = document.body.querySelector('form');
 
@@ -27,7 +28,7 @@ function parse(value) {
     return value;
 }
 
-const setting = {
+const Setting = {
     $fields: [...$form.querySelectorAll('.setting')],
 
     //@ (Boolean|String, Object) -> state
@@ -79,12 +80,12 @@ const enablerMap = Object.assign(new GroupMap(), {
         for (const $target of $targets) {
             this._updateTarget($target, disable);
             this.trigger($target); // In case $target is itself an enabler
-            setting.save($target);
+            Setting.save($target);
         }
     },
 });
 
-const stashSection = {
+const StashSection = {
     permission: { permissions: ['bookmarks'] },
     subfolderSymbol: $form.stash_home.options[1].text.slice(-1),
 
@@ -93,8 +94,8 @@ const stashSection = {
         if ($field !== $form.enable_stash)
             return;
         if (!$field.checked)
-            return browser.permissions.remove(stashSection.permission);
-        $field.checked = await browser.permissions.request(stashSection.permission);
+            return browser.permissions.remove(StashSection.permission);
+        $field.checked = await browser.permissions.request(StashSection.permission);
     },
 
     // Add/update subfolder name in the stash home <select>.
@@ -104,11 +105,11 @@ const stashSection = {
         const isSubfolder = $option => !$option.value.endsWith('_');
         for (const $option of $form.stash_home.options)
             if (isSubfolder($option))
-                $option.text = `${$option.previousElementSibling.text} ${stashSection.subfolderSymbol} ${name}`;
+                $option.text = `${$option.previousElementSibling.text} ${StashSection.subfolderSymbol} ${name}`;
     },
 };
 
-const staticText = {
+const StaticText = {
 
     //@ state -> state
     async insertShortcut() {
@@ -135,25 +136,31 @@ const staticText = {
 (async function init() {
     const SETTINGS = await Settings.getDict();
 
-    for (const $field of setting.$fields) {
-        setting.load(SETTINGS[$field.name], $field);
+    for (const $field of Setting.$fields) {
+        Setting.load(SETTINGS[$field.name], $field);
         enablerMap.addTarget($field);
     }
 
-    stashSection.updateHomeSelect();
-    staticText.insertShortcut();
-    staticText.checkPrivateAccess();
+    StashSection.updateHomeSelect();
+    StaticText.insertShortcut();
+    StaticText.checkPrivateAccess();
 })();
 
 $form.addEventListener('change', async ({ target: $field }) => {
-    await stashSection.onEnabled($field);
+    await StashSection.onEnabled($field);
     enablerMap.trigger($field);
-    setting.save($field);
+    Setting.save($field);
+    switch ($field.name) {
+        case 'title_preface_prefix':
+        case 'title_preface_postfix':
+        case 'show_badge':
+            return browser.runtime.sendMessage({ type: 'update' });
+        case 'theme':
+            return document.body.classList.toggle('dark', isDark($form.theme.value));
+    }
 });
 
 $form.addEventListener('click', ({ target: $el }) => {
     if ($el.classList.contains('help'))
         return openHelp($el.getAttribute('href'));
 });
-
-$form.addEventListener('submit', () => browser.runtime.reload());

@@ -35,8 +35,6 @@ async function init() {
     ]);
     await Settings.migrate(settings);
 
-    Chrome.init(settings);
-
     if (settings.enable_stash) {
         [Stash, UnstashMenu] = await Promise.all([ import('./stash.js'), import('./menu.unstash.js') ]);
         Stash.init(settings);
@@ -139,13 +137,20 @@ function onExtensionInstalled(details) {
 }
 
 //@ (Object), state -> (Object|Boolean|undefined), state|nil
-function onRequest(request) {
+async function onRequest(request) {
     switch (request.type) {
         case 'popup':  return popupResponse();
         case 'stash':  return Stash.stash(request.windowId, request.close);
         case 'action': return Action.execute(request);
         case 'help':   return Action.openHelp();
-        case 'update': return Chrome.update([[request.windowId, request.name]]);
+        case 'update': {
+            const { windowId, name } = request;
+            if (windowId && name)
+                return Chrome.update([[windowId, name]]);
+            const winfos = await Winfo.getAll(['givenName']);
+            const nameMap = (new Name.NameMap()).populate(winfos);
+            return Chrome.update(nameMap);
+        }
         case 'warn':   return Chrome.showWarningBadge();
         case 'debug':  return debug();
     }
