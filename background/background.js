@@ -194,10 +194,20 @@ function onExtensionInstalled(details) {
 //@ (Object), state -> (Object|Boolean|undefined), state|nil
 async function onRequest(request) {
     switch (request.type) {
-        case 'popup':  return popupResponse();
-        case 'stash':  return Stash.stash(request.windowId, request.close);
-        case 'action': return Action.execute(request);
-        case 'help':   return Action.openHelp();
+        case 'popup':
+            return popupResponse();
+        case 'stash':
+            return Stash.stash(request.windowId, request.close);
+        case 'action':
+            return Action.execute(request);
+        case 'help':
+            return Action.openHelp();
+        case 'plug': {
+            const winfos = await Winfo.getAll(['focused', 'minimized']);
+            await Promise.all( winfos.map(({ id }) => Auto.deschedulePlugWindow(id)) );
+            if (request.enable)
+                return winfos.forEach(({ id, focused, minimized }) => !focused && Auto.schedulePlugWindow(id, minimized));
+        }
         case 'update': {
             const { windowId, name } = request;
             if (windowId && name)
@@ -206,8 +216,10 @@ async function onRequest(request) {
             const nameMap = (new Name.NameMap()).populate(winfos);
             return Chrome.update(nameMap);
         }
-        case 'warn':   return Chrome.showWarningBadge();
-        case 'debug':  return debug();
+        case 'warn':
+            return Chrome.showWarningBadge();
+        case 'debug':
+            return debug();
     }
 }
 

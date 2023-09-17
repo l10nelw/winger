@@ -174,6 +174,9 @@ $form.addEventListener('change', async ({ target: $field }) => {
         case 'title_preface_postfix':
         case 'show_badge':
             return browser.runtime.sendMessage({ type: 'update' });
+        case 'plug_unfocused_window':
+        case 'plug_unfocused_window_delay_mins':
+            return browser.runtime.sendMessage({ type: 'plug', enable: $form.plug_unfocused_window.checked });
         case 'theme':
             return document.body.classList.toggle('dark', isDark($form.theme.value));
     }
