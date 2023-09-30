@@ -86,7 +86,7 @@ function populate(currentWinfo, otherWinfos, settings) {
         $minHeading.hidden = false;
     }
     const $otherRows = [...$otherWindowsList.children];
-    $otherWindowRows.$withMinHeading = $otherRows; // Has no minimized-heading if minHeadingIndex <= 0
+    $otherWindowRows.$withMinHeading = [...$otherRows]; // Has no minimized-heading if minHeadingIndex <= 0
     if (minHeadingIndex > 0)
         $otherRows.splice(minHeadingIndex, 1);
     $otherWindowRows.push(...$otherRows); // Always has no minimized-heading
