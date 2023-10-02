@@ -136,6 +136,10 @@ input:read-only {
     border-radius: var(--border-radius);
     margin-left: .25rem;
 }
+.name::placeholder {
+    font-style: italic;
+    text-overflow: ellipsis;
+}
 
 body:not([data-mode="edit"]) .name {
     background-color: transparent;

@@ -2,6 +2,7 @@
 A winfo ("window info") is similar to but distinct from a standard browser.windows window-object.
 May contain as few or as many props as required; copied and/or derived from a window-object, and/or previously saved via browser.sessions.
 */
+import * as Settings from '../settings.js';
 
 // Dict of keys for sessions.getWindowValue() mapped to default values.
 const PROPS_TO_LOAD = {
@@ -15,6 +16,14 @@ const PROPS_TO_LOAD = {
 const PROPS_TO_DERIVE = {
     minimized(window, winfo) {
         winfo.minimized = window.state === 'minimized';
+    },
+    // givenName ? tab title : window title
+    // Requires `winfo.givenName`
+    titleSansName(window, winfo, { nameAffixLength }) {
+        const { givenName } = winfo;
+        winfo.titleSansName = givenName ?
+            window.title.slice(givenName.length + nameAffixLength) :
+            window.title;
     },
     // Requires populated `window.tabs`
     // Also adds `winfo.selectedTabCount` if window is focused
@@ -33,7 +42,11 @@ export async function getAll(wantedProps = [], windows = null) {
     wantedProps = new Set(wantedProps);
     wantedProps.add('id');
 
-    windows ??= await browser.windows.getAll({ populate: wantedProps.has('tabCount') });
+    let nameAffixes;
+    [windows, nameAffixes] = await Promise.all([
+        windows ?? browser.windows.getAll({ populate: wantedProps.has('tabCount') }),
+        wantedProps.has('titleSansName') && Settings.getValue(['title_preface_prefix', 'title_preface_postfix']),
+    ]);
 
     // Split propsToLoad and propsToDerive out of wantedProps, leaving behind "propsToCopy"
     const propsToLoad = [];
@@ -47,29 +60,34 @@ export async function getAll(wantedProps = [], windows = null) {
             propsToDerive.push(prop);
     }
 
-    return Promise.all(
-        windows.map(window => getOne(window, propsToLoad, propsToDerive, wantedProps))
-    );
+    const commonInfo = {
+        propsToLoad,
+        propsToDerive,
+        propsToCopy: wantedProps,
+        nameAffixLength: nameAffixes.join?.('').length ?? 0,
+    };
+
+    return Promise.all( windows.map(window => getOne(window, commonInfo)) );
 }
 
-//@ (Object, [String], [String], [String]|Set(String)), state -> (Object)
-async function getOne(window, propsToLoad, propsToDerive, propsToCopy) {
+//@ (Object, Object), state -> (Object)
+async function getOne(window, commonInfo) {
     // Load window's saved props to start winfo with
     const windowId = window.id;
     const makeEntry = async prop => [ prop, (await browser.sessions.getWindowValue(windowId, prop) ?? PROPS_TO_LOAD[prop]) ];
     const makingEntries = [];
-    for (const prop of propsToLoad) {
+    for (const prop of commonInfo.propsToLoad) {
         if (prop in PROPS_TO_LOAD)
             makingEntries.push(makeEntry(prop));
     }
     const winfo = Object.fromEntries(await Promise.all(makingEntries));
 
     // Derive and add new props to winfo
-    for (const prop of propsToDerive)
-        PROPS_TO_DERIVE[prop](window, winfo);
+    for (const prop of commonInfo.propsToDerive)
+        PROPS_TO_DERIVE[prop](window, winfo, commonInfo);
 
     // Copy props from window to winfo
-    for (const prop of propsToCopy)
+    for (const prop of commonInfo.propsToCopy)
         winfo[prop] = window[prop];
 
     return winfo;

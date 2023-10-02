@@ -105,15 +105,15 @@
       </section>
       <section class="row mb1">
         <div class="col w100 mr1">
-          <p>Every window is represented by a row, showing its <strong>name</strong> and <strong>tab count</strong>.</p>
-          <p>Above the panel <strong>omnibox</strong> is the row representing the currently focused window (<strong>current window</strong>).</p>
+          <p>Every window is represented by a row, showing either its window title or given <strong><a href="#name">name</a></strong>, and its <strong>tab count</strong>.</p>
+          <p>The top row, above the panel <strong><a href="#omnibox">omnibox</a></strong>, represents the currently focused window (<strong>current window</strong>).</p>
           <p>If there are <strong>other windows</strong>, they are listed below the omnibox in this manner:</p>
           <ul>
             <li>ordered from most to least recently focused</li>
             <li>minimized windows grouped at the end</li>
           </ul>
           <p>At the bottom is the <strong>status bar</strong> showing the total number of tabs and windows open, and the <strong>help button</strong>.</p>
-          <p>If you prefer, you can interact with the panel by keyboard:</p>
+          <p>You can interact with the panel by keyboard:</p>
           <ul>
             <li><kbd>▼Down</kbd>, <kbd>▲Up</kbd>, <kbd>▶︎Right</kbd> and <kbd>◀︎Left</kbd> to navigate the panel.</li>
             <li><kbd>Enter</kbd> to "click" a targeted item.</li>
@@ -123,25 +123,25 @@
           <figure class="popup popup-rounded mb1" role="img" aria-label="Winger panel">
             <header class="popup-row">
               <span class="popup-btn"></span><span class="popup-btn"></span>
-              <strong class="popup-name muted">(no name)</strong><small class="popup-tabCount">20</small>
+              <strong class="popup-name muted unnamed">Re: Proposal - Inbox</strong><small class="popup-tabCount">20</small>
             </header>
             <div class="popup-omnibox focused"></div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
-              <span class="popup-name muted">(no name)</span><small class="popup-tabCount">5</small>
+              <span class="popup-name muted unnamed">Invoice DA00042 Client A...</span><small class="popup-tabCount">13</small>
             </div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
-              <span class="popup-name muted">(no name)</span><small class="popup-tabCount">13</small>
+              <span class="popup-name muted unnamed">Shopping Cart (2 items)</span><small class="popup-tabCount">7</small>
             </div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
-              <span class="popup-name muted">(no name)</span><small class="popup-tabCount">7</small>
+              <span class="popup-name muted unnamed">New Tab</span><small class="popup-tabCount">5</small>
             </div>
             <div class="popup-heading"><hr><header>Minimized</header></div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
-              <span class="popup-name muted">(no name)</span><small class="popup-tabCount">8</small>
+              <span class="popup-name muted unnamed">Compost - Wikipedia</span><small class="popup-tabCount">8</small>
             </div>
             <footer class="popup-row muted no-border">
               <div class="popup-status"># windows / # tabs</div>
@@ -181,15 +181,15 @@
             <div class="popup-omnibox"></div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
-              <span class="popup-name">gaming</span><small class="popup-tabCount">5</small>
-            </div>
-            <div class="popup-row">
-              <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name">work: Client A</span><small class="popup-tabCount">13</small>
             </div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name focused">J's birthday</span><small class="popup-tabCount">7</small>
+            </div>
+            <div class="popup-row">
+              <span class="popup-btn send"></span><span class="popup-btn bring"></span>
+              <span class="popup-name">gaming</span><small class="popup-tabCount">5</small>
             </div>
             <div class="popup-heading"><hr><header>Minimized</header></div>
             <div class="popup-row">

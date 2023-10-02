@@ -159,7 +159,7 @@ async function onRequest(request) {
 //@ state -> ({ Object, [Object], Object })
 async function popupResponse() {
     const [winfos, settings] = await Promise.all([
-        Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type']),
+        Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'titleSansName', 'type']),
         Settings.getDict(['show_popup_bring', 'show_popup_send', 'enable_stash']),
     ]);
     return { ...Winfo.arrange(winfos), settings };

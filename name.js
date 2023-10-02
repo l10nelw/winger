@@ -1,4 +1,3 @@
-export const NO_NAME = '(no name)';
 const NUMBER_POSTFIX = / (\d+)$/;
 
 //@ (Number), state -> (String)

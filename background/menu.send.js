@@ -1,5 +1,4 @@
 import { BRING } from '../modifier.js';
-import { NO_NAME } from '../name.js';
 import * as Winfo from './winfo.js';
 import * as Action from './action.js';
 
@@ -43,10 +42,10 @@ export async function handleShow(info, tab) {
 //@ ([Object]) -> state
 async function populate(windows) {
     const { currentWinfo, otherWinfos } = Winfo.arrange(
-        await Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized'], windows));
+        await Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'titleSansName'], windows));
     const privateIcon = { 16: 'icons/private.svg' };
-    for (let { id, givenName, incognito } of otherWinfos) {
-        const title = givenName || NO_NAME;
+    for (let { id, givenName, incognito, titleSansName } of otherWinfos) {
+        const title = givenName || titleSansName || '...';
         id = `${id}`; // Menu id must be string
         browser.menus.remove(id);
         const menuToCreate = { parentId, id, title };

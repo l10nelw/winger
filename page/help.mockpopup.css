@@ -46,6 +46,11 @@
     margin-left: .5rem;
     border: 2px solid transparent;
 }
+.popup-name.unnamed {
+    font-style: italic;
+    opacity: .75;
+}
+
 :is(.popup-omnibox, .popup-name).focused::after {
     content: "|";
     font-weight: 100;

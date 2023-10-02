@@ -12,7 +12,6 @@ import * as Omnibox from './omnibox.js';
 import * as Filter from './filter.js';
 import * as Status from './status.js';
 import * as Request from './request.js';
-import { NO_NAME } from '../name.js';
 
 Request.popup().then(onSuccess).catch(onError);
 
@@ -98,8 +97,6 @@ const Row = {
 
     //@ (Object) -> state
     initCurrent(settings) {
-        $currentWindowRow.querySelector('.name').placeholder = NO_NAME;
-
         // Remove any toggled-off buttons
         const buttons = [
             ['show_popup_bring', '.bring'],
@@ -141,7 +138,7 @@ const Row = {
     },
 
     //@ (Object, { Number, Boolean, Boolean, String, Number }) -> state
-    hydrate($row, { id, incognito, minimized, givenName, tabCount }) {
+    hydrate($row, { givenName, id, incognito, minimized, tabCount, titleSansName }) {
         // Add references to row's cells, and in each cell a reference back to the row
         for (const selector of Row.CELL_SELECTORS) {
             const $cell = $row.querySelector(selector);
@@ -153,6 +150,7 @@ const Row = {
         $row._id = id;
         $row.$name._id = id;
         $row.$name.value = givenName;
+        $row.$name.placeholder = titleSansName;
         $row.$tabCount.textContent = tabCount;
         $row.classList.toggle('minimized', minimized);
         $row.classList.toggle('private', incognito);
