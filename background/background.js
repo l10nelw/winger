@@ -139,10 +139,23 @@ function onExtensionInstalled(details) {
 //@ (Object), state -> (Object|Boolean|undefined), state|nil
 async function onRequest(request) {
     switch (request.type) {
-        case 'popup':  return popupResponse();
-        case 'stash':  return Stash.stash(request.windowId, request.close);
-        case 'action': return Action.execute(request);
-        case 'help':   return Action.openHelp();
+        case 'popup': {
+            const [winfos, settings] = await Promise.all([
+                Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'titleSansName', 'type']),
+                Settings.getDict(['show_popup_bring', 'show_popup_send', 'enable_stash']),
+            ]);
+            return { ...Winfo.arrange(winfos), settings };
+        }
+        case 'stash':
+            return Stash.stash(request.windowId, request.close);
+        case 'stashInit': {
+            const settings = await Settings.getDict(['enable_stash', 'stash_home', 'stash_home_name']);
+            return Stash.init(settings);
+        }
+        case 'action':
+            return Action.execute(request);
+        case 'help':
+            return Action.openHelp();
         case 'update': {
             const { windowId, name } = request;
             if (windowId && name)
@@ -151,18 +164,11 @@ async function onRequest(request) {
             const nameMap = (new Name.NameMap()).populate(winfos);
             return Chrome.update(nameMap);
         }
-        case 'warn':   return Chrome.showWarningBadge();
-        case 'debug':  return debug();
+        case 'warn':
+            return Chrome.showWarningBadge();
+        case 'debug':
+            return debug();
     }
-}
-
-//@ state -> ({ Object, [Object], Object })
-async function popupResponse() {
-    const [winfos, settings] = await Promise.all([
-        Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'titleSansName', 'type']),
-        Settings.getDict(['show_popup_bring', 'show_popup_send', 'enable_stash']),
-    ]);
-    return { ...Winfo.arrange(winfos), settings };
 }
 
 //@ (Object), state -> (Promise: [Object]|Error)

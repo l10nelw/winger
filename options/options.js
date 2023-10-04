@@ -91,7 +91,6 @@ const enablerMap = Object.assign(new GroupMap(), {
 
 const StashSection = {
     permission: { permissions: ['bookmarks'] },
-    subfolderSymbol: $form.stash_home.options[1].text.slice(-1),
 
     //@ (Object), state -> state|nil
     async onEnabled($field) {
@@ -100,16 +99,6 @@ const StashSection = {
         if (!$field.checked)
             return browser.permissions.remove(StashSection.permission);
         $field.checked = await browser.permissions.request(StashSection.permission);
-    },
-
-    // Add/update subfolder name in the stash home <select>.
-    //@ state -> state
-    updateHomeSelect() {
-        const name = $form.stash_home_name.value = validify($form.stash_home_name.value);
-        const isSubfolder = $option => !$option.value.endsWith('_');
-        for (const $option of $form.stash_home.options)
-            if (isSubfolder($option))
-                $option.text = `${$option.previousElementSibling.text} ${StashSection.subfolderSymbol} ${name}`;
     },
 };
 
@@ -145,7 +134,6 @@ const StaticText = {
         enablerMap.addTarget($field);
     }
 
-    StashSection.updateHomeSelect();
     StaticText.insertShortcut();
     StaticText.checkPrivateAccess();
 })();
@@ -163,9 +151,17 @@ $form.addEventListener('change', async ({ target: $field }) => {
         case 'title_preface_prefix':
         case 'title_preface_postfix':
         case 'show_badge':
-            return browser.runtime.sendMessage({ type: 'update' });
+            browser.runtime.sendMessage({ type: 'update' });
+            return;
+
         case 'theme':
-            return document.body.classList.toggle('dark', isDark($form.theme.value));
+            document.body.classList.toggle('dark', isDark($form.theme.value));
+            return;
+
+        case 'stash_home_folder':
+        case 'stash_home_root':
+            browser.runtime.sendMessage({ type: 'stashInit' });
+            return;
     }
 });
 

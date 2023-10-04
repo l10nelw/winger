@@ -12,36 +12,58 @@ const ALL_DEFAULTS = {
     show_badge: false,
 
     enable_stash: false,
-    stash_home: 'toolbar_____',
-    stash_home_name: 'Stashed Windows',
+    stash_home_root: 'toolbar_____',
+    stash_home_folder: 'Stashed Windows',
 
     theme: '',
 
-    // Deprecated; retrieve only for migration v2.4.0
+    // Deprecated, retrieve for migration v2.4.0
     unload_minimized_window_tabs: undefined,
     minimize_kick_windows: undefined,
+    stash_home: undefined,
+    stash_home_name: undefined,
 };
 
 // Map old keys to new keys. v2.4.0
-const MIGRATE_DICT = {
-    unload_minimized_window_tabs: 'unload_minimized_window',
-    minimize_kick_windows: 'minimize_kick_window',
-};
+// [ old key, new key, function to get value ]
+const ENTRIES_TO_MIGRATE = [
+    [
+        'unload_minimized_window_tabs',
+        'unload_minimized_window',
+        settings => settings.unload_minimized_window_tabs,
+    ],
+    [
+        'minimize_kick_windows',
+        'minimize_kick_window',
+        settings => settings.minimize_kick_windows,
+    ],
+    [
+        'stash_home',
+        'stash_home_root',
+        settings => settings.stash_home?.split('/')[0],
+    ],
+    [
+        'stash_home_name',
+        'stash_home_folder',
+        settings => settings.stash_home?.endsWith('/') ? settings.stash_home_name : '',
+    ],
+];
 
-// Migrate old storage keys to new keys, deleting the former. Mutates `settings`.
+// Migrate old storage entries to new entries, deleting the former and saving the latter.
+// Mutates `settings` by adding new entries.
 //@ (Object), state -> (Object), state
 export function migrate(settings) {
-    const changeDict = {};
-    for (const [oldKey, newKey] of Object.entries(MIGRATE_DICT)) {
-        const value = settings[oldKey];
-        if (value !== undefined) {
-            changeDict[newKey] = value;
-            settings[newKey] = value;
-            browser.storage.local.remove(oldKey);
-        }
+    const newEntryDict = {};
+    let hasMigration = false;
+    for (const [oldKey, newKey, valueFn] of ENTRIES_TO_MIGRATE) {
+        if (settings[oldKey] === undefined)
+            continue;
+        newEntryDict[newKey] = settings[newKey] = valueFn(settings);
+        browser.storage.local.remove(oldKey);
+        hasMigration = true;
     }
-    if (Object.keys(changeDict).length)
-        set(changeDict);
+    if (hasMigration)
+        set(newEntryDict);
     return settings;
 }
 

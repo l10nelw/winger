@@ -23,9 +23,8 @@ label {
     margin-bottom: .5rem;
     gap: .3rem;
 }
-.inline-fields > label {
-    display: inline-flex;
-    margin-right: 1rem;
+.inline-fields {
+    display: flex;
 }
 
 .affixField {
@@ -50,7 +49,7 @@ button {
 }
 
 .muted { opacity: .5; } /* Used in options.js */
-
+.gap { gap: 1rem; }
 
 .success::after {
     top: 1.5ex;

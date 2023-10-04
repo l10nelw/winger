@@ -22,7 +22,7 @@
 
       <fieldset>
         <legend>Window name display</legend>
-        <div class="inline-fields">
+        <div class="inline-fields gap">
           <label><span>Prefix</span> <input class="setting affixField" type="text" name="title_preface_prefix"></label>
           <label><span>Postfix</span> <input class="setting affixField" type="text" name="title_preface_postfix"></label>
         </div>
@@ -43,24 +43,23 @@
         <label><input class="setting" type="checkbox" name="enable_stash"> <span>Enable stashing
           <br><small>(Requires permission to read and modify bookmarks)</small>
         </span></label>
-        <label>
-          <span>Stash home</span>
-          <select class="setting" data-enabled-by="enable_stash" name="stash_home">
-            <option value="toolbar_____" >Bookmarks Toolbar</option>
-            <option value="toolbar_____/">Bookmarks Toolbar ›</option>
-            <option value="menu________" >Bookmarks Menu</option>
-            <option value="menu________/">Bookmarks Menu ›</option>
-            <option value="unfiled_____" >Other Bookmarks</option>
-            <option value="unfiled_____/">Other Bookmarks ›</option>
-          </select>
-        </label>
-        <input type="hidden" class="setting" data-enabled-by="enable_stash" name="stash_home_name" value="Stashed Windows">
+        <div class="inline-fields">
+          <label>
+            <span>Stash home</span>
+            <select class="setting" data-enabled-by="enable_stash" name="stash_home_root">
+              <option value="toolbar_____">Bookmarks Toolbar</option>
+              <option value="menu________">Bookmarks Menu</option>
+              <option value="unfiled_____">Other Bookmarks</option>
+            </select> /
+            <input type="text" class="setting" data-enabled-by="enable_stash" name="stash_home_folder" aria-label="Folder name (optional)" placeholder="Folder name (optional)">
+          </label>
+        </div>
         <small>Learn more about <a class="help" href="#stash">stashing</a></small>
       </fieldset>
 
       <fieldset>
         <legend>Theme</legend>
-        <div class="inline-fields">
+        <div class="inline-fields gap">
           <label><input class="setting" type="radio" name="theme" value=""> <span>Auto</span></label>
           <label><input class="setting" type="radio" name="theme" value="light"> <span>Light</span></label>
           <label><input class="setting" type="radio" name="theme" value="dark"> <span>Dark</span></label>

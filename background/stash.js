@@ -13,31 +13,20 @@ export const nowProcessing = new Set(); // Ids of windows and folders currently 
 
 // Identify the stash home's folder id based on settings.
 //@ (Object), state -> state
-export async function init(settings) {
-    let rootId = settings.stash_home; // Id of a root folder; may be followed by a marker character indicating that home is a subfolder
-    let nodes;
-    const isRoot = isRootId(rootId);
-    if (isRoot) {
-        HOME_ID = rootId;
-        nodes = await getChildNodes(rootId);
+export async function init({ enable_stash, stash_home_root, stash_home_folder }) {
+    if (!enable_stash)
+        return;
+    const nodes = await getChildNodes(stash_home_root);
+    if (stash_home_folder) {
+        // Home is a subfolder of a root folder
+        const folder = findFolderByTitle(nodes, stash_home_folder) || await createFolder(stash_home_folder, stash_home_root);
+        HOME_ID = folder.id;
     } else {
-        // Home is subfolder of root folder
-        rootId = rootId.slice(0, -1); // Remove marker
-        nodes = await getChildNodes(rootId);
-        const title = settings.stash_home_name;
-        const folder = findFolderByTitle(nodes, title);
-        HOME_ID = folder ? folder.id : (await createFolder(title, rootId)).id;
+        // Home is a root folder
+        HOME_ID = stash_home_root;
+        if (!nodes.findLast(isSeparator)) // If home has no separator
+            createNode({ type: 'separator', parentId: HOME_ID });
     }
-    if (isRoot && nodes.length && findSeparator(nodes) === -1) // If home is a root folder, not empty and has no separator
-        createNode({ type: 'separator', parentId: HOME_ID });
-}
-
-//@ ([Object]) -> (Number)
-function findSeparator(nodes) {
-    for (let i = nodes.length; i--;) // Reverse iterate
-        if (isSeparator(nodes[i]))
-            return i;
-    return -1;
 }
 
 const findFolderByTitle = (nodes, title) => nodes.find(node => node.title === title && isFolder(node)); //@ ([Object], String) -> (Object)
