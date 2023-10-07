@@ -138,11 +138,12 @@ function onExtensionInstalled(details) {
 async function onRequest(request) {
     switch (request.type) {
         case 'popup': {
-            const [winfos, settings] = await Promise.all([
+            const [winfos, settings, allowedPrivate] = await Promise.all([
                 Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'titleSansName', 'type']),
                 Settings.getDict(['show_popup_bring', 'show_popup_send', 'enable_stash']),
+                browser.extension.isAllowedIncognitoAccess(),
             ]);
-            return { ...Winfo.arrange(winfos), settings };
+            return { ...Winfo.arrange(winfos), settings, allowedPrivate };
         }
         case 'stash':
             return Stash.stash(request.windowId, request.close);

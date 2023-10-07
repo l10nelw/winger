@@ -94,10 +94,18 @@ const Parsed = {
 }
 
 //@ (Boolean) -> state
-export function init({ enable_stash }) {
+export function init({ enable_stash }, allowedPrivate) {
     Parsed.clear();
     if (!enable_stash)
         delete COMMAND__CALLBACK.stash;
+    if (!allowedPrivate) {
+        delete COMMAND__CALLBACK.newprivate;
+        delete COMMAND__CALLBACK.popprivate;
+        delete COMMAND__CALLBACK.kickprivate;
+        delete SHORTHAND__COMMAND.np;
+        delete SHORTHAND__COMMAND.pp;
+        delete SHORTHAND__COMMAND.kp;
+    }
 }
 
 //@ (Object), state -> state

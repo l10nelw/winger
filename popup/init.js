@@ -16,12 +16,12 @@ import * as Request from './request.js';
 Request.popup().then(onSuccess).catch(onError);
 
 //@ ({ Object, [Object], Object }) -> state
-function onSuccess({ currentWinfo, otherWinfos, settings }) {
+function onSuccess({ currentWinfo, otherWinfos, settings, allowedPrivate }) {
     markReopen(otherWinfos, currentWinfo.incognito);
     populate(currentWinfo, otherWinfos, settings);
     $names.push(...$body.querySelectorAll('.name'));
 
-    Omnibox.init(settings);
+    Omnibox.init(settings, allowedPrivate);
     Status.init(currentWinfo, otherWinfos, settings);
     Filter.init();
     indicateReopenTabs();
