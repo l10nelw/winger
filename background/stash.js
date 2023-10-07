@@ -53,6 +53,12 @@ folderMap.populate = async () => {
         }
     }
 }
+//@ (String), state -> (Object)
+folderMap.findBookmarkless = title => {
+    for (const folder of folderMap.values())
+        if (!folder.bookmarkCount && folder.title === title)
+            return folder;
+}
 
 
 /* --- STASH WINDOW --- */
@@ -74,22 +80,12 @@ export async function stash(windowId, remove = true) {
 }
 
 // For a given name, return a matching bookmarkless folder, otherwise return a new folder.
-//@ (String), state -> (Object), state
+//@ (String), state -> (Promise: Object), state
 async function getTargetFolder(name) {
-    const isMapEmpty = !folderMap.size;
-    if (isMapEmpty)
-        await folderMap.populate();
-    const folder = findBookmarklessFolder(name);
-    if (isMapEmpty)
-        folderMap.clear();
-    return folder || createFolder(name, await HomeId.get());
-}
-
-//@ (String), state -> (Object)
-function findBookmarklessFolder(name) {
-    for (const folder of folderMap.values())
-        if (folder.title === name && !folder.bookmarkCount)
-            return folder;
+    await folderMap.populate();
+    const folder = folderMap.findBookmarkless(name) || createFolder(name, await HomeId.get());
+    folderMap.clear();
+    return folder;
 }
 
 //@ ([Object], Number, String), state -> state
