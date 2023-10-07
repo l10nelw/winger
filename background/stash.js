@@ -4,10 +4,12 @@ import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
 import * as Winfo from './winfo.js';
 
-let HOME_ID;
-const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
 export const nowProcessing = new Set(); // Ids of windows and folders currently involved in any stashing/unstashing operations
 
+const HomeId = {
+    set: nodeId => browser.storage.local.set({ stashHomeId: nodeId }),
+    get: async () => (await browser.storage.local.get('stashHomeId')).stashHomeId,
+}
 
 /* --- INIT --- */
 
@@ -20,12 +22,12 @@ export async function init({ enable_stash, stash_home_root, stash_home_folder })
     if (stash_home_folder) {
         // Home is a subfolder of a root folder
         const folder = findFolderByTitle(nodes, stash_home_folder) || await createFolder(stash_home_folder, stash_home_root);
-        HOME_ID = folder.id;
+        HomeId.set(folder.id);
     } else {
         // Home is a root folder
-        HOME_ID = stash_home_root;
+        HomeId.set(stash_home_root);
         if (!nodes.findLast(isSeparator)) // If home has no separator
-            createNode({ type: 'separator', parentId: HOME_ID });
+            createNode({ type: 'separator', parentId: stash_home_root });
     }
 }
 
@@ -38,7 +40,7 @@ export const folderMap = new Map();
 
 //@ state -> state
 folderMap.populate = async () => {
-    const nodes = await getHomeContents();
+    const nodes = (await browser.bookmarks.getSubTree(await HomeId.get()))[0].children;
     for (let i = nodes.length; i--;) { // Reverse iterate
         const node = nodes[i];
         switch (node.type) {
@@ -51,8 +53,6 @@ folderMap.populate = async () => {
         }
     }
 }
-
-const getHomeContents = async () => (await browser.bookmarks.getSubTree(HOME_ID))[0].children; //@ state -> ([Object])
 
 
 /* --- STASH WINDOW --- */
@@ -82,7 +82,7 @@ async function getTargetFolder(name) {
     const folder = findBookmarklessFolder(name);
     if (isMapEmpty)
         folderMap.clear();
-    return folder || createFolder(name);
+    return folder || createFolder(name, await HomeId.get());
 }
 
 //@ (String), state -> (Object)
@@ -195,8 +195,11 @@ function openTab({ url, title }, windowId, name) {
 export const canUnstash = async nodeId =>
     !( isRootId(nodeId) || nowProcessing.has(nodeId) || isSeparator(await getNode(nodeId)) );
 
-const isRootId    = nodeId => ROOT_IDS.has(nodeId);    //@ (Number) -> (Boolean)
-const isSeparator = node => node.type === 'separator'; //@ (Object) -> (Boolean)
+const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
+const isRootId = nodeId => ROOT_IDS.has(nodeId); //@ (Number) -> (Boolean)
+
+//@ (Object) -> (Boolean)
+const isSeparator = node => node.type === 'separator';
 const isFolder    = node => node.type === 'folder';    //@ (Object) -> (Boolean)
 const isBookmark  = node => node.type === 'bookmark';  //@ (Object) -> (Boolean)
 
@@ -204,5 +207,5 @@ const getNode = async nodeId => (await browser.bookmarks.get(nodeId))[0]; //@ (N
 const getChildNodes = parentId => browser.bookmarks.getChildren(parentId); //@ (Number), state -> (Promise: [Object])
 
 const createNode = properties => browser.bookmarks.create(properties); //@ (Object) -> (Promise: Object), state
-const createFolder = (title, parentId = HOME_ID) => createNode({ title, parentId }); //@ (String, Number) -> (Promise: Object), state
 const removeNode = nodeId => browser.bookmarks.remove(nodeId); //@ (Number) -> (Promise: Object), state
+const createFolder = (title, parentId) => createNode({ title, parentId }); //@ (String, Number) -> (Promise: Object), state

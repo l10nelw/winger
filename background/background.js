@@ -2,10 +2,11 @@ import * as Winfo from './winfo.js';
 import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
+import * as Stash from './stash.js';
+import * as UnstashMenu from './menu.unstash.js';
 import * as SendMenu from './menu.send.js';
 import * as Settings from '../settings.js';
 import * as Name from '../name.js';
-let Stash, UnstashMenu; // Optional modules
 
 //@ -> state
 function debug() {
@@ -35,10 +36,7 @@ async function init() {
     ]);
     await Settings.migrate(settings);
 
-    if (settings.enable_stash) {
-        [Stash, UnstashMenu] = await Promise.all([ import('./stash.js'), import('./menu.unstash.js') ]);
-        Stash.init(settings);
-    }
+    Stash.init(settings);
 
     // Update chromes with names; resolve any name duplication, in case any named windows were restored while Winger was not active
     // winfos should be in id-ascending order, which shall be assumed as age-descending; the newer of any duplicate pair found is renamed
@@ -116,18 +114,18 @@ async function onWindowFocusChanged(windowId) {
 
 //@ (Object, Object) -> state|nil
 async function onMenuShown(info, tab) {
-    await UnstashMenu?.handleShow(info) || await SendMenu.handleShow(info, tab);
+    await UnstashMenu.handleShow(info) || await SendMenu.handleShow(info, tab);
 }
 
 //@ -> state
 function onMenuHidden() {
     SendMenu.handleHide();
-    UnstashMenu?.handleHide();
+    UnstashMenu.handleHide();
 }
 
 //@ (Object, Object) -> state|nil
 function onMenuClicked(info, tab) {
-    UnstashMenu?.handleClick(info) || SendMenu.handleClick(info, tab);
+    UnstashMenu.handleClick(info) || SendMenu.handleClick(info, tab);
 }
 
 //@ (Object) -> state
