@@ -22,7 +22,7 @@
         <br><small class="js-version"></small>
         <br><b>A Complete Guide</b>
       </h1>
-      <p class="small">Last updated v2.3.1 (1 Jul 2023)</p>
+      <p class="small">Last updated v2.4.0 (8 Oct 2023)</p>
       <p><a href="https://addons.mozilla.org/firefox/addon/winger/" target="_blank">View latest release notes on the Winger addon page</a></p>
     </header>
 
@@ -287,7 +287,7 @@
         <h3>Private windows</h3>
         <div class="row">
           <div class="col mr1">
-            <p>Winger can list and interact with private windows if it is allowed private window access. Check your <button type="button" class="settingsBtn">Settings</button>.</p>
+            <p>Winger can list, interact with, and create private windows if allowed private window access.<br>Check your <button type="button" class="settingsBtn">Settings</button>.</p>
             <p>Tabs technically cannot move between normal and private windows, but Winger can perform a close equivalent: <strong>send/bring</strong> closes the selected tabs in the current window and <strong>reopens</strong> them in the destination window.</p>
           </div>
           <div class="col mx1">
@@ -332,7 +332,7 @@
           <p>Looking for a window? Type its name.</p>
           <p>Typing in something filters the list of other windows. This way you can change which window appears below the omnibox, pinpointing your destination. Alternatively, the now shortened window list can also be traversed with arrow keys more quickly.</p>
           <p>Filtering works in <a href="#name">edit mode</a> too, for hunting down a window you want to rename.</p>
-          <p class="m0">Combine these two abilities to quickly, say, switch to another window by keyboard like so:</p>
+          <p class="m0">Combine these two abilities to quickly switch to another window by keyboard, like so:</p>
           <ol class="pl2 m0">
             <li><kbd class="js-shortcut">F1</kbd> to open the panel.</li>
             <li>If the desired window is not immediately below the omnibox, start typing its name until it is.</li>
@@ -382,30 +382,34 @@
             <dt><samp>/stash</samp> or <samp>/st</samp></dt>
             <dd class="mb1">
               <a href="#stash">Stash</a> the current window.<br>
-              <kbd>Shift</kbd><small>+</small><kbd>Enter</kbd> to prevent the window from closing.
+              <kbd>Shift</kbd><small>+</small><kbd>Enter</kbd> to prevent the window from closing.<br>
+              Available if stashing is enabled.
             </dd>
           </dl>
           <dl class="col bordered-left pl1">
             <dt><samp>/new</samp> or <samp>/n</samp></dt>
             <dd class="mb1">
               Open a new window.<br>
-              Optionally name it as well by adding a name after the command e.g. <samp class="nowrap">/new Eng homework</samp><br>
+              Name it as well if a name was added to the command e.g. <samp class="nowrap">/new Eng homework</samp><br>
               <kbd>Shift</kbd><small>+</small><kbd>Enter</kbd> or <kbd>Ctrl</kbd><small>+</small><kbd>Enter</kbd> to invoke <samp>/pop</samp> or <samp>/kick</samp> respectively.
             </dd>
             <dt><samp>/pop</samp> or <samp>/p</samp></dt>
             <dd class="mb1">
               <strong>Bring</strong> selected tabs to a new window ("Pop" tabs out of the current window). Equivalent to dragging selected tabs off the tabs bar.<br>
-              Optionally name the window as well by adding a name after the command e.g. <samp class="nowrap">/pop News</samp>
+              Name the window as well if a name was added to the command e.g. <samp class="nowrap">/pop News</samp>
             </dd>
             <dt><samp>/kick</samp> or <samp>/k</samp></dt>
             <dd class="mb1">
               <strong>Send</strong> selected tabs to a new window without losing focus on the current window ("Kick" tabs out of the current window).<br>
-              Optionally name the window as well by adding a name after the command e.g. <samp class="nowrap">/kick read later</samp>
+              Name the window as well if a name was added to the command e.g. <samp class="nowrap">/kick read later</samp>
             </dd>
             <dt><samp>/newprivate</samp> or <samp>/np</samp></dt>
             <dt><samp>/popprivate</samp> or <samp>/pp</samp></dt>
             <dt><samp>/kickprivate</samp> or <samp>/kp</samp></dt>
-            <dd class="mb1">Same as <samp>/new</samp>, <samp>/pop</samp> and <samp>/kick</samp> but with a new private window.</dd>
+            <dd class="mb1">
+              Same as <samp>/new</samp>, <samp>/pop</samp> and <samp>/kick</samp> but with a new private window.<br>
+              Available if Winger is allowed <a href="#private">private window</a> access.
+            </dd>
           </dl>
         </div>
       </section>
@@ -460,7 +464,7 @@
       </section>
       <div class="row">
         <section class="col mx1-content mb2">
-          <h3>The stash home and stash folders</h3>
+          <h3>The stash home, and stash folders</h3>
           <p>The <strong>stash home</strong> is where <strong>stash folders</strong> ("stashed windows") are saved. It can be changed in <button type="button" class="settingsBtn">Settings</button> to be one of the three root folders &ndash; Bookmarks Toolbar, Bookmarks Menu or Other Bookmarks &ndash; or a "Stashed Windows" folder inside a root folder.</p>
           <!-- <p>If the stash home folder contains at least one separator, Winger treats only folders <strong>after the last separator</strong> as stash folders, ignoring everything before it. It effectively allows for a stash home 'zone' set apart from other contents of the folder.</p>
           <p>This matters for root folders, which tend to already contain bookmarks and folders for other purposes. Therefore if you designate a root folder without separators as your stash home, Winger will automatically add a separator.</p>
@@ -470,7 +474,7 @@
         <div class="col">
           <section class="bordered-box mx1">
             <h4 class="mb1">Handy tip 💡</h4>
-            With Firefox's bookmark syncing, you can stash a window and then unstash it in another Firefox profile, perhaps on a different computer.
+            With Firefox's bookmark syncing, you can stash a window and then unstash it in Firefox on a different computer.
           </section>
         </div>
       </div>
@@ -485,13 +489,8 @@
             <li><p>Divide and conquer with "window fission": split up a highly-populated window into several windows so you can focus on one set of tabs at a time. Hopefully this helps you work through them easier, and close them sooner.</p></li>
           </ul>
         </li>
-        <li>
-          <p>If you are not ready to permanently close a window you hardly use, consider <a href="#stash">stashing</a> it.</p>
-          <ul>
-            <li><p>If you are more likely to use a window on another profile or computer (and have bookmark syncing on), definitely stash, then unstash it there.</p></li>
-          </ul>
-        </li>
-        <li><p>Minimize windows to mark them as "put away for later" &ndash; Winger pushes them to the bottom of the panel, temporarily out of your way, so to speak.</p></li>
+        <li><p>If you are not ready to permanently close a window you hardly use, consider <a href="#stash">stashing</a> it.</p></li>
+        <li><p>Minimize windows to mark them as "put away for later" &ndash; Winger lists them last on the panel, temporarily out of your way so to speak.</p></li>
         <li>
           <p>Key to the freedom to have lots of tabs open is unloading ones you are not using, which frees up memory. Firefox does this automatically; its tab unloading queue can be seen on the <a href="/page/placeholder.html?url=about:unloads&title=about:unloads" target="_blank">about:unloads</a> page (where you can also manually unload the next in queue).</p>
           <ul>
