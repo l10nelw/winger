@@ -1,6 +1,5 @@
 import * as Settings from '../settings.js';
 import { getShortcut, GroupMap } from '../utils.js';
-import { validify } from '../name.js';
 import { openHelp } from '../background/action.js';
 import { isDark } from '../theme.js';
 import indicateSuccess from '../success.js';

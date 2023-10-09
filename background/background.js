@@ -31,10 +31,9 @@ browser.runtime.onMessageExternal.addListener(onExternalRequest);
 //@ state -> state
 async function init() {
     const [settings, winfos] = await Promise.all([
-        Settings.getDict(),
+        Settings.init(),
         Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized']),
     ]);
-    await Settings.migrate(settings);
 
     Stash.init(settings);
 
@@ -103,14 +102,21 @@ async function onWindowFocusChanged(windowId) {
         return;
 
     if (await Settings.getValue('unload_minimized_window')) {
-        const defocusedWindowId = await loadFocusedWindowId();
+        const defocusedWindowId = await FocusedWindowId.get();
         if (await isMinimized(defocusedWindowId))
             Auto.unloadWindow(defocusedWindowId);
     }
 
-    saveFocusedWindowId(windowId);
+    FocusedWindowId.set(windowId);
     Winfo.saveLastFocused(windowId);
 }
+
+const FocusedWindowId = {
+    set: windowId => browser.storage.session.set({ focusedWindowId: windowId }), //@ (Number) -> state
+    get: async () => (await browser.storage.session.get('focusedWindowId')).focusedWindowId, //@ state -> (Number)
+}
+//@ (Number), state -> (Boolean)
+const isMinimized = async windowId => (await browser.windows.get(windowId).catch(() => null))?.state === 'minimized';
 
 //@ (Object, Object) -> state|nil
 async function onMenuShown(info, tab) {
@@ -191,10 +197,3 @@ function onExternalRequest(request) {
     }
     return Promise.reject(new Error('Missing or unrecognized `type`'));
 }
-
-//@ (Number), state -> (Boolean)
-const isMinimized = async windowId => (await browser.windows.get(windowId).catch(() => null))?.state === 'minimized';
-//@ (Number) -> state
-const saveFocusedWindowId = windowId => browser.storage.local.set({ focusedWindowId: windowId });
-//@ state -> (Number)
-const loadFocusedWindowId = async () => (await browser.storage.local.get('focusedWindowId')).focusedWindowId;

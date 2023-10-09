@@ -7,8 +7,8 @@ import * as Winfo from './winfo.js';
 export const nowProcessing = new Set(); // Ids of windows and folders currently involved in any stashing/unstashing operations
 
 const HomeId = {
-    set: nodeId => browser.storage.local.set({ stashHomeId: nodeId }),
-    get: async () => (await browser.storage.local.get('stashHomeId')).stashHomeId,
+    set: nodeId => browser.storage.session.set({ stashHomeId: nodeId }),
+    get: async () => (await browser.storage.session.get('stashHomeId')).stashHomeId,
 }
 
 /* --- INIT --- */

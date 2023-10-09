@@ -49,10 +49,19 @@ const ENTRIES_TO_MIGRATE = [
     ],
 ];
 
+// Load settings from disk to memory.
+//@ state -> (Object), state
+export async function init() {
+    const settings = await browser.storage.local.get(ALL_DEFAULTS);
+    migrate(settings);
+    browser.storage.session.set(settings);
+    return settings;
+}
+
 // Migrate old storage entries to new entries, deleting the former and saving the latter.
 // Mutates `settings` by adding new entries.
 //@ (Object), state -> (Object), state
-export function migrate(settings) {
+function migrate(settings) {
     const newEntryDict = {};
     let hasMigration = false;
     for (const [oldKey, newKey, valueFn] of ENTRIES_TO_MIGRATE) {
@@ -62,21 +71,17 @@ export function migrate(settings) {
         browser.storage.local.remove(oldKey);
         hasMigration = true;
     }
+    for (const [oldKey] of ENTRIES_TO_MIGRATE)
+        delete settings[oldKey];
     if (hasMigration)
-        set(newEntryDict);
+        browser.storage.local.set(newEntryDict);
     return settings;
 }
 
 //@ (Object) -> (Boolean), state
 export function set(dict) {
+    browser.storage.session.set(dict);
     return browser.storage.local.set(dict).then(() => true).catch(() => false);
-}
-
-//@ (Object|[String]|undefined), state -> (Promise: Object)
-export function getDict(keys = ALL_DEFAULTS) {
-    if (Array.isArray(keys))
-        keys = arrayToDict(keys);
-    return browser.storage.local.get(keys);
 }
 
 //@ (String|[String]), state -> (Any|[Any])
@@ -89,6 +94,13 @@ export async function getValue(key) {
         return;
     const dict = await getDict({ [key]: ALL_DEFAULTS[key] });
     return dict[key];
+}
+
+//@ (Object|[String]|undefined), state -> (Promise: Object)
+export function getDict(keys) {
+    if (Array.isArray(keys))
+        keys = arrayToDict(keys);
+    return browser.storage.session.get(keys);
 }
 
 //@ ([String]) -> (Object)
