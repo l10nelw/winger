@@ -135,10 +135,10 @@ input:read-only {
     flex-grow: 1;
     border-radius: var(--border-radius);
     margin-left: .25rem;
+    text-overflow: ellipsis;
 }
 .name::placeholder {
     font-style: italic;
-    text-overflow: ellipsis;
 }
 
 body:not([data-mode="edit"]) .name {
