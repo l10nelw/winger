@@ -138,6 +138,9 @@ img {
   padding: .5rem 1rem;
   border-radius: 1rem;
 }
+.bordered-box > :last-child {
+  margin-bottom: 0;
+}
 .bordered-left {
   border-left: 3px solid var(--page-box-border-color);
 }

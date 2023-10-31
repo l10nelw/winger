@@ -1,6 +1,7 @@
 // Automatic operations following/supporting Winger and native actions.
 
 import * as Settings from '../settings.js';
+import * as Action from './action.js';
 
 
 // Open extension page tab, closing any duplicates found.
@@ -66,24 +67,35 @@ export async function deschedulePlugWindow(windowId) {
 // This ("plugging the leak") allows the window to be fully discarded.
 //@ (Number) -> (Object), state | (undefined)
 export async function plugWindow(windowId) {
-    const focusedTab = await getFocusedTab(windowId);
-    if (isDiscardable(focusedTab)) {
-        const blankTab = await browser.tabs.create({ url: 'about:blank', windowId, index: focusedTab.index + 1, pinned: focusedTab.pinned });
-        browser.tabs.moveInSuccession([blankTab.id], focusedTab.id); // When blankTab is closed, focusedTab will be focused next
-        return blankTab;
-    }
+    const selectedTabs = await getSelectedTabs(windowId);
+    const focusedTab = selectedTabs.find(tab => tab.active);
+    if (!isDiscardable(focusedTab))
+        return;
+    const blankTab = await browser.tabs.create({ url: 'about:blank', windowId, index: focusedTab.index + 1, pinned: focusedTab.pinned });
+    browser.tabs.moveInSuccession([blankTab.id], focusedTab.id); // When blankTab is closed, focusedTab will be focused next
+
+    if (selectedTabs.length > 1)
+        selectedTabs.forEach(tab => Action.selectTab(tab.id));
+    return blankTab;
 }
 
-// Remove focused blank tab from window, if any.
-//@ (Number) -> (Object), state
+// Remove blank tabs from window, if any.
+//@ (Number) -> state
 export async function unplugWindow(windowId) {
-    // Need to query for title to ignore opening tabs, which always initialise as about:blank
-    const focusedBlankTab = (await browser.tabs.query({ url: 'about:blank', title: 'New Tab', windowId, active: true }))[0];
-    if (focusedBlankTab)
-        browser.tabs.remove(focusedBlankTab.id);
+    const [blankTabs, selectedTabs] = await Promise.all([ getBlankTabs(windowId), getSelectedTabs(windowId) ]) ;
+    if (!blankTabs.length)
+        return;
+    const blankTabIds = blankTabs.map(tab => tab.id);
+    await browser.tabs.remove(blankTabIds);
+
+    for (const { id, active } of selectedTabs)
+        if (!active && !blankTabIds.includes(id))
+            Action.selectTab(id);
 }
 
-const getFocusedTab = async windowId => (await browser.tabs.query({ windowId, active: true }))[0]; //@ (Number) -> (Object)
+const getSelectedTabs = windowId => browser.tabs.query({ windowId, highlighted: true }); //@ (Number) -> ([Object])
+// Check title also because all tabs initialise as about:blank
+export const getBlankTabs = windowId => browser.tabs.query({ url: 'about:blank', title: 'New Tab', windowId }); //@ (Number) -> ([Object])
 
 const NON_DISCARD_SCHEMES = ['about:', 'moz-extension:', 'file:', 'data:', 'chrome:'];
 //@ (Object) -> (Boolean)

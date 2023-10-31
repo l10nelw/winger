@@ -100,16 +100,24 @@ async function bringTabs(request) {
 // Attempt moveTabs; if unsuccessful (e.g. windows are of different private statuses) then reopenTabs.
 //@ (Object), state -> ([Object]), state | (undefined)
 async function sendTabs(request) {
-    const [tabs, [keep_moved_tabs_selected, unload_minimized_window]] = await Promise.all([
+    const [tabs, [keep_moved_tabs_selected, plug_unfocused_window, unload_minimized_window]] = await Promise.all([
         request.tabs ?? getSelectedTabs(),
-        Settings.getValue(['keep_moved_tabs_selected', 'unload_minimized_window']),
+        Settings.getValue(['keep_moved_tabs_selected', 'plug_unfocused_window', 'unload_minimized_window']),
     ]);
     request.tabs ??= tabs;
     request.keep_moved_tabs_selected = keep_moved_tabs_selected;
 
-    const movedTabs = await moveTabs(request);
+    // If keep_moved_tabs_selected and plug_unfocused_window, the 'plug' needs to be replaced
+    const [blankTabs, movedTabs] = await Promise.all([
+        keep_moved_tabs_selected && plug_unfocused_window && Auto.getBlankTabs(request.windowId),
+        moveTabs(request),
+    ]);
+
+    // If keep_moved_tabs_selected then unplug at this point (later replug for the new focused tab)
+    if (blankTabs)
+        // browser.tabs.remove(blankTabs.id);
+
     if (movedTabs.length) {
-        // If relevant setting is enabled and destination window is minimized, unload moved tabs
         if (unload_minimized_window && request.minimized)
             Auto.unloadTabs(movedTabs);
         return movedTabs;
@@ -208,10 +216,9 @@ export function openTab(protoTab) {
 const getSelectedTabs = () => browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> (Promise: [Object])
 
 //@ (Number) -> (Promise: Object), state
-const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });
-const focusTab  = tabId => browser.tabs.update(tabId, { active: true }); // Deselects other tabs
-const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
-export { focusTab };
+const pinTab = tabId => browser.tabs.update(tabId, { pinned: true });
+export const focusTab = tabId => browser.tabs.update(tabId, { active: true }); // Deselects other tabs
+export const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
 
 const READER_HEAD = 'about:reader?url=';
 const isReader = url => url.startsWith(READER_HEAD); //@ (String) -> (Boolean)

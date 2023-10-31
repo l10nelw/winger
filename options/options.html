@@ -36,18 +36,18 @@
 
       <fieldset>
         <legend>Background windows</legend>
+        <label><input class="setting" type="checkbox" name="unload_minimized_window"> Unload tabs in minimized windows</label>
+        <label><input class="setting" type="checkbox" name="minimize_kick_window"> Minimize <samp>/kick</samp> windows</label>
+        <hr>
         <label>
-          <input class="setting" type="checkbox" name="plug_unfocused_window"> Add active blank tab in unfocused windows
-          <small>Allows originally active tabs to be unloaded. Only add if unloadable and non-media-playing</small>
+          <input class="setting" type="checkbox" name="plug_unfocused_window"> 'Plug' unfocused windows: add active blank tab
+          <small>Allows originally active tabs to be unloaded. Applies only if unloadable and non-media-playing</small>
         </label>
         <label>
           ...after <input class="setting short-field" type="number" min="0" max="30" data-enabled-by="plug_unfocused_window" name="plug_unfocused_window_delay_mins"> minutes without focus
-          <small>Except in minimized windows (always instant)</small>
+          <small>Except in minimized windows: always instant</small>
         </label>
-        <label><input class="setting" type="checkbox" name="unplug_focused_window"> Remove active blank tab when a window receives focus</label>
-        <hr>
-        <label><input class="setting" type="checkbox" name="unload_minimized_window"> Unload tabs in minimized windows</label>
-        <label><input class="setting" type="checkbox" name="minimize_kick_window"> Minimize <samp>/kick</samp> windows</label>
+        <label><input class="setting" type="checkbox" name="unplug_focused_window"> 'Unplug' focused window: remove active blank tab</label>
       </fieldset>
 
       <fieldset>

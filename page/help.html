@@ -426,6 +426,24 @@
       </div>
     </article>
 
+    <article id="background" class="mb5">
+      <h2 class="center">Background window treatment</h2>
+      <p>When you have multiple windows open, </p>
+      <h3>Unload tabs in minimized windows</h3>
+      <div class="row mb2">
+        <div class="col mx1">
+          <p>Winger can provide simple tab unloading in minimized windows, including any tabs sent to them. If this suits you enough, enable it in <button type="button" class="settingsBtn">Settings</button>.</p>
+        </div>
+        <div class="col bordered-box">
+          <p>Key to the freedom to have many tabs open is unloading the ones you are not using, which frees up memory. Firefox does this automatically; its tab unloading queue can be seen on the <a href="/page/placeholder.html?url=about:unloads&title=about:unloads" target="_blank">about:unloads</a> page.</p>
+          <p>💡 Tab unload (a.k.a. discard, suspend) extensions are a popular and powerful way to wield this ability with more control, for example if you prefer a more agressive treatment than the default, want to manually unload selected tabs, etc. This is recommended if you have <em>lots</em> of tabs.</p>
+        </div>
+      </div>
+      <h3>Window 'plugging': ensure maximum tab unloads</h3>
+      <p>The benefits of tab unloading start to diminish with large enough numbers of windows, because the focused (a.k.a. active) tab in each window cannot be unloaded. Without further help besides tab unloading, this by itself sets an upper limit on how many windows you can comfortably keep open, depending on system resouces.</p>
+      <p>As a multiple-window usage enabler, Winger won't leave you without a solution. If turned on in <button type="button" class="settingsBtn">Settings</button>, when a window loses focus, a <strong>blank tab</strong> is automatically inserted to take focus from the originally focused tab, allowing it to be unloaded like other tabs. The blank tab acts as a 'plug', stopping otherwise unstoppable memory usage.</p>
+    </article>
+
     <article id="stash" class="mb5">
       <h2 class="center">Stash windows</h2>
       <section class="mb2">
@@ -470,7 +488,7 @@
         <div class="col">
           <section class="bordered-box mx1">
             <h4 class="mb1">Handy tip 💡</h4>
-            With Firefox's bookmark syncing, you can stash a window and then unstash it in another Firefox profile, perhaps on a different computer.
+            <p>With Firefox's bookmark syncing, you can stash a window and then unstash it in another Firefox profile, perhaps on a different computer.</p>
           </section>
         </div>
       </div>
@@ -492,13 +510,7 @@
           </ul>
         </li>
         <li><p>Minimize windows to mark them as "put away for later" &ndash; Winger pushes them to the bottom of the panel, temporarily out of your way, so to speak.</p></li>
-        <li>
-          <p>Key to the freedom to have lots of tabs open is unloading ones you are not using, which frees up memory. Firefox does this automatically; its tab unloading queue can be seen on the <a href="/page/placeholder.html?url=about:unloads&title=about:unloads" target="_blank">about:unloads</a> page (where you can also manually unload the next in queue).</p>
-          <ul>
-            <li><p>Tab unload (a.k.a. discard, suspend) extensions are a popular way to wield this ability with greater control, for example if you prefer a more agressive treatment than Firefox's (recommended with <em>lots</em> of tabs), or if you want to manually unload selected tabs, and so on.</p></li>
-            <li><p>Winger can provide a straightforward treatment: unload tabs in minimized windows, including any tabs sent to them. If this suits you, enable it in <button type="button" class="settingsBtn">Settings</button>.</p></li>
-          </ul>
-        </li>
+
         <li>
           <p>The <cite>List all tabs</cite> button, which appears whenever the tabs bar overflows, opens a menu of all tabs in the current window. It can be opened with <kbd>Ctrl</kbd><small>+</small><kbd>Shift</kbd><small>+</small><kbd>Tab</kbd>, if you have the <cite>Ctrl+Tab cycles through tabs in recently used order</cite> Firefox setting enabled.</p>
           <ul>

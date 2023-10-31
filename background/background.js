@@ -109,7 +109,6 @@ async function handleDetachedTabs(windowId) {
 
 //@ (Number), state -> state|nil
 async function onWindowFocusChanged(focusedWindowId) {
-
     // focusedWindowId is -1 when a window loses focus in Windows and some Linux window managers, or only when no window has focus in MacOS and others
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/windows/onFocusChanged
     // Hence when a window switch happens, this event is fired twice in Windows et al: from the defocused window (-1) and from the focused window
@@ -127,7 +126,7 @@ async function onWindowFocusChanged(focusedWindowId) {
 
     const [defocusedWindowId, unplug_focused_window] = await Promise.all([
         FocusedWindowId.load(),
-        Settings.getValue(['unplug_focused_window']),
+        Settings.getValue('unplug_focused_window'),
     ]);
     const defocusedWindow = defocusedWindowId && await browser.windows.get(defocusedWindowId).catch(() => null);
     if (defocusedWindow)
@@ -161,12 +160,15 @@ const FocusedWindowId = {
 //@ (Object) -> state
 async function onAlarm({ name }) {
     const [action, id] = name.split('-');
-    // If plug, check if conditions are still valid
-    if (action === 'plugWindow' && await Settings.getValue('plug_unfocused_window')) {
-        const windowId = +id;
-        if (!(await browser.windows.get(windowId)).focused)
-            Auto.plugWindow(windowId);
-    }
+    if (action !== 'plugWindow')
+        return;
+    const windowId = +id;
+    const [plug_unfocused_window, window] = await Promise.all([
+        Settings.getValue('plug_unfocused_window'),
+        browser.windows.get(windowId),
+    ]);
+    if (plug_unfocused_window && !window.focused)
+        Auto.plugWindow(windowId);
 }
 
 //@ (Object, Object) -> state|nil
@@ -204,7 +206,7 @@ async function onRequest(request) {
             return Action.openHelp();
         case 'plug': {
             const winfos = await Winfo.getAll(['focused', 'minimized']);
-            await Promise.all( winfos.map(({ id }) => Auto.deschedulePlugWindow(id)) );
+            await browser.alarms.clearAll();
             if (request.enable)
                 return winfos.forEach(({ id, focused, minimized }) => !focused && Auto.schedulePlugWindow(id, minimized));
         }
