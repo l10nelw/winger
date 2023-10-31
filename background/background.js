@@ -7,10 +7,11 @@ import * as UnstashMenu from './menu.unstash.js';
 import * as SendMenu from './menu.send.js';
 import * as Settings from '../settings.js';
 import * as Name from '../name.js';
+import * as State from './stash.state.js'; // TEMP
 
 //@ -> state
 function debug() {
-    const modules = { Settings, Winfo, Name, Action, SendMenu, Stash, UnstashMenu };
+    const modules = { Settings, Winfo, Name, Action, SendMenu, Stash, UnstashMenu, State };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
     Object.assign(window, modules);
 }

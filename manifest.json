@@ -8,10 +8,11 @@
     "96": "icons/winger.svg"
   },
   "permissions": [
+    "contextualIdentities",
+    "menus",
     "sessions",
     "storage",
-    "tabs",
-    "menus"
+    "tabs"
   ],
   "optional_permissions": [
     "bookmarks"
