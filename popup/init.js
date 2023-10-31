@@ -12,25 +12,57 @@ import * as Omnibox from './omnibox.js';
 import * as Filter from './filter.js';
 import * as Status from './status.js';
 import * as Request from './request.js';
+import * as Settings from '../settings.js';
+import{ get as getModifiers } from '../modifier.js';
 import { NO_NAME } from '../name.js';
 
 export let completed = false;
+let bufferEnterKeyEvent = null;
+
+const settingsPromise = Settings.getList(['show_popup_send', 'show_popup_bring', 'enable_stash']);
+settingsPromise.then(settings => Omnibox.addExtraCommands(settings));
+
+//@ (Object) -> state
+export function handleEnterKey(event) {
+    if (event.target === $omnibox) {
+        $omnibox.readOnly = true; // Freeze any text already inputted in omnibox
+        bufferEnterKeyEvent = event;
+        return true;
+    }
+}
 
 //@ -> state
 export function init() {
-    Request.popup().then(onSuccess).catch(onError).finally(onDone);
+    Request.popup().then(onSuccess).catch(onError);
 
-    //@ ({ Object, [Object], Object }) -> state
-    function onSuccess({ currentWinfo, otherWinfos, settings }) {
+    //@ ({ Object, [Object] }) -> state
+    async function onSuccess({ currentWinfo, otherWinfos }) {
+        if (bufferEnterKeyEvent) {
+            if (Omnibox.handleEnterKey(bufferEnterKeyEvent, currentWinfo.id)) // Entered command handled
+                return;
+            if (otherWinfos.length && !$omnibox.value && !getModifiers(bufferEnterKeyEvent).length) { // Switch to previous window invoked
+                Request.action({ type: 'action', command: 'switch', windowId: otherWinfos[0].id });
+                return;
+            }
+        }
+
+        // Populate popup
+        const settings = await settingsPromise;
         markReopen(otherWinfos, currentWinfo.incognito);
         populate(currentWinfo, otherWinfos, settings);
         $names.push(...$body.querySelectorAll('.name'));
-
-        Omnibox.init(settings);
         Status.init(currentWinfo, otherWinfos, settings);
         Filter.init();
         indicateReopenTabs();
         lockHeight($otherWindowsList);
+
+        $body.dataset.mode = 'normal';
+        completed = true;
+
+        if (bufferEnterKeyEvent) {
+            Omnibox.invokeFilter(str);
+            Omnibox.handleEnterKey(bufferEnterKeyEvent);
+        }
     }
 
     //@ -> state
@@ -48,10 +80,8 @@ export function init() {
         $toolbar.appendChild($restartBtn);
         $restartBtn.onclick = () => browser.runtime.reload();
         $restartBtn.focus();
-    }
 
-    //@ -> state
-    function onDone() {
+        $body.dataset.mode = 'error';
         completed = true;
     }
 }

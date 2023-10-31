@@ -95,7 +95,7 @@ async function getTargetFolder(name) {
     return folder || createFolder(name);
 }
 
-//@ (String), state -> (Object)
+//@ (String), state -> (Object|undefined)
 function findBookmarklessFolder(name) {
     for (const folder of folderMap.values())
         if (folder.title === name && !folder.bookmarkCount)

@@ -42,7 +42,8 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "winman@lionelw"
+      "id": "winman@lionelw",
+      "strict_min_version": "72.0"
     }
   }
 }

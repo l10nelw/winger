@@ -41,7 +41,8 @@ async function init() {
     }
 
     // Update chromes with names; resolve any name duplication, in case any named windows were restored while Winger was not active
-    // winfos should be in id-ascending order, which shall be assumed as age-descending; the newer of any duplicate pair found is renamed
+    // winfos should be in id-ascending order, which shall be assumed as age-descending
+    // The newer of any duplicate pair found is renamed via Name.NameMap.uniquify()
 
     const nameMap = new Name.NameMap();
 
@@ -135,25 +136,17 @@ function onExtensionInstalled(details) {
 }
 
 //@ (Object), state -> (Object|Boolean|undefined), state|nil
-function onRequest(request) {
+async function onRequest(request) {
     switch (request.type) {
-        case 'popup':  return popupResponse();
-        case 'stash':  return Stash.stash(request.windowId, request.close);
-        case 'action': return Action.execute(request);
-        case 'help':   return Action.openHelp();
-        case 'update': return Chrome.update(request.windowId, request.name);
-        case 'warn':   return Chrome.showWarningBadge();
-        case 'debug':  return debug();
+        case 'popup':   return Winfo.arrange(await Winfo.getAll(
+                            ['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type']));
+        case 'stash':   return Stash.stash(request.windowId, request.close);
+        case 'action':  return Action.execute(request);
+        case 'help':    return Action.openHelp();
+        case 'update':  return Chrome.update(request.windowId, request.name);
+        case 'warn':    return Chrome.showWarningBadge();
+        case 'debug':   return debug();
     }
-}
-
-//@ state -> ({ Object, [Object], Object })
-async function popupResponse() {
-    const [winfos, settings] = await Promise.all([
-        Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type']),
-        Settings.getAll(),
-    ]);
-    return { ...Winfo.arrange(winfos), settings };
 }
 
 //@ (Object), state -> (Promise: [Object]|Error)

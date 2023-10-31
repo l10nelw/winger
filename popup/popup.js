@@ -18,7 +18,9 @@ $body.addEventListener('keydown', onKeyDown);
 $body.addEventListener('keyup', onKeyUp);
 $body.addEventListener('input', onInput);
 $body.addEventListener('focusin', onFocusIn);
-Init.init();
+const sleep = time => new Promise(resolve => setTimeout(resolve, time));
+sleep(2000).then(Init.init);
+// Init.init();
 
 //@ (Object) -> state|nil
 function onClick(event) {
@@ -60,8 +62,11 @@ function onKeyDown(event) {
 
 //@ (Object) -> state|nil
 function onKeyUp(event) {
-    if (!Init.completed)
+    if (!Init.completed) {
+        if (event.key === 'Enter')
+            Init.handleEnterKey(event);
         return;
+    }
     (() => {
         if (EditMode.handleKeyUp(event))
             return;

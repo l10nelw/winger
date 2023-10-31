@@ -25,8 +25,17 @@ export const getAll = () => browser.storage.local.get(ALL_DEFAULTS);
 
 //@ (String), state -> (Any)
 export async function get(key) {
-    if (!(key in ALL_DEFAULTS))
-        return;
-    const dict = await browser.storage.local.get({ [key]: ALL_DEFAULTS[key] });
-    return dict[key];
+    if (key in ALL_DEFAULTS) {
+        const obj = await browser.storage.local.get({ [key]: ALL_DEFAULTS[key] });
+        return obj[key];
+    }
+}
+
+//@ ([String]), state -> (Promise: Object)
+export function getList(keys) {
+    const obj = {};
+    for (const key of keys)
+        if (key in ALL_DEFAULTS)
+            obj[key] = ALL_DEFAULTS[key];
+    return browser.storage.local.get(obj);
 }

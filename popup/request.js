@@ -1,6 +1,5 @@
 /* Send messages to the background frame */
 
-import { $currentWindowRow } from './common.js';
 import { get as getModifiers } from '../modifier.js';
 
 const sendMessage = browser.runtime.sendMessage;
@@ -16,7 +15,7 @@ export const debug = () => sendMessage({ type: 'debug' });
 
 // Gather action parameters to create request. Proceed only if action string given via `command` or derived from `$action`.
 //@ (Object) -> state|nil
-export function action({ event, $action, command, argument }) {
+export function action({ event, $action, command, argument, windowId }) {
     const request = { type: 'action' };
     if (command) {
         request.action = command;
@@ -31,6 +30,8 @@ export function action({ event, $action, command, argument }) {
     }
     if (!request.action)
         return;
+    if (windowId)
+        request.windowId = windowId;
     request.argument = argument;
     request.modifiers = getModifiers(event);
     sendMessage(request); // request = { type: 'action', action, argument, modifiers, windowId }
@@ -38,7 +39,7 @@ export function action({ event, $action, command, argument }) {
 }
 
 //@ (Number, Boolean) -> state
-export function stash(close, windowId = $currentWindowRow._id) {
+export function stash(windowId, close) {
     sendMessage({ type: 'stash', windowId, close });
     window.close();
 }

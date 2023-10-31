@@ -1,4 +1,5 @@
 import {
+    $currentWindowRow,
     $omnibox,
     nameMap,
 } from './common.js';
@@ -7,6 +8,9 @@ import * as EditMode from './editmode.js';
 import * as Filter from './filter.js';
 import * as Request from './request.js';
 import * as Name from '../name.js';
+
+
+/* Command definitions */
 
 const COMMAND__CALLBACK = {
     help:        Toolbar.help,
@@ -18,7 +22,10 @@ const COMMAND__CALLBACK = {
     popprivate:  ({ event, argument }) => Request.action({ event, argument, command: 'popprivate' }),
     kick:        ({ event, argument }) => Request.action({ event, argument, command: 'kick' }),
     kickprivate: ({ event, argument }) => Request.action({ event, argument, command: 'kickprivate' }),
-    stash:       ({ event }) => Request.stash(!event.shiftKey),
+};
+const ALLOWED_COMMANDS = {
+    init: new Set(['help','settings', 'new', 'newprivate', 'pop', 'popprivate', 'kick', 'kickprivate']),
+    edit: new Set(['help', 'settings', 'edit']),
 };
 // Aliases
 COMMAND__CALLBACK.options = () => COMMAND__CALLBACK.settings();
@@ -30,10 +37,19 @@ const SHORTHAND__COMMAND = {
     kp: 'kickprivate',
 };
 const COMMANDS_WITH_ARG = new Set(['new', 'newprivate', 'pop', 'popprivate', 'kick', 'kickprivate']);
-const EDITMODE_VALID_COMMANDS = new Set(['help', 'settings', 'options', 'edit', 'name']);
+
+//@ (Boolean) -> state
+export function addExtraCommands({ enable_stash }) {
+    if (enable_stash)
+        COMMAND__CALLBACK.stash = ({ event, windowId }) => Request.stash(windowId || $currentWindowRow._id, !event.shiftKey);
+}
+
+
+/* Command parser */
 
 const Parsed = {
 
+    //@ -> state
     clear() {
         Parsed.startsSlashed = false;
         Parsed.command = '';
@@ -41,7 +57,8 @@ const Parsed = {
         Parsed.shorthand = '';
     },
 
-    parse(text) {
+    //@ (String) -> state
+    parse(text, initCompleted) {
         if (!text.startsWith('/')) {
             Parsed.clear();
             return;
@@ -54,10 +71,11 @@ const Parsed = {
         Parsed.command = command.toLowerCase();
         Parsed.argument = argument?.filter(Boolean).join(' ') ?? '';
 
-        Parsed._matchCommand();
+        Parsed._matchCommand(initCompleted);
     },
 
-    _matchCommand() {
+    //@ state -> state
+    _matchCommand(initCompleted) {
         Parsed.shorthand = '';
         const word = Parsed.command;
 
@@ -92,34 +110,31 @@ const Parsed = {
     },
 
 }
+Parsed.clear();
 
-//@ (Boolean) -> state
-export function init({ enable_stash }) {
-    Parsed.clear();
-    if (!enable_stash)
-        delete COMMAND__CALLBACK.stash;
-}
 
-//@ (Object), state -> state
+/* Event handlers */
+// Return true if handled
+
+//@ (Object, Boolean), state -> (Boolean), state
 export function handleInput(event, initCompleted) {
-    if (event.target !== $omnibox)
-        return false;
+    if (event.target === $omnibox) {
+        const str = $omnibox.value;
+        Parsed.parse(str, initCompleted);
 
-    const str = $omnibox.value;
-    Parsed.parse(str);
+        if (initCompleted)
+            invokeFilter(str);
 
-    if (initCompleted)
-        Filter.execute(Parsed.startsSlashed ? '' : str);
+        $omnibox.classList.toggle('slashCommand', Parsed.startsSlashed);
 
-    $omnibox.classList.toggle('slashCommand', Parsed.startsSlashed);
+        if (Parsed.command && !isDeletion(event))
+            autocompleteCommand(str, Parsed.command);
 
-    if (Parsed.command && !isDeletion(event))
-        autocompleteCommand(str, Parsed.command);
-
-    return true;
+        return true;
+    }
 }
 
-//@ (Object), state -> state
+//@ (Object), state -> (Boolean), state
 export function handleKeyDown(event) {
     const { target } = event;
     if (target === $omnibox && event.key === 'Tab' && hasSelectedText(target)) {
@@ -129,23 +144,21 @@ export function handleKeyDown(event) {
     }
 }
 
-//@ (Object), state -> state
+//@ (Object), state -> (Boolean), state
 export function handleKeyUp(event) {
-    if (event.target !== $omnibox)
-        return false;
-
-    if (event.key === 'Enter')
-        handleEnterKey(event);
-
-    return true;
+    if (event.target === $omnibox) {
+        if (event.key === 'Enter')
+            handleEnterKey(event);
+        return true;
+    }
 }
 
-//@ (Object), state -> state
-function handleEnterKey(event) {
+//@ (Object), state -> (Boolean), state
+export function handleEnterKey(event, windowId = null) {
     if (Parsed.command === 'debug') {
         Request.debug();
         clear();
-        return;
+        return true;
     }
 
     let { command, argument } = Parsed;
@@ -153,21 +166,39 @@ function handleEnterKey(event) {
         const callback = COMMAND__CALLBACK[command];
         if (COMMANDS_WITH_ARG.has(command))
             argument = validifyName(argument);
-        callback?.({ event, argument });
+        callback?.({ event, argument, windowId });
         clear();
-        return;
+        return true;
     }
 
     if (Parsed.startsSlashed) {
         clear();
-        return;
+        return true;
     }
 
+    // Invoke switch/send/bring action on first row under omnibox
     if (!EditMode.isActive) {
-        const $action = Filter.$shownRows[0]; // First row below omnibox
-        if ($action)
+        const $action = Filter.$shownRows[0];
+        if ($action) { // If init completed and there are other windows
             Request.action({ event, $action });
+            return true;
+        }
     }
+}
+
+
+/* Helpers */
+
+//@ -> state
+export function clear() {
+    Parsed.clear();
+    $omnibox.value = '';
+    $omnibox.classList.remove('slashCommand');
+}
+
+//@ (String) -> state
+export function invokeFilter(str) {
+    Filter.execute(Parsed.startsSlashed ? '' : str);
 }
 
 //@ (Object) -> (Boolean)
@@ -195,11 +226,4 @@ function autocompleteCommand(str, command) {
 function addSpaceIfAcceptsArgument(command) {
     return COMMANDS_WITH_ARG.has(command) ?
         command + ' ' : command;
-}
-
-//@ -> state
-export function clear() {
-    Parsed.clear();
-    $omnibox.value = '';
-    $omnibox.classList.remove('slashCommand');
 }

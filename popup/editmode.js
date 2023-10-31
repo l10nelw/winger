@@ -86,7 +86,7 @@ export function handleFocusIn($focused, $defocused) {
 }
 
 //@ (Object) -> (Boolean), state|nil
-export async function handleInput($name) {
+export function handleInput($name) {
     if (!isActive || !isNameField($name))
         return false;
 
