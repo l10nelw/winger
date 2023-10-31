@@ -81,3 +81,52 @@ export class NameMap extends Map {
             this.uniquify(addNumberPostfix(name)) : name;
     }
 }
+
+// Map windowIds to titlePrefaces, and provide the means to infer names from them.
+// Workflow: populate(), findTrimLengths() to get trimLengths, then extractNames(trimLengths). Redo extractNames(trimLengthsModified) if needed.
+export class TitlePrefaceMap extends Map {
+    _values = []; // Internal populate-once read-frequently substitute for this.values()
+
+    // Add non-blank title prefaces to the Map.
+    //@ ([Object]) -> (Map(Number:String)), state
+    populate(winfos) {
+        for (const { id, titlePreface } of winfos) {
+            if (titlePreface) {
+                this.set(id, titlePreface);
+                this._values.push(titlePreface);
+            }
+        }
+        return this;
+    }
+
+    // Work out left and right trim lengths for extractNames by finding common characters to trim away.
+    //@ state -> ({ Number, Number })
+    findTrimLengths() {
+        let leftCharIndex = 0;
+        let rightCharIndex = -1;
+        while (this._sameCharsAtIndex(leftCharIndex++));
+        while (this._sameCharsAtIndex(rightCharIndex--));
+        return {
+            left: leftCharIndex - 1,
+            right: Math.abs(rightCharIndex + 2),
+        };
+    }
+
+    //@ (Number), state -> (Boolean)
+    _sameCharsAtIndex(charIndex) {
+        const char = this._values[0].at(charIndex);
+        for (let stringIndex = this._values.length; --stringIndex;) // Iterate from _values.length-1 to 1
+            if (this._values[stringIndex].at(charIndex) !== char)
+                return false;
+        return true;
+    }
+
+    // Given left and right trim lengths, slice title prefaces to get a NameMap of extracted names.
+    //@ ({ Number, Number }), state -> (Map(Number:String))
+    extractNames({ left, right }) {
+        const extractedNameMap = new NameMap();
+        for (const [id, titlePreface] of this)
+            extractedNameMap.set(id, titlePreface.slice(left, titlePreface.length - right));
+        return extractedNameMap;
+    }
+}

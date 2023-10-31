@@ -176,8 +176,8 @@ async function populateWindow(windowId, initTabId, folderId, name, remove) {
 
     if (remove)
         subfolders.length // If folder contains subfolders
-        ? await Promise.all( bookmarks.map(bookmark => removeNode(bookmark.id)) ) // remove each bookmark individually
-        : await browser.bookmarks.removeTree(folderId); // else remove entire folder
+            ? await Promise.all( bookmarks.map(bookmark => removeNode(bookmark.id)) ) // remove each bookmark individually
+            : await browser.bookmarks.removeTree(folderId); // else remove entire folder
     nowProcessing.delete(folderId);
 }
 

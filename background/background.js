@@ -30,35 +30,32 @@ browser.runtime.onMessageExternal.addListener(onExternalRequest);
 async function init() {
     const [settings, winfos] = await Promise.all([
         Settings.getAll(),
-        Winfo.getAll(['focused', 'firstSeen', 'givenName']),
+        Winfo.getAll(['focused', 'firstSeen', 'givenName', 'titlePreface']),
     ]);
 
+    // Respond to settings
     Chrome.init(settings);
-
     if (settings.enable_stash) {
         [Stash, UnstashMenu] = await Promise.all([ import('./stash.js'), import('./menu.unstash.js') ]);
         Stash.init(settings);
     }
 
-    // Update chromes with names; resolve any name duplication, in case any named windows were restored while Winger was not active
-    // winfos should be in id-ascending order, which shall be assumed as age-descending; the newer of any duplicate pair found is renamed
-
     const nameMap = new Name.NameMap();
-
     for (let { id, focused, firstSeen, givenName } of winfos) {
+        if (focused)
+            Winfo.saveLastFocused(id);
+        if (!firstSeen)
+            Winfo.saveFirstSeen(id);
+
         if (givenName && nameMap.findId(givenName)) {
             givenName = nameMap.uniquify(givenName);
             Name.save(id, givenName);
         }
         nameMap.set(id, givenName);
-        Chrome.update(id, givenName);
-
-        if (focused)
-            Winfo.saveLastFocused(id);
-
-        if (!firstSeen)
-            Winfo.saveFirstSeen(id);
+        // Chrome.update(id, givenName);
     }
+
+    const titlePrefaceMap = (new Name.TitlePrefaceMap()).populate(winfos);
 }
 
 //@ (Object) -> state
@@ -77,14 +74,13 @@ async function onWindowCreated(window) {
     if (!firstSeen)
         Winfo.saveFirstSeen(windowId);
 
-    // Resolve any name duplication and update chrome, in case this is a restored named window
+    // Resolve any name duplication and update the chrome, in case this is a restored named window
     let { givenName } = winfos.at(-1); // The new window should be last in the array
     if (givenName) {
         // Uniquify name
         const nameMap = (new Name.NameMap()).populate(winfos);
         if (nameMap.findId(givenName) !== windowId)
             Name.save(id, nameMap.uniquify(givenName));
-
         Chrome.update(windowId, givenName);
     }
 
@@ -127,33 +123,18 @@ function onRequest(request) {
     }
 }
 
+const POPUP_WINFO_PROPS = ['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type'];
+
 //@ state -> ({ Object, [Object], Object })
 async function popupResponse() {
-    const [winfos, settings] = await Promise.all([
-        Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type']),
-        Settings.getAll(),
-    ]);
+    const [winfos, settings] = await Promise.all([ Winfo.getAll(POPUP_WINFO_PROPS), Settings.getAll() ]);
     return { ...Winfo.arrange(winfos), settings };
 }
 
 //@ (Object), state -> (Promise: [Object]|Error)
 function onExternalRequest(request) {
     switch (request.type) {
-        case 'info': {
-            // Return winfos with the specified `properties` (required [String])
-            // If `windowIds` (optional [Number]) given, return only the winfos for them
-
-            const { properties } = request;
-            if (!Array.isArray(properties))
-                return Promise.reject(new Error('`properties` array is required'));
-
-            const { windowIds } = request;
-            if (windowIds && !windowIds.every?.(Number.isInteger))
-                return Promise.reject(new Error('`windowIds` must be an array of integers'));
-
-            const bareWinfos = windowIds?.map(id => ({ id }));
-            return Winfo.getAll(properties, bareWinfos);
-        }
+        case 'info': return Winfo.getForExternal(request.properties, request.windowIds);
     }
-    return Promise.reject(new Error('Missing or unrecognized `type`'));
+    return Promise.reject(new Error(`Missing or unrecognized 'type'`));
 }
