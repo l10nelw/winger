@@ -60,8 +60,11 @@
               </select> /
               <input type="text" class="setting" data-enabled-by="enable_stash" name="stash_home_folder" id="stash_home_folder" aria-label="Folder name (optional)" placeholder="Folder name (optional)">
             </label>
-            <label for="stash_home_folder"><small>If folder name is specified, windows are stashed in a subfolder in the selected root folder &ndash; If blank, windows are stasned in the selected root folder</small></label>
+            <label for="stash_home_folder"><small>If folder name is specified, stash folders are located in a subfolder in the selected root folder &ndash; If blank, they are located in the selected root folder</small></label>
           </div>
+          <label><input class="setting" type="checkbox" name="stash_properties"> <span>Preserve certain tab and window properties
+            <br><small>Adds JSON annotations to bookmark and folder titles</small>
+          </span></label>
           <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="stash_nameless_with_title"> <span>Stash nameless windows using window titles as names
             <br><small>If disabled, nameless windows are stashed as nameless folders</small>
           </span></label>

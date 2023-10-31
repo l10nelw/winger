@@ -10,8 +10,12 @@ import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 
 //@ -> state
-function debug() {
-    const modules = { Storage, Winfo, Name, Action, Chrome, SendMenu, Stash, UnstashMenu };
+async function debug() {
+    const [Auto, StashProp] = await Promise.all([
+        import('./action.auto.js'),
+        import('./stash.prop.js'),
+    ]);
+    const modules = { Storage, Winfo, Name, Action, Auto, Chrome, SendMenu, UnstashMenu, Stash, StashProp };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
     Object.assign(window, modules);
 }

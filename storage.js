@@ -15,6 +15,7 @@ export const DEFAULT_SETTINGS = {
     enable_stash: false,
     stash_home_root: 'toolbar_____',
     stash_home_folder: 'Stashed Windows',
+    stash_properties: true,
     stash_nameless_with_title: false,
     auto_name_unstash: true,
 
@@ -59,7 +60,7 @@ export async function init() {
     };
 
     // Get all stored entries plus defaults for missing settings
-    const dict = Object.assign({}, DEFAULT_SETTINGS, await getDict());
+    const dict = { ...DEFAULT_SETTINGS, ...await getDict() };
 
     // Migrate old keys to new keys
     // Adds new entries to `dict`

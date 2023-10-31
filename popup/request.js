@@ -24,7 +24,7 @@ export function action({ event, $action, command, argument }) {
     if ($action) {
         const $row = $action.$row || $action;
         if ($row.matches('.tabless') && (event.ctrlKey || event.shiftKey))
-            return; // Do not allow send/bring to a "tabless" window
+            return; // Do not allow send/bring to a "tabless" window via modifier-click on row (send/bring buttons should be disabled)
         request.windowId = $row._id;
         request.minimized = $row.matches('.minimized');
         request.action = $action.dataset.action || $row.dataset.action;
@@ -39,6 +39,8 @@ export function action({ event, $action, command, argument }) {
 
 //@ (Object, Boolean) -> state
 export async function stash($row, close) {
+    if ($row.matches('.tabless'))
+        return; // Do not allow stashing a "tabless" window
     const $name = $row.$name;
     let name = $name.value;
     if (!name && await getValue('stash_nameless_with_title'))
