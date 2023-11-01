@@ -20,9 +20,11 @@ export const isInToolbar = $el => $el?.parentElement === $toolbar;
 
 // Given a $row or any of its child elements, get the givenName.
 //@ (Object) -> (String)
-export function getName($el) {
+export function getName($el, fallbackToPlaceholder = false) {
     const $name = isNameField($el) && $el || $el.$name || $el.$row.$name;
-    return $name.value;
+    const value = $name.value;
+    if (!value && fallbackToPlaceholder) return $name.placeholder;
+    else return value;
 }
 
 export const nameMap = new NameMap();

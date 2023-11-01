@@ -5,10 +5,12 @@ import {
 } from './common.js';
 
 export let $shownRows; // Visible other window rows
+let filterByWindowTitles;
 
 //@ state -> state
-export function init() {
+export function init({ filter_window_titles }) {
     $shownRows = [...$otherWindowRows];
+    filterByWindowTitles = filter_window_titles
 }
 
 // Show only rows whose names contain str, and sort them by name length, shortest first.
@@ -39,7 +41,7 @@ function filter(str) {
     $otherWindowRows.$minHeading.hidden = true;
     const $filteredRows = [];
     for (const $row of $otherWindowRows) {
-        const name = getName($row).toUpperCase();
+        const name = getName($row, filterByWindowTitles).toUpperCase();
         const isMatch = name.includes(str);
         $row.hidden = !isMatch;
         if (isMatch) {

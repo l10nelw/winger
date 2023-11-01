@@ -14,6 +14,7 @@ const ALL_DEFAULTS = {
     enable_stash: false,
     stash_home_root: 'toolbar_____',
     stash_home_folder: 'Stashed Windows',
+    filter_window_titles: false,
 
     theme: '',
 

@@ -140,7 +140,7 @@ async function onRequest(request) {
         case 'popup': {
             const [winfos, settings, allowedPrivate] = await Promise.all([
                 Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'titleSansName', 'type']),
-                Settings.getDict(['show_popup_bring', 'show_popup_send', 'enable_stash']),
+                Settings.getDict(['show_popup_bring', 'show_popup_send', 'enable_stash', 'filter_window_titles']),
                 browser.extension.isAllowedIncognitoAccess(),
             ]);
             return { ...Winfo.arrange(winfos), settings, allowedPrivate };

@@ -23,7 +23,7 @@ function onSuccess({ currentWinfo, otherWinfos, settings, allowedPrivate }) {
 
     Omnibox.init(settings, allowedPrivate);
     Status.init(currentWinfo, otherWinfos, settings);
-    Filter.init();
+    Filter.init(settings);
     indicateReopenTabs();
     lockHeight($otherWindowsList);
 }
