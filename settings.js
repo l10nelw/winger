@@ -10,6 +10,7 @@ const ALL_DEFAULTS = {
     title_preface_prefix: '',
     title_preface_postfix: ' - ',
     show_badge: false,
+    show_title: true,
 
     enable_stash: false,
     stash_home_root: 'toolbar_____',

@@ -156,12 +156,12 @@ async function onRequest(request) {
         case 'help':
             return Action.openHelp();
         case 'update': {
-            const { windowId, name } = request;
+            const { windowId, name, clearTitlePreface } = request;
             if (windowId && name)
-                return Chrome.update([[windowId, name]]);
+                return Chrome.update([[windowId, name]], clearTitlePreface);
             const winfos = await Winfo.getAll(['givenName']);
             const nameMap = (new Name.NameMap()).populate(winfos);
-            return Chrome.update(nameMap);
+            return Chrome.update(nameMap, clearTitlePreface);
         }
         case 'warn':
             return Chrome.showWarningBadge();

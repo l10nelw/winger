@@ -153,6 +153,9 @@ $form.addEventListener('change', async ({ target: $field }) => {
         case 'show_badge':
             browser.runtime.sendMessage({ type: 'update' });
             return;
+        case 'show_title':
+            browser.runtime.sendMessage({ type: 'update', clearTitlePreface: true });
+            return;
 
         case 'theme':
             document.body.classList.toggle('dark', isDark($form.theme.value));
