@@ -3,13 +3,10 @@ import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
 import * as Winfo from './winfo.js';
+import * as Storage from '../storage.js';
 
 export const nowProcessing = new Set(); // Ids of windows and folders currently involved in any stashing/unstashing operations
 
-const HomeId = {
-    set: nodeId => browser.storage.local.set({ stashHomeId: nodeId }),
-    get: async () => (await browser.storage.local.get('stashHomeId')).stashHomeId,
-}
 
 /* --- INIT --- */
 
@@ -22,11 +19,12 @@ export async function init({ enable_stash, stash_home_root, stash_home_folder })
     if (stash_home_folder) {
         // Home is a subfolder of a root folder
         const folder = findFolderByTitle(nodes, stash_home_folder) || await createFolder(stash_home_folder, stash_home_root);
-        HomeId.set(folder.id);
+        Storage.set({ _stash_home_id: folder.id });
     } else {
         // Home is a root folder
-        HomeId.set(stash_home_root);
-        if (!nodes.findLast(isSeparator)) // If home has no separator
+        Storage.set({ _stash_home_id: stash_home_root });
+        if (!nodes.findLast(isSeparator))
+            // Home has no separator
             createNode({ type: 'separator', parentId: stash_home_root });
     }
 }
@@ -40,7 +38,7 @@ export const folderMap = new Map();
 
 //@ state -> state
 folderMap.populate = async () => {
-    const nodes = (await browser.bookmarks.getSubTree(await HomeId.get()))[0].children;
+    const nodes = (await browser.bookmarks.getSubTree(await Storage.get('_stash_home_id')))[0].children;
     for (let i = nodes.length; i--;) { // Reverse iterate
         const node = nodes[i];
         switch (node.type) {
@@ -79,11 +77,11 @@ export async function stash(windowId, remove = true) {
     nowProcessing.delete(folderId);
 }
 
-// For a given name, return a matching bookmarkless folder, otherwise return a new folder.
+// For a given name (folder title), return a matching bookmarkless folder, otherwise return a new folder.
 //@ (String), state -> (Promise: Object), state
 async function getTargetFolder(name) {
     await folderMap.populate();
-    const folder = folderMap.findBookmarkless(name) || createFolder(name, await HomeId.get());
+    const folder = folderMap.findBookmarkless(name) || createFolder(name, await Storage.get('_stash_home_id'));
     folderMap.clear();
     return folder;
 }

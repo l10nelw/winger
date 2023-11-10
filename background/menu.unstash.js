@@ -1,6 +1,6 @@
 import { BRING } from '../modifier.js';
 import { canUnstash, unstash } from './stash.js';
-import * as Settings from '../settings.js';
+import * as Storage from '../storage.js';
 
 const id = 'unstash';
 
@@ -17,7 +17,7 @@ browser.menus.create({
 export async function handleShow(info) {
     const nodeId = info.bookmarkId;
     if (nodeId) {
-        if (await Settings.getValue('enable_stash') && await canUnstash(nodeId)) {
+        if (await Storage.getValue('enable_stash') && await canUnstash(nodeId)) {
             browser.menus.update(id, { enabled: true });
             browser.menus.refresh();
         }

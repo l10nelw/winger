@@ -5,12 +5,12 @@ import * as Chrome from './chrome.js';
 import * as Stash from './stash.js';
 import * as UnstashMenu from './menu.unstash.js';
 import * as SendMenu from './menu.send.js';
-import * as Settings from '../settings.js';
+import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 
 //@ -> state
 function debug() {
-    const modules = { Settings, Winfo, Name, Action, SendMenu, Stash, UnstashMenu };
+    const modules = { Storage, Winfo, Name, Action, SendMenu, Stash, UnstashMenu };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
     Object.assign(window, modules);
 }
@@ -31,10 +31,9 @@ browser.runtime.onMessageExternal.addListener(onExternalRequest);
 //@ state -> state
 async function init() {
     const [settings, winfos] = await Promise.all([
-        Settings.getDict(),
+        Storage.init(),
         Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized']),
     ]);
-    await Settings.migrate(settings);
 
     Stash.init(settings);
 
@@ -50,8 +49,10 @@ async function init() {
         }
         nameMap.set(id, givenName);
 
-        if (focused)
+        if (focused) {
+            Storage.set({ _focused_window_id: id });
             Winfo.saveLastFocused(id);
+        }
 
         if (!firstSeen)
             Winfo.saveFirstSeen(id);
@@ -89,7 +90,7 @@ async function onWindowCreated(window) {
 // Natively, detached tabs stay selected. To honour !keep_moved_tabs_selected, REFOCUS focused tab to deselect selected tabs.
 //@ (Number) -> state
 async function handleDetachedTabs(windowId) {
-    if (await Settings.getValue('keep_moved_tabs_selected'))
+    if (await Storage.getValue('keep_moved_tabs_selected'))
         return;
     const focusedTab = (await browser.tabs.query({ windowId, active: true }))[0];
     if (focusedTab)
@@ -102,15 +103,18 @@ async function onWindowFocusChanged(windowId) {
     if (windowId <= 0)
         return;
 
-    if (await Settings.getValue('unload_minimized_window')) {
-        const defocusedWindowId = await loadFocusedWindowId();
+    if (await Storage.getValue('unload_minimized_window')) {
+        const defocusedWindowId = await Storage.getValue('_focused_window_id');
         if (await isMinimized(defocusedWindowId))
             Auto.unloadWindow(defocusedWindowId);
     }
 
-    saveFocusedWindowId(windowId);
+    Storage.set({ _focused_window_id: windowId });
     Winfo.saveLastFocused(windowId);
 }
+
+//@ (Number), state -> (Boolean)
+const isMinimized = async windowId => (await browser.windows.get(windowId).catch(() => null))?.state === 'minimized';
 
 //@ (Object, Object) -> state|nil
 async function onMenuShown(info, tab) {
@@ -140,7 +144,7 @@ async function onRequest(request) {
         case 'popup': {
             const [winfos, settings, allowedPrivate] = await Promise.all([
                 Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'titleSansName', 'type']),
-                Settings.getDict(['show_popup_bring', 'show_popup_send', 'enable_stash']),
+                Storage.getDict(['show_popup_bring', 'show_popup_send', 'enable_stash']),
                 browser.extension.isAllowedIncognitoAccess(),
             ]);
             return { ...Winfo.arrange(winfos), settings, allowedPrivate };
@@ -148,7 +152,7 @@ async function onRequest(request) {
         case 'stash':
             return Stash.stash(request.windowId, request.close);
         case 'stashInit': {
-            const settings = await Settings.getDict(['enable_stash', 'stash_home', 'stash_home_name']);
+            const settings = await Storage.getDict(['enable_stash', 'stash_home', 'stash_home_name']);
             return Stash.init(settings);
         }
         case 'action':
@@ -191,10 +195,3 @@ function onExternalRequest(request) {
     }
     return Promise.reject(new Error('Missing or unrecognized `type`'));
 }
-
-//@ (Number), state -> (Boolean)
-const isMinimized = async windowId => (await browser.windows.get(windowId).catch(() => null))?.state === 'minimized';
-//@ (Number) -> state
-const saveFocusedWindowId = windowId => browser.storage.local.set({ focusedWindowId: windowId });
-//@ state -> (Number)
-const loadFocusedWindowId = async () => (await browser.storage.local.get('focusedWindowId')).focusedWindowId;
