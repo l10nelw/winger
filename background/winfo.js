@@ -2,7 +2,7 @@
 A winfo ("window info") is similar to but distinct from a standard browser.windows window-object.
 May contain as few or as many props as required; copied and/or derived from a window-object, and/or previously saved via browser.sessions.
 */
-import * as Settings from '../settings.js';
+import * as Storage from '../storage.js';
 
 // Dict of keys for sessions.getWindowValue() mapped to default values.
 const PROPS_TO_LOAD = {
@@ -45,7 +45,7 @@ export async function getAll(wantedProps = [], windows = null) {
     let nameAffixes;
     [windows, nameAffixes] = await Promise.all([
         windows ?? browser.windows.getAll({ populate: wantedProps.has('tabCount') }),
-        wantedProps.has('titleSansName') && Settings.getValue(['title_preface_prefix', 'title_preface_postfix']),
+        wantedProps.has('titleSansName') && Storage.getValue(['title_preface_prefix', 'title_preface_postfix']),
     ]);
 
     // Split propsToLoad and propsToDerive out of wantedProps, leaving behind "propsToCopy"

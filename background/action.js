@@ -1,7 +1,7 @@
 // User actions involving windows and tabs.
 
 import { BRING, SEND } from '../modifier.js';
-import * as Settings from '../settings.js';
+import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 import * as Chrome from './chrome.js';
 import * as Auto from './action.auto.js';
@@ -59,7 +59,7 @@ function modify(action, modifiers) {
 //@ ({ String, Boolean, Boolean, Boolean }), state -> (Object), state
 export async function createWindow({ name, isMove, focused = true, incognito }) {
     const [minimize_kick_window, currentWindow] = await Promise.all([
-        Settings.getValue('minimize_kick_window'),
+        Storage.getValue('minimize_kick_window'),
         browser.windows.getLastFocused({ populate: isMove }),
     ]);
     const currentWindowDetail = { windowId: currentWindow.id };
@@ -102,7 +102,7 @@ async function bringTabs(request) {
 async function sendTabs(request) {
     const [tabs, [keep_moved_tabs_selected, unload_minimized_window]] = await Promise.all([
         request.tabs ?? getSelectedTabs(),
-        Settings.getValue(['keep_moved_tabs_selected', 'unload_minimized_window']),
+        Storage.getValue(['keep_moved_tabs_selected', 'unload_minimized_window']),
     ]);
     request.tabs ??= tabs;
     request.keep_moved_tabs_selected = keep_moved_tabs_selected;

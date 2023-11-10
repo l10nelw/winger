@@ -1,6 +1,5 @@
-import * as Settings from '../settings.js';
+import * as Storage from '../storage.js';
 import { getShortcut, GroupMap } from '../utils.js';
-import { validify } from '../name.js';
 import { openHelp } from '../background/action.js';
 import { isDark } from '../theme.js';
 import indicateSuccess from '../success.js';
@@ -47,7 +46,7 @@ const Setting = {
         if ($field.type === 'radio' && !$field.checked)
             return;
         const value = parse($field[relevantProp($field.type)]);
-        return Settings.set({ [$field.name]: value });
+        return Storage.set({ [$field.name]: value });
     },
 };
 
@@ -127,7 +126,7 @@ const StaticText = {
 
 
 (async function init() {
-    const SETTINGS = await Settings.getDict();
+    const SETTINGS = await Storage.getDict(Storage.DEFAULT_SETTINGS);
 
     for (const $field of Setting.$fields) {
         Setting.load(SETTINGS[$field.name], $field);
