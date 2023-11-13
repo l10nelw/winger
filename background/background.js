@@ -24,18 +24,17 @@ browser.menus.onShown.addListener(onMenuShown);
 browser.menus.onHidden.addListener(onMenuHidden);
 browser.menus.onClicked.addListener(onMenuClicked);
 
-browser.runtime.onInstalled.addListener(onExtensionInstalled);
 browser.runtime.onMessage.addListener(onRequest);
 browser.runtime.onMessageExternal.addListener(onExternalRequest);
 
 //@ state -> state
 async function init() {
-    const [settings, winfos] = await Promise.all([
+    const [info, winfos] = await Promise.all([
         Storage.init(),
         Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized']),
     ]);
 
-    Stash.init(settings);
+    Stash.init(info);
 
     // Update chromes with names; resolve any name duplication, in case any named windows were restored while Winger was not active
     // winfos should be in id-ascending order, which shall be assumed as age-descending; the newer of any duplicate pair found is renamed
@@ -57,10 +56,17 @@ async function init() {
         if (!firstSeen)
             Winfo.saveFirstSeen(id);
 
-        if (minimized && settings.unload_minimized_window)
+        if (minimized && info.unload_minimized_window)
             Auto.unloadWindow(id);
     }
     Chrome.update(nameMap);
+
+    // Open help page if major or minor version has changed
+    const version = browser.runtime.getManifest().version;
+    if (version.split('.', 2).join('.') !== info.__version?.split('.', 2).join('.')) {
+        Action.openHelp();
+        Storage.set({ __version: version });
+    }
 }
 
 //@ (Object) -> state
@@ -130,12 +136,6 @@ function onMenuHidden() {
 //@ (Object, Object) -> state|nil
 function onMenuClicked(info, tab) {
     UnstashMenu.handleClick(info) || SendMenu.handleClick(info, tab);
-}
-
-//@ (Object) -> state
-function onExtensionInstalled(details) {
-    if (details.reason === 'update')
-        Action.openHelp();
 }
 
 //@ (Object), state -> (Object|Boolean|undefined), state|nil
