@@ -23,6 +23,7 @@ export const DEFAULT_SETTINGS = {
 //@ state -> (Object), state
 export async function init() {
     const ALLOWED_NON_SETTINGS_KEYS = [
+        '_version',
         '_focused_window_id',
         '_stash_home_id',
     ];
