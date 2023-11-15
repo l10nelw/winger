@@ -18,12 +18,5 @@ export const isNameField = $el => $el?.classList.contains('name');
 export const isRow = $el => $el?.tagName === 'LI';
 export const isInToolbar = $el => $el?.parentElement === $toolbar;
 
-// Given a $row or any of its child elements, get the givenName.
-//@ (Object) -> (String)
-export function getName($el) {
-    const $name = isNameField($el) && $el || $el.$name || $el.$row.$name;
-    return $name.value;
-}
-
 export const nameMap = new NameMap();
 nameMap.ready = () => nameMap.size ? nameMap : nameMap.populate($names); //@ state -> (Map(Number:String)), state|nil

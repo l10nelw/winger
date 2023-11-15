@@ -1,7 +1,6 @@
 import {
     $otherWindowsList,
     $otherWindowRows,
-    getName,
 } from './common.js';
 
 export let $shownRows; // Visible other window rows
@@ -39,7 +38,7 @@ function filter(str) {
     $otherWindowRows.$minHeading.hidden = true;
     const $filteredRows = [];
     for (const $row of $otherWindowRows) {
-        const name = getName($row).toUpperCase();
+        const name = getNameOrTitle($row).toUpperCase();
         const isMatch = name.includes(str);
         $row.hidden = !isMatch;
         if (isMatch) {
@@ -48,6 +47,12 @@ function filter(str) {
         }
     }
     return $filteredRows;
+}
+
+//@ (Object) -> String
+function getNameOrTitle($row) {
+    const $name = $row.$name;
+    return $name.value || $name.placeholder;
 }
 
 // Reverse all changes made by execute(): hidden rows, sort order.
