@@ -38,7 +38,7 @@ export const folderMap = new Map();
 
 //@ state -> state
 folderMap.populate = async () => {
-    const nodes = (await browser.bookmarks.getSubTree(await Storage.get('_stash_home_id')))[0].children;
+    const nodes = (await browser.bookmarks.getSubTree(await Storage.getValue('_stash_home_id')))[0].children;
     for (let i = nodes.length; i--;) { // Reverse iterate
         const node = nodes[i];
         switch (node.type) {
@@ -81,7 +81,7 @@ export async function stash(windowId, remove = true) {
 //@ (String), state -> (Promise: Object), state
 async function getTargetFolder(name) {
     await folderMap.populate();
-    const folder = folderMap.findBookmarkless(name) || createFolder(name, await Storage.get('_stash_home_id'));
+    const folder = folderMap.findBookmarkless(name) || createFolder(name, await Storage.getValue('_stash_home_id'));
     folderMap.clear();
     return folder;
 }
