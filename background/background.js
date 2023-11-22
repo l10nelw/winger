@@ -152,7 +152,7 @@ async function onRequest(request) {
         case 'stash':
             return Stash.stash(request.windowId, request.close);
         case 'stashInit': {
-            const settings = await Storage.getDict(['enable_stash', 'stash_home', 'stash_home_name']);
+            const settings = await Storage.getDict(['enable_stash', 'stash_home_root', 'stash_home_folder']);
             return Stash.init(settings);
         }
         case 'action':
