@@ -142,12 +142,13 @@ function onMenuClicked(info, tab) {
 async function onRequest(request) {
     switch (request.type) {
         case 'popup': {
-            const [winfos, settings, allowedPrivate] = await Promise.all([
-                Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'titleSansName', 'type']),
+            const winfoProps = ['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'titleSansName', 'type'];
+            const [flags, allow_private] = await Promise.all([
                 Storage.getDict(['show_popup_bring', 'show_popup_send', 'enable_stash']),
                 browser.extension.isAllowedIncognitoAccess(),
             ]);
-            return { ...Winfo.arrange(winfos), settings, allowedPrivate };
+            flags.allow_private = allow_private;
+            return { ...Winfo.arrange(await Winfo.getAll(winfoProps)), flags };
         }
         case 'stash':
             return Stash.stash(request.windowId, request.close);

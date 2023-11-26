@@ -1,4 +1,5 @@
 import {
+    FLAGS,
     $omnibox,
     nameMap,
 } from './common.js';
@@ -23,13 +24,13 @@ const COMMANDS_WITH_ARG = new Set(['new', 'newprivate', 'pop', 'popprivate', 'ki
 const EDITMODE_VALID_COMMANDS = new Set(['help', 'settings', 'options', 'edit', 'name']);
 const SHORTHAND__COMMAND = {};
 
-//@ ({ Boolean }, Boolean) -> state
-export function init({ enable_stash }, allowedPrivate) {
+//@ state -> state
+export function init() {
     Parsed.clear();
-    if (enable_stash) {
+    if (FLAGS.enable_stash) {
         COMMAND__CALLBACK.stash = ({ event }) => Request.stash(!event.shiftKey);
     }
-    if (allowedPrivate) {
+    if (FLAGS.allow_private) {
         COMMAND__CALLBACK.newprivate  = ({ event, argument }) => Request.action({ event, argument, command: 'newprivate' });
         COMMAND__CALLBACK.popprivate  = ({ event, argument }) => Request.action({ event, argument, command: 'popprivate' });
         COMMAND__CALLBACK.kickprivate = ({ event, argument }) => Request.action({ event, argument, command: 'kickprivate' });

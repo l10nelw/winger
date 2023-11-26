@@ -1,5 +1,6 @@
 import { isOS } from '../utils.js';
 import {
+    FLAGS,
     $status,
     isNameField,
 } from './common.js';
@@ -47,8 +48,8 @@ const statusType = {
 }
 
 //@ ([Object], Number, {Boolean}), state -> state
-export async function init(currentWinfo, otherWinfos, { enable_stash }) {
-    if (!enable_stash)
+export async function init(currentWinfo, otherWinfos) {
+    if (!FLAGS.enable_stash)
         delete statusType.stashShift;
 
     count.windows = 1 + otherWinfos.length;

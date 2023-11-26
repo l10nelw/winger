@@ -1,4 +1,5 @@
 import {
+    FLAGS,
     $body,
     $currentWindowRow,
     $omnibox,
@@ -16,14 +17,17 @@ import * as Request from './request.js';
 Request.popup().then(onSuccess).catch(onError);
 
 //@ ({ Object, [Object], Object }) -> state
-function onSuccess({ currentWinfo, otherWinfos, settings, allowedPrivate }) {
+function onSuccess({ currentWinfo, otherWinfos, flags }) {
+    Object.assign(FLAGS, flags);
+
     markReopen(otherWinfos, currentWinfo.incognito);
-    populate(currentWinfo, otherWinfos, settings);
+    populate(currentWinfo, otherWinfos);
     $names.push(...$body.querySelectorAll('.name'));
 
-    Omnibox.init(settings, allowedPrivate);
-    Status.init(currentWinfo, otherWinfos, settings);
+    Omnibox.init();
     Filter.init();
+    Status.init(currentWinfo, otherWinfos);
+
     indicateReopenTabs();
     lockHeight($otherWindowsList);
 }
@@ -56,8 +60,8 @@ function markReopen(otherWinfos, isCurrentIncognito) {
 
 // Populate $otherWindowsList and $otherWindowRows with rows
 //@ (Object, [Object], Object) -> state
-function populate(currentWinfo, otherWinfos, settings) {
-    Row.initCurrent(settings);
+function populate(currentWinfo, otherWinfos) {
+    Row.initCurrent();
     const $rowsFragment = document.createDocumentFragment();
     let $minHeading = $otherWindowsList.firstElementChild; // "---Minimized---"
     let minHeadingIndex = -1, index = 0;
@@ -96,7 +100,7 @@ const Row = {
     CELL_SELECTORS: new Set(['.send', '.bring', '.name', '.tabCount']),
 
     //@ (Object) -> state
-    initCurrent(settings) {
+    initCurrent() {
         // Remove any toggled-off buttons
         const buttons = [
             ['show_popup_bring', '.bring'],
@@ -105,7 +109,7 @@ const Row = {
         let buttonCount = buttons.length;
         for (const [setting, selector] of buttons) {
             const $button = $currentWindowRow.querySelector(selector);
-            if (settings[setting]) {
+            if (FLAGS[setting]) {
                 $button.hidden = false;
             } else {
                 $button.remove();

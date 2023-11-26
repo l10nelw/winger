@@ -5,10 +5,13 @@ export const $body = document.body;
 export const $currentWindowRow = document.getElementById('currentWindow').firstElementChild;
 export const $omnibox = document.getElementById('omnibox');
 export const $otherWindowsList = document.getElementById('otherWindows');
-export const $otherWindowRows = []; // Original order of rows at init, unlike $otherWindowsList.children whose order can change
-export const $names = []; // Populated at init
 export const $toolbar = $body.querySelector('footer');
 export const $status = document.getElementById('status');
+
+// Populated at init
+export const FLAGS = {};
+export const $otherWindowRows = []; // Original order of rows, unlike $otherWindowsList.children whose order can change
+export const $names = [];
 
 // Element type
 //@ (Object) -> (Boolean)
