@@ -11,7 +11,7 @@ const count = {
     windows: 0,
     tabs: 0,
     selectedTabs: 0,
-};
+}
 
 const statusType = {
     stashShift: {
@@ -36,7 +36,7 @@ const statusType = {
     },
     oneWindow: {
         condition: () => count.windows === 1,
-        content: `1 window - Press <kbd>${isOS('Mac OS') ? 'Cmd' : 'Ctrl'}</kbd>+<kbd>N</kbd> to add more!`,
+        content: `1 window &ndash; Press <kbd>${isOS('Mac OS') ? 'Cmd' : 'Ctrl'}</kbd>+<kbd>N</kbd> to add another!`,
     },
     default: {
         condition: () => true,
