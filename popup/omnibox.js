@@ -9,28 +9,35 @@ import * as Request from './request.js';
 import * as Name from '../name.js';
 
 const COMMAND__CALLBACK = {
-    help:        Toolbar.help,
-    settings:    Toolbar.settings,
-    edit:        () => EditMode.toggle(),
-    new:         ({ event, argument }) => Request.action({ event, argument, command: 'new' }),
-    newprivate:  ({ event, argument }) => Request.action({ event, argument, command: 'newprivate' }),
-    pop:         ({ event, argument }) => Request.action({ event, argument, command: 'pop' }),
-    popprivate:  ({ event, argument }) => Request.action({ event, argument, command: 'popprivate' }),
-    kick:        ({ event, argument }) => Request.action({ event, argument, command: 'kick' }),
-    kickprivate: ({ event, argument }) => Request.action({ event, argument, command: 'kickprivate' }),
-    stash:       ({ event }) => Request.stash(!event.shiftKey),
+    help:     Toolbar.help,
+    settings: Toolbar.settings,
+    options:  Toolbar.settings,
+    edit:     () => EditMode.toggle(),
+    name:     () => EditMode.toggle(),
+    new:      ({ event, argument }) => Request.action({ event, argument, command: 'new' }),
+    pop:      ({ event, argument }) => Request.action({ event, argument, command: 'pop' }),
+    kick:     ({ event, argument }) => Request.action({ event, argument, command: 'kick' }),
 };
-// Aliases
-COMMAND__CALLBACK.options = () => COMMAND__CALLBACK.settings();
-COMMAND__CALLBACK.name = () => COMMAND__CALLBACK.edit();
 
-const SHORTHAND__COMMAND = {
-    np: 'newprivate',
-    pp: 'popprivate',
-    kp: 'kickprivate',
-};
 const COMMANDS_WITH_ARG = new Set(['new', 'newprivate', 'pop', 'popprivate', 'kick', 'kickprivate']);
 const EDITMODE_VALID_COMMANDS = new Set(['help', 'settings', 'options', 'edit', 'name']);
+const SHORTHAND__COMMAND = {};
+
+//@ ({ Boolean }, Boolean) -> state
+export function init({ enable_stash }, allowedPrivate) {
+    Parsed.clear();
+    if (enable_stash) {
+        COMMAND__CALLBACK.stash = ({ event }) => Request.stash(!event.shiftKey);
+    }
+    if (allowedPrivate) {
+        COMMAND__CALLBACK.newprivate  = ({ event, argument }) => Request.action({ event, argument, command: 'newprivate' });
+        COMMAND__CALLBACK.popprivate  = ({ event, argument }) => Request.action({ event, argument, command: 'popprivate' });
+        COMMAND__CALLBACK.kickprivate = ({ event, argument }) => Request.action({ event, argument, command: 'kickprivate' });
+        SHORTHAND__COMMAND.np = 'newprivate';
+        SHORTHAND__COMMAND.pp = 'popprivate';
+        SHORTHAND__COMMAND.kp = 'kickprivate';
+    }
+}
 
 const Parsed = {
 
@@ -91,21 +98,6 @@ const Parsed = {
         Parsed.command = '';
     },
 
-}
-
-//@ (Boolean) -> state
-export function init({ enable_stash }, allowedPrivate) {
-    Parsed.clear();
-    if (!enable_stash)
-        delete COMMAND__CALLBACK.stash;
-    if (!allowedPrivate) {
-        delete COMMAND__CALLBACK.newprivate;
-        delete COMMAND__CALLBACK.popprivate;
-        delete COMMAND__CALLBACK.kickprivate;
-        delete SHORTHAND__COMMAND.np;
-        delete SHORTHAND__COMMAND.pp;
-        delete SHORTHAND__COMMAND.kp;
-    }
 }
 
 //@ (Object), state -> state
