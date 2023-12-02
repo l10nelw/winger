@@ -1,4 +1,4 @@
-import './init.js';
+import './popup.init.js';
 import {
     $body,
     $currentWindowRow,
