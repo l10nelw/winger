@@ -110,7 +110,7 @@ export function handleKeyUp({ target, key }) {
     return true;
 }
 
-// Remember $name's value at this time (usual case: when focused).
+// Remember $name's value at this time (cases: when entering edit mode, and when $name is focused).
 //@ (Object) -> state
 function rememberNameNow($name) {
     $name._original = $name.value;
@@ -120,9 +120,11 @@ function rememberNameNow($name) {
 // Otherwise: proceed to save, indicate success and return true.
 //@ (Object) -> (Boolean), state|nil
 async function trySaveName($name) {
+    const originalName = $name._original;
+
     // Revert if marked invalid
     if ($name.classList.contains('error')) {
-        $name.value = $name._original;
+        $name.value = originalName;
         clearErrors();
         return false;
     }
@@ -131,7 +133,7 @@ async function trySaveName($name) {
     $name.value = name;
 
     // Skip save if unchanged
-    if (name === $name._original)
+    if (name === originalName)
         return true;
 
     // Save
@@ -144,7 +146,7 @@ async function trySaveName($name) {
     }
 
     // Save failed
-    $name.value = $name._original;
+    $name.value = originalName;
     return false;
 }
 
