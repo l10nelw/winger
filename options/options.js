@@ -157,9 +157,11 @@ $form.addEventListener('change', async ({ target: $field }) => {
             document.body.classList.toggle('dark', isDark($form.theme.value));
             return;
 
+        case 'enable_stash':
         case 'stash_home_folder':
         case 'stash_home_root':
-            browser.runtime.sendMessage({ type: 'stashInit' });
+            if ($form.enable_stash.checked)
+                browser.runtime.sendMessage({ type: 'stashInit' });
             return;
     }
 });
