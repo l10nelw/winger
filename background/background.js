@@ -11,7 +11,7 @@ import * as Name from '../name.js';
 
 //@ -> state
 function debug() {
-    const modules = { Storage, Winfo, Name, Action, SendMenu, Stash, UnstashMenu };
+    const modules = { Storage, Winfo, Name, Action, Chrome, SendMenu, Stash, UnstashMenu };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
     Object.assign(window, modules);
 }
@@ -107,16 +107,21 @@ async function onRequest(request) {
             flags.allow_private = allow_private;
             return { ...Winfo.arrange(await Winfo.getAll(winfoProps)), flags };
         }
+
         case 'stash':
             return Stash.stash(request.windowId, request.close);
+
         case 'stashInit': {
             const settings = await Storage.getDict(['enable_stash', 'stash_home_root', 'stash_home_folder']);
             return Stash.init(settings);
         }
+
         case 'action':
             return Action.execute(request);
+
         case 'help':
             return Action.openHelp();
+
         case 'update': {
             const { windowId, name } = request;
             if (windowId && name)
@@ -125,8 +130,10 @@ async function onRequest(request) {
             const nameMap = (new Name.NameMap()).populate(winfos);
             return Chrome.update(nameMap);
         }
+
         case 'warn':
             return Chrome.showWarningBadge();
+
         case 'debug':
             return debug();
     }

@@ -54,8 +54,8 @@ const Parsed = {
             Parsed.clear();
             return;
         }
-        text = text.slice(1); // Remove slash
         Parsed.startsSlashed = true;
+        text = text.slice(1); // Remove slash
 
         // Split text at first space into command and argument
         const [command, ...argument] = text.split(' ');
@@ -185,16 +185,10 @@ function validifyName(name) {
 function autocompleteCommand(str, command) {
     if (str.includes(' '))
         return;
-    command = addSpaceIfAcceptsArgument(command);
+    if (COMMANDS_WITH_ARG.has(command))
+        command += ' '; // Add space after an argument-accepting command for user convenience
     $omnibox.value = `/${command}`;
     $omnibox.setSelectionRange(str.length - !!Parsed.shorthand, command.length + 1);
-}
-
-// Add space after an argument-accepting command for user convenience.
-//@ (String) -> (String)
-function addSpaceIfAcceptsArgument(command) {
-    return COMMANDS_WITH_ARG.has(command) ?
-        command + ' ' : command;
 }
 
 //@ -> state

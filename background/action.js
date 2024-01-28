@@ -47,11 +47,11 @@ function modify(action, modifiers) {
     if (!modifiers.length)
         return action;
     const modifiedActionDict = MODIFIABLE_ACTIONS_TABLE[action];
-    if (modifiedActionDict) {
-        for (const modifier in modifiedActionDict)
-            if (modifiers.includes(modifier))
-                return modifiedActionDict[modifier];
-    }
+    if (!modifiedActionDict)
+        return action;
+    for (const modifier in modifiedActionDict)
+        if (modifiers.includes(modifier))
+            return modifiedActionDict[modifier];
     return action;
 }
 

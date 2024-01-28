@@ -2,8 +2,7 @@ const NUMBER_POSTFIX = / (\d+)$/;
 
 //@ (Number), state -> (String)
 export async function load(windowId) {
-    const givenName = await browser.sessions.getWindowValue(windowId, 'givenName');
-    return givenName || '';
+    return await browser.sessions.getWindowValue(windowId, 'givenName') || '';
 }
 
 //@ (Number, String) -> (Boolean), state
@@ -35,16 +34,15 @@ function startsWithSlash(name) {
 // Map windowIds to names, and provide methods that work in the context of all present names.
 export class NameMap extends Map {
 
-    // `objects` should either be an array of winfos containing givenNames, or an array of $names.
+    // `objects` is either an array of $names, or an array of winfos containing givenNames.
     //@ ([Object]) -> (Map(Number:String)), state
     populate(objects) {
-        if ('givenName' in objects[0]) {
-            for (const { id, givenName } of objects) // winfos
-                this.set(id, givenName);
-        } else
-        if ('value' in objects[0]) {
+        if (objects[0] instanceof HTMLInputElement) {
             for (const { _id, value } of objects) // $names
                 this.set(_id, value);
+        } else {
+            for (const { id, givenName } of objects) // winfos
+                this.set(id, givenName);
         }
         return this;
     }

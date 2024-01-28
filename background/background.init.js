@@ -13,12 +13,12 @@ Promise.all([
 .then(([info, winfos]) => {
     Stash.init(info);
 
-    // Update chromes with names; resolve any name duplication, in case any named windows were restored while Winger was not active
-    // winfos should be in id-ascending order, which shall be assumed as age-descending; the newer of any duplicate pair found is renamed
-
     const nameMap = new Name.NameMap();
 
+    // `winfos` should be in id-ascending order, which shall be assumed as age-descending
     for (let { id, focused, firstSeen, givenName, minimized } of winfos) {
+        // Check if name is already in use (e.g. a named window was restored while Winger was not active)
+        // Rename the newer of any duplicate names found
         if (givenName && nameMap.findId(givenName)) {
             givenName = nameMap.uniquify(givenName);
             Name.save(id, givenName);
@@ -38,11 +38,14 @@ Promise.all([
     }
     Chrome.update(nameMap);
 
-    // Open help page if major or minor version has changed
 
+    // Check for version update
     const version = browser.runtime.getManifest().version;
-    if (version.split('.', 2).join('.') !== info.__version?.split('.', 2).join('.')) {
-        Action.openHelp();
+    if (version !== info.__version) {
+        // Open help page on major or minor version change
+        if (version.split('.', 2).join('.') !== info.__version?.split('.', 2).join('.'))
+            Action.openHelp();
+        // Remember new version
         Storage.set({ __version: version });
     }
 });
