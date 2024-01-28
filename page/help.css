@@ -96,11 +96,12 @@ img {
   background-color: var(--theme-bg);
   border: none;
   border-radius: 50%;
+  line-height: 1;
+  aspect-ratio: 1;
   cursor: pointer;
 }
 .themeBtn::after {
   content: var(--theme-icon);
-  font-size: x-large;
 }
 .dark .themeBtn {
   --theme-icon: var(--dark-theme-icon);
