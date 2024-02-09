@@ -4,37 +4,49 @@ import * as Storage from '../storage.js';
 import { getShortcut } from '../utils.js';
 
 //@ -> state
-export function showWarningBadge() {
+export async function showWarningBadge() {
     browser.browserAction.setBadgeBackgroundColor({ color: 'transparent' });
     browser.browserAction.setBadgeText({ text: '⚠️' });
+    browser.browserAction.setTitle({ title: await getBaseButtonTitle() });
 }
 
-//@ (Map(Number:String)|[[Number, String]]), state -> state
+//@ (Map(Number:String) | [[Number, String]]), state -> state
 export async function update(nameMap) {
-    const [prefix, postfix, show_badge] =
-        await Storage.getValue(['title_preface_prefix', 'title_preface_postfix', 'show_badge']);
+    const [baseButtonTitle, [set_title_preface, show_badge]] = await Promise.all([
+        getBaseButtonTitle(),
+        Storage.getValue(['set_title_preface', 'show_badge']),
+    ]);
+    // Button tooltip
     for (const [windowId, name] of nameMap) {
-        const titlePreface = name ?
-            (prefix + name + postfix) : '';
-        updateTitlebar(windowId, titlePreface);
-        updateButtonTitle(windowId, titlePreface);
-        updateBadge(windowId, show_badge ? name : '');
+        const title = name ?
+            `${name} - ${baseButtonTitle}` : '';
+        browser.browserAction.setTitle({ windowId, title });
+    }
+    // Title preface
+    if (set_title_preface) {
+        const [prefix, postfix] = await Storage.getValue(['title_preface_prefix', 'title_preface_postfix']);
+        for (const [windowId, name] of nameMap) {
+            const titlePreface = name ?
+                (prefix + name + postfix) : '';
+            browser.windows.update(windowId, { titlePreface });
+        }
+    }
+    // Button badge
+    if (show_badge) {
+        browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
+        for (const [windowId, text] of nameMap)
+            browser.browserAction.setBadgeText({ windowId, text });
+    } else {
+        browser.browserAction.setBadgeText({ text: '' });
     }
 }
 
-//@ (Number, String) -> state
-function updateBadge(windowId, text) {
-    browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
-    browser.browserAction.setBadgeText({ windowId, text });
-}
+//@ state -> String
+const getBaseButtonTitle = async () => `${browser.runtime.getManifest().name} (${await getShortcut()})`;
 
-//@ (Number, String), state -> state
-async function updateButtonTitle(windowId, titlePreface) {
-    const title = `${titlePreface}${browser.runtime.getManifest().name} (${await getShortcut()})`;
-    browser.browserAction.setTitle({ windowId, title });
-}
-
-//@ (Number, String) -> state
-function updateTitlebar(windowId, titlePreface) {
-    browser.windows.update(windowId, { titlePreface });
+//@ -> state
+export async function clearTitlePreface() {
+    const info = { titlePreface: '' };
+    for (const { id } of await browser.windows.getAll())
+        browser.windows.update(id, info);
 }

@@ -131,6 +131,9 @@ async function onRequest(request) {
             return Chrome.update(nameMap);
         }
 
+        case 'clearTitlePreface':
+            return Chrome.clearTitlePreface();
+
         case 'warn':
             return Chrome.showWarningBadge();
 

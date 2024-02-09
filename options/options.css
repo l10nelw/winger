@@ -50,6 +50,7 @@ button {
 
 .muted { opacity: .5; } /* Used in options.js */
 .gap { gap: 1rem; }
+.indent { margin-inline-start: 2rem; }
 
 .success::after {
     top: 1.5ex;
