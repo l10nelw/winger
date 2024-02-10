@@ -10,18 +10,24 @@ Promise.all([
     Storage.init(),
     Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized']),
 ])
-.then(([info, winfos]) => {
+.then(async ([info, winfos]) => {
+
     Stash.init(info);
 
     const nameMap = new Name.NameMap();
+    let anyNameFound = false;
 
     // `winfos` should be in id-ascending order, which shall be assumed as age-descending
     for (let { id, focused, firstSeen, givenName, minimized } of winfos) {
-        // Check if name is already in use (e.g. a named window was restored while Winger was not active)
-        // Rename the newer of any duplicate names found
-        if (givenName && nameMap.findId(givenName)) {
-            givenName = nameMap.uniquify(givenName);
-            Name.save(id, givenName);
+        if (givenName) {
+            anyNameFound = true;
+            // Check if name is already in use (e.g. a named window was restored while Winger was not active)
+            // Rename the newer of any duplicate names found
+            const uniquifiedName = nameMap.uniquify(givenName);
+            if (givenName !== uniquifiedName) {
+                givenName = uniquifiedName;
+                Name.save(id, givenName);
+            }
         }
         nameMap.set(id, givenName);
 
@@ -36,8 +42,15 @@ Promise.all([
         if (minimized && info.unload_minimized_window)
             Auto.unloadWindow(id);
     }
-    Chrome.update(nameMap);
 
+    // If set_title_preface has not been explicitly user-set yet but named windows already exist,
+    // then assume user is not a new Winger user and wants it enabled
+    if (info.set_title_preface === undefined && anyNameFound) {
+        await Storage.set({ set_title_preface: true });
+        info.set_title_preface = true;
+    }
+
+    Chrome.update(nameMap);
 
     // Check for version update
     const version = browser.runtime.getManifest().version;
