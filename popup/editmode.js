@@ -15,9 +15,9 @@ import indicateSuccess from '../success.js';
 
 export let isActive = false; // Indicates if popup is in edit mode
 
-//@ (Object|undefined), state -> state
-export function toggle($name = $currentWindowRow.$name) {
-    isActive ? done() : activate($name);
+//@ state -> state
+export function toggle() {
+    isActive ? done() : activate();
 }
 
 //@ state -> state
@@ -26,7 +26,6 @@ function activate() {
     toggleActive(true);
     if ($omnibox.value.startsWith('/'))
         Omnibox.clear();
-
     if ($currentWindowRow.$name === document.activeElement)
         rememberNameNow($currentWindowRow.$name);
 }
