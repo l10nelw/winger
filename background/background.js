@@ -99,12 +99,14 @@ function onMenuClicked(info, tab) {
 async function onRequest(request) {
     switch (request.type) {
         case 'popup': {
-            const winfoProps = ['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'titleSansName', 'type'];
             const [flags, allow_private] = await Promise.all([
-                Storage.getDict(['show_popup_bring', 'show_popup_send', 'enable_stash']),
+                Storage.getDict(['show_popup_bring', 'show_popup_send', 'set_title_preface', 'enable_stash']),
                 browser.extension.isAllowedIncognitoAccess(),
             ]);
             flags.allow_private = allow_private;
+            const winfoProps = ['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type'];
+            winfoProps.push(flags.set_title_preface ?
+                'titleSansName' : 'title');
             return { ...Winfo.arrange(await Winfo.getAll(winfoProps)), flags };
         }
 

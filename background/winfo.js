@@ -14,11 +14,14 @@ const PROPS_TO_LOAD = {
 // Dict of keys mapped to functions that derive new values, adding new properties to (i.e. mutating) `winfo`.
 //@ (Object, Object) -> state
 const PROPS_TO_DERIVE = {
+    // (Boolean)
     minimized(window, winfo) {
         winfo.minimized = window.state === 'minimized';
     },
-    // givenName ? tab title : window title
+    // Window title without Winger's title preface
+    // Basically, givenName ? tab title : window title
     // Requires `winfo.givenName`
+    // (String)
     titleSansName(window, winfo, { nameAffixLength }) {
         const { givenName } = winfo;
         winfo.titleSansName = givenName ?
@@ -27,6 +30,7 @@ const PROPS_TO_DERIVE = {
     },
     // Requires populated `window.tabs`
     // Also adds `winfo.selectedTabCount` if window is focused
+    // (Number)
     tabCount(window, winfo) {
         winfo.tabCount = window.tabs.length;
         if (window.focused)
@@ -35,30 +39,37 @@ const PROPS_TO_DERIVE = {
 };
 
 // Given a list of wanted properties, produce winfos for all windows.
-// `windows` is optional; include if already procured before via browser.windows.getAll() or similar.
-// Refer to PROPS_TO_LOAD, PROPS_TO_DERIVE and the standard window-object for property candidiates. 'id' is always included.
+// `windows` is optional; provide if already procured before via browser.windows.getAll() or similar.
+// Refer to PROPS_TO_LOAD, PROPS_TO_DERIVE and the standard window-object for available properties. 'id' is always included.
+// If 'title' or 'titleSansName' are wanted properties, auto-removes the " — Mozilla Firefox" suffix from titles. Mutates provided `windows`.
 //@ ([String], undefined|[Object]), state -> ([Object])
 export async function getAll(wantedProps = [], windows = null) {
     wantedProps = new Set(wantedProps);
     wantedProps.add('id');
 
+    const wantTitleSansNameProp = wantedProps.has('titleSansName');
     let nameAffixes;
     [windows, nameAffixes] = await Promise.all([
         windows ?? browser.windows.getAll({ populate: wantedProps.has('tabCount') }),
-        wantedProps.has('titleSansName') && Storage.getValue(['title_preface_prefix', 'title_preface_postfix']),
+        wantTitleSansNameProp && Storage.getValue(['title_preface_prefix', 'title_preface_postfix']),
     ]);
 
-    // Split propsToLoad and propsToDerive out of wantedProps, leaving behind "propsToCopy"
+    if (wantTitleSansNameProp)
+        wantedProps.add('givenName');
+
+     // Remove " — Mozilla Firefox" from window title
+    if (wantTitleSansNameProp || wantedProps.has('title'))
+        for (const window of windows)
+            window.title = removeTitleAppName(window.title);
+
+    // Split `propsToLoad` and `propsToDerive` out of `wantedProps`, leaving behind `propsToCopy`
+    // Array.push only when Set.delete succeeds
     const propsToLoad = [];
-    for (const prop in PROPS_TO_LOAD) {
-        if (wantedProps.delete(prop))
-            propsToLoad.push(prop);
-    }
     const propsToDerive = [];
-    for (const prop in PROPS_TO_DERIVE) {
-        if (wantedProps.delete(prop))
-            propsToDerive.push(prop);
-    }
+    for (const prop in PROPS_TO_LOAD)
+        wantedProps.delete(prop) && propsToLoad.push(prop);
+    for (const prop in PROPS_TO_DERIVE)
+        wantedProps.delete(prop) && propsToDerive.push(prop);
 
     const commonInfo = {
         propsToLoad,
@@ -70,16 +81,22 @@ export async function getAll(wantedProps = [], windows = null) {
     return Promise.all( windows.map(window => getOne(window, commonInfo)) );
 }
 
+//@ (String) -> (String)
+function removeTitleAppName(title) {
+    const index = title.lastIndexOf(' — ');
+    return index === -1 ? title
+        : title.slice(0, index);
+}
+
 //@ (Object, Object), state -> (Object)
 async function getOne(window, commonInfo) {
     // Load window's saved props to start winfo with
     const windowId = window.id;
     const makeEntry = async prop => [ prop, (await browser.sessions.getWindowValue(windowId, prop) ?? PROPS_TO_LOAD[prop]) ];
     const makingEntries = [];
-    for (const prop of commonInfo.propsToLoad) {
+    for (const prop of commonInfo.propsToLoad)
         if (prop in PROPS_TO_LOAD)
             makingEntries.push(makeEntry(prop));
-    }
     const winfo = Object.fromEntries(await Promise.all(makingEntries));
 
     // Derive and add new props to winfo
