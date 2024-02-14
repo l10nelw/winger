@@ -20,15 +20,13 @@ Request.popup().then(onSuccess).catch(onError);
 function onSuccess({ currentWinfo, otherWinfos, flags }) {
     Object.assign(FLAGS, flags);
 
-    markReopen(otherWinfos, currentWinfo.incognito);
-    populate(currentWinfo, otherWinfos);
+    addRows(currentWinfo, otherWinfos);
     $names.push(...$body.querySelectorAll('.name'));
 
     Omnibox.init();
     Filter.init();
     Status.init(currentWinfo, otherWinfos);
 
-    indicateReopenTabs();
     lockHeight($otherWindowsList);
 }
 
@@ -50,18 +48,11 @@ function onError() {
 }
 
 
-// Add reopen property to other-winfos that do not share the same private status as the current-winfo.
-// Indicates that a send/bring action to the other-window will be a reopen operation.
-//@ ([Object], Boolean) -> state
-function markReopen(otherWinfos, isCurrentIncognito) {
-    for (const winfo of otherWinfos)
-        winfo.reopen = winfo.incognito !== isCurrentIncognito;
-}
-
 // Populate $otherWindowsList and $otherWindowRows with rows
 //@ (Object, [Object], Object) -> state
-function populate(currentWinfo, otherWinfos) {
+function addRows(currentWinfo, otherWinfos) {
     Row.initCurrent();
+    const currentIncognito = currentWinfo.incognito;
     const $rowsFragment = document.createDocumentFragment();
     let $minHeading = $otherWindowsList.firstElementChild; // "---Minimized---"
     let minHeadingIndex = -1, index = 0;
@@ -69,7 +60,7 @@ function populate(currentWinfo, otherWinfos) {
     for (const winfo of otherWinfos) {
         if (minHeadingIndex === -1 && winfo.minimized)
             minHeadingIndex = index;
-        $rowsFragment.appendChild(Row.createOther(winfo));
+        $rowsFragment.appendChild(Row.createOther(winfo, currentIncognito));
         index++;
     }
     $otherWindowsList.appendChild($rowsFragment);
@@ -121,15 +112,18 @@ const Row = {
             document.documentElement.style.setProperty('--button-count', buttonCount);
     },
 
-    //@ (Object) -> (Object)
-    createOther(winfo) {
+    //@ (Object, Boolean) -> (Object)
+    createOther(winfo, currentIncognito) {
         const $row = $currentWindowRow.cloneNode(true);
         Row.hydrate($row, winfo);
         // Disable tab action buttons if popup/panel-type window
         if (winfo.type !== 'normal') {
             $row.querySelectorAll('.tabAction').forEach(Row.disableElement);
             $row.classList.add('tabless');
-        }
+        } else
+        // Indicate if a send/bring action to this window will be a reopen operation
+        if (winfo.incognito != currentIncognito)
+            $row.classList.add('reopenTabs');
         return $row;
     },
 
@@ -167,16 +161,6 @@ const Row = {
         $el.removeAttribute('data-action');
     },
 
-}
-
-const isPrivate = $row => $row.classList.contains('private'); //@ (Object) -> (Boolean)
-
-//@ state -> state
-function indicateReopenTabs() {
-    const currentIsPrivate = isPrivate($currentWindowRow);
-    for (const $row of $otherWindowRows)
-        if (isPrivate($row) != currentIsPrivate)
-            $row.classList.add('reopenTabs');
 }
 
 //@ (Object) -> state
