@@ -20,6 +20,9 @@ Request.popup().then(onSuccess).catch(onError);
 function onSuccess({ currentWinfo, otherWinfos, flags }) {
     Object.assign(FLAGS, flags);
 
+    const hasName = currentWinfo.givenName || otherWinfos.find(winfo => winfo.givenName);
+    $body.classList.toggle('nameless', !hasName);
+
     addRows(currentWinfo, otherWinfos);
     $names.push(...$body.querySelectorAll('.name'));
 

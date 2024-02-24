@@ -141,6 +141,12 @@ input:read-only {
     font-style: italic;
 }
 
+/* Placeholder text looks like normal text when there are no names */
+.nameless .name::placeholder {
+    opacity: 1;
+    font-style: normal;
+}
+
 body:not([data-mode="edit"]) .name {
     background-color: transparent;
     border-color: transparent;
@@ -170,8 +176,13 @@ body:not([data-mode="edit"]) #currentWindow .name:hover {
     background-color: var(--popup-hover-row-color);
     cursor: pointer;
 }
-body:not([data-mode="edit"]) #currentWindow .name:is(:hover, :focus) + .tabCount::before {
+body:not([data-mode="edit"]) #currentWindow .name:hover + .tabCount::before {
     display: block;
+    background-color: var(--popup-hover-row-color);
+}
+body:not([data-mode="edit"]) #currentWindow .name:focus + .tabCount::before {
+    display: block;
+    background-color: var(--popup-row-color);
 }
 
 .private .name {

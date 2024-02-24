@@ -47,6 +47,13 @@ export class NameMap extends Map {
         return this;
     }
 
+    //@ state -> (Boolean)
+    hasName() {
+        for (const [, name] of this)
+            if (name)
+                return true;
+    }
+
     // Find name in map. Ignores blank. Return associated id if found, else return 0.
     //@ (String), state -> (Number)
     findId(name) {
