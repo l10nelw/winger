@@ -66,15 +66,27 @@ folderMap.findBookmarkless = title => {
 //@ (Number, Boolean), state -> state
 export async function stash(windowId, remove = true) {
     const [name, tabs] = await Promise.all([
+    const [name, tabs, windows] = await Promise.all([
         Name.load(windowId),
         browser.tabs.query({ windowId }),
+        remove && browser.windows.getAll(),
     ]);
-    if (remove)
-        browser.windows.remove(windowId);
+    const isLoneWindow = windows?.length === 1;
+
+    if (remove) {
+        // Close or minimize now for immediate visual feedback
+        isLoneWindow
+        ? browser.windows.update(windowId, { state: 'minimized' })
+        : browser.windows.remove(windowId);
+    }
+
     const folderId = (await getTargetFolder(name)).id;
     nowProcessing.add(folderId);
     await saveTabs(tabs, folderId, name);
     nowProcessing.delete(folderId);
+
+    if (remove && isLoneWindow)
+        browser.windows.remove(windowId); // Close lone window only after stashing completed
 }
 
 // For a given name (folder title), return a matching bookmarkless folder, otherwise return a new folder.
