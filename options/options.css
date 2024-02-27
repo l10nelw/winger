@@ -20,13 +20,23 @@ legend {
 label {
     display: flex;
     align-items: flex-start;
-    margin-bottom: .5rem;
+    margin-bottom: 1rem;
     gap: .3rem;
 }
-.inline-fields {
-    display: flex;
+label small {
+    font-style: italic;
 }
 
+.group {
+    margin-bottom: 1rem;
+}
+.group label {
+    margin-bottom: .5rem;
+}
+
+select, input[type="text"] {
+    margin-bottom: -.5rem;
+}
 .affixField {
     width: 3.5rem;
     text-align: center;
@@ -49,6 +59,7 @@ button {
 }
 
 .muted { opacity: .5; } /* Used in options.js */
+.flex { display: flex; }
 .gap { gap: 1rem; }
 .indent { margin-inline-start: 2rem; }
 

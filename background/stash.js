@@ -63,11 +63,9 @@ folderMap.findBookmarkless = title => {
 
 // Turn window/tabs into folder/bookmarks.
 // Create folder if nonexistent, save tabs as bookmarks in folder. Close window if remove is true.
-//@ (Number, Boolean), state -> state
-export async function stash(windowId, remove = true) {
-    const [name, tabs] = await Promise.all([
-    const [name, tabs, windows] = await Promise.all([
-        Name.load(windowId),
+//@ (Number, String, Boolean), state -> state
+export async function stash(windowId, name, remove = true) {
+    const [tabs, windows] = await Promise.all([
         browser.tabs.query({ windowId }),
         remove && browser.windows.getAll(),
     ]);
@@ -142,12 +140,15 @@ async function unstashSingleTab(node, remove) {
 
 //@ (Object, Boolean) -> (Object), state
 async function unstashWindow(folder, remove) {
-    const window = await browser.windows.create();
+    const [window, auto_name_unstash] = await Promise.all([
+        browser.windows.create(),
+        Storage.getValue('auto_name_unstash'),
+    ]);
     const windowId = window.id;
     const folderId = folder.id;
     const name = folder.title;
     nowProcessing.add(folderId).add(windowId);
-    nameWindow(windowId, name);
+    auto_name_unstash && nameWindow(windowId, name);
     populateWindow(windowId, window.tabs[0].id, folderId, name, remove);
 }
 

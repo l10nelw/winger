@@ -11,24 +11,27 @@
 
       <fieldset>
         <legend>Send and bring</legend>
-        <label><input class="setting" type="checkbox" name="show_popup_send"> <span>Show send buttons in pop-up panel</span></label>
-        <label><input class="setting" type="checkbox" name="show_popup_bring"> <span>Show bring buttons in pop-up panel</span></label>
-        <hr>
+        <div class="group">
+          <label><input class="setting" type="checkbox" name="show_popup_send"> <span>Show send buttons in pop-up panel</span></label>
+          <label><input class="setting" type="checkbox" name="show_popup_bring"> <span>Show bring buttons in pop-up panel</span></label>
+        </div>
         <p>When sending or bringing tabs...</p>
-        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="true"> <span>selected sent/brought tabs stay selected</span></label>
-        <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="false"> <span>the destination window's originally selected tabs stay selected</span></label>
+        <div class="group">
+          <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="true"> <span>selected sent/brought tabs stay selected</span></label>
+          <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="false"> <span>the destination window's originally selected tabs stay selected</span></label>
+        </div>
         <small>Learn more about <a class="help" href="#common">send and bring</a></small>
       </fieldset>
 
       <fieldset>
         <legend>Window name display</legend>
         <label><input class="setting" type="checkbox" name="show_badge"> <span>Show name on the Winger button
-          <br><small>(Limited to the first few characters)</small>
+          <br><small>Limited to the first few characters</small>
         </span></label>
-        <label><input class="setting" type="checkbox" name="set_title_preface"> <span>Show name in the window title
-          <br><small>(Sets a window's <em>title preface</em>. Don't enable if you use another extension for setting title prefaces)</small>
+        <label><input class="setting" type="checkbox" name="set_title_preface"> <span>Show name in window title preface
+          <br><small>Disable if you rely on another extension that sets title prefaces</small>
         </label>
-        <div class="inline-fields gap indent">
+        <div class="flex gap indent">
           <label><span>Prefix</span> <input class="setting affixField" type="text" data-enabled-by="set_title_preface" name="title_preface_prefix"></label>
           <label><span>Postfix</span> <input class="setting affixField" type="text" data-enabled-by="set_title_preface" name="title_preface_postfix"></label>
         </div>
@@ -44,25 +47,34 @@
       <fieldset>
         <legend>Stashing</legend>
         <label><input class="setting" type="checkbox" name="enable_stash"> <span>Enable stashing
-          <br><small>(Requires permission to read and modify bookmarks)</small>
+          <br><small>Requires permission to read and modify bookmarks</small>
         </span></label>
-        <div class="inline-fields">
-          <label>
-            <span>Stash home</span>
-            <select class="setting" data-enabled-by="enable_stash" name="stash_home_root">
-              <option value="toolbar_____">Bookmarks Toolbar</option>
-              <option value="menu________">Bookmarks Menu</option>
-              <option value="unfiled_____">Other Bookmarks</option>
-            </select> /
-            <input type="text" class="setting" data-enabled-by="enable_stash" name="stash_home_folder" aria-label="Folder name (optional)" placeholder="Folder name (optional)">
-          </label>
+        <div class="indent">
+          <div class="group">
+            <label class="flex">
+              <span>Stash home:</span>
+              <select class="setting" data-enabled-by="enable_stash" name="stash_home_root">
+                <option value="toolbar_____">Bookmarks Toolbar</option>
+                <option value="menu________">Bookmarks Menu</option>
+                <option value="unfiled_____">Other Bookmarks</option>
+              </select> /
+              <input type="text" class="setting" data-enabled-by="enable_stash" name="stash_home_folder" id="stash_home_folder" aria-label="Folder name (optional)" placeholder="Folder name (optional)">
+            </label>
+            <label for="stash_home_folder"><small>If folder name is specified, windows are stashed in a subfolder in the selected root folder &ndash; If blank, windows are stasned in the selected root folder</small></label>
+          </div>
+          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="stash_nameless_with_title"> <span>Stash nameless windows using window titles as names
+            <br><small>If disabled, nameless windows are stashed as nameless folders</small>
+          </span></label>
+          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="auto_name_unstash"> <span>Auto-name unstashed windows
+            <br><small>If disabled, unstashed windows are not named</small>
+          </span></label>
         </div>
         <small>Learn more about <a class="help" href="#stash">stashing</a></small>
       </fieldset>
 
       <fieldset>
         <legend>Theme</legend>
-        <div class="inline-fields gap">
+        <div class="flex gap">
           <label><input class="setting" type="radio" name="theme" value=""> <span>Auto</span></label>
           <label><input class="setting" type="radio" name="theme" value="light"> <span>Light</span></label>
           <label><input class="setting" type="radio" name="theme" value="dark"> <span>Dark</span></label>

@@ -1,6 +1,6 @@
 /* Send messages to the background frame */
 
-import { $currentWindowRow } from './common.js';
+import { getValue } from '../storage.js';
 import { get as getModifiers } from '../modifier.js';
 
 const sendMessage = browser.runtime.sendMessage;
@@ -37,8 +37,12 @@ export function action({ event, $action, command, argument }) {
     window.close();
 }
 
-//@ (Number, Boolean) -> state
-export function stash(close, windowId = $currentWindowRow._id) {
-    sendMessage({ type: 'stash', windowId, close });
+//@ (Object, Boolean) -> state
+export async function stash($row, close) {
+    const $name = $row.$name;
+    let name = $name.value;
+    if (!name && await getValue('stash_nameless_with_title'))
+        name = $name.placeholder;
+    sendMessage({ type: 'stash', windowId: $row._id, name, close });
     window.close();
 }
