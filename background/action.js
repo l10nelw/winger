@@ -108,14 +108,14 @@ async function sendTabs(request) {
     request.keep_moved_tabs_selected = keep_moved_tabs_selected;
 
     const movedTabs = await moveTabs(request);
-    if (movedTabs.length) {
-        // If relevant setting is enabled and destination window is minimized, unload moved tabs
-        if (unload_minimized_window && request.minimized)
-            Auto.unloadTabs(movedTabs);
-        return movedTabs;
-    }
-    // If movedTabs is empty, moveTabs() must have failed so reopenTabs() instead
-    return reopenTabs(request);
+
+    if (!movedTabs.length)
+        return reopenTabs(request); // moveTabs() must have failed so reopenTabs() instead
+
+    if (unload_minimized_window && request.minimized && request.action !== 'bring')
+        Auto.unloadTabs(movedTabs);
+
+    return movedTabs;
 }
 
 //@ ({ [Object], Number, Boolean }), state -> ([Object]), state | (undefined)
