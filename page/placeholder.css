@@ -41,10 +41,7 @@ input {
 }
 
 button {
-    display: inline-block;
-    min-width: 160px;
+    min-width: 150px;
     margin-bottom: 1rem;
     padding: 5px 20px;
-    border-radius: 4px;
-    font-size: large;
 }

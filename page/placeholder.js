@@ -7,13 +7,12 @@ const $main  = document.body.querySelector('main');
 const $url   = $main.querySelector('input');
 const $btn   = $main.querySelector('button');
 
-const selectUrl = () => $url.select();
 const swapBtnText = () => [$btn.textContent, $btn.dataset.text] = [$btn.dataset.text, $btn.textContent];
 
 document.title = title;
 $head.textContent = title;
 $url.value = url;
-selectUrl();
+$url.select();
 
 $main.addEventListener('click', ({ target }) => {
     switch (target) {
@@ -22,6 +21,6 @@ $main.addEventListener('click', ({ target }) => {
             swapBtnText();
             setTimeout(swapBtnText, 1000);
         case $url:
-            selectUrl();
+            $url.select();
     }
 });
