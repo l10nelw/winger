@@ -46,7 +46,7 @@
     margin-left: .5rem;
     border: 2px solid transparent;
 }
-.popup-name.unnamed {
+.popup-name.nameless {
     font-style: italic;
     opacity: .75;
 }
