@@ -174,4 +174,6 @@ $form.addEventListener('change', async ({ target: $field }) => {
 $form.addEventListener('click', ({ target: $el }) => {
     if ($el.classList.contains('help'))
         return openHelp($el.getAttribute('href'));
+    if ($el.id === 'restart')
+        browser.runtime.reload();
 });

@@ -57,6 +57,12 @@ button {
     padding: .25rem 2rem;
     border-radius: 4px;
 }
+#restart {
+    white-space: nowrap;
+}
+#restart img {
+    vertical-align: bottom;
+}
 
 .muted { opacity: .5; } /* Used in options.js */
 .flex { display: flex; }
