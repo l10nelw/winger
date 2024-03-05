@@ -311,6 +311,12 @@ footer button:last-child {
     white-space: nowrap;
     border-top-right-radius: var(--border-radius);
 }
+#restart img {
+    vertical-align: bottom;
+}
+.dark #restart img {
+    filter: invert(1);
+}
 
 
 /* --- Utilities --- */
