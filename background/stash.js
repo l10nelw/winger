@@ -155,11 +155,12 @@ async function unstashWindow(folder, remove) {
 //@ (Number, String) -> state
 async function nameWindow(windowId, name) {
     name = Name.validify(name);
-    if (name) {
-        const nameMap = (new Name.NameMap()).populate(await Winfo.getAll(['givenName']));
-        Name.save(windowId, nameMap.uniquify(name));
-        Chrome.update([[windowId, name]]);
-    }
+    if (!name)
+        return;
+    const nameMap = (new Name.NameMap()).populate(await Winfo.getAll(['givenName']));
+    name = nameMap.uniquify(name);
+    Name.save(windowId, name);
+    Chrome.update([[windowId, name]]);
 }
 
 //@ (Number, Number, String, String, Boolean) -> state
