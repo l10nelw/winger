@@ -65,7 +65,7 @@ const enablerMap = Object.assign(new GroupMap(), {
         const $enabler = $form[$target.dataset.enabledBy];
         if (!$enabler)
             return;
-        this.group($target, $enabler);
+        this.group($enabler, $target);
         this._updateTarget($target, $enabler.disabled || !$enabler.checked);
     },
 

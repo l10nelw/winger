@@ -6,7 +6,9 @@ export const isOS = osName => navigator.userAgent.indexOf(osName) !== -1;
 
 // Map with each key (group id) mapping to an array of items (group members).
 export class GroupMap extends Map {
-    group(item, key) {
-        this.has(key) ? this.get(key).push(item) : this.set(key, [item]);
+    group(key, item) {
+        this.has(key)
+        ? this.get(key).push(item)
+        : this.set(key, [item]);
     }
 }
