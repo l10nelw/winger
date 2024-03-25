@@ -144,7 +144,7 @@ $form.addEventListener('change', async ({ target: $field }) => {
         await Promise.all([ enablerMap.trigger($field), Setting.save($field) ])
     ).every(Boolean);
     if (isAllSaved)
-        indicateSuccess($field.closest('.inline-fields') || $field.closest('label'));
+        indicateSuccess($field.closest('.flex') || $field.closest('label'));
 
     switch ($field.name) {
         case 'set_title_preface':
