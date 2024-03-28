@@ -37,6 +37,11 @@ function onClick(event) {
         return;
     }
 
+    if (target.dataset.action === 'stash') {
+        Request.stash(event);
+        return;
+    }
+
     Request.action({ event, $action: target });
 }
 

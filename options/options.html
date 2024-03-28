@@ -50,6 +50,13 @@
           <br><small>Requires permission to read and modify bookmarks</small>
         </span></label>
         <div class="indent">
+          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="show_popup_stash"> <span>Show stash buttons in pop-up panel</span></label>
+          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="stash_nameless_with_title"> <span>Stash nameless windows using window titles as names
+            <br><small>If disabled, nameless windows are stashed as nameless folders</small>
+          </span></label>
+          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="auto_name_unstash"> <span>Auto-name unstashed windows
+            <br><small>If disabled, unstashed windows are not named</small>
+          </span></label>
           <div class="group">
             <label class="flex">
               <span>Stash home:</span>
@@ -60,14 +67,8 @@
               </select> /
               <input type="text" class="setting" data-enabled-by="enable_stash" name="stash_home_folder" id="stash_home_folder" aria-label="Folder name (optional)" placeholder="Folder name (optional)">
             </label>
-            <label for="stash_home_folder"><small>If folder name is specified, stash folders are located in a subfolder in the selected root folder &ndash; If blank, they are located in the selected root folder</small></label>
+            <label for="stash_home_folder"><small>If folder name is specified, stash home is a subfolder with this name in the selected root folder. If blank, stash home is the selected root folder</small></label>
           </div>
-          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="stash_nameless_with_title"> <span>Stash nameless windows using window titles as names
-            <br><small>If disabled, nameless windows are stashed as nameless folders</small>
-          </span></label>
-          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="auto_name_unstash"> <span>Auto-name unstashed windows
-            <br><small>If disabled, unstashed windows are not named</small>
-          </span></label>
         </div>
         <small>Learn more about <a class="help" href="#stash">stashing</a></small>
       </fieldset>
@@ -82,7 +83,7 @@
       </fieldset>
 
       <fieldset class="flex gap">
-        <p>Settings take effect immediately upon changes. You can try restarting Winger if you have any issues.</p>
+        <p>Changed settings take effect immediately. You can try restarting Winger if you have any issues.</p>
         <button type="button" id="restart"><img src="../icons/refresh.svg" width="15" height="15"> Restart Winger</button>
       </fieldset>
 

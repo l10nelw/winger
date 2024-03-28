@@ -17,6 +17,7 @@ export const DEFAULT_SETTINGS = {
     stash_home_folder: 'Stashed Windows',
     stash_nameless_with_title: false,
     auto_name_unstash: true,
+    show_popup_stash: true,
 
     theme: '',
 };

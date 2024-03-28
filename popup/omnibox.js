@@ -1,6 +1,5 @@
 import {
     FLAGS,
-    $currentWindowRow,
     $omnibox,
     nameMap,
 } from './common.js';
@@ -29,7 +28,7 @@ const SHORTHAND__COMMAND = {};
 export function init() {
     Parsed.clear();
     if (FLAGS.enable_stash) {
-        COMMAND__CALLBACK.stash = ({ event }) => Request.stash($currentWindowRow, !event.shiftKey);
+        COMMAND__CALLBACK.stash = ({ event }) => Request.stash(event);
     }
     if (FLAGS.allow_private) {
         COMMAND__CALLBACK.newprivate  = ({ event, argument }) => Request.action({ event, argument, command: 'newprivate' });

@@ -2,6 +2,7 @@
 
 import { getValue } from '../storage.js';
 import { get as getModifiers } from '../modifier.js';
+import { $currentWindowRow } from './common.js';
 
 const sendMessage = browser.runtime.sendMessage;
 
@@ -37,14 +38,16 @@ export function action({ event, $action, command, argument }) {
     window.close();
 }
 
-//@ (Object, Boolean) -> state
-export async function stash($row, close) {
+//@ (Object) -> state
+export async function stash(event) {
+    const $row = event.target.closest('li') || $currentWindowRow;
     if ($row.matches('.tabless'))
         return; // Do not allow stashing a "tabless" window
     const $name = $row.$name;
     let name = $name.value;
     if (!name && await getValue('stash_nameless_with_title'))
         name = $name.placeholder;
+    const close = !event.shiftKey;
     sendMessage({ type: 'stash', windowId: $row._id, name, close });
     window.close();
 }

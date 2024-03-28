@@ -70,7 +70,7 @@ function addRows(currentWinfo, otherWinfos) {
     // Hydrate current-row only after all other-rows have been created
     Row.hydrateCurrent($currentWindowRow, currentWinfo);
 
-    // Populate $otherWindowRows
+    // Populate $otherWindowRows array
     if (minHeadingIndex === -1) {
         $minHeading.remove();
         $otherWindowRows.$minHeading = {};
@@ -91,7 +91,7 @@ function addRows(currentWinfo, otherWinfos) {
 
 const Row = {
 
-    CELL_SELECTORS: new Set(['.send', '.bring', '.name', '.tabCount']),
+    CELL_SELECTORS: new Set(['.send', '.bring', '.name', '.tabCount', '.stash']),
 
     //@ (Object) -> state
     initCurrent() {
@@ -99,6 +99,7 @@ const Row = {
         const buttons = [
             ['show_popup_bring', '.bring'],
             ['show_popup_send', '.send'],
+            ['show_popup_stash', '.stash'],
         ];
         let buttonCount = buttons.length;
         for (const [setting, selector] of buttons) {

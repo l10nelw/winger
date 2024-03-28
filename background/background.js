@@ -104,13 +104,14 @@ async function onRequest(request) {
     switch (request.type) {
         case 'popup': {
             const [flags, allow_private] = await Promise.all([
-                Storage.getDict(['show_popup_bring', 'show_popup_send', 'set_title_preface', 'enable_stash']),
+                Storage.getDict(['show_popup_bring', 'show_popup_send', 'set_title_preface', 'enable_stash', 'show_popup_stash']),
                 browser.extension.isAllowedIncognitoAccess(),
             ]);
             flags.allow_private = allow_private;
             const winfoProps = ['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type'];
-            winfoProps.push(flags.set_title_preface ?
-                'titleSansName' : 'title');
+            winfoProps.push(flags.set_title_preface ? 'titleSansName' : 'title');
+            if (!flags.enable_stash)
+                delete flags.show_popup_stash;
             return { ...Winfo.arrange(await Winfo.getAll(winfoProps)), flags };
         }
 

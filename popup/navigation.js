@@ -13,7 +13,6 @@ import { $shownRows } from './filter.js';
 
 const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
 const HORIZONTAL_KEYS = ['ArrowRight', 'ArrowLeft'];
-const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
 
 // Upon an arrow or tab keydown, focus on the next focusable element in that direction and return true.
 // Return nothing if key not an arrow or tab.
@@ -22,9 +21,6 @@ const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
 export default function navigateByKey(event) {
     const key = event.key;
     let $el = event.target;
-
-    if (isHorizontalKey(key) && isField($el))
-        return;
 
     const navigatorKey = navigator[key];
     if (!navigatorKey)
@@ -35,11 +31,9 @@ export default function navigateByKey(event) {
         $el = navigatorKey($el, event);
     } while (isUnfocusable($el));
 
-    if (isVerticalKey(key)) {
-        restrictScroll($el, event);
-    } else {
-        setColumn($el);
-    }
+    isHorizontalKey(key)
+        ? setColumn($el)
+        : restrictScroll($el, event);
 
     $el.focus();
     $el.select?.();
@@ -47,7 +41,6 @@ export default function navigateByKey(event) {
 }
 
 const isUnfocusable = $el => row($el).hidden || $el.tabIndex === -1; //@ (Object) -> (Boolean)
-const isVerticalKey = key => VERTICAL_KEYS.includes(key); //@ (String) -> (Boolean)
 const isHorizontalKey = key => HORIZONTAL_KEYS.includes(key); //@ (String) -> (Boolean)
 
 // Prevent scrolling if focus is on first/last few rows, to control the default scoll-ahead
@@ -63,7 +56,7 @@ let column; // Currently-focused button column
 //@ (Object) -> state
 function setColumn($el) {
     column =
-        isRow($el) ? null : // if row: null
+        isRow($el) || isField($el) ? null : // if row or name: null
         isButton($el) ? $el.dataset.action : // if cell: its action reference ("send", etc)
         column; // no change
 }
@@ -148,11 +141,23 @@ const navigator = {
     },
 }
 
+// Return cell at given row and current column.
+//@ (Object), state -> (Object|undefined)
+function columnCell($row) {
+    const $cell = $row?.['$'+column];
+    if ($cell && !$cell.disabled)
+        return $cell;
+}
+// Take and return row, unless a cell can be returned instead.
+//@ (Object), state -> (Object|undefined)
+const rowOrCell = $row => isEditMode && $row?.$name || columnCell($row) || $row;
+//@ state -> (Object)
+const currentWindow = () => columnCell($currentWindowRow) || $currentWindowRow.$name || $currentWindowRow;
+// Element's parent row, else assume element is a row.
 //@ (Object) -> (Object)
-const rowOrCell = $row => isEditMode && $row?.$name || $row?.['$'+column] || $row; // Take and return row, unless a cell can be returned instead.
-const row = $el => $el.$row || $el; // Element's parent row, else assume element is a row.
-const currentWindow = () => $currentWindowRow.$name || $currentWindowRow;
+const row = $el => $el.$row || $el;
+//@ -> (Object)
 const toolbar = () => $toolbar.querySelector('button') || $toolbar;
 
 //@ (Object) -> (Boolean)
-const isCurrentWindow = $el => ($el.$row || $el) === $currentWindowRow;
+const isCurrentWindow = $el => row($el) === $currentWindowRow;

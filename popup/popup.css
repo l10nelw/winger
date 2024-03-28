@@ -253,6 +253,7 @@ li.reopenTabs button.tabAction:is(:hover, :focus) {
 
 .send  { background-image: url("../icons/send.svg"); }
 .bring { background-image: url("../icons/bring.svg"); }
+.stash { background-image: url("../icons/stash.svg"); }
 
 .tabAction[disabled] {
     visibility: hidden;
