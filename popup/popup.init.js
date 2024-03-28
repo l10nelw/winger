@@ -112,7 +112,7 @@ const Row = {
             }
         }
         if (buttonCount)
-            document.documentElement.style.setProperty('--button-count', buttonCount);
+            document.documentElement.style.setProperty('--popup-row-button-count', buttonCount);
     },
 
     //@ (Object, Boolean) -> (Object)

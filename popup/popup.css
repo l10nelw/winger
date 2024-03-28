@@ -12,9 +12,10 @@ Test list:
 
 /* * { outline: 1px solid red; } */
 :root {
-    --button-count: 0;
+    --popup-row-button-count: 0;
     --tabcount-width: 2rem;
-    --popup-width: calc(var(--button-count) * var(--popup-button-size) + 20rem + var(--tabcount-width));
+    --tabcount-x-margin: .8rem;
+    --popup-width: calc(var(--popup-row-button-count) * var(--popup-button-size) + var(--popup-name-width) + var(--tabcount-width));
     --max-list-height: 30rem;
 
     --tick-end-offset: 4rem;
@@ -80,8 +81,9 @@ li > * {
 }
 
 .tabCount {
+    position: relative; /* For pencil icon */
     width: var(--tabcount-width);
-    margin: 0 .8rem;
+    margin: 0 var(--tabcount-x-margin);
     color: var(--muted-text-color);
     text-align: end;
 }
@@ -167,7 +169,7 @@ body:not([data-mode="edit"]) #currentWindow .tabCount::before {
     pointer-events: none;
     content: "✎";
     position: absolute;
-    right: calc(2rem + var(--tabcount-width));
+    left: calc(-2rem - var(--tabcount-x-margin));
     top: 50%;
     transform: translateY(-50%) scaleX(-1);
     font-size: 1.5rem;
@@ -236,12 +238,8 @@ li button {
     background-repeat: no-repeat;
     background-position: center;
     border-radius: var(--border-radius);
-    border: 1px solid var(--popup-row-color); /* Provide 2px space between buttons to accommodate focus-ring border */
+    border: 1px solid transparent; /* Provide 2px space between buttons to accommodate focus-ring border */
     opacity: .7;
-}
-
-li:hover button:not(:focus) {
-    border-color: var(--popup-hover-row-color);
 }
 
 body[data-mode="edit"] li button {
