@@ -68,14 +68,12 @@ folderMap.findBookmarkless = title => {
 // Create folder if nonexistent, save tabs as bookmarks in folder. Close window if remove is true.
 //@ (Number, String, Boolean), state -> state
 export async function stash(windowId, name, remove = true) {
-    const [window, allWindows, stash_properties] = await Promise.all([
+    const [window, allWindows] = await Promise.all([
         browser.windows.get(windowId, { populate: true }),
         remove && browser.windows.getAll(),
-        Storage.getValue('stash_properties'),
     ]);
 
-    if (stash_properties)
-        name = StashProp.Window.stringify(name, window);
+    name = StashProp.Window.stringify(name, window);
 
     nowProcessing.add(windowId);
     const isLoneWindow = allWindows?.length === 1;
@@ -88,7 +86,7 @@ export async function stash(windowId, name, remove = true) {
 
     const folderId = (await getTargetFolder(name)).id;
     nowProcessing.add(folderId);
-    await saveTabs(window.tabs, folderId, name, stash_properties);
+    await saveTabs(window.tabs, folderId, name);
     nowProcessing.delete(folderId);
 
     if (remove && isLoneWindow)
@@ -105,23 +103,20 @@ async function getTargetFolder(name) {
     return folder;
 }
 
-//@ ([Object], Number, String, Boolean), state -> (Promise: [Object]), state
-async function saveTabs(tabs, folderId, logName, stash_properties) {
+//@ ([Object], Number, String), state -> (Promise: [Object]), state
+async function saveTabs(tabs, folderId, logName) {
     const count = tabs.length;
-    if (stash_properties)
-        await StashProp.Tab.prepare(tabs);
+    await StashProp.Tab.prepare(tabs);
     const creatingBookmarks = new Array(count);
     for (let i = count; i--;) // Reverse iteration necessary for bookmarks to be in correct order
-        creatingBookmarks[i] = createBookmark(tabs[i], folderId, logName, stash_properties);
+        creatingBookmarks[i] = createBookmark(tabs[i], folderId, logName);
     return Promise.all(creatingBookmarks);
 }
 
-//@ (Object, Number, String, Boolean) -> (Promise: Object), state
-function createBookmark(tab, parentId, logName, stash_properties) {
+//@ (Object, Number, String) -> (Promise: Object), state
+function createBookmark(tab, parentId, logName) {
     const url = Auto.deplaceholderize(tab.url);
-    const title = stash_properties ?
-        StashProp.Tab.stringify(tab, parentId) :
-        tab.title;
+    const title = StashProp.Tab.stringify(tab, parentId);
     console.log(`Stashing ${logName} | ${url} | ${title}`);
     return createNode({ parentId, url, title });
 }
@@ -144,16 +139,10 @@ export async function unstash(nodeId, remove = true) {
 // This operation will not appear in nowProcessing.
 //@ (Object, Boolean), state -> state
 async function unstashSingleTab(node, remove) {
-    const [window, stash_properties] = await Promise.all([
-        browser.windows.getLastFocused(),
-        Storage.getValue('stash_properties'),
-    ]);
-    const protoTab = { url: node.url, windowId: window.id };
-    if (stash_properties) {
-        Object.assign(protoTab, StashProp.Tab.parse(node.title));
-        await StashProp.Tab.restoreContainers([protoTab], window);
-    }
-    const tab = await openTab(StashProp.Tab.scrub(protoTab));
+    const window = await browser.windows.getLastFocused();
+    const protoTab = { url: node.url, windowId: window.id, ...StashProp.Tab.parse(node.title) };
+    await StashProp.Tab.restoreContainers([protoTab], window);
+    const tab = await openTab(protoTab);
     browser.tabs.update(tab.id, { active: true });
     if (remove)
         removeNode(node.id);
@@ -161,14 +150,14 @@ async function unstashSingleTab(node, remove) {
 
 //@ (Object, Boolean) -> (Object), state
 async function unstashWindow(folder, remove) {
+    const [name, protoWindow] = StashProp.Window.parse(folder.title);
+    const [window, auto_name_unstash] = await Promise.all([
+        browser.windows.create(protoWindow),
+        Storage.getValue('auto_name_unstash'),
+    ]);
     const folderId = folder.id;
-    const [stash_properties, auto_name_unstash] = await Storage.getValue(['stash_properties', 'auto_name_unstash']);
-    const [name, protoWindow] = stash_properties ?
-        StashProp.Window.parse(folder.title) :
-        [folder.title, null];
-    const window = await browser.windows.create(protoWindow);
     const windowId = window.id;
-    nowProcessing.add(folderId).add(windowId); // To remove in populateWindow()
+    nowProcessing.add(folderId).add(windowId); // To be removed in populateWindow()
     if (auto_name_unstash)
         nameWindow(windowId, name);
     populateWindow(window, folderId, name, remove);
@@ -188,27 +177,18 @@ async function nameWindow(windowId, name) {
 //@ (Object, String, String, Boolean) -> state
 async function populateWindow(window, folderId, logName, remove) {
     const windowId = window.id;
-    const [{ bookmarks, subfolders }, stash_properties] = await Promise.all([
-        readFolder(folderId),
-        Storage.getValue('stash_properties'),
-    ]);
+    const { bookmarks, subfolders } = await readFolder(folderId);
 
     if (bookmarks.length) {
         let protoTabs, openingTabs;
 
-        if (stash_properties) {
-            protoTabs = bookmarks.map(({ title, url }) => ({ ...StashProp.Tab.parse(title), url, windowId }));
-            await StashProp.Tab.restoreContainers(protoTabs, window);
-            openingTabs = protoTabs.map(protoTab => openTab(StashProp.Tab.scrub(protoTab), logName));
-        } else {
-            openingTabs = bookmarks.map(({ title, url }) => openTab({ title, url, windowId }, logName));
-        }
+        protoTabs = bookmarks.map(({ title, url }) => ({ windowId, url, ...StashProp.Tab.parse(title) }));
+        await StashProp.Tab.restoreContainers(protoTabs, window);
+        openingTabs = protoTabs.map(protoTab => openTab(protoTab, logName));
 
         Promise.any(openingTabs).then(() => browser.tabs.remove(window.tabs[0].id)); // Remove initial tab
         const tabs = await Promise.all(openingTabs);
-
-        if (stash_properties)
-            StashProp.Tab.restoreParents(protoTabs, tabs);
+        StashProp.Tab.restoreParents(protoTabs, tabs);
     }
     nowProcessing.delete(windowId);
 
@@ -233,8 +213,9 @@ async function readFolder(folderId) {
 //@ (Object, String|undefined) -> (Promise: Object), state
 function openTab(protoTab, logName = '') {
     console.log(`Unstashing ${logName} | ${protoTab.url} | ${protoTab.title}`);
-    protoTab.discarded = true;
-    return Action.openTab(protoTab);
+    const safeProtoTab = StashProp.Tab.scrub(protoTab);
+    safeProtoTab.discarded = true;
+    return Action.openTab(safeProtoTab);
 }
 
 
