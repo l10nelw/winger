@@ -12,11 +12,11 @@
     <!-- `readonly` easier to control focusability than `disabled` -->
     <ul id="currentWindow">
       <li tabindex="0" data-action="switch">
-        <button type="button" class="tabAction send" data-action="send" hidden></button>
-        <button type="button" class="tabAction bring" data-action="bring" hidden></button>
+        <button type="button" class="tabAction send" data-action="send" title="Send" hidden></button>
+        <button type="button" class="tabAction bring" data-action="bring" title="Bring" hidden></button>
         <input tabindex="-1" class="name" readonly autocomplete="off">
         <div class="tabCount"></div>
-        <button type="button" class="windowAction stash" data-action="stash" hidden></button>
+        <button type="button" class="windowAction stash" data-action="stash" title="Stash" hidden></button>
       </li>
     </ul>
     <div id="omniboxWrapper">
@@ -27,7 +27,7 @@
     </ul>
     <footer>
       <div id="status">Loading...</div>
-      <button type="button" id="help"></button>
+      <button type="button" id="help" title="Help"></button>
     </footer>
 
     <template id="restartTemplate">

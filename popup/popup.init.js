@@ -137,6 +137,7 @@ const Row = {
         Row.disableElement($row);
         $row.querySelectorAll('.tabAction').forEach(Row.disableElement);
         $row.$name.tabIndex = 0;
+        $row.$name.title = '';
     },
 
     //@ (Object, { String, Number, Boolean, Boolean, Number, String, String }) -> state
