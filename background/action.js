@@ -193,7 +193,7 @@ export function openTab(protoTab) {
     // title only allowed if discarded
     delete protoTab[discarded ? 'pinned' : 'title'];
 
-    if (url === 'about:newtab') { // Illegal url for tabs.create()
+    if (url === 'about:newtab' || url === 'about:privatebrowsing') { // Urls tabs.create() cannot open, but unnecessary for the end result
         delete protoTab.url;
     } else if (isReader(url)) {
         protoTab.url = getReaderTarget(url);
