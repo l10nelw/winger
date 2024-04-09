@@ -4,7 +4,7 @@ import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
 import * as Stash from './stash.js';
-import * as UnstashMenu from './menu.unstash.js';
+import * as StashMenu from './menu.stash.js';
 import * as SendMenu from './menu.send.js';
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
@@ -15,7 +15,7 @@ async function debug() {
         import('./action.auto.js'),
         import('./stash.prop.js'),
     ]);
-    const modules = { Storage, Winfo, Name, Action, Auto, Chrome, SendMenu, UnstashMenu, Stash, StashProp };
+    const modules = { Storage, Winfo, Name, Action, Auto, Chrome, SendMenu, StashMenu, Stash, StashProp };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
     Object.assign(window, modules);
 }
@@ -85,18 +85,18 @@ const isMinimized = async windowId => (await browser.windows.get(windowId).catch
 
 //@ (Object, Object) -> state|nil
 async function onMenuShown(info, tab) {
-    await UnstashMenu.handleShow(info) || await SendMenu.handleShow(info, tab);
+    await StashMenu.handleShow(info) || await SendMenu.handleShow(info, tab);
 }
 
 //@ -> state
 function onMenuHidden() {
     SendMenu.handleHide();
-    UnstashMenu.handleHide();
+    StashMenu.handleHide();
 }
 
 //@ (Object, Object) -> state|nil
 function onMenuClicked(info, tab) {
-    UnstashMenu.handleClick(info) || SendMenu.handleClick(info, tab);
+    StashMenu.handleClick(info) || SendMenu.handleClick(info, tab);
 }
 
 //@ (Object), state -> (Object|Boolean|undefined), state|nil
@@ -116,7 +116,7 @@ async function onRequest(request) {
         }
 
         case 'stash':
-            return Stash.stash(request.windowId, request.name, request.close);
+            return Stash.stashWindow(request.windowId, request.name, request.close);
 
         case 'stashInit': {
             const settings = await Storage.getDict(['enable_stash', 'stash_home_root', 'stash_home_folder']);

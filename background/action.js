@@ -205,7 +205,7 @@ export function openTab(protoTab) {
         tabPromise.then(tab => pinTab(tab.id)) : tabPromise;
 }
 
-const getSelectedTabs = () => browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> (Promise: [Object])
+export const getSelectedTabs = () => browser.tabs.query({ currentWindow: true, highlighted: true }); //@ state -> (Promise: [Object])
 
 //@ (Number) -> (Promise: Object), state
 const pinTab    = tabId => browser.tabs.update(tabId, { pinned: true });

@@ -170,13 +170,19 @@ const Containers = {
 const Parents = {
 
     // Mark tabs that are parents of other tabs with the isParent=true property.
+    // Remove references to any parents that are not in the list of tabs.
     //@ ([Object]) -> state
     prepare(tabs) {
         const tabMap = new Map();
         for (const tab of tabs)
             tabMap.set(tab.id, tab);
-        for (const { openerTabId } of tabs) if (tabMap.has(openerTabId))
-            tabMap.get(openerTabId).isParent = true;
+        for (const tab of tabs) {
+            const parentTab = tabMap.get(tab.openerTabId);
+            if (parentTab)
+                parentTab.isParent = true;
+            else
+                delete tab.openerTabId;
+        }
     },
 
     // Produce tab id and parentId properties to later stringify.
