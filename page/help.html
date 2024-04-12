@@ -22,16 +22,15 @@
         <br><small class="js-version"></small>
         <br><b>A Complete Guide</b>
       </h1>
-      <p class="small">Last updated v2.5.0 (6 Mar 2024)</p>
+      <p class="small">Last updated v2.6.0 (12 Apr 2024)</p>
       <p><a href="https://addons.mozilla.org/firefox/addon/winger/" target="_blank">View latest release notes on the Winger addon page</a></p>
     </header>
 
     <article id="intro" class="center mx mb5" style="max-width: 720px">
       <p>Winger helps you manage multiple browser windows, no matter how many. With Winger you can <a href="#name">name</a> them, <a href="#find">find/filter</a> them, <a href="#common">switch</a> between them, <a href="#common">move tabs</a> between them, <a href="#stash">stash</a> them away, and more.</p>
-      <ul class="inlineLinkList small">
+      <ul class="inlineLinkList">
         <li><a href="#slash">Slash (/) commands</a></li>
         <li><a href="#menu">Send to Window menu</a></li>
-        <li><a href="#tips">Tips</a></li>
         <li><a href="#feedback">Feedback/Support</a></li>
       </ul>
     </article>
@@ -127,28 +126,34 @@
             <header class="popup-row">
               <span class="popup-btn"></span><span class="popup-btn"></span>
               <strong class="popup-name muted">Re: Next week update ...</strong><small class="popup-tabCount">20</small>
+              <span class="popup-btn stash"></span>
             </header>
             <div class="popup-omnibox focused"></div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name muted">Invoice DA00042 Client A...</span><small class="popup-tabCount">13</small>
+              <span class="popup-btn stash"></span>
             </div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name muted">Shopping cart (2 items)</span><small class="popup-tabCount">7</small>
+              <span class="popup-btn stash"></span>
             </div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name muted">New Tab</span><small class="popup-tabCount">5</small>
+              <span class="popup-btn stash"></span>
             </div>
             <div class="popup-heading"><hr><header>Minimized</header></div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name muted">Compost - Wikipedia</span><small class="popup-tabCount">8</small>
+              <span class="popup-btn stash"></span>
             </div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name muted">Winger - A Window Manag...</span><small class="popup-tabCount">2</small>
+              <span class="popup-btn stash"></span>
             </div>
             <footer class="popup-row muted no-border">
               <div class="popup-status"># windows / # tabs</div>
@@ -210,7 +215,6 @@
       <section id="reopened" class="mb2">
         <h3>Reopened tabs</h3>
         <ul>
-          <li><p>Reopened tabs preserve any pinned and reader-view tab states, but not most other tab/page states such as tab history, scroll position and unsubmitted form data.</p></li>
           <li>
             <p>Reopened tabs, if not focused, start out in an unloaded state.</p>
             <ul>
@@ -218,6 +222,7 @@
             </ul>
           </li>
           <li><p>Reopened tabs with privileged URLs that Winger cannot directly open ("about:" pages, local files, etc) become temporary <strong>placeholder tabs</strong>. Placeholder tabs will inform you of a manual step required to properly restore them. (<a href="/page/placeholder.html?url=about:protections&title=Protections Dashboard" target="_blank">Example</a>)</p></li>
+          <li><p>Reopened tabs preserve any pinned and reader-view tab states, but not most other tab/page states such as tab history, scroll position and unsubmitted form data.</p></li>
         </ul>
 
       </section>
@@ -246,28 +251,34 @@
             <div class="popup-row">
               <span class="popup-btn"></span><span class="popup-btn"></span>
               <strong class="popup-name">work</strong><small class="popup-tabCount">20</small>
+              <span class="popup-btn stash"></span>
             </div>
             <div class="popup-omnibox"></div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name">work: Client A</span><small class="popup-tabCount">13</small>
+              <span class="popup-btn stash"></span>
             </div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name focused">J's birthday</span><small class="popup-tabCount">7</small>
+              <span class="popup-btn stash"></span>
             </div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name">gaming</span><small class="popup-tabCount">5</small>
+              <span class="popup-btn stash"></span>
             </div>
             <div class="popup-heading"><hr><header>Minimized</header></div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name">garden 🪴</span><small class="popup-tabCount">8</small>
+              <span class="popup-btn stash"></span>
             </div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name muted nameless">Winger - A Window Manag...</span><small class="popup-tabCount">2</small>
+              <span class="popup-btn stash"></span>
             </div>
             <footer class="popup-row muted no-border">
               <div class="popup-status">Edit mode: Type a name then <kbd>▲</kbd> or <kbd>▼</kbd> to save, or <kbd>Enter</kbd> to save and exit</div>
@@ -343,15 +354,18 @@
             <div class="popup-row">
               <span class="popup-btn"></span><span class="popup-btn"></span>
               <strong class="popup-name">work</strong><small class="popup-tabCount">20</small>
+              <span class="popup-btn stash"></span>
             </div>
             <div class="popup-omnibox focused">ga</div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name">gaming</span><small class="popup-tabCount">5</small>
+              <span class="popup-btn stash"></span>
             </div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
               <span class="popup-name">garden 🪴</span><small class="popup-tabCount">18</small>
+              <span class="popup-btn stash"></span>
             </div>
             <div class="popup-row invisible"><small class="popup-tabCount">3</small></div>
             <div class="popup-row invisible"><small class="popup-tabCount">7</small></div>
@@ -400,7 +414,7 @@
             </dd>
             <dt><samp>/kick</samp> or <samp>/k</samp></dt>
             <dd class="mb1">
-              <strong>Send</strong> selected tabs to a new window without losing focus on the current window ("Kick" tabs out of the current window).<br>
+              <strong>Send</strong> selected tabs to a new window while staying on the current window ("Kick" tabs out of the current window).<br>
               Name the window as well if a name was added to the command e.g. <samp class="nowrap">/kick read later</samp>
             </dd>
             <dt><samp>/newprivate</samp> or <samp>/np</samp></dt>
@@ -433,70 +447,99 @@
     <article id="stash" class="mb5">
       <h2 class="center">Stash windows</h2>
       <section class="mb2">
-        <p>If you want to close a window, but also be able to restore it at any time, you can <strong>stash</strong> it. Stashed windows are stored as bookmark folders, which you can then <strong>unstash</strong>.</p>
-        <p>Stashing streamlines the multistep process of <em>saving</em> a window's tabs as bookmarks, into a newly-created folder you'd be manually <em>naming</em>, and then <em>closing</em> the window. Unstashing reverses the process just as smoothly.</p>
-        <ul class="children-mb1">
-          <li>To use this feature, enable it in <button type="button" class="settingsBtn">Settings</button>.</li>
-          <li>
-            To <strong>stash the current window</strong>, open the panel and type <samp>/stash</samp> <kbd>Enter</kbd> in the omnibox.
-            <br>The window will close and an identically-named bookmark folder &ndash; containing bookmarks of tabs &ndash; will appear in the <em>stash home</em>.
-          </li>
-          <li>
-            <p>
-              To <strong>unstash a bookmark folder</strong>, right-click on it and click the <cite>Unstash</cite> menu command.
-              <br>The folder will disappear and an identically-named window will open, containing the formerly-bookmarked tabs.
-            </p>
-            <ul class="children-mb1">
-              <li><cite>Unstash</cite> also works on individual bookmarks. The command will delete the bookmark and open it as a new tab in the current window.</li>
-              <li>
-                <p>Unstashed tabs are like <a href="#reopened">reopened tabs</a>: unloaded if possible, as placeholder tabs if necessary. This makes <cite>Unstash</cite> a compelling alternative to the browser's native <cite>Open All Bookmarks</cite> command.</p>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <p>"Non-destructive" stashing/unstashing is possible with the <kbd>Shift</kbd> key:</p>
-            <ul class="children-mb1">
-              <li><samp>/stash</samp> <kbd>Shift</kbd><small>+</small><kbd>Enter</kbd> to keep the window from being closed.</li>
+        <p>If you want to close a window but also be able to restore it at any time, you can <strong>stash</strong> it. Stashed windows are stored as bookmark folders, which you can then <strong>unstash</strong>.</p>
+        <p>Certain window/tab properties (such as pinned tabs, muted tabs, and more importantly, privacy-related ones such as private windows and containers) are also preserved in the stash, making possible a secure and virtually complete restoration.</p>
+        <p>Enable stashing in <button type="button" class="settingsBtn">Settings</button> to start using it.</p>
+      </section>
+      <div class="row equal-col mb2">
+        <section class="col mr1">
+          <h3 class="center">Stashing</h3>
+          <div class="row">
+            <figure class="col actionBtn m0 mr1"><img src="../icons/stash.svg" alt=""></figure>
+            <div class="col">
+              <p>To <strong>stash a window</strong>: in the Winger panel, click on the window's <strong>stash</strong> button.
+              <br>The window will close and its tabs saved as bookmarks, in a new bookmark folder named after it, located in the <a href="#stash-home">stash home</a>.</br>
+            </div>
+          </div>
+          <ul class="children-mb1">
+            <li>For each tab, if any of the following properties are found, they are captured as a JSON-format <strong>property annotation</strong> in the new bookmark's title: pinned, muted (audio off), active (currently focused), parent-child relationship (tab opened from another tab), and container name. A private window's private state is likewise captured in the new stash folder's title.</li>
+          </ul>
+          <p>To <strong>stash selected tab(s)</strong> to an existing folder: right-click on the folder and click the <cite>Winger → Stash Tab Here</cite> menu command.
+          <br>The tab(s) will be closed and saved as bookmark(s) in the target folder.</r>
+          <ul class="children-mb1">
+            <li><cite>Winger → Stash Tab Here</cite> is also available when right-clicking on a bookmark; the command will insert the new bookmark(s) at that position.</li>
+            <li>Tab properties are captured as described above, except for parent-child relationships involving any tabs outside the selection.</li>
+          </ul>
+        </section>
+        <section class="col bordered-left pl1">
+          <h3 class="center">Unstashing</h3>
+          <p>To <strong>unstash a bookmark folder</strong>: right-click on it and click the <cite>Winger → Unstash</cite> menu command.
+          <br>The folder will be deleted, and an identically-named window will open and populate with the formerly-bookmarked tabs, all reproduced with their properties as annotated, if any.</p>
+          <ul class="children-mb1">
+            <li><cite>Winger → Unstash</cite> is also available when right-clicking on a bookmark; the command will delete and open it as a new tab in the current window.</li>
+            <li>Unstashed tabs are like <a href="#reopened">reopened tabs</a>: unloaded if possible, as placeholder tabs if necessary.</li>
+            <li>Invalid or incorrect annotations are ignored.</li>
+            <li>When unstashing a containered tab, Winger will assign a container that matches the captured container name. If none exists, a new container with that name will be created.</li>
+            </li>
+          </ul>
+        </section>
+      </div>
+      <div class="row equal-col">
+        <div class="col mr1">
+          <section id="stash-home" class="mx1-content mb2">
+            <h3>The stash home</h3>
+            <p>The <strong>stash home</strong> the folder is where stash folders ("stashed windows") are saved. It can be changed to be one of the three root folders &ndash; Bookmarks Toolbar, Bookmarks Menu or Other Bookmarks &ndash; or a "Stashed Windows" folder inside a root folder. <button type="button" class="settingsBtn">Settings</button></p>
+            <p>Changing these settings will not move existing stash folders to the new stash home.</p>
+            <!-- <p>If the stash home folder contains at least one separator, Winger treats only folders <strong>after the last separator</strong> as stash folders, ignoring everything before it. It effectively allows for a stash home 'zone' set apart from other contents of the folder.</p>
+            <p>This matters for root folders, which tend to already contain bookmarks and folders for other purposes. Therefore if you designate a root folder without separators as your stash home, Winger will automatically add a separator.</p>
+            <p>You can manually move bookmark folders in and out of the stash home to include or exclude them as stash folders.</p>
+            <p>(<em>Q: Why does it matter what is or isn't a stash folder?</em> A: In a future update, the panel may also list "stashed windows".)</p> -->
+          </section>
+          <section class="mx1-content mb2">
+            <h3>'Non-destructive' stashing/unstashing</h3>
+            <p>You can retain the target of a stash/unstash action using the <kbd>Shift</kbd> key:</p>
+            <ul>
+              <li><kbd>Shift</kbd><small>+</small>click the <em>stash</em> button to keep the window from closing.</li>
+              <li><kbd>Shift</kbd><small>+</small>click the <cite>Stash Tab Here</cite> menu command to keep the tab(s) from closing.</li>
               <li><kbd>Shift</kbd><small>+</small>click the <cite>Unstash</cite> menu command to keep the folder/bookmark from being deleted.</li>
             </ul>
-          </li>
-        </ul>
-      </section>
-      <div class="row">
-        <section class="col mx1-content mb2">
-          <h3>The stash home, and stash folders</h3>
-          <p>The <strong>stash home</strong> is where <strong>stash folders</strong> ("stashed windows") are saved. It can be changed in <button type="button" class="settingsBtn">Settings</button> to be one of the three root folders &ndash; Bookmarks Toolbar, Bookmarks Menu or Other Bookmarks &ndash; or a "Stashed Windows" folder inside a root folder.</p>
-          <!-- <p>If the stash home folder contains at least one separator, Winger treats only folders <strong>after the last separator</strong> as stash folders, ignoring everything before it. It effectively allows for a stash home 'zone' set apart from other contents of the folder.</p>
-          <p>This matters for root folders, which tend to already contain bookmarks and folders for other purposes. Therefore if you designate a root folder without separators as your stash home, Winger will automatically add a separator.</p>
-          <p>You can manually move bookmark folders in and out of the stash home to include or exclude them as stash folders.</p>
-          <p>(<em>Q: Why does it matter what is or isn't a stash folder?</em> A: In a future update, the panel may also list "stashed windows".)</p> -->
-        </section>
+          </section>
+        </div>
         <div class="col">
-          <section class="bordered-box mx1">
-            <h4 class="mb1">Handy tip 💡</h4>
-            With Firefox's bookmark syncing, you can stash a window on one computer and then unstash it on another.
+          <section class="bordered-box">
+            <h3>Benefits of bookmarks-as-storage, and tips 💡</h3>
+            <ul class="children-mb1">
+              <li>As a 'format' for stashed windows, bookmarks are simple, open and transparent. Your stash contents are accessible and useful independently from Winger; to you, to Firefox Sync, to other extensions, et cetera. And you don't lose them if you uninstall Winger. (Note however, currently only Winger can process property annotations.)</li>
+              <li>
+                You are free to manipulate stashes as regular bookmarks and folders; add, remove, edit, reorder, and so on.
+                <ul>
+                  <li>You can even add/edit annotations in titles too, with little risk; if you mess up, unstashing would just proceed as if there was none.</li>
+                </ul>
+              </li>
+              <li>With Firefox's bookmark syncing, you can stash a window in one profile/computer and then unstash it on another &ndash; effectively moving a browser window between profiles/computers!</li>
+            </ul>
           </section>
         </div>
       </div>
     </article>
 
-    <article id="tips" class="bordered-box mx1 mb5">
+    <article id="tips" class="bordered-box mb5">
       <h2 class="center">Tips for managing <em>lots</em> of tabs and windows 💡</h2>
       <ul>
         <li>
           <p>Spawn as many windows as you need for more granular tab organisation!</p>
           <ul>
-            <li><p>Divide and conquer with "window fission": split up a highly-populated window into several windows so you can focus on one set of tabs at a time. Hopefully this helps you work through them easier, and close them sooner.</p></li>
+            <li><p>Divide and conquer with "window fission": split up a highly-populated window into several windows, so you can focus on one set of tabs at a time. Hopefully this helps you work through them easier, and close them sooner.</p></li>
           </ul>
         </li>
-        <li><p>If you are not ready to permanently close a window you hardly use, consider <a href="#stash">stashing</a> it.</p></li>
         <li><p>Minimize windows to "set aside for later" &ndash; Winger lists them last on the panel, temporarily out of your way so to speak.</p></li>
+        <li><p>If you are not ready to permanently close a window you hardly use, consider <a href="#stash">stashing</a> it.</p></li>
         <li>
           <p>Key to the freedom to have lots of tabs open is unloading ones you are not using, which frees up memory. Firefox does this automatically; its tab unloading queue can be seen on the <a href="/page/placeholder.html?url=about:unloads&title=about:unloads" target="_blank">about:unloads</a> page (where you can also manually unload the next in queue).</p>
           <ul>
             <li><p>Tab unload (a.k.a. discard, suspend) extensions are a popular way to wield this ability with greater control, for example if you prefer a more aggressive treatment than Firefox's (recommended with <em>lots</em> of tabs), or if you want to manually unload selected tabs, and so on.</p></li>
             <li><p>Winger can provide a straightforward treatment: unload tabs in minimized windows, including any tabs sent to them. If this suits you, enable it in <button type="button" class="settingsBtn">Settings</button>.</p></li>
-            <li><p>You <em>can</em> have too many windows, even with tab unloading, because every window has a current tab that cannot be unloaded. The way around this problem is to have a blank/new/home tab as the current one for as many of your idle windows as possible. (<a href="https://github.com/l10nelw/winger/issues/25" target="_blank">There is a plan to make this an automatic feature</a>)</p></li>
+            <li><p>You <em>can</em> have too many windows, even with tab unloading, because every window has a current tab that cannot be unloaded. The way around this problem is to have a blank/new/home tab as the current one for as many of your idle windows as possible. <!--(<a href="https://github.com/l10nelw/winger/issues/25" target="_blank">There is a plan to make this an automatic feature</a>)--></p></li>
           </ul>
         </li>
         <li>

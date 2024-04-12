@@ -42,9 +42,6 @@ h1 b, h2, h3, h4 {
 h1, h2 {
   margin-bottom: 2rem;
 }
-ul {
-  list-style-type: disc;
-}
 ul, ol {
   padding-left: 1.5rem;
 }
@@ -62,9 +59,6 @@ kbd + kbd {
 }
 cite {
   font-weight: bold;
-}
-img {
-  vertical-align: middle;
 }
 
 .topTools {
@@ -114,9 +108,10 @@ img {
   height: 2.5rem;
   border-radius: 8px;
   flex-shrink: 0;
-  display: flex;
+  display: inline-flex;
   justify-content: center;
   align-items: center;
+  vertical-align: top;
 }
 .actionBtn img {
   width: 90%;
