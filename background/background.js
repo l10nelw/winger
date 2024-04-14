@@ -95,8 +95,8 @@ function onMenuHidden() {
 }
 
 //@ (Object, Object) -> state|nil
-function onMenuClicked(info, tab) {
-    StashMenu.handleClick(info) || SendMenu.handleClick(info, tab);
+async function onMenuClicked(info, tab) {
+    await StashMenu.handleClick(info) || SendMenu.handleClick(info, tab);
 }
 
 //@ (Object), state -> (Object|Boolean|undefined), state|nil
