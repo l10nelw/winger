@@ -6,14 +6,14 @@ const parentId = 'send';
 const dummyId = '-';
 const contexts = ['tab', 'link'];
 
-// Add menu item
+// Parent menu item
 browser.menus.create({
     contexts,
     id: parentId,
     title: 'Send to &Window',
     enabled: false, // Disabled state as baseline
 });
-// Add dummy submenu item to avoid the menu item resizing upon first-time population
+// Dummy submenu item to avoid the parent menu item resizing upon first-time population
 browser.menus.create({
     parentId,
     id: dummyId,
@@ -41,9 +41,10 @@ export async function handleShow(info, tab) {
 // Submenu item ids are window ids.
 //@ ([Object]) -> state
 async function populate(windows) {
-    const { currentWinfo, otherWinfos } = Winfo.arrange(
-        await Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'titleSansName'], windows));
     const privateIcon = { 16: 'icons/private.svg' };
+    const { currentWinfo, otherWinfos } = Winfo.arrange(
+        await Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'titleSansName'], windows)
+    );
     for (let { id, givenName, incognito, titleSansName } of otherWinfos) {
         const title = givenName || titleSansName || '...';
         id = `${id}`; // Menu id must be string

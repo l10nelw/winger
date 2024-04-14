@@ -22,13 +22,13 @@
         <br><small class="js-version"></small>
         <br><b>A Complete Guide</b>
       </h1>
-      <p class="small">Last updated v2.6.0 (12 Apr 2024)</p>
+      <p class="small">Last updated v2.6.1 (14 Apr 2024)</p>
       <p><a href="https://addons.mozilla.org/firefox/addon/winger/" target="_blank">View latest release notes on the Winger addon page</a></p>
     </header>
 
     <article id="intro" class="center mx mb5" style="max-width: 720px">
       <p>Winger helps you manage multiple browser windows, no matter how many. With Winger you can <a href="#name">name</a> them, <a href="#find">find/filter</a> them, <a href="#common">switch</a> between them, <a href="#common">move tabs</a> between them, <a href="#stash">stash</a> them away, and more.</p>
-      <ul class="inlineLinkList">
+      <ul class="inlineLinkList small">
         <li><a href="#slash">Slash (/) commands</a></li>
         <li><a href="#menu">Send to Window menu</a></li>
         <li><a href="#feedback">Feedback/Support</a></li>
@@ -478,8 +478,9 @@
           <ul class="children-mb1">
             <li><cite>Winger → Unstash</cite> is also available when right-clicking on a bookmark; the command will delete and open it as a new tab in the current window.</li>
             <li>Unstashed tabs are like <a href="#reopened">reopened tabs</a>: unloaded if possible, as placeholder tabs if necessary.</li>
+            <li>When unstashing a containered tab, Winger assigns a container that matches the captured container name. If none exists, a new container with that name is created.</li>
             <li>Invalid or incorrect annotations are ignored.</li>
-            <li>When unstashing a containered tab, Winger will assign a container that matches the captured container name. If none exists, a new container with that name will be created.</li>
+            <li>If the folder has subfolders, nothing happens to them and the folder itself is not deleted; it is only emptied of its own bookmarks.</li>
             </li>
           </ul>
         </section>
