@@ -12,10 +12,10 @@ Unstash procedure:
 - [name, protoWindow] = StashProp.Window.parse(folderTitle)
 - Create window
 - protoTab = StashProp.Tab.parse(bookmarkTitle)
-- await StashProp.Tab.restoreContainers(protoTabs, window)
+- await StashProp.Tab.preOpen(protoTabs, window)
 - safeProtoTab = StashProp.Tab.scrub(protoTab) - remove properties unsupported by browser.tabs.create()
 - Create tabs with safeProtoTabs
-- StashProp.Tab.restoreParents(protoTabs, tabs)
+- StashProp.Tab.postOpen(protoTabs, tabs)
 */
 
 import { GroupMap } from '../utils.js';
@@ -36,14 +36,16 @@ const Props = {
     },
     TAB: {
         writer: {
+            //@ (Object) -> (Boolean)
             active: ({ active }) => active,
-            pinned: ({ pinned }) => pinned,
             muted:  ({ mutedInfo: { muted } }) => muted,
+            pinned: ({ pinned }) => pinned,
         },
         reader: {
+            //@ (Object) -> (Boolean)
             active: ({ active }) => active,
-            pinned: ({ pinned }) => pinned,
             muted:  ({ muted }) => muted,
+            pinned: ({ pinned }) => pinned,
         },
     },
 
@@ -327,9 +329,9 @@ export const Tab = {
         return protoTab;
     },
 
-    // Prepare containered protoTabs. To be done before creating tabs.
+    // Tasks before creating tabs.
     //@ ([Object], Object), state -> state
-    async restoreContainers(protoTabs, window) {
+    async preOpen(protoTabs, window) {
         await Containers.restore(protoTabs, window);
     },
 
@@ -339,9 +341,9 @@ export const Tab = {
         return Parents.scrub(protoTab);
     },
 
-    // Restore parent-child relationships to tabs. To be done after creating tabs.
+    // Tasks after creating tabs.
     //@ ([Object], [Object]) -> state
-    restoreParents(protoTabs, tabs) {
+    postOpen(protoTabs, tabs) {
         Parents.restore(protoTabs, tabs);
     },
 

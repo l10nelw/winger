@@ -178,7 +178,7 @@ export async function unstashNode(nodeId, remove = true) {
 async function unstashBookmark(node, remove) {
     const window = await browser.windows.getLastFocused();
     const protoTab = { url: node.url, windowId: window.id, ...StashProp.Tab.parse(node.title) };
-    await StashProp.Tab.restoreContainers([protoTab], window);
+    await StashProp.Tab.preOpen([protoTab], window);
     const tab = await openTab(protoTab);
     browser.tabs.update(tab.id, { active: true });
     if (remove)
@@ -220,12 +220,12 @@ async function populateWindow(window, folderId, logName, remove) {
         let protoTabs, openingTabs;
 
         protoTabs = bookmarks.map(({ title, url }) => ({ windowId, url, ...StashProp.Tab.parse(title) }));
-        await StashProp.Tab.restoreContainers(protoTabs, window);
+        await StashProp.Tab.preOpen(protoTabs, window);
         openingTabs = protoTabs.map(protoTab => openTab(protoTab, logName));
 
         Promise.any(openingTabs).then(() => browser.tabs.remove(window.tabs[0].id)); // Remove initial tab
         const tabs = await Promise.all(openingTabs);
-        StashProp.Tab.restoreParents(protoTabs, tabs);
+        StashProp.Tab.postOpen(protoTabs, tabs);
     }
     nowProcessing.delete(windowId);
 
