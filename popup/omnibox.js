@@ -38,6 +38,7 @@ export function init() {
         SHORTHAND__COMMAND.pp = 'popprivate';
         SHORTHAND__COMMAND.kp = 'kickprivate';
     }
+    $omnibox.focus();
 }
 
 const Parsed = {
