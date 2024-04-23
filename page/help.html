@@ -22,7 +22,7 @@
         <br><small class="js-version"></small>
         <br><b>A Complete Guide</b>
       </h1>
-      <p class="small">Last updated v2.6.1 (14 Apr 2024)</p>
+      <p class="small">Last updated v2.6.2 (23 Apr 2024)</p>
       <p><a href="https://addons.mozilla.org/firefox/addon/winger/" target="_blank">View latest release notes on the Winger addon page</a></p>
     </header>
 
@@ -104,11 +104,12 @@
       </section>
       <section class="row mb1">
         <div class="col w100 mr1">
-          <p>Every window is represented by a row, showing either its window <strong>title</strong> or <strong><a href="#name">name</a></strong>, and its <strong>tab count</strong>.</p>
+          <p>Every window is represented by a <strong>row</strong>, showing either its window title or name, and its tab count.</p>
           <ul>
-            <li>The window title (which mainly consists of the current tab title) is shown by default. If desired, it can be replaced with a given name: a unique, persistent identifier you can assign to a window.</li>
+            <li>The window <strong>title</strong> (which mainly consists of the current tab title) is shown by default. If desired, it can be replaced with a given <strong><a href="#name">name</a></strong>: a unique, persistent identifier you can assign to a window.</li>
           </ul>
-          <p>The top row, above the panel <strong><a href="#omnibox">omnibox</a></strong>, represents the currently focused window (<strong>current window</strong>).</p>
+          <p>The top row represents the currently focused window (<strong>current window</strong>).</p>
+          <p>Just below it is the panel <strong><a href="#omnibox">omnibox</a></strong>.</p>
           <p>If there are <strong>other windows</strong>, they are listed below the omnibox in this manner:</p>
           <ul>
             <li>ordered from most to least recently focused</li>
@@ -332,7 +333,7 @@
         <p>The omnibox is a multi-purpose, multi-talented field that vastly accelerates operating Winger by keyboard. Here's what you can do with it:</p>
       </section>
       <section class="mx1-content mb2">
-        <h3>Perform actions on the topmost other window</h3>
+        <h3>Perform common actions on the topmost other window</h3>
         <p>Press <kbd>Enter</kbd>, <kbd>Ctrl</kbd><small>+</small><kbd>Enter</kbd> or <kbd>Shift</kbd><small>+</small><kbd>Enter</kbd> in the omnibox to <strong>switch</strong>, <strong>send</strong> or <strong>bring</strong> to the first window listed below it.</p>
         <p>This means upon opening the panel, you can via keyboard immediately perform any of the <a href="#common">common actions</a> on the last seen window.</p>
       </section>
@@ -340,10 +341,10 @@
         <div class="col mx1-content mb2">
           <h3>Find/filter windows</h3>
           <p>Looking for a window? Type its name or title.</p>
-          <p>Typing something filters the list of other windows. In this way, you can change which window appears right under the omnibox. Also, a shortened window list can be traversed with arrow keys more quickly.</p>
+          <p>Typing something <em>filters the list of other windows</em>. In this way, you can change which window appears right under the omnibox. Also, a shortened window list can be traversed with arrow keys more quickly.</p>
           <p>Filtering works in <a href="#name">edit mode</a> too.</p>
           <p class="m0">Combine these two abilities to quickly switch to another window by keyboard, like so:</p>
-          <ol class="pl2 m0">
+          <ol class="pl2">
             <li><kbd class="js-shortcut">F1</kbd> to open the panel.</li>
             <li>If the desired window is not immediately below the omnibox, start typing its name or title until it is.</li>
             <li><kbd>Enter</kbd>.</li>
@@ -528,6 +529,9 @@
       <h2 class="center">Tips for managing <em>lots</em> of tabs and windows 💡</h2>
       <ul>
         <li>
+          <p>If you are hunting for a browser window among several, don't bother <kbd>Alt</kbd><small>+</small><kbd>Tab</kbd>-ing endlessly. Just <a href="#find">type in the omnibox</a> one or a few letters from the name of the window you want.</p>
+        </li>
+        <li>
           <p>Spawn as many windows as you need for more granular tab organisation!</p>
           <ul>
             <li><p>Divide and conquer with "window fission": split up a highly-populated window into several windows, so you can focus on one set of tabs at a time. Hopefully this helps you work through them easier, and close them sooner.</p></li>
@@ -540,7 +544,7 @@
           <ul>
             <li><p>Tab unload (a.k.a. discard, suspend) extensions are a popular way to wield this ability with greater control, for example if you prefer a more aggressive treatment than Firefox's (recommended with <em>lots</em> of tabs), or if you want to manually unload selected tabs, and so on.</p></li>
             <li><p>Winger can provide a straightforward treatment: unload tabs in minimized windows, including any tabs sent to them. If this suits you, enable it in <button type="button" class="settingsBtn">Settings</button>.</p></li>
-            <li><p>You <em>can</em> have too many windows, even with tab unloading, because every window has a current tab that cannot be unloaded. The way around this problem is to have a blank/new/home tab as the current one for as many of your idle windows as possible. <!--(<a href="https://github.com/l10nelw/winger/issues/25" target="_blank">There is a plan to make this an automatic feature</a>)--></p></li>
+            <li><p><em>You can have too many windows</em>, even with tab unloading, because every window has a current tab that cannot be unloaded. The way around this problem is to have a blank/new/home tab as the current one for as many of your idle windows as possible. <!--(<a href="https://github.com/l10nelw/winger/issues/25" target="_blank">There is a plan to make this an automatic feature</a>)--></p></li>
           </ul>
         </li>
         <li>
