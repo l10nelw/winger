@@ -149,13 +149,13 @@ const Row = {
             $cell.$row = $row;
             $row[reference] = $cell;
         }
+        title = titleSansName || title || '';
         // Add data
         $row._id = id;
         $row.$name._id = id;
         $row.$name.value = givenName;
-        $row.$name.title = titleSansName || title || '';
-        if (titleSansName)
-            $row.$name.placeholder = titleSansName;
+        $row.$name.placeholder = title;
+        $row.$name.title = title;
         $row.$tabCount.textContent = tabCount;
         $row.classList.toggle('minimized', minimized);
         $row.classList.toggle('private', incognito);
