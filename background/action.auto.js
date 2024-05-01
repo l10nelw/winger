@@ -1,15 +1,45 @@
-// Automatic operations following/supporting Winger and native actions.
+// Automatic operations that follow or support Winger and native actions
 
 
 // Open extension page tab, closing any duplicates found.
 //@ (String, String), state -> state
 export async function openUniquePage(pathname, hash) {
     const url = browser.runtime.getURL(pathname);
-    const openedTabs = await browser.tabs.query({ url });
+    const tabsToClose = await browser.tabs.query({ url });
     if (hash)
         pathname += hash;
     browser.tabs.create({ url: `/${pathname}` });
-    browser.tabs.remove(openedTabs.map(tab => tab.id));
+    browser.tabs.remove(tabsToClose.map(tab => tab.id));
+}
+
+// Given `referenceTabs` with parent-child relationships, and same-length `tabs` with none, restore the same relationships within `tabs` (note: not mutated).
+// Ignore parent tabs that are not within `referenceTabs`.
+// If `tabs` was the result of a move, and therefore same as pre-move `referenceTabs` (same ids) minus relationships, `isMove` must be true.
+// Otherwise if `referenceTabs` have ids (e.g. reopened tabs, protoTabs, etc), they must not repeat any tab ids of the current session.
+//@ ([Object], [Object], Boolean|undefined) -> state
+export function restoreTabRelations(tabs, referenceTabs, isMove = false) {
+    if (tabs.length !== referenceTabs.length)
+        throw 'restoreTabRelations: The two tab arrays do not match in length';
+    if (isMove) {
+        for (const { id, openerTabId } of referenceTabs)
+            if (openerTabId)
+                browser.tabs.update(id, { openerTabId });
+        return;
+    }
+    const referenceMap = new Map();
+    referenceTabs.forEach(({ id, openerTabId }, index) => {
+        id ??= tabs[index].id; // If no reference id (e.g. id-less protoTab), just use the corresponding tab id
+        if (referenceMap.has(id))
+            throw 'restoreTabRelations: The two tab arrays contain a repeating id';
+        // Maps have no indexes like arrays, so we explicitly store them; they will tell us where parent tabs are
+        referenceMap.set(id, { index, openerTabId });
+    });
+    for (const { index, openerTabId } of referenceMap.values()) {
+        if (openerTabId && referenceMap.has(openerTabId)) { // This referenceTab has a parent within referenceTabs
+            const parentIndex = referenceMap.get(openerTabId).index;
+            browser.tabs.update(tabs[index].id, { openerTabId: tabs[parentIndex].id });
+        }
+    }
 }
 
 

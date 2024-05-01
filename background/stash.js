@@ -225,7 +225,7 @@ async function populateWindow(window, folderId, logName, remove) {
 
         Promise.any(openingTabs).then(() => browser.tabs.remove(window.tabs[0].id)); // Remove initial tab
         const tabs = await Promise.all(openingTabs);
-        StashProp.Tab.postOpen(protoTabs, tabs);
+        StashProp.Tab.postOpen(tabs, protoTabs);
     }
     nowProcessing.delete(windowId);
 

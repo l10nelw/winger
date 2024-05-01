@@ -15,10 +15,11 @@ Unstash procedure:
 - await StashProp.Tab.preOpen(protoTabs, window)
 - safeProtoTab = StashProp.Tab.scrub(protoTab) - remove properties unsupported by browser.tabs.create()
 - Create tabs with safeProtoTabs
-- StashProp.Tab.postOpen(protoTabs, tabs)
+- StashProp.Tab.postOpen(tabs, protoTabs)
 */
 
 import { GroupMap } from '../utils.js';
+import { restoreTabRelations } from './action.auto.js';
 
 // Write and read simple window/tab properties.
 // Only truthy properties are written.
@@ -198,40 +199,29 @@ const Parents = {
         return props;
     },
 
-    // Produce stashId and stashParentId properties from parsed.
+    // Produce id and openerTabId properties from parsed.
     //@ (Object) -> (Object)
     read({ id, parentId }) {
         const protoTab = {};
         if (id)
-            protoTab.stashId = id;
+            protoTab.id = id;
         if (parentId)
-            protoTab.stashParentId = parentId;
+            protoTab.openerTabId = parentId;
         return protoTab;
     },
 
-    // Return shallow copy of protoTab sans stashId and stashParentId properties.
+    // Return shallow copy of protoTab sans id and openerTabId properties.
     //@ (Object) -> (Object)
     scrub(protoTab) {
         const safeProtoTab = { ...protoTab };
-        delete safeProtoTab.stashId;
-        delete safeProtoTab.stashParentId;
+        delete safeProtoTab.id;
+        delete safeProtoTab.openerTabId;
         return safeProtoTab;
     },
 
-    // Restore tabs' openerTabId property based on parent-child relationships encoded in protoTabs.
     //@ ([Object], [Object]) -> state
-    restore(protoTabs, tabs) {
-        const tabMap = new Map();
-        // protoTabs.length == tabs.length == tabMap.size
-        // Map keys are id by default, or stashId if available; Map values are { id always, stashParentId optional }
-        protoTabs.forEach(({ stashId, stashParentId }, index) => {
-            const id = tabs[index].id;
-            tabMap.set(stashId || id, { id, stashParentId });
-        });
-        for (const { id, stashParentId } of tabMap.values()) if (stashParentId) {
-            const openerTabId = tabMap.get(stashParentId).id;
-            browser.tabs.update(id, { openerTabId });
-        }
+    restore(tabs, protoTabs) {
+        restoreTabRelations(tabs, protoTabs);
     },
 
 }
@@ -343,8 +333,8 @@ export const Tab = {
 
     // Tasks after creating tabs.
     //@ ([Object], [Object]) -> state
-    postOpen(protoTabs, tabs) {
-        Parents.restore(protoTabs, tabs);
+    postOpen(tabs, protoTabs) {
+        Parents.restore(tabs, protoTabs);
     },
 
 }

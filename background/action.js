@@ -65,7 +65,7 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
     const currentWindowDetail = { windowId: currentWindow.id };
 
     const kick = !focused;
-    const state = kick && minimize_kick_window ? 'minimized' : null;
+    const state = (kick && minimize_kick_window) ? 'minimized' : null;
     const newWindow = await browser.windows.create({ incognito, state });
     const newWindowId = newWindow.id;
 
@@ -108,14 +108,16 @@ async function sendTabs(request) {
     request.keep_moved_tabs_selected = keep_moved_tabs_selected;
 
     const movedTabs = await moveTabs(request);
-
-    if (!movedTabs.length)
-        return reopenTabs(request); // moveTabs() must have failed so reopenTabs() instead
-
-    if (unload_minimized_window && request.minimized && request.action !== 'bring')
-        Auto.unloadTabs(movedTabs);
-
-    return movedTabs;
+    if (movedTabs.length) {
+        Auto.restoreTabRelations(movedTabs, tabs, true);
+        if (unload_minimized_window && request.minimized && request.action !== 'bring')
+            Auto.unloadTabs(movedTabs);
+        return movedTabs;
+    }
+    // Move failed so reopen instead
+    const reopenedTabs = await reopenTabs(request);
+    Auto.restoreTabRelations(reopenedTabs, tabs);
+    return reopenedTabs;
 }
 
 //@ ({ [Object], Number, Boolean }), state -> ([Object]), state | (undefined)
