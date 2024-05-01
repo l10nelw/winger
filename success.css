@@ -6,7 +6,7 @@
   --tick-size: 18px;
   content: "✓";
   position: absolute;
-  right: var(--tick-end-offset, 0);
+  /* Please define left or right in the specific context itself */
   top: 50%;
   translate: 0 -50%;
   display: flex;

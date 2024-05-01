@@ -71,6 +71,7 @@ button {
 
 .success::after {
     top: 1.5ex;
+    right: 0;
 }
 
 /* Dark theme */

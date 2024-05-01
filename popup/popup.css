@@ -18,8 +18,6 @@ Test list:
     --popup-width: calc(var(--popup-row-button-count) * var(--popup-button-size) + var(--popup-name-width) + var(--tabcount-width));
     --max-list-height: 30rem;
 
-    --tick-end-offset: 4rem;
-
     scrollbar-width: none;
 }
 
@@ -119,7 +117,7 @@ body:not([data-mode="edit"]) #otherWindows li:hover {
 
 input {
     border: 2px solid transparent;
-    padding: 0 6px;
+    padding: 0 var(--popup-field-x-padding);
     text-align: start;
     background-color: var(--popup-field-color);
     color: var(--text-color);
@@ -317,6 +315,9 @@ footer button:last-child {
     filter: invert(1);
 }
 
+.success::after {
+    left: calc(0px - var(--tabcount-x-margin) - var(--popup-field-x-padding) - var(--tick-size));
+}
 
 /* --- Utilities --- */
 

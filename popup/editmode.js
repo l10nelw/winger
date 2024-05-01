@@ -140,7 +140,7 @@ async function trySaveName($name) {
     if (await Name.save(windowId, name)) {
         Request.updateChrome(windowId, name);
         nameMap.set(windowId, name);
-        indicateSuccess($name.$row);
+        indicateSuccess($name.nextElementSibling);
         $body.classList.toggle('nameless', !nameMap.hasName());
         return true;
     }
