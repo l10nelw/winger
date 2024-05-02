@@ -21,40 +21,49 @@ Unstash procedure:
 import { GroupMap } from '../utils.js';
 import { restoreTabRelations } from './action.auto.js';
 
-// Write and read simple window/tab properties.
-// Only truthy properties are written.
+// Write and read window/tab properties. Only truthy properties are written.
 const Props = {
 
     // Define annotation-property writer and reader functions here.
     //@ (Object) -> (Boolean)
     WINDOW: {
         writer: {
-            private: ({ incognito }) => incognito, // 'private' as alias of 'incognito'; Firefox users are more familiar with the former
+            private: ({ incognito }) => incognito, // 'private' alias of 'incognito'; Firefox users are more familiar with the former
         },
         reader: {
-            incognito: parsed => parsed.private || parsed.incognito, // Either 'private' or 'incognito' props are read
+            incognito: parsed => parsed.private || parsed.incognito, // Either 'private' or 'incognito' accepted
         },
     },
     TAB: {
+        //@ (Object) -> (Boolean)
         writer: {
-            //@ (Object) -> (Boolean)
             active: ({ active }) => active,
             muted:  ({ mutedInfo: { muted } }) => muted,
             pinned: ({ pinned }) => pinned,
+            // From Container.prepare():
+            container: ({ container }) => container,
+            // From Parents.prepare():
+            id: ({ id, isParent }, folderId) => isParent && (folderId + id),
+            parentId: ({ openerTabId }, folderId) => openerTabId && (folderId + openerTabId), // 'parentId' alias of 'openerTabId'
         },
+        //@ (Object) -> (Boolean)
         reader: {
-            //@ (Object) -> (Boolean)
             active: ({ active }) => active,
             muted:  ({ muted }) => muted,
             pinned: ({ pinned }) => pinned,
+            // For Container.restore():
+            container: ({ container }) => container,
+            // For Parents.prepare():
+            id: ({ id }) => id,
+            openerTabId: ({ parentId, openerTabId }) => parentId || openerTabId, // Either 'parentId' or 'openerTabId' accepted
         },
     },
 
-    //@ (Object, Object) -> (Object)
-    write(thing, { writer }) {
+    //@ (Object, Object, String|undefined) -> (Object)
+    write(thing, { writer }, folderId = '') {
         const toStringify = {};
         for (const key in writer) {
-            const value = writer[key](thing);
+            const value = writer[key](thing, folderId);
             if (value)
                 toStringify[key] = value;
         }
@@ -106,10 +115,6 @@ const Containers = {
                 tab.container = containerName;
         }
     },
-
-    //@ (Object) -> (Object|undefined)
-    write: ({ container }) => container && { container },
-    read:  ({ container }) => container && { container },
 
     // Replace any container properties in protoTabs with cookieStoreId.
     //@ ([Object], Object), state -> state
@@ -186,28 +191,6 @@ const Parents = {
             else
                 delete tab.openerTabId;
         }
-    },
-
-    // Produce tab id and parentId properties to later stringify.
-    //@ (Object, String) -> (Object)
-    write({ id, openerTabId, isParent }, folderId) {
-        const props = {};
-        if (isParent)
-            props.id = folderId + id;
-        if (openerTabId)
-            props.parentId = folderId + openerTabId;
-        return props;
-    },
-
-    // Produce id and openerTabId properties from parsed.
-    //@ (Object) -> (Object)
-    read({ id, parentId }) {
-        const protoTab = {};
-        if (id)
-            protoTab.id = id;
-        if (parentId)
-            protoTab.openerTabId = parentId;
-        return protoTab;
     },
 
     // Return shallow copy of protoTab sans id and openerTabId properties.
@@ -292,11 +275,7 @@ export const Tab = {
     // Produce bookmark title that encodes tab properties.
     //@ (Object, String) -> (String)
     stringify(tab, folderId) {
-        const props = {
-            ...Props.write(tab, Props.TAB),
-            ...Containers.write(tab),
-            ...Parents.write(tab, folderId),
-        };
+        const props = Props.write(tab, Props.TAB, folderId);
         const annotation = Object.keys(props).length ?
             JSON.stringify(props) : '';
         return `${tab.title} ${annotation}`.trim();
@@ -310,12 +289,7 @@ export const Tab = {
         const [actualTitle, parsed] = parseTitleJSON(title);
         const protoTab = { title: actualTitle };
         if (parsed)
-            Object.assign(
-                protoTab,
-                Props.read(parsed, Props.TAB),
-                Containers.read(parsed),
-                Parents.read(parsed),
-            );
+            Object.assign(protoTab, Props.read(parsed, Props.TAB));
         return protoTab;
     },
 
