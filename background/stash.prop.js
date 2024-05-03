@@ -186,7 +186,7 @@ const Parents = {
             tabMap.set(tab.id, tab);
         for (const tab of tabs) {
             const parentTab = tabMap.get(tab.openerTabId);
-            if (parentTab)
+            if (parentTab && parentTab.id !== tab.id)
                 parentTab.isParent = true;
             else
                 delete tab.openerTabId;
