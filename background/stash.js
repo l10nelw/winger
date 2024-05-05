@@ -16,49 +16,67 @@ export const nowProcessing = new Set(); // Ids of windows and folders currently 
 export async function init({ enable_stash, stash_home_root, stash_home_folder }) {
     if (!enable_stash)
         return;
-    const nodes = await getChildNodes(stash_home_root);
     if (stash_home_folder) {
         // Home is a subfolder of a root folder
-        const folder = findFolderByTitle(nodes, stash_home_folder) || await createFolder(stash_home_folder, stash_home_root);
+        const folder = await getAvailableFolder(stash_home_folder, true, stash_home_root);
         Storage.set({ _stash_home_id: folder.id });
-    } else {
-        // Home is a root folder
-        Storage.set({ _stash_home_id: stash_home_root });
-        if (!nodes.findLast(isSeparator))
-            // Home has no separator
-            createNode({ type: 'separator', parentId: stash_home_root });
+        return;
     }
+    // Home is a root folder
+    Storage.set({ _stash_home_id: stash_home_root });
+    if (!(await getChildNodes(stash_home_root)).find(isSeparator)) // Home has no separator
+        createNode({ type: 'separator', parentId: stash_home_root });
 }
-
-//@ ([Object], String) -> (Object)
-const findFolderByTitle = (nodes, title) => nodes.find(node => isFolder(node) && node.title === title);
 
 
 /* --- LIST FOLDERS --- */
 
-export const folderMap = new Map();
+class FolderList extends Array {
 
-//@ state -> state
-folderMap.populate = async () => {
-    const nodes = (await browser.bookmarks.getSubTree(await Storage.getValue('_stash_home_id')))[0].children;
-    for (let i = nodes.length; i--;) { // Reverse iterate
-        const node = nodes[i];
-        switch (node.type) {
-            case 'separator':
-                return; // Stop at first separator from the end
-            case 'folder':
-                const id = node.id;
-                node.bookmarkCount = nowProcessing.has(id) ?
-                    0 : node.children.filter(isBookmark).length;
-                folderMap.set(id, node);
-        }
+    // Fill folderList with child folders, given a parentId and optionally already-procured child nodes of parentId.
+    //@ (String, [Object]|undefined), state -> ([Object])
+    async populate(parentId, nodes = null) {
+        this.length = 0;
+        this.parentId = parentId;
+        nodes ||= await getChildNodes(parentId);
+        // If parent is a root folder, take only nodes after last separator
+        if (ROOT_IDS.has(parentId))
+            nodes = nodes.slice(nodes.findLastIndex(isSeparator) + 1);
+        this.push(...nodes.filter(isFolder));
+        return this;
+    }
+
+    // Find folder with the given title and whether bookmarks are allowed.
+    //@ (String, Boolean), state -> (Object|undefined)
+    async findByTitle(title, canContainBookmarks) {
+        if (canContainBookmarks)
+            return this.find(folder => !nowProcessing.has(folder.id) && folder.title === title);
+        // Cannot contain bookmarks
+        const folders = this.filter(folder => !nowProcessing.has(folder.id) && folder.title === title);
+        if (!folders.length)
+            return;
+        const nodeLists = await Promise.all( folders.map(folder => getChildNodes(folder.id)) );
+        const foundIndex = nodeLists.findIndex(nodeList => !nodeList.find(isBookmark));
+        return folders[foundIndex];
+    }
+
+    // Add a new folder to the start of the folderList.
+    //@ (String) -> (Object), state
+    async add(title) {
+        const parentId = this.parentId;
+        const index = this[0]?.index;
+        const folder = await createNode({ title, parentId, index });
+        this.push(folder);
+        return folder;
     }
 }
-//@ (String), state -> (Object)
-folderMap.findBookmarkless = title => {
-    for (const folder of folderMap.values())
-        if (!folder.bookmarkCount && folder.title === title)
-            return folder;
+
+// Find folder matching `title` and `parentId` parameters and `canContainBookmarks` condition, otherwise create a new one.
+// Can optionally supply already-procured children-of-parentId `nodes` for performance.
+//@ (String, Boolean, String, [Object]|undefined), state -> (Object), state
+async function getAvailableFolder(title, canContainBookmarks, parentId, nodes = null) {
+    const folders = await (new FolderList()).populate(parentId, nodes);
+    return await folders.findByTitle(title, canContainBookmarks) || await folders.add(title);
 }
 
 
@@ -69,16 +87,22 @@ folderMap.findBookmarkless = title => {
 //@ (Number, String, Boolean), state -> state
 export async function stashWindow(windowId, name, remove) {
     nowProcessing.add(windowId);
-    const [window, allWindows] = await Promise.all([
+
+    const [window, allWindows, homeId] = await Promise.all([
         browser.windows.get(windowId, { populate: true }),
         remove && browser.windows.getAll(),
+        Storage.getValue('_stash_home_id'),
     ]);
+
     name = StashProp.Window.stringify(name, window);
+    const folder = await getAvailableFolder(name, false, homeId); // Find bookmarkless folder, or create one
+
     await handleLoneWindow(
         windowId, remove, allWindows,
-        createBookmarksAtNode(window.tabs, await getTargetFolder(name), name),
+        createBookmarksAtNode(window.tabs, folder, name),
         () => browser.windows.remove(windowId),
     );
+
     nowProcessing.delete(windowId);
 }
 
@@ -90,27 +114,22 @@ export async function stashSelectedTabs(nodeId, remove) {
         browser.tabs.query({ currentWindow: true }),
         getNode(nodeId),
     ]);
+
     const windowId = tabs[0].windowId;
     nowProcessing.add(windowId);
+
     const selectedTabs = tabs.filter(tab => tab.highlighted);
     delete selectedTabs.find(tab => tab.active)?.active; // Avoid adding extra active tab to target stashed window
-    const allWindows = remove && (selectedTabs.length === tabs.length) ?
-        await browser.windows.getAll() : null;
+
+    const allWindows = remove && (selectedTabs.length === tabs.length) && await browser.windows.getAll();
+
     await handleLoneWindow(
         windowId, remove, allWindows,
         createBookmarksAtNode(selectedTabs, node),
         () => browser.tabs.remove(selectedTabs.map(tab => tab.id)),
     );
-    nowProcessing.delete(windowId);
-}
 
-// For a given name (folder title), return a matching bookmarkless folder, otherwise return a new folder.
-//@ (String), state -> (Object), state
-async function getTargetFolder(name) {
-    await folderMap.populate();
-    const folder = folderMap.findBookmarkless(name) || await createFolder(name, await Storage.getValue('_stash_home_id'));
-    folderMap.clear();
-    return folder;
+    nowProcessing.delete(windowId);
 }
 
 // In case of a lone window to be closed, keep it open until stash operation is complete.
@@ -294,4 +313,3 @@ const getChildNodes = parentId => browser.bookmarks.getChildren(parentId); //@ (
 
 const createNode = properties => browser.bookmarks.create(properties); //@ (Object) -> (Promise: Object), state
 const removeNode = nodeId => browser.bookmarks.remove(nodeId); //@ (Number) -> (Promise: Object), state
-const createFolder = (title, parentId) => createNode({ title, parentId }); //@ (String, Number) -> (Promise: Object), state
