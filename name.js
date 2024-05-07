@@ -47,6 +47,7 @@ export class NameMap extends Map {
         return this;
     }
 
+    // Has at least one name.
     //@ state -> (Boolean)
     hasName() {
         for (const [, name] of this)
@@ -65,8 +66,7 @@ export class NameMap extends Map {
     }
 
     // Check name against map for errors, including duplication.
-    // Return 0 if name is blank or valid-and-unique or conflicting windowId is excludeId.
-    // Else return -1 or conflicting windowId.
+    // Return 0 if name is blank or valid-and-unique or conflicting windowId is excludeId. Else return -1 or conflicting windowId.
     //@ (String, Number), state -> (Number)
     checkForErrors(name, excludeId) {
         if (!name)
@@ -81,7 +81,7 @@ export class NameMap extends Map {
     // Check valid name against map for duplication. Ignores blank. If name is not unique, add/increment number postfix. Return unique result.
     //@ (String), state -> (String)
     uniquify(name) {
-        return this.findId(name) ?
+        return (name && this.findId(name)) ?
             this.uniquify(addNumberPostfix(name)) : name;
     }
 }

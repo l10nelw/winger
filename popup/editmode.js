@@ -75,7 +75,7 @@ export function handleFocusIn($focused, $defocused) {
     let isHandled = false;
 
     if (isNameField($defocused)) {
-        trySaveName($defocused);
+        trySaveNameAndHandleErrors($defocused);
         isHandled = true;
     }
     if (isNameField($focused)) {
@@ -103,7 +103,7 @@ export function handleKeyUp({ target, key }) {
         return false;
 
     if (key === 'Enter') {
-        trySaveName(target);
+        trySaveNameAndHandleErrors(target);
         done();
     }
     return true;
@@ -116,9 +116,9 @@ function rememberNameNow($name) {
 }
 
 // If name is invalid: restore original name and return false.
-// Otherwise: proceed to save, indicate success and return true.
+// Otherwise: proceed to save and return true.
 //@ (Object) -> (Boolean), state|nil
-async function trySaveName($name) {
+async function trySaveNameAndHandleErrors($name) {
     const originalName = $name._original;
 
     // Revert if marked invalid
@@ -135,19 +135,25 @@ async function trySaveName($name) {
     if (name === originalName)
         return true;
 
-    // Save
-    const windowId = $name._id;
-    if (await Name.save(windowId, name)) {
-        Request.updateChrome(windowId, name);
-        nameMap.set(windowId, name);
-        indicateSuccess($name.nextElementSibling);
-        $body.classList.toggle('nameless', !nameMap.hasName());
+    if (await saveNameUpdateUI($name, name))
         return true;
-    }
 
     // Save failed
     $name.value = originalName;
     return false;
+}
+
+//@ (Object, String) -> (Boolean), state
+export async function saveNameUpdateUI($name, name) {
+    const windowId = $name._id;
+    if (!await Name.save(windowId, name))
+        return false;
+    nameMap.ready().set(windowId, name);
+    // Update UI
+    Request.updateChrome(windowId, name);
+    indicateSuccess($name.nextElementSibling);
+    $body.classList.toggle('nameless', !nameMap.hasName());
+    return true;
 }
 
 // Indicate if name is invalid, as well as the duplicate name if any.

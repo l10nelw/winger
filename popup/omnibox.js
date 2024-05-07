@@ -2,26 +2,36 @@ import {
     FLAGS,
     $omnibox,
     nameMap,
+    $names,
 } from './common.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
 import * as Filter from './filter.js';
 import * as Request from './request.js';
-import * as Name from '../name.js';
+import { validify } from '../name.js';
 
 const COMMAND__CALLBACK = {
     help:     Toolbar.help,
     settings: Toolbar.settings,
     options:  Toolbar.settings,
     edit:     EditMode.toggle,
-    name:     EditMode.toggle,
-    new:      ({ event, argument }) => Request.action({ event, argument, command: 'new' }),
-    pop:      ({ event, argument }) => Request.action({ event, argument, command: 'pop' }),
-    kick:     ({ event, argument }) => Request.action({ event, argument, command: 'kick' }),
+
+    async name({ argument }) {
+        const $name = $names[0];
+        if (argument === $name.value)
+            return;
+        const name = validUniqueName(argument);
+        if (await EditMode.saveNameUpdateUI($name, name))
+            $name.value = name;
+    },
+
+    new:  ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'new' }),
+    pop:  ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'pop' }),
+    kick: ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'kick' }),
 };
 
-const COMMANDS_WITH_ARG = new Set(['new', 'newprivate', 'pop', 'popprivate', 'kick', 'kickprivate']);
-const EDITMODE_VALID_COMMANDS = new Set(['help', 'settings', 'options', 'edit', 'name']);
+const COMMANDS_WITH_ARG = new Set(['new', 'newprivate', 'pop', 'popprivate', 'kick', 'kickprivate', 'name', 'importname', 'importallnames']);
+const EDITMODE_VALID_COMMANDS = new Set(['help', 'settings', 'options', 'edit']);
 const SHORTHAND__COMMAND = {};
 
 //@ state -> state
@@ -31,15 +41,18 @@ export function init() {
         COMMAND__CALLBACK.stash = ({ event }) => Request.stash(event);
     }
     if (FLAGS.allow_private) {
-        COMMAND__CALLBACK.newprivate  = ({ event, argument }) => Request.action({ event, argument, command: 'newprivate' });
-        COMMAND__CALLBACK.popprivate  = ({ event, argument }) => Request.action({ event, argument, command: 'popprivate' });
-        COMMAND__CALLBACK.kickprivate = ({ event, argument }) => Request.action({ event, argument, command: 'kickprivate' });
+        COMMAND__CALLBACK.newprivate  = ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'newprivate' });
+        COMMAND__CALLBACK.popprivate  = ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'popprivate' });
+        COMMAND__CALLBACK.kickprivate = ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'kickprivate' });
         SHORTHAND__COMMAND.np = 'newprivate';
         SHORTHAND__COMMAND.pp = 'popprivate';
         SHORTHAND__COMMAND.kp = 'kickprivate';
     }
     $omnibox.focus();
 }
+
+//@ (String), state -> (String)
+const validUniqueName = name => nameMap.ready().uniquify(validify(name));
 
 const Parsed = {
 
@@ -152,8 +165,6 @@ function handleEnterKey(event) {
     let { command, argument } = Parsed;
     if (command) {
         const callback = COMMAND__CALLBACK[command];
-        if (COMMANDS_WITH_ARG.has(command))
-            argument = validifyName(argument);
         callback?.({ event, argument });
         clear();
         return;
@@ -174,13 +185,6 @@ function handleEnterKey(event) {
 //@ (Object) -> (Boolean)
 const isDeletion = event => event.inputType.startsWith('delete');
 const hasSelectedText = $field => $field.selectionStart !== $field.selectionEnd;
-
-//@ (String), state -> (String)
-function validifyName(name) {
-    name = Name.validify(name);
-    return name ?
-        nameMap.ready().uniquify(name) : '';
-}
 
 //@ (String, String) -> state
 function autocompleteCommand(str, command) {
