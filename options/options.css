@@ -37,7 +37,7 @@ label small {
 select, input[type="text"] {
     margin-bottom: -.5rem;
 }
-.affixField {
+.smallField {
     width: 3.5rem;
     text-align: center;
 }

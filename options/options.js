@@ -158,6 +158,16 @@ $form.addEventListener('change', async ({ target: $field }) => {
             browser.runtime.sendMessage({ type: 'update' });
             return;
 
+        case 'unload_minimized_window':
+            if (!$field.checked) {
+                browser.runtime.sendMessage({ type: 'discardMinimized', enabled: false });
+                return;
+            }
+        case 'unload_minimized_window_delay_mins':
+            if ($form.unload_minimized_window.checked)
+                browser.runtime.sendMessage({ type: 'discardMinimized', enabled: true });
+            return;
+
         case 'theme':
             document.body.classList.toggle('dark', isDark($form.theme.value));
             return;

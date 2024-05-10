@@ -27,6 +27,8 @@ browser.menus.onShown.addListener(onMenuShown);
 browser.menus.onHidden.addListener(onMenuHidden);
 browser.menus.onClicked.addListener(onMenuClicked);
 
+browser.alarms.onAlarm.addListener(onAlarm);
+
 browser.runtime.onMessage.addListener(onRequest);
 browser.runtime.onMessageExternal.addListener(onExternalRequest);
 
@@ -71,9 +73,10 @@ async function onWindowFocusChanged(windowId) {
         return;
 
     if (await Storage.getValue('unload_minimized_window')) {
+        Auto.discardWindow.deschedule(windowId); // Cancel any scheduled discard of now-focused window
         const defocusedWindowId = await Storage.getValue('_focused_window_id');
         if (await isMinimized(defocusedWindowId))
-            Auto.unloadWindow(defocusedWindowId);
+            Auto.discardWindow.schedule(defocusedWindowId);
     }
 
     Storage.set({ _focused_window_id: windowId });
@@ -97,6 +100,17 @@ function onMenuHidden() {
 //@ (Object, Object) -> state|nil
 async function onMenuClicked(info, tab) {
     await StashMenu.handleClick(info) || SendMenu.handleClick(info, tab);
+}
+
+//@ (Object) -> state
+async function onAlarm({ name }) {
+    const [action, id] = name.split('-');
+    switch (action) {
+        case 'discardWindow':
+            if (await Storage.getValue('unload_minimized_window'))
+                Auto.discardWindow.now(+id);
+            return;
+    }
 }
 
 //@ (Object), state -> (Object|Boolean|undefined), state|nil
@@ -140,6 +154,18 @@ async function onRequest(request) {
 
         case 'clearTitlePreface':
             return Chrome.clearTitlePreface();
+
+        case 'discardMinimized':
+            if (request.enabled) {
+                for (const { id, minimized } of await Winfo.getAll(['minimized']))
+                    if (minimized)
+                        Auto.discardWindow.schedule(id);
+            } else {
+                for (const { name } of await browser.alarms.getAll())
+                    if (name.startsWith('discardWindow'))
+                        browser.alarms.clear(name);
+            }
+            return;
 
         case 'warn':
             return Chrome.showWarningBadge();

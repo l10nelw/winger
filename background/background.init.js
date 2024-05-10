@@ -40,7 +40,7 @@ Promise.all([
             Winfo.saveFirstSeen(id);
 
         if (minimized && info.unload_minimized_window)
-            Auto.unloadWindow(id);
+            Auto.discardWindow.schedule(id);
     }
 
     // If set_title_preface has not been explicitly user-set yet but named windows already exist,

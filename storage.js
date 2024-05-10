@@ -5,6 +5,7 @@ export const DEFAULT_SETTINGS = {
     keep_moved_tabs_selected: true,
 
     unload_minimized_window: false,
+    unload_minimized_window_delay_mins: 0,
     minimize_kick_window: false,
 
     show_badge: false,

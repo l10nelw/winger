@@ -111,7 +111,7 @@ async function sendTabs(request) {
     if (movedTabs.length) {
         Auto.restoreTabRelations(movedTabs, tabs, true);
         if (unload_minimized_window && request.minimized && request.action !== 'bring')
-            Auto.unloadTabs(movedTabs);
+            Auto.discardWindow.schedule(request.windowId);
         return movedTabs;
     }
     // Move failed so reopen instead

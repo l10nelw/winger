@@ -1,5 +1,6 @@
 // Automatic operations that follow or support Winger and native actions
 
+import * as Storage from '../storage.js';
 
 // Open extension page tab, closing any duplicates found.
 //@ (String, String), state -> state
@@ -66,10 +67,19 @@ const getUrlParam = originalUrl => (new URL(originalUrl)).searchParams.get('url'
 
 /* --- Background windows management --- */
 
-//@ (Number) -> state
-export async function unloadWindow(windowId) {
-    const tabs = await browser.tabs.query({ windowId, active: false, discarded: false });
-    unloadTabs(tabs);
+export const discardWindow = {
+    //@ (Number) -> state
+    async schedule(windowId) {
+        const delayInMinutes = await Storage.getValue('unload_minimized_window_delay_mins');
+        delayInMinutes
+        ? browser.alarms.create(`discardWindow-${windowId}`, { delayInMinutes })
+        : discardWindow.now(windowId);
+    },
+    deschedule(windowId) {
+        browser.alarms.clear(`discardWindow-${windowId}`);
+    },
+    async now(windowId) {
+        const tabs = await browser.tabs.query({ windowId, active: false, discarded: false });
+        browser.tabs.discard(tabs.map(tab => tab.id));
+    },
 }
-
-export const unloadTabs = tabs => browser.tabs.discard(tabs.map(tab => tab.id)); //@ ([Object]) -> state
