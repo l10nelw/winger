@@ -28,8 +28,7 @@
       "96": "icons/winger.svg"
     },
     "default_popup": "popup/popup.html",
-    "browser_style": true,
-    "default_area": "tabstrip"
+    "browser_style": true
   },
   "options_ui": {
     "page": "options/options.html",
