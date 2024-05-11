@@ -39,7 +39,7 @@ Promise.all([
         if (!firstSeen)
             Winfo.saveFirstSeen(id);
 
-        if (minimized && info.unload_minimized_window)
+        if (minimized && info.discard_minimized_window)
             Auto.discardWindow.schedule(id);
     }
 

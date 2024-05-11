@@ -4,8 +4,8 @@ export const DEFAULT_SETTINGS = {
     show_popup_send: true,
     keep_moved_tabs_selected: true,
 
-    unload_minimized_window: false,
-    unload_minimized_window_delay_mins: 0,
+    discard_minimized_window: false,
+    discard_minimized_window_delay_mins: 0,
     minimize_kick_window: false,
 
     show_badge: false,
@@ -33,26 +33,12 @@ export async function init() {
         '_stash_home_id',
     ];
     const ENTRIES_TO_MIGRATE = [
-        // v2.4.0
+        // oldKey, newKey, valueGetter
+        // v2.7.0
         [
-            'unload_minimized_window_tabs',
             'unload_minimized_window',
-            dict => dict.unload_minimized_window_tabs,
-        ],
-        [
-            'minimize_kick_windows',
-            'minimize_kick_window',
-            dict => dict.minimize_kick_windows,
-        ],
-        [
-            'stash_home',
-            'stash_home_root',
-            dict => dict.stash_home?.split('/')[0],
-        ],
-        [
-            'stash_home_name',
-            'stash_home_folder',
-            dict => dict.stash_home?.endsWith('/') ? dict.stash_home_name : '',
+            'discard_minimized_window',
+            dict => dict.unload_minimized_window,
         ],
     ];
     const ALLOWED_VALUES_DICT = {

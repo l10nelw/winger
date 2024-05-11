@@ -70,7 +70,7 @@ const getUrlParam = originalUrl => (new URL(originalUrl)).searchParams.get('url'
 export const discardWindow = {
     //@ (Number) -> state
     async schedule(windowId) {
-        const delayInMinutes = await Storage.getValue('unload_minimized_window_delay_mins');
+        const delayInMinutes = await Storage.getValue('discard_minimized_window_delay_mins');
         delayInMinutes
         ? browser.alarms.create(`discardWindow-${windowId}`, { delayInMinutes })
         : discardWindow.now(windowId);
