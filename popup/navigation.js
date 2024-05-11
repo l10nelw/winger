@@ -19,7 +19,7 @@ const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
 // Return nothing if key not an arrow or tab.
 // Control vertical scrolling.
 //@ (Object), state -> (Boolean), state|nil
-export default function navigateByKey(event) {
+export function handleKeyDown(event) {
     const key = event.key;
     let $el = event.target;
 
@@ -44,6 +44,14 @@ export default function navigateByKey(event) {
     return true;
 }
 
+//@ (Object), state -> (Boolean), state|nil
+export function handleKeyUp(event) {
+    if (event.key === 'Tab') {
+        setColumn(event.target);
+        return true;
+    }
+}
+
 const isUnfocusable = $el => row($el).hidden || $el.tabIndex === -1; //@ (Object) -> (Boolean)
 const isHorizontalKey = key => HORIZONTAL_KEYS.includes(key); //@ (String) -> (Boolean)
 const isVerticalKey = key => VERTICAL_KEYS.includes(key); //@ (String) -> (Boolean)
@@ -58,7 +66,6 @@ function restrictScroll($el, event) {
 }
 
 let column; // Currently-focused button column
-
 //@ (Object) -> state
 function setColumn($el) {
     column =

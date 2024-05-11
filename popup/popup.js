@@ -9,7 +9,7 @@ import * as Toolbar from './toolbar.js';
 import * as Status from './status.js';
 import * as EditMode from './editmode.js';
 import * as Request from './request.js';
-import navigateByKey from './navigation.js';
+import * as Navigation from './navigation.js';
 
 $body.addEventListener('click', onClick);
 $body.addEventListener('mousedown', onMouseDown);
@@ -63,7 +63,7 @@ function onContextMenu(event) {
 function onKeyDown(event) {
     if (Omnibox.handleKeyDown(event))
         return;
-    navigateByKey(event);
+    Navigation.handleKeyDown(event);
     Status.update(event);
 }
 
@@ -73,6 +73,8 @@ function onKeyUp(event) {
         if (EditMode.handleKeyUp(event))
             return;
         if (Omnibox.handleKeyUp(event))
+            return;
+        if (Navigation.handleKeyUp(event))
             return;
         if (event.key === 'Enter') {
             const { target } = event;
