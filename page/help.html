@@ -22,7 +22,7 @@
         <br><small class="js-version"></small>
         <br><b>A Complete Guide</b>
       </h1>
-      <p class="small">Last updated v2.6.2 (23 Apr 2024)</p>
+      <p class="small">Last updated v2.7.0 (11 May 2024)</p>
       <p><a href="https://addons.mozilla.org/firefox/addon/winger/" target="_blank">View latest release notes on the Winger addon page</a></p>
     </header>
 
@@ -294,7 +294,7 @@
           <p>Apart from the Winger <a href="#panel">panel</a>, window names appear in:</p>
           <ul>
             <li>
-              <p>The <strong>title preface</strong> (if enabled in <button type="button" class="settingsBtn">Settings</button>), which adds to the full <strong>window title</strong> shown in the title bar.</p>
+              <p>The <strong>title preface</strong> (if enabled in <button type="button" class="settingsBtn">Settings</button>), which adds to the full <strong>window title</strong> shown in the title bar. The title preface includes customisable decorators: prefix and postfix.</p>
               <p class="m0">
                 Window titles in turn show up in:
                 <ul>
@@ -322,6 +322,7 @@
             </li>
             <li><p>🔥 You can include emojis in names. Windows and Mac have built-in emoji pickers (<kbd>Win</kbd><small>+</small><kbd>.</kbd> and <kbd>Cmd</kbd><small>+</small><kbd>Ctrl</kbd><small>+</small><kbd>Space</kbd> respectively), or you can install an emoji picker extension. They can help make a name stand out, and – if placed at the start of a name – may even help you identify a window via the Winger button badge.</p></li>
             <li><p>Use easily typeable, <a href="#find">findable</a> names. This means using emojis and other hard-to-type symbols <em>sparingly</em>. Best use them as visual flair, not in place of actual words.</p></li>
+            <li>If you use multiple Firefox profiles, you can have different title preface decorators to help you distinguish between windows of different profiles.</li>
           </ul>
         </section>
       </div>
@@ -392,8 +393,13 @@
             <dt><samp>/options</samp> or <samp>/o</samp></dt>
             <dd class="mb1">Open <button type="button" class="settingsBtn">Settings</button>.</dd>
             <dt><samp>/edit</samp> or <samp>/e</samp> or</dt>
-            <dt><samp>/name</samp> or <samp>/na</samp></dt>
             <dd class="mb1">Toggle <a href="#name">edit mode</a>.</dd>
+            <dt><samp>/name</samp> or <samp>/n</samp></dt>
+            <dd class="mb1">
+              Name the current window with a name that follows the command. e.g. <samp>/name socials</samp><br>
+              Clear its current name by entering the command on its own. e.g. <samp>/name</samp><br>
+              Does not enter edit mode.
+            </dd>
             <dt><samp>/stash</samp> or <samp>/st</samp></dt>
             <dd class="mb1">
               <a href="#stash">Stash</a> the current window.<br>
@@ -402,21 +408,21 @@
             </dd>
           </dl>
           <dl class="col bordered-left pl1">
-            <dt><samp>/new</samp> or <samp>/n</samp></dt>
+            <dt><samp>/new</samp> or <samp>/ne</samp></dt>
             <dd class="mb1">
               Open a new window.<br>
-              Name it as well if a name was added to the command e.g. <samp class="nowrap">/new Eng homework</samp><br>
+              Name it as well if a name follows the command. e.g. <samp class="nowrap">/new Eng homework</samp><br>
               <kbd>Shift</kbd><small>+</small><kbd>Enter</kbd> or <kbd>Ctrl</kbd><small>+</small><kbd>Enter</kbd> to invoke <samp>/pop</samp> or <samp>/kick</samp> respectively.
             </dd>
             <dt><samp>/pop</samp> or <samp>/p</samp></dt>
             <dd class="mb1">
               <strong>Bring</strong> selected tabs to a new window ("Pop" tabs out of the current window). Equivalent to dragging selected tabs off the tab bar.<br>
-              Name the window as well if a name was added to the command e.g. <samp class="nowrap">/pop News</samp>
+              Name the window as well if a name follows the command. e.g. <samp class="nowrap">/pop News</samp>
             </dd>
             <dt><samp>/kick</samp> or <samp>/k</samp></dt>
             <dd class="mb1">
               <strong>Send</strong> selected tabs to a new window while staying on the current window ("Kick" tabs out of the current window).<br>
-              Name the window as well if a name was added to the command e.g. <samp class="nowrap">/kick read later</samp>
+              Name the window as well if a name follows the command. e.g. <samp class="nowrap">/kick read later</samp>
             </dd>
             <dt><samp>/newprivate</samp> or <samp>/np</samp></dt>
             <dt><samp>/popprivate</samp> or <samp>/pp</samp></dt>
@@ -425,6 +431,20 @@
               Same as <samp>/new</samp>, <samp>/pop</samp> and <samp>/kick</samp> but with a new private window.<br>
               Available if Winger is allowed <a href="#private">private window</a> access.
             </dd>
+            <dt><samp>/extractname</samp> or <samp>/ex</samp></dt>
+            <dd class="mb1">
+              Extract a name from the current window's title using a regular expression (regex), and give the window this name. A regex, containing a capture group (<samp>(</samp>...<samp>)</samp>), must follow the command.<br>
+              e.g. To extract <i>"home"</i> from <i>"home - How to DIY"</i>: <samp>/extractname (.*?) -</samp><br>
+              e.g. To extract <i>"July trip"</i> from <i>"[July trip] Search restaurants"</i>: <samp>/extractname \[(.*?)\]</samp><br>
+              To clear name: <samp>/extractname ()</samp>
+
+            </dd>
+            <dt><samp>/extractallnames</samp> or <samp>/exa</samp></dt>
+            <dd class="mb1">
+              Like <samp>/extractname</samp> but for all windows at once.<br>
+              Useful for migrating names from another window naming extension (that has added title prefaces to windows).
+            </dd>
+
           </dl>
         </div>
       </section>
@@ -468,14 +488,14 @@
           <p>To <strong>stash selected tab(s)</strong> to an existing folder: right-click on the folder and click the <cite>Winger → Stash Tab Here</cite> menu command.
           <br>The tab(s) will be closed and saved as bookmark(s) in the target folder.</r>
           <ul class="children-mb1">
-            <li><cite>Winger → Stash Tab Here</cite> is also available when right-clicking on a bookmark; the command will insert the new bookmark(s) at that position.</li>
+            <li><cite>Winger → Stash Tab Here</cite> is also available when right-clicking on a bookmark; the command will insert new bookmark(s) at that position.</li>
             <li>Tab properties are captured as described above, except for parent-child relationships involving any tabs outside the selection.</li>
           </ul>
         </section>
         <section class="col bordered-left pl1">
           <h3 class="center">Unstashing</h3>
           <p>To <strong>unstash a bookmark folder</strong>: right-click on it and click the <cite>Winger → Unstash</cite> menu command.
-          <br>The folder will be deleted, and an identically-named window will open and populate with the formerly-bookmarked tabs, all reproduced with their properties as annotated, if any.</p>
+          <br>The folder will be deleted, and an identically-named window will open and populate with the formerly-bookmarked tabs, reproduced with their properties as annotated, if any.</p>
           <ul class="children-mb1">
             <li><cite>Winger → Unstash</cite> is also available when right-clicking on a bookmark; the command will delete and open it as a new tab in the current window.</li>
             <li>Unstashed tabs are like <a href="#reopened">reopened tabs</a>: unloaded if possible, as placeholder tabs if necessary.</li>
@@ -518,7 +538,7 @@
                   <li>You can even add/edit annotations in titles too, with little risk; if you mess up, unstashing would just proceed as if there was none.</li>
                 </ul>
               </li>
-              <li>With Firefox's bookmark syncing, you can stash a window in one profile/computer and then unstash it on another &ndash; effectively moving a browser window between profiles/computers!</li>
+              <li>With Firefox's bookmark syncing, you can stash a window in one profile/computer and unstash it on another &ndash; effectively moving a browser window between profiles/computers!</li>
             </ul>
           </section>
         </div>
