@@ -28,11 +28,30 @@ const COMMAND__CALLBACK = {
     new:  ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'new' }),
     pop:  ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'pop' }),
     kick: ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'kick' }),
+
+    async extractname({ argument, $name, regex }) {
+        $name ??= $names[0];
+        regex ??= new RegExp(argument);
+        let name = $name.placeholder.match(regex)[1]?.trim();
+        if (name === $name.value)
+            return;
+        name = validUniqueName(name);
+        if (await EditMode.saveNameUpdateUI($name, name))
+            $name.value = name;
+    },
+
+    async extractallnames({ argument }) {
+        const regex = new RegExp(argument);
+        for (const $name of $names)
+            await COMMAND__CALLBACK.extractname({ argument, $name, regex });
+    },
 };
 
-const COMMANDS_WITH_ARG = new Set(['new', 'newprivate', 'pop', 'popprivate', 'kick', 'kickprivate', 'name', 'importname', 'importallnames']);
+const COMMANDS_WITH_ARG = new Set(['new', 'newprivate', 'pop', 'popprivate', 'kick', 'kickprivate', 'name', 'extractname', 'extractallnames']);
 const EDITMODE_VALID_COMMANDS = new Set(['help', 'settings', 'options', 'edit']);
-const SHORTHAND__COMMAND = {};
+const SHORTHAND__COMMAND = {
+    exa: 'extractallnames',
+};
 
 //@ state -> state
 export function init() {
