@@ -13,6 +13,7 @@ import { $shownRows } from './filter.js';
 
 const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
 const HORIZONTAL_KEYS = ['ArrowRight', 'ArrowLeft'];
+const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
 
 // Upon an arrow or tab keydown, focus on the next focusable element in that direction and return true.
 // Return nothing if key not an arrow or tab.
@@ -21,6 +22,9 @@ const HORIZONTAL_KEYS = ['ArrowRight', 'ArrowLeft'];
 export default function navigateByKey(event) {
     const key = event.key;
     let $el = event.target;
+
+    if (isHorizontalKey(key) && isField($el))
+        return;
 
     const navigatorKey = navigator[key];
     if (!navigatorKey)
@@ -31,9 +35,9 @@ export default function navigateByKey(event) {
         $el = navigatorKey($el, event);
     } while (isUnfocusable($el));
 
-    isHorizontalKey(key)
-        ? setColumn($el)
-        : restrictScroll($el, event);
+    isVerticalKey(key)
+        ? restrictScroll($el, event)
+        : setColumn($el);
 
     $el.focus();
     $el.select?.();
@@ -42,6 +46,8 @@ export default function navigateByKey(event) {
 
 const isUnfocusable = $el => row($el).hidden || $el.tabIndex === -1; //@ (Object) -> (Boolean)
 const isHorizontalKey = key => HORIZONTAL_KEYS.includes(key); //@ (String) -> (Boolean)
+const isVerticalKey = key => VERTICAL_KEYS.includes(key); //@ (String) -> (Boolean)
+
 
 // Prevent scrolling if focus is on first/last few rows, to control the default scoll-ahead
 //@ (Object, Object) -> state|nil
