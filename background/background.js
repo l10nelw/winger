@@ -72,7 +72,7 @@ async function onWindowFocusChanged(windowId) {
     if (windowId <= 0)
         return;
 
-    if (await Storage.getValue('unload_minimized_window')) {
+    if (await Storage.getValue('discard_minimized_window')) {
         Auto.discardWindow.deschedule(windowId); // Cancel any scheduled discard of now-focused window
         const defocusedWindowId = await Storage.getValue('_focused_window_id');
         if (await isMinimized(defocusedWindowId))
@@ -107,7 +107,7 @@ async function onAlarm({ name }) {
     const [action, id] = name.split('-');
     switch (action) {
         case 'discardWindow':
-            if (await Storage.getValue('unload_minimized_window'))
+            if (await Storage.getValue('discard_minimized_window'))
                 Auto.discardWindow.now(+id);
             return;
     }

@@ -100,9 +100,9 @@ async function bringTabs(request) {
 // Attempt moveTabs; if unsuccessful (e.g. windows are of different private statuses) then reopenTabs.
 //@ (Object), state -> ([Object]), state | (undefined)
 async function sendTabs(request) {
-    const [tabs, [keep_moved_tabs_selected, unload_minimized_window]] = await Promise.all([
+    const [tabs, [keep_moved_tabs_selected, discard_minimized_window]] = await Promise.all([
         request.tabs ?? getSelectedTabs(),
-        Storage.getValue(['keep_moved_tabs_selected', 'unload_minimized_window']),
+        Storage.getValue(['keep_moved_tabs_selected', 'discard_minimized_window']),
     ]);
     request.tabs ??= tabs;
     request.keep_moved_tabs_selected = keep_moved_tabs_selected;
@@ -110,7 +110,7 @@ async function sendTabs(request) {
     const movedTabs = await moveTabs(request);
     if (movedTabs.length) {
         Auto.restoreTabRelations(movedTabs, tabs, true);
-        if (unload_minimized_window && request.minimized && request.action !== 'bring')
+        if (discard_minimized_window && request.minimized && request.action !== 'bring')
             Auto.discardWindow.schedule(request.windowId);
         return movedTabs;
     }
