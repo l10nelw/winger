@@ -16,7 +16,7 @@ Test list:
     --tabcount-width: 2rem;
     --tabcount-x-margin: .8rem;
     --popup-width: calc(var(--popup-row-button-count) * var(--popup-button-size) + var(--popup-name-width) + var(--tabcount-width));
-    --max-list-height: 30rem;
+    --max-list-height: 40rem;
 
     scrollbar-width: none;
 }
