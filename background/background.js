@@ -75,15 +75,24 @@ async function onWindowFocusChanged(windowId) {
     if (windowId <= 0)
         return;
 
-    if (await Storage.getValue('discard_minimized_window')) {
+    const [discard_minimized_window, set_title_preface] = await Storage.getValue(['discard_minimized_window', 'set_title_preface']);
+
+    if (discard_minimized_window) {
         Auto.discardWindow.deschedule(windowId); // Cancel any scheduled discard of now-focused window
         const defocusedWindowId = await Storage.getValue('_focused_window_id');
         if (await isMinimized(defocusedWindowId))
             Auto.discardWindow.schedule(defocusedWindowId);
     }
 
+    // Record window focus state and time
     Storage.set({ _focused_window_id: windowId });
     Winfo.saveLastFocused(windowId);
+
+    if (set_title_preface) {
+        // Reapply titlePreface in case it's missing for any reason
+        const givenName = await browser.sessions.getWindowValue(windowId, 'givenName');
+        Chrome.update([[windowId, givenName]]);
+    }
 }
 
 //@ (Number), state -> (Boolean)
