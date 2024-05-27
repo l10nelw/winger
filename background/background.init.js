@@ -3,6 +3,8 @@ import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
 import * as Stash from './stash.js';
+import * as SendMenu from './menu.send.js';
+import * as StashMenu from './menu.stash.js';
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 
@@ -11,6 +13,10 @@ Promise.all([
     Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized']),
 ])
 .then(async ([info, winfos]) => {
+
+    browser.menus.removeAll();
+    SendMenu.init();
+    StashMenu.init();
 
     Stash.init(info);
 

@@ -6,19 +6,22 @@ const parentId = 'send';
 const dummyId = '-';
 const contexts = ['tab', 'link'];
 
-// Parent menu item
-browser.menus.create({
-    contexts,
-    id: parentId,
-    title: 'Send to &Window',
-    enabled: false, // Disabled state as baseline
-});
-// Dummy submenu item to avoid the parent menu item resizing upon first-time population
-browser.menus.create({
-    parentId,
-    id: dummyId,
-    title: dummyId,
-});
+//@ -> state
+export function init() {
+    // Parent menu item
+    browser.menus.create({
+        contexts,
+        id: parentId,
+        title: 'Send to &Window',
+        enabled: false, // Disabled state as baseline
+    });
+    // Dummy submenu item to avoid the parent menu item resizing upon first-time population
+    browser.menus.create({
+        parentId,
+        id: dummyId,
+        title: dummyId,
+    });
+}
 
 //@ ([String], [String]) -> (Boolean)
 const isIntersect = (array1, array2) => array1.some(item => array2.includes(item));

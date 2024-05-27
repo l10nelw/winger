@@ -9,10 +9,13 @@ const menuBase = { contexts, parentId, enabled: false }; // Start out disabled
 const unstashMenu = { ...menuBase, id: 'unstash', title: '&Unstash' };
 const stashMenu   = { ...menuBase, id: 'stash',   title: '&Stash Tab Here' };
 
-browser.menus.create({ contexts, id: parentId, title: '&Winger' });
-browser.menus.create(unstashMenu);
-browser.menus.create({ contexts, parentId, type: 'separator' });
-browser.menus.create(stashMenu);
+//@ -> state
+export function init() {
+    browser.menus.create({ contexts, id: parentId, title: '&Winger' });
+    browser.menus.create(unstashMenu);
+    browser.menus.create({ contexts, parentId, type: 'separator' });
+    browser.menus.create(stashMenu);
+}
 
 // Event handler: When menu opens, check if menu items can be enabled for target.
 //@ (Object) -> (Boolean), state|nil

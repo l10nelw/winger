@@ -22,6 +22,7 @@ async function debug() {
 
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onFocusChanged.addListener(onWindowFocusChanged);
+browser.windows.onRemoved.addListener(onWindowRemoved);
 
 browser.menus.onShown.addListener(onMenuShown);
 browser.menus.onHidden.addListener(onMenuHidden);
@@ -85,6 +86,11 @@ async function onWindowFocusChanged(windowId) {
 
 //@ (Number), state -> (Boolean)
 const isMinimized = async windowId => (await browser.windows.get(windowId).catch(() => null))?.state === 'minimized';
+
+//@ (Number) -> state
+function onWindowRemoved(windowId) {
+    browser.menus.remove(`${windowId}`);
+}
 
 //@ (Object, Object) -> state|nil
 async function onMenuShown(info, tab) {
