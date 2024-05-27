@@ -171,7 +171,7 @@ async function createBookmarksAtNode(tabs, node, logName = '') {
 //@ (Object, String, Number|null, String) -> (Promise: Object), state
 function createBookmark(tab, parentId, index, logName) {
     const url = Auto.deplaceholderize(tab.url);
-    const title = StashProp.Tab.stringify(tab, parentId);
+    const title = StashProp.Tab.stringify(tab, parentId) || url;
     console.log(`Stashing ${logName} | ${url} | ${title}`);
     return createNode({ parentId, url, title, index });
 }

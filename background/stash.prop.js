@@ -278,7 +278,7 @@ export const Tab = {
         const props = Props.write(tab, Props.TAB, folderId);
         const annotation = Object.keys(props).length ?
             JSON.stringify(props) : '';
-        return `${tab.title} ${annotation}`.trim();
+        return `${tab.title ?? ''} ${annotation}`.trim();
     },
 
     /* Unstashing */
