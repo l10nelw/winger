@@ -36,8 +36,10 @@ browser.runtime.onMessageExternal.addListener(onExternalRequest);
 //@ (Object) -> state
 async function onWindowCreated(window) {
     const windowId = window.id;
-    const [_, firstSeen, winfos] = await Promise.all([
-        handleDetachedTabs(windowId), // In case window created from detached tabs
+
+    handleDetachedTabs(windowId); // In case window created from detached tabs
+
+    const [firstSeen, winfos] = await Promise.all([
         Winfo.loadFirstSeen(windowId),
         Winfo.getAll(['givenName']),
     ]);
