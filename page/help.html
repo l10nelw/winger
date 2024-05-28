@@ -294,17 +294,22 @@
           <p>Apart from the Winger <a href="#panel">panel</a>, window names appear in:</p>
           <ul>
             <li>
-              <p>The <strong>title preface</strong> (if enabled in <button type="button" class="settingsBtn">Settings</button>), which adds to the full <strong>window title</strong> shown in the title bar. The title preface includes customisable decorators: prefix and postfix.</p>
-              <p class="m0">
-                Window titles in turn show up in:
-                <ul>
-                  <li>your operating system's task manager or switcher, for example while <span class="nowrap"><kbd>Alt</kbd><small>+</small><kbd>Tab</kbd>-ing</span>, or in MacOS's App Exposé/Mission Control view.</li>
-                  <li>your browser's <cite>Window</cite> menu (on some operating systems).</li>
-                </ul>
+              <p>the <strong>title preface</strong> (if enabled in <button type="button" class="settingsBtn">Settings</button>), which adds to the full <strong>window title</strong> shown in the title bar. The title preface includes customisable <strong>decorators</strong>: the prefix and postfix. e.g.<br>
+                <em class="inline-block pl1">
+                  Project Z<b> - </b>...<br>
+                  <b>[</b>Project Z<b>] </b>...
+                </em>
               </p>
             </li>
-            <li><p>The button <strong>badge</strong> (if enabled in <button type="button" class="settingsBtn">Settings</button>) on the <span class="nowrap">Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon"></span>, showing the first few characters.</p></li>
-            <li><p>The <strong>tooltip</strong> that appears when you hover your pointer over the <span class="nowrap">Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon"></span>. </p></li>
+            <li>
+              Window titles in turn show up in:
+              <ul class="mb1">
+                <li>your operating system's task manager or switcher, for example while <span class="nowrap"><kbd>Alt</kbd><small>+</small><kbd>Tab</kbd>-ing</span>, or in MacOS's App Exposé/Mission Control view.</li>
+                <li>your browser's <cite>Window</cite> menu (on some operating systems).</li>
+              </ul>
+            </li>
+            <li><p>the button <strong>badge</strong> (if enabled in <button type="button" class="settingsBtn">Settings</button>) on the <span class="nowrap">Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon"></span>, showing the first few characters.</p></li>
+            <li><p>the <strong>tooltip</strong> that appears when you hover your pointer over the <span class="nowrap">Winger button <img src="../icons/winger.svg" height="12" alt="Winger icon"></span>. </p></li>
             <li><cite><a href="#menu">Send to Window</a></cite> tab and link context menus.</li>
           </ul>
         </section>
@@ -312,7 +317,7 @@
           <h3>Naming tips 💡</h3>
           <ul class="m0">
             <li>
-              <p>To help you find related windows, use a shared keyword in their names e.g.<br>
+              <p>To help you find related windows, use a shared keyword in their names. e.g.<br>
                 <em class="inline-block pl1">
                   work<br>
                   work: Client A<br>
@@ -320,9 +325,14 @@
                 </em>
               </p>
             </li>
-            <li><p>🔥 You can include emojis in names. Windows and Mac have built-in emoji pickers (<kbd>Win</kbd><small>+</small><kbd>.</kbd> and <kbd>Cmd</kbd><small>+</small><kbd>Ctrl</kbd><small>+</small><kbd>Space</kbd> respectively), or you can install an emoji picker extension. They can help make a name stand out, and – if placed at the start of a name – may even help you identify a window via the Winger button badge.</p></li>
+            <li><p>🔥 You can include emojis in names and decorators. Windows and Mac have built-in emoji pickers (<kbd>Win</kbd><small>+</small><kbd>.</kbd> and <kbd>Cmd</kbd><small>+</small><kbd>Ctrl</kbd><small>+</small><kbd>Space</kbd> respectively), or you can install an emoji picker extension. They can help make a name stand out, and – if placed at the start of a name – may even help you identify a window via the Winger button badge.</p></li>
             <li><p>Use easily typeable, <a href="#find">findable</a> names. This means using emojis and other hard-to-type symbols <em>sparingly</em>. Best use them as visual flair, not in place of actual words.</p></li>
-            <li>If you use multiple Firefox profiles, you can have different title preface decorators to help you distinguish between windows of different profiles.</li>
+            <li>If you use multiple Firefox profiles, you can have different title preface decorators as a way to distinguish between windows of different profiles. e.g.
+              <em class="inline-block pl1">
+                <b>Work {</b>Project Z<b>} </b>...<br>
+                <b>🏡 </b>Project G<b> ~ </b>...
+              </em>
+            </li>
           </ul>
         </section>
       </div>
@@ -341,8 +351,8 @@
       <section id="find" class="row">
         <div class="col mx1-content mb2">
           <h3>Find/filter windows</h3>
-          <p>Looking for a window? Type its name or title.</p>
-          <p>Typing something <em>filters the list of other windows</em>. In this way, you can change which window appears right under the omnibox. Also, a shortened window list can be traversed with arrow keys more quickly.</p>
+          <p>Looking for a window? Type its name or title, or part of it.</p>
+          <p>This filters the list of other windows. Thus, you can change which window appears right under the omnibox. Also, a shortened window list can be traversed with arrow keys more quickly.</p>
           <p>Filtering works in <a href="#name">edit mode</a> too.</p>
           <p class="m0">Combine these two abilities to quickly switch to another window by keyboard, like so:</p>
           <ol class="pl2">
@@ -499,7 +509,7 @@
           <ul class="children-mb1">
             <li><cite>Winger → Unstash</cite> is also available when right-clicking on a bookmark; the command will delete and open it as a new tab in the current window.</li>
             <li>Unstashed tabs are like <a href="#reopened">reopened tabs</a>: unloaded if possible, as placeholder tabs if necessary.</li>
-            <li>When unstashing a containered tab, Winger assigns a container that matches the captured container name. If none exists, a new container with that name is created.</li>
+            <li>When unstashing a containered tab, Winger assigns a container that matches the captured container name. If none exists, a new container with that name is created. The tab is guaranteed to be containered.</li>
             <li>Invalid or incorrect annotations are ignored.</li>
             <li>If the folder has subfolders, nothing happens to them and the folder itself is not deleted; it is only emptied of its own bookmarks.</li>
             </li>
@@ -549,7 +559,7 @@
       <h2 class="center">Tips for managing <em>lots</em> of tabs and windows 💡</h2>
       <ul>
         <li>
-          <p>If you are hunting for a browser window among several, don't bother <kbd>Alt</kbd><small>+</small><kbd>Tab</kbd>-ing endlessly. Just <a href="#find">type in the omnibox</a> one or a few letters from the name of the window you want.</p>
+          <p>If you are hunting for a browser window among several, don't bother <kbd>Alt</kbd><small>+</small><kbd>Tab</kbd>-ing endlessly. Just <a href="#find">type in the omnibox</a> the name of the window you want.</p>
         </li>
         <li>
           <p>Spawn as many windows as you need for more granular tab organisation!</p>
