@@ -101,6 +101,6 @@ function onFocusIn(event) {
     if (EditMode.handleFocusIn($focused, $defocused))
         return;
     if ($focused.tabIndex === -1)
-        return $defocused.focus();
+        return $defocused.focus?.();
     $focused.select?.();
 }
