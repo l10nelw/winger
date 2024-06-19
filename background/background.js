@@ -90,7 +90,7 @@ async function onWindowFocusChanged(windowId) {
 
     if (set_title_preface) {
         // Reapply titlePreface in case it's missing for any reason
-        const givenName = await browser.sessions.getWindowValue(windowId, 'givenName');
+        const givenName = await browser.sessions.getWindowValue(windowId, 'givenName') || '';
         Chrome.update([[windowId, givenName]]);
     }
 }

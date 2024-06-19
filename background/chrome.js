@@ -19,7 +19,7 @@ export async function update(nameMap) {
     // Button tooltip
     for (const [windowId, name] of nameMap) {
         const title = name ?
-            `${name} - ${baseButtonTitle}` : '';
+            `${name} - ${baseButtonTitle}` : baseButtonTitle;
         browser.browserAction.setTitle({ windowId, title });
     }
     // Title preface
