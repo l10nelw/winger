@@ -48,16 +48,25 @@ async function populate(windows) {
     const { currentWinfo, otherWinfos } = Winfo.arrange(
         await Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'titleSansName'], windows)
     );
-    for (let { id, givenName, incognito, titleSansName } of otherWinfos) {
-        const title = givenName || titleSansName || '...';
+    let hasMinimizedSeparator = false;
+
+    browser.menus.remove('minimized');
+    browser.menus.remove(`${currentWinfo.id}`);
+
+    for (let { id, givenName, incognito, minimized, titleSansName } of otherWinfos) {
+        if (minimized && !hasMinimizedSeparator) {
+            browser.menus.create({ parentId, id: 'minimized', type: 'separator' });
+            hasMinimizedSeparator = true;
+        }
         id = `${id}`; // Menu id must be string
-        browser.menus.remove(id);
+        const title = givenName || titleSansName || '-';
         const menuToCreate = { parentId, id, title };
         if (incognito)
             menuToCreate.icons = privateIcon;
+        browser.menus.remove(id);
         browser.menus.create(menuToCreate);
     }
-    browser.menus.remove(`${currentWinfo.id}`);
+
     browser.menus.remove(dummyId);
 }
 
