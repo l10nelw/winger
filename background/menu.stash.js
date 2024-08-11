@@ -6,8 +6,8 @@ import * as Storage from '../storage.js';
 const contexts = ['bookmark']; // Menu only appears if bookmarks permission granted
 const parentId = 'bookmark';
 const menuBase = { contexts, parentId, enabled: false }; // Start out disabled
-const unstashMenu = { ...menuBase, id: 'unstash', title: '&Unstash' };
-const stashMenu   = { ...menuBase, id: 'stash',   title: '&Stash Tab Here' };
+const unstashMenu = { ...menuBase, id: 'unstash', title: '&Unstash', icons: { 16: 'icons/unstash.svg' } };
+const stashMenu = { ...menuBase, id: 'stash', title: '&Stash Tab Here', icons: { 16: 'icons/stash.svg' } };
 
 //@ -> state
 export function init() {
