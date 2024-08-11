@@ -74,7 +74,8 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
         Chrome.update([[newWindowId, name]]);
     }
 
-    // Firefox ignores windows.create/update({ focused: false }), so if focused=false, switch back to current window
+    // Firefox ignores windows.create/update({ focused: false })
+    // So if focused=false (i.e. kicked) and minimize_kick_window=false, switch back to current window
     if (kick && !minimize_kick_window)
         switchWindow(currentWindowDetail);
 

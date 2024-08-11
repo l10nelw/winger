@@ -11,13 +11,10 @@ import * as Name from '../name.js';
 
 //@ -> state
 async function debug() {
-    const [Auto, StashProp] = await Promise.all([
-        import('./action.auto.js'),
-        import('./stash.prop.js'),
-    ]);
+    const StashProp = await import('./stash.prop.js');
     const modules = { Storage, Winfo, Name, Action, Auto, Chrome, SendMenu, StashMenu, Stash, StashProp };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
-    Object.assign(window, modules);
+    Object.assign(globalThis, modules);
 }
 
 browser.windows.onCreated.addListener(onWindowCreated);

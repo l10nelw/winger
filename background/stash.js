@@ -24,7 +24,8 @@ export async function init({ enable_stash, stash_home_root, stash_home_folder })
     }
     // Home is a root folder
     Storage.set({ _stash_home_id: stash_home_root });
-    if (!(await getChildNodes(stash_home_root)).find(isSeparator)) // Home has no separator
+    // If home has no separator, add one
+    if (!(await getChildNodes(stash_home_root)).find(isSeparator))
         createNode({ type: 'separator', parentId: stash_home_root });
 }
 
