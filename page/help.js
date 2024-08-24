@@ -9,7 +9,6 @@ Promise.all([
     insertShortcut(),
 ])
 .then(() => {
-    insertVersion();
     doOSSpecific();
     updateMockPopups();
 });
@@ -27,12 +26,6 @@ async function insertShortcut() {
     const shortcut = await getShortcut();
     if (shortcut !== 'F1')
         $$('.js-shortcut').forEach($el => $el.textContent = $el.textContent.replace('F1', shortcut));
-}
-
-//@ state -> state
-function insertVersion() {
-    const { version } = browser.runtime.getManifest();
-    $$('.js-version').forEach($el => $el.textContent = version);
 }
 
 //@ state -> state

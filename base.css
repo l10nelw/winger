@@ -17,6 +17,7 @@
     --text-color: black;
     --muted-text-color: #666;
     --private-text-color: purple;
+    --samp-text-color: #ddd;
     --page-bg-color: white;
     --popup-field-color: white;
     --popup-row-color: #eee;
@@ -30,6 +31,7 @@
     --text-color: white;
     --muted-text-color: #ccc;
     --private-text-color: #f6f;
+    --samp-text-color: #33333b;
     --page-bg-color: #23222b;
     --popup-field-color: #23222b;
     --popup-row-color: #42414d;
@@ -62,6 +64,7 @@ samp {
     font-size: 1rem;
     font-weight: bold;
     white-space: nowrap;
+    background-color: var(--samp-text-color);
 }
 
 .error {

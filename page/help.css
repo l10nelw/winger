@@ -54,7 +54,7 @@ summary {
 summary.h2::marker { /* TODO: Use summary:has(h2)::marker once supported */
   font-size: 1.5rem;
 }
-kbd + kbd {
+kbd + kbd { /* Text nodes to the left are ignored, which may cause unwanted margins. Use <span>s as a workaround. */
   margin-left: .25rem;
 }
 cite {
