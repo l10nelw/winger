@@ -37,7 +37,7 @@ const Props = {
     TAB: {
         //@ (Object) -> (Boolean)
         writer: {
-            active: ({ active }) => active,
+            active: ({ active, index }) => index && active,
             muted:  ({ mutedInfo: { muted } }) => muted,
             pinned: ({ pinned }) => pinned,
             // From Container.prepare():
@@ -64,7 +64,7 @@ const Props = {
         const toStringify = {};
         for (const key in writer) {
             const value = writer[key](thing, folderId);
-            if (value)
+            if (value) // Only write property if it's truthy
                 toStringify[key] = value;
         }
         return toStringify;
