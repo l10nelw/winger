@@ -10,6 +10,10 @@ import * as Filter from './filter.js';
 import * as Request from './request.js';
 import { validify } from '../name.js';
 
+//@ (String) -> (Function)
+const namingActionRequestFn = command =>
+    ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command });
+
 const COMMAND__CALLBACK = {
     help:     Toolbar.help,
     settings: Toolbar.settings,
@@ -25,9 +29,9 @@ const COMMAND__CALLBACK = {
             $name.value = name;
     },
 
-    new:  ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'new' }),
-    pop:  ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'pop' }),
-    kick: ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'kick' }),
+    new:  namingActionRequestFn('new'),
+    pop:  namingActionRequestFn('pop'),
+    kick: namingActionRequestFn('kick'),
 
     async extractname({ argument, $name, regex }) {
         $name ??= $names[0];
@@ -47,11 +51,12 @@ const COMMAND__CALLBACK = {
     },
 };
 
-const COMMANDS_WITH_ARG = new Set(['new', 'newprivate', 'pop', 'popprivate', 'kick', 'kickprivate', 'name', 'extractname', 'extractallnames']);
+const COMMANDS_WITH_ARG = new Set([
+    'new', 'newnormal', 'newprivate', 'pop', 'popnormal', 'popprivate', 'kick', 'kicknormal', 'kickprivate',
+    'name', 'extractname', 'extractallnames',
+]);
 const EDITMODE_VALID_COMMANDS = new Set(['help', 'settings', 'options', 'edit']);
-const SHORTHAND__COMMAND = {
-    exa: 'extractallnames',
-};
+const SHORTHAND__COMMAND = { exa: 'extractallnames' };
 
 //@ state -> state
 export function init() {
@@ -60,9 +65,15 @@ export function init() {
         COMMAND__CALLBACK.stash = ({ event }) => Request.stash(event);
     }
     if (FLAGS.allow_private) {
-        COMMAND__CALLBACK.newprivate  = ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'newprivate' });
-        COMMAND__CALLBACK.popprivate  = ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'popprivate' });
-        COMMAND__CALLBACK.kickprivate = ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command: 'kickprivate' });
+        COMMAND__CALLBACK.newnormal   = namingActionRequestFn('newnormal');
+        COMMAND__CALLBACK.popnormal   = namingActionRequestFn('popnormal');
+        COMMAND__CALLBACK.kicknormal  = namingActionRequestFn('kicknormal');
+        COMMAND__CALLBACK.newprivate  = namingActionRequestFn('newprivate');
+        COMMAND__CALLBACK.popprivate  = namingActionRequestFn('popprivate');
+        COMMAND__CALLBACK.kickprivate = namingActionRequestFn('kickprivate');
+        SHORTHAND__COMMAND.nn = 'newnormal';
+        SHORTHAND__COMMAND.pn = 'popnormal';
+        SHORTHAND__COMMAND.kn = 'kicknormal';
         SHORTHAND__COMMAND.np = 'newprivate';
         SHORTHAND__COMMAND.pp = 'popprivate';
         SHORTHAND__COMMAND.kp = 'kickprivate';

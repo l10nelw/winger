@@ -13,24 +13,30 @@ const ACTION_DICT = {
     bring:       bringTabs,
     send:        sendTabs,
     switch:      switchWindow,
-    new:         ({ argument: name }) => createWindow({ name }),
+    new:         ({ argument: name, incognito }) => createWindow({ name, incognito }),
+    pop:         ({ argument: name, incognito }) => createWindow({ name, incognito, isMove: true }),
+    kick:        ({ argument: name, incognito }) => createWindow({ name, incognito, isMove: true, focused: false }),
+    newnormal:   ({ argument: name }) => createWindow({ name, incognito: false }),
+    popnormal:   ({ argument: name }) => createWindow({ name, incognito: false, isMove: true }),
+    kicknormal:  ({ argument: name }) => createWindow({ name, incognito: false, isMove: true, focused: false }),
     newprivate:  ({ argument: name }) => createWindow({ name, incognito: true }),
-    pop:         ({ argument: name }) => createWindow({ name, isMove: true }),
-    popprivate:  ({ argument: name }) => createWindow({ name, isMove: true, incognito: true }),
-    kick:        ({ argument: name }) => createWindow({ name, isMove: true, focused: false }),
-    kickprivate: ({ argument: name }) => createWindow({ name, isMove: true, focused: false, incognito: true }),
+    popprivate:  ({ argument: name }) => createWindow({ name, incognito: true, isMove: true }),
+    kickprivate: ({ argument: name }) => createWindow({ name, incognito: true, isMove: true, focused: false }),
 };
 
 const MODIFIABLE_ACTIONS_TABLE = {
     switch:      { [BRING]: 'bring',      [SEND]: 'send' },
     new:         { [BRING]: 'pop',        [SEND]: 'kick' },
+    newnormal:   { [BRING]: 'popnormal',  [SEND]: 'kicknormal' },
     newprivate:  { [BRING]: 'popprivate', [SEND]: 'kickprivate' },
-    bring:       { [SEND]: 'send' },
-    pop:         { [SEND]: 'kick' },
-    popprivate:  { [SEND]: 'kickprivate' },
     send:        { [BRING]: 'bring' },
     kick:        { [BRING]: 'pop' },
+    kicknormal:  { [BRING]: 'popnormal' },
     kickprivate: { [BRING]: 'popprivate' },
+    bring:       { [SEND]: 'send' },
+    pop:         { [SEND]: 'kick' },
+    popnormal:   { [SEND]: 'kicknormal' },
+    popprivate:  { [SEND]: 'kickprivate' },
 }
 
 // Select action to execute based on content of action request.
@@ -63,6 +69,7 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
         browser.windows.getLastFocused({ populate: isMove }),
     ]);
     const currentWindowDetail = { windowId: currentWindow.id };
+    incognito ??= currentWindow.incognito;
 
     const kick = !focused;
     const state = (kick && minimize_kick_window) ? 'minimized' : null;
