@@ -35,7 +35,8 @@ const compareNameLength = ($a, $b) => $a._nameLength - $b._nameLength; //@ (Obje
 //@ (String), state -> ([Object]), state
 function filter(str) {
     str = str.toUpperCase();
-    $otherWindowRows.$minHeading.hidden = true;
+    if ($otherWindowRows.$minHeading) // If called while popup is still in init, this may be undefined
+        $otherWindowRows.$minHeading.hidden = true;
     const $filteredRows = [];
     for (const $row of $otherWindowRows) {
         const name = getNameOrTitle($row).toUpperCase();

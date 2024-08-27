@@ -31,6 +31,9 @@ function onSuccess({ currentWinfo, otherWinfos, flags }) {
     Status.init(currentWinfo, otherWinfos);
 
     lockHeight($otherWindowsList);
+
+    if ($omnibox.value)
+        Omnibox.handleInput({ target: $omnibox, inputType: '' });
 }
 
 //@ -> state
