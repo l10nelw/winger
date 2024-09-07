@@ -154,6 +154,7 @@ $form.addEventListener('change', async ({ target: $field }) => {
             }
         case 'title_preface_prefix':
         case 'title_preface_postfix':
+        case 'assert_title_preface':
         case 'show_badge':
             browser.runtime.sendMessage({ type: 'update' });
             return;

@@ -3,6 +3,28 @@
 import * as Storage from '../storage.js';
 import { getShortcut } from '../utils.js';
 
+export const TitlePreface = {
+
+    //@ (Map(Number:String) | [[Number, String]]), state -> state
+    async set(nameMap) {
+        if (!await Storage.getValue('set_title_preface'))
+            return;
+        const [prefix, postfix] = await Storage.getValue(['title_preface_prefix', 'title_preface_postfix']);
+        for (const [windowId, name] of nameMap) {
+            const titlePreface = name ?
+                (prefix + name + postfix) : '';
+            browser.windows.update(windowId, { titlePreface });
+        }
+    },
+
+    //@ -> state
+    async clear() {
+        const info = { titlePreface: '' };
+        for (const { id } of await browser.windows.getAll())
+            browser.windows.update(id, info);
+    },
+}
+
 //@ -> state
 export async function showWarningBadge() {
     browser.browserAction.setBadgeBackgroundColor({ color: 'transparent' });
@@ -22,15 +44,6 @@ export async function update(nameMap) {
             `${name} - ${baseButtonTitle}` : baseButtonTitle;
         browser.browserAction.setTitle({ windowId, title });
     }
-    // Title preface
-    if (set_title_preface) {
-        const [prefix, postfix] = await Storage.getValue(['title_preface_prefix', 'title_preface_postfix']);
-        for (const [windowId, name] of nameMap) {
-            const titlePreface = name ?
-                (prefix + name + postfix) : '';
-            browser.windows.update(windowId, { titlePreface });
-        }
-    }
     // Button badge
     if (show_badge) {
         browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
@@ -39,14 +52,9 @@ export async function update(nameMap) {
     } else {
         browser.browserAction.setBadgeText({ text: '' });
     }
+    // Title preface
+    TitlePreface.set(nameMap);
 }
 
 //@ state -> String
 const getBaseButtonTitle = async () => `${browser.runtime.getManifest().name} (${await getShortcut()})`;
-
-//@ -> state
-export async function clearTitlePreface() {
-    const info = { titlePreface: '' };
-    for (const { id } of await browser.windows.getAll())
-        browser.windows.update(id, info);
-}

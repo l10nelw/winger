@@ -85,10 +85,9 @@ async function onWindowFocusChanged(windowId) {
     Storage.set({ _focused_window_id: windowId });
     Winfo.saveLastFocused(windowId);
 
-    if (set_title_preface) {
-        // Reapply titlePreface in case it's missing for any reason
-        const givenName = await browser.sessions.getWindowValue(windowId, 'givenName') || '';
-        Chrome.update([[windowId, givenName]]);
+    if (set_title_preface && await Storage.getValue('assert_title_preface')) {
+        const nameMap = (new Name.NameMap()).populate(await Winfo.getAll(['givenName']));
+        Chrome.update(nameMap);
     }
 }
 
@@ -167,7 +166,7 @@ async function onRequest(request) {
         }
 
         case 'clearTitlePreface':
-            return Chrome.clearTitlePreface();
+            return Chrome.TitlePreface.clear();
 
         case 'discardMinimized':
             if (request.enabled) {

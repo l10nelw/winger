@@ -12,6 +12,7 @@ export const DEFAULT_SETTINGS = {
     set_title_preface: undefined,
     title_preface_prefix: '',
     title_preface_postfix: ' - ',
+    assert_title_preface: false,
 
     enable_stash: false,
     stash_home_root: 'toolbar_____',

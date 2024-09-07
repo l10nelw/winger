@@ -28,12 +28,18 @@
         <label><input class="setting" type="checkbox" name="show_badge"> <span>Show name on the Winger button
           <br><small>Limited to the first few characters</small>
         </span></label>
-        <label><input class="setting" type="checkbox" name="set_title_preface"> <span>Show name in window title preface
+        <label><input class="setting" type="checkbox" name="set_title_preface"> <span>Enable window title preface
           <br><small>Disable if you rely on another extension that sets title prefaces</small>
         </label>
-        <div class="flex gap indent">
-          <label><span>Prefix</span> <input class="setting smallField" type="text" data-enabled-by="set_title_preface" name="title_preface_prefix"></label>
-          <label><span>Postfix</span> <input class="setting smallField" type="text" data-enabled-by="set_title_preface" name="title_preface_postfix"></label>
+        <div class="indent">
+          <div class="flex gap">
+            <label><span>Prefix</span> <input class="setting smallField" type="text" data-enabled-by="set_title_preface" name="title_preface_prefix"></label>
+            <label><span>Postfix</span> <input class="setting smallField" type="text" data-enabled-by="set_title_preface" name="title_preface_postfix"></label>
+          </div>
+          <label><input class="setting" type="checkbox" data-enabled-by="set_title_preface" name="assert_title_preface"> <span>Re-assert on every window switch
+            <br><small>Useful if Winger's title prefaces often disappear or get overridden
+            <br>(You should check for and deal with any conflicting extensions if possible)</small>
+          </span></label>
         </div>
         <small>Learn more about <a class="help" href="#name">window naming</a></small>
       </fieldset>
