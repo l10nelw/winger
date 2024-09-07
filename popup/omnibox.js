@@ -35,8 +35,11 @@ const COMMAND__CALLBACK = {
 
     async extractname({ argument, $name, regex }) {
         $name ??= $names[0];
-        regex ??= new RegExp(argument);
-        let name = $name.placeholder.match(regex)[1]?.trim();
+        regex ??= createRegex(argument);
+        if (!regex)
+            return;
+        const result = $name.placeholder.match(regex);
+        let name = (result[1] || result[0])?.trim();
         if (name === $name.value)
             return;
         name = validUniqueName(name);
@@ -231,4 +234,23 @@ export function clear() {
     Parsed.clear();
     $omnibox.value = '';
     $omnibox.classList.remove('slashCommand');
+}
+
+//@ (String) -> (Object), state
+function createRegex(str) {
+    try {
+        return new RegExp(str);
+    } catch (e) {
+        showError(`RegExp ${e}`);
+    }
+}
+
+//@ (String) -> state
+function showError(message) {
+    $omnibox.classList.add('error');
+    $omnibox.placeholder = message;
+    setTimeout(() => {
+        $omnibox.classList.remove('error');
+        $omnibox.placeholder = '';
+    }, 1500);
 }

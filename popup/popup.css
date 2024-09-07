@@ -204,6 +204,11 @@ body:not([data-mode="edit"]) #currentWindow .name:focus + .tabCount::before {
 #omnibox::placeholder {
     opacity: .33;
 }
+#omnibox.error::placeholder {
+    opacity: 1;
+    color: var(--danger-color);
+    font-style: italic;
+}
 
 .slashCommand {
     color: var(--accent-color);
