@@ -9,6 +9,9 @@ export const DEFAULT_SETTINGS = {
     minimize_kick_window: false,
 
     show_badge: false,
+    badge_show_emoji_first: false,
+    badge_regex: '',
+    badge_regex_gflag: false,
     set_title_preface: undefined,
     title_preface_prefix: '',
     title_preface_postfix: ' - ',

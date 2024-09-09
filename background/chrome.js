@@ -1,7 +1,8 @@
 // The 'chrome' refers to UI elements of the browser that frame the content.
 
-import * as Storage from '../storage.js';
 import { getShortcut } from '../utils.js';
+import * as Storage from '../storage.js';
+import * as Badge from './chrome.badge.js';
 
 export const TitlePreface = {
 
@@ -34,10 +35,7 @@ export async function showWarningBadge() {
 
 //@ (Map(Number:String) | [[Number, String]]), state -> state
 export async function update(nameMap) {
-    const [baseButtonTitle, [set_title_preface, show_badge]] = await Promise.all([
-        getBaseButtonTitle(),
-        Storage.getValue(['set_title_preface', 'show_badge']),
-    ]);
+    const [baseButtonTitle, show_badge] = await Promise.all([ getBaseButtonTitle(), Storage.getValue('show_badge') ]);
     // Button tooltip
     for (const [windowId, name] of nameMap) {
         const title = name ?
@@ -45,13 +43,9 @@ export async function update(nameMap) {
         browser.browserAction.setTitle({ windowId, title });
     }
     // Button badge
-    if (show_badge) {
-        browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
-        for (const [windowId, text] of nameMap)
-            browser.browserAction.setBadgeText({ windowId, text });
-    } else {
-        browser.browserAction.setBadgeText({ text: '' });
-    }
+    show_badge
+        ? Badge.update(nameMap)
+        : browser.browserAction.setBadgeText({ text: '' });
     // Title preface
     TitlePreface.set(nameMap);
 }

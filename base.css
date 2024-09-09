@@ -63,3 +63,7 @@ samp {
     font-weight: bold;
     white-space: nowrap;
 }
+
+.error {
+    border-color: var(--danger-color) !important;
+}

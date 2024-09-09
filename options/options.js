@@ -14,6 +14,7 @@ const PARSE_CONSTANTS = Object.entries({
     null: null,
     undefined: undefined,
 });
+//@ (String) -> (Any)
 function parse(value) {
     if (value === '')
         return '';
@@ -26,6 +27,21 @@ function parse(value) {
     if (!isNaN(number))
         return number;
     return value;
+}
+
+//@ (Object) -> (Boolean), state
+function validateRegex($field) {
+    try {
+        new RegExp($field.value);
+        $field.setCustomValidity('');
+        $field.classList.remove('error');
+        return true;
+    } catch (e) {
+        $field.setCustomValidity('Invalid regular expression');
+        $field.reportValidity();
+        $field.classList.add('error');
+        return false;
+    }
 }
 
 const Setting = {
@@ -51,7 +67,7 @@ const Setting = {
 };
 
 // Maps enabler fields to arrays of target fields.
-// Enablers are checkboxes that enable/disable fields with data-enabled-by="{enabler_name}" attribute.
+// An enabler enables/disables fields that have a data-enabled-by="{enabler_name}" attribute.
 const enablerMap = Object.assign(new GroupMap(), {
 
     //@ (Object, Boolean) -> state
@@ -66,7 +82,7 @@ const enablerMap = Object.assign(new GroupMap(), {
         if (!$enabler)
             return;
         this.group($enabler, $target);
-        this._updateTarget($target, $enabler.disabled || !$enabler.checked);
+        this._updateTarget($target, $enabler.disabled || !$enabler[relevantProp($enabler.type)]);
     },
 
     // Enable/disable fields that $enabler controls and save their associated settings.
@@ -76,8 +92,8 @@ const enablerMap = Object.assign(new GroupMap(), {
         const $targets = this.get($enabler);
         if (!$targets)
             return true;
-        // Disable targets if enabler is unchecked or is itself disabled
-        const disable = $enabler.disabled || !$enabler.checked;
+        // Disable targets if enabler is unchecked, empty or is itself disabled
+        const disable = $enabler.disabled || !$enabler[relevantProp($enabler.type)];
         const saving = [];
         for (const $target of $targets) {
             this._updateTarget($target, disable);
@@ -92,12 +108,10 @@ const StashSection = {
     permission: { permissions: ['bookmarks'] },
 
     //@ (Object), state -> state|nil
-    async onEnabled($field) {
-        if ($field !== $form.enable_stash)
-            return;
-        if (!$field.checked)
+    async onEnabled($enable_stash) {
+        if (!$enable_stash.checked)
             return browser.permissions.remove(StashSection.permission);
-        $field.checked = await browser.permissions.request(StashSection.permission);
+        $enable_stash.checked = await browser.permissions.request(StashSection.permission);
     },
 };
 
@@ -138,15 +152,26 @@ const StaticText = {
 })();
 
 $form.addEventListener('change', async ({ target: $field }) => {
-    await StashSection.onEnabled($field);
+    const fieldName = $field.name;
 
+    // Before save
+    switch (fieldName) {
+        case 'badge_regex':
+            if (!validateRegex($field))
+                return;
+        case 'enable_stash':
+            await StashSection.onEnabled($field);
+    }
+
+    // Save
     const isAllSaved = (
         await Promise.all([ enablerMap.trigger($field), Setting.save($field) ])
     ).every(Boolean);
     if (isAllSaved)
         indicateSuccess($field.closest('.flex') || $field.closest('label'));
 
-    switch ($field.name) {
+    // After save
+    switch (fieldName) {
         case 'set_title_preface':
             if (!$field.checked) {
                 browser.runtime.sendMessage({ type: 'clearTitlePreface' });
@@ -156,6 +181,9 @@ $form.addEventListener('change', async ({ target: $field }) => {
         case 'title_preface_postfix':
         case 'assert_title_preface':
         case 'show_badge':
+        case 'badge_show_emoji_first':
+        case 'badge_regex':
+        case 'badge_regex_gflag':
             browser.runtime.sendMessage({ type: 'update' });
             return;
 

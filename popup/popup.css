@@ -189,10 +189,6 @@ body:not([data-mode="edit"]) #currentWindow .name:focus + .tabCount::before {
     color: var(--private-text-color);
 }
 
-.error {
-    border-color: var(--danger-color) !important;
-}
-
 
 /* --- Omnibox --- */
 

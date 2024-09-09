@@ -25,9 +25,16 @@
 
       <fieldset>
         <legend>Window name display</legend>
-        <label><input class="setting" type="checkbox" name="show_badge"> <span>Show name on the Winger button
-          <br><small>Limited to the first few characters</small>
+        <label><input class="setting" type="checkbox" name="show_badge"> <span>Enable Winger button badge
+          <br><small>Shows the first few characters of a window name</small>
         </span></label>
+        <div class="indent">
+          <label><input class="setting" type="checkbox" data-enabled-by="show_badge" name="badge_show_emoji_first"> <span>Show emojis first</span></label>
+          <div class="flex gap">
+            <label><span>Apply regular expression:</span> <input class="setting" type="text" data-enabled-by="show_badge" name="badge_regex" placeholder="e.g. \b\w"></label>
+            <label><input class="setting" type="checkbox" data-enabled-by="badge_regex" name="badge_regex_gflag"> <span>Multi-match/global</span></label>
+          </div>
+        </div>
         <label><input class="setting" type="checkbox" name="set_title_preface"> <span>Enable window title preface
           <br><small>Disable if you rely on another extension that sets title prefaces</small>
         </label>
@@ -98,7 +105,7 @@
 
       <fieldset>
         <legend>Private windows</legend>
-        <p class="private-allowed-yes" hidden>Winger can list and interact with private windows.</p>
+        <p class="private-allowed-yes" hidden>Winger detects that it can create and interact with private windows.</p>
         <p class="private-allowed-no" hidden>Private windows are currently <strong>not</strong> accessible to Winger. As far as Winger is concerned they do not exist.</p>
         <p>To change access to private windows, go to the <cite>Details</cite> tab at the top this page and choose an option for <cite>Run in Private Windows</cite>.</p>
         <small>Learn more about <a class="help" href="#private">private windows</a></small>
