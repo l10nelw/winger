@@ -1,0 +1,174 @@
+:root {
+  --page-box-border-color: #ccc;
+
+  --page-button-bg-color: #ccc;
+  --page-highlight-bg-color: yellow;
+
+  scroll-padding-top: 1rem;
+}
+
+.dark {
+  --page-button-bg-color: #52525e;
+  --page-highlight-bg-color: #541;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1rem;
+  line-height: 1.5;
+  background-color: var(--page-bg-color);
+  color: var(--text-color);
+}
+a[target="_blank"]::after {
+  content: "↗️";
+  font-variant-position: super;
+}
+a[href^="mailto:"]::after {
+  content: "✉️";
+  font-variant-position: super;
+}
+
+h1, h2, h3, h4, p, ul, ol, dl {
+  margin-top: 0;
+}
+h1 b, h2, h3, h4 {
+  font-weight: 900;
+}
+h1, h2 {
+  margin-bottom: 2rem;
+}
+ul, ol {
+  padding-left: 1.5rem;
+}
+details[open] > summary {
+  margin-bottom: 1.5rem;
+}
+summary {
+  cursor: pointer;
+}
+summary.h2::marker { /* TODO: Use summary:has(h2)::marker once supported */
+  font-size: 1.5rem;
+}
+kbd + kbd { /* Text nodes to the left are ignored, which may cause unwanted margins. Use <span>s as a workaround. */
+  margin-left: .25rem;
+}
+cite {
+  font-weight: bold;
+}
+
+.topTools {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 1rem;
+}
+
+.inlineLinkList {
+  list-style: none;
+}
+.inlineLinkList > li {
+  display: inline-block;
+}
+.inlineLinkList > li:not(:last-child)::after {
+  content: " | ";
+}
+
+.themeBtn {
+  --light-theme-icon: "☀️";
+  --light-theme-bg: skyblue;
+  --dark-theme-icon: "🌙";
+  --dark-theme-bg: indigo;
+
+  --theme-icon: var(--light-theme-icon);
+  --theme-bg: var(--light-theme-bg);
+
+  background-color: var(--theme-bg);
+  border: none;
+  border-radius: 50%;
+  line-height: 1;
+  aspect-ratio: 1;
+  cursor: pointer;
+}
+.themeBtn::after {
+  content: var(--theme-icon);
+}
+.dark .themeBtn {
+  --theme-icon: var(--dark-theme-icon);
+  --theme-bg: var(--dark-theme-bg);
+}
+
+.actionBtn {
+  background-color: var(--page-button-bg-color);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  vertical-align: top;
+}
+.actionBtn img {
+  width: 90%;
+}
+
+.row { display: flex; }
+.equal-col > .col { flex: 1; }
+
+.settingsBtn {
+  border-radius: 2px;
+  padding: 2px 5px;
+  line-height: 1;
+}
+.settingsBtn::before {
+  content: "⚙️ ";
+}
+
+.bordered-box {
+  border: 3px solid var(--page-box-border-color);
+  padding: .5rem 1rem;
+  border-radius: 1rem;
+}
+.bordered-left {
+  border-left: 3px solid var(--page-box-border-color);
+}
+
+:target {
+  animation: target-fading-highlight 2s 1;
+}
+@keyframes target-fading-highlight {
+  from { background-color: var(--page-highlight-bg-color); }
+  to   { background-color: none; }
+}
+
+.w100 { width: 100%; }
+.inline-block { display: inline-block; }
+.center { text-align: center; }
+.grid { display: grid; }
+.gcol-span3 { grid-column: span 3; }
+.gcol-span2 { grid-column: span 2; }
+
+.lastchild-mb0 > :last-child { margin-bottom: 0; }
+.children-mb1 > * { margin-bottom: 1rem; }
+.children-m0 > * { margin: 0; }
+.m0 { margin: 0; }
+.mr1 { margin-right: 1rem; }
+.mx { margin-inline: auto; }
+.mx1, .mx1-content :is(p, ul, ol, dl) { margin-inline: 1rem; }
+.mb1 { margin-bottom: 1rem; }
+.mb2 { margin-bottom: 2rem; }
+.mb5 { margin-bottom: 5rem; }
+.pl1 { padding-left: 1rem; }
+.pl2 { padding-left: 2rem; }
+.px1 { padding-inline: 1rem; }
+
+small, .small { font-size: 80%; }
+.fw-normal { font-weight: normal; }
+.nowrap { white-space: nowrap; }
+
+.bulleted::before { content: "• "; }
