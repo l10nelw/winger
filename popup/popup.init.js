@@ -123,9 +123,9 @@ const Row = {
     createOther(winfo, currentIncognito) {
         const $row = $currentWindowRow.cloneNode(true);
         Row.hydrate($row, winfo);
-        // Disable tab action buttons if popup/panel-type window
+        // Disable send/bring/stash buttons if popup/panel-type window
         if (winfo.type !== 'normal') {
-            $row.querySelectorAll('.tabAction').forEach(Row.disableElement);
+            $row.querySelectorAll('button').forEach(Row.disableElement);
             $row.classList.add('tabless');
         } else
         // Indicate if a send/bring action to this window will be a reopen operation
