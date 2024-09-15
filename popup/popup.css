@@ -79,7 +79,6 @@ li > * {
 }
 
 .tabCount {
-    position: relative; /* For pencil icon */
     width: var(--tabcount-width);
     margin: 0 var(--tabcount-x-margin);
     color: var(--muted-text-color);
@@ -162,11 +161,14 @@ body:not([data-mode="edit"]) #currentWindow .name {
 }
 
 /* Pencil icon to indicate clickable name */
+#currentWindow .tabCount {
+    position: relative;
+}
 body:not([data-mode="edit"]) #currentWindow .tabCount::before {
+    position: absolute;
     display: none;
     pointer-events: none;
     content: "✎";
-    position: absolute;
     left: calc(-2rem - var(--tabcount-x-margin));
     top: 50%;
     transform: translateY(-50%) scaleX(-1);
