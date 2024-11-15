@@ -105,13 +105,24 @@ const enablerMap = Object.assign(new GroupMap(), {
 });
 
 const StashSection = {
-    permission: { permissions: ['bookmarks'] },
+    permissionInfo: { permissions: ['bookmarks'] },
+
+    //@ state -> (Boolean)
+    hasPermission: async () => (await browser.permissions.getAll()).permissions.includes('bookmarks'),
+
+    //@ state -> state
+    async onNoPermission() {
+        const $enable_stash = $form.enable_stash;
+        $enable_stash.checked = false;
+        enablerMap.trigger($enable_stash);
+        Setting.save($enable_stash);
+    },
 
     //@ (Object), state -> state|nil
     async onEnabled($enable_stash) {
         if (!$enable_stash.checked)
-            return browser.permissions.remove(StashSection.permission);
-        $enable_stash.checked = await browser.permissions.request(StashSection.permission);
+            return browser.permissions.remove(StashSection.permissionInfo);
+        $enable_stash.checked = await browser.permissions.request(StashSection.permissionInfo);
     },
 };
 
@@ -141,15 +152,20 @@ const StaticText = {
 
 (async function init() {
     const SETTINGS = await Storage.getDict(Storage.DEFAULT_SETTINGS);
-
     for (const $field of Setting.$fields) {
         Setting.load(SETTINGS[$field.name], $field);
         enablerMap.addTarget($field);
     }
-
+    if ($form.enable_stash.checked && !await StashSection.hasPermission())
+        StashSection.onNoPermission();
     StaticText.insertShortcut();
     StaticText.checkPrivateAccess();
 })();
+
+browser.permissions.onRemoved.addListener(({ permissions }) => {
+    if (permissions.includes('bookmarks'))
+        StashSection.onNoPermission();
+});
 
 $form.addEventListener('change', async ({ target: $field }) => {
     const fieldName = $field.name;
