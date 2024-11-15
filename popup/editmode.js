@@ -12,6 +12,7 @@ import {
 import * as Omnibox from './omnibox.js';
 import * as Request from './request.js';
 import indicateSuccess from '../success.js';
+import { isWindowId } from '../utils.js';
 
 export let isActive = false; // Indicates if popup is in edit mode
 
@@ -146,7 +147,7 @@ async function trySaveNameAndHandleErrors($name) {
 //@ (Object, String) -> (Boolean), state
 export async function saveNameUpdateUI($name, name) {
     const id = $name._id;
-    if (typeof id === 'number') {
+    if (isWindowId(id)) {
         // id is windowId
         if (!await Name.save(id, name))
             return false;

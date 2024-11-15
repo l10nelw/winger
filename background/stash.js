@@ -6,7 +6,9 @@ import * as Winfo from './winfo.js';
 import * as Storage from '../storage.js';
 import * as StashProp from './stash.prop.js';
 
-export const nowProcessing = new Set(); // Ids of windows and folders currently involved in any stashing/unstashing operations
+// Ids of windows and folders currently involved in stashing/unstashing operations
+export const nowStashing = new Set();
+export const nowUnstashing = new Set();
 
 
 /* --- INIT --- */
@@ -78,6 +80,7 @@ export class FolderList extends Array {
     // Find folder with the given title and whether bookmarks are allowed.
     //@ (String, Boolean), state -> (Object|undefined)
     async findByTitle(title, canContainBookmarks) {
+        const nowProcessing = nowStashing.union(nowUnstashing);
         if (canContainBookmarks)
             return this.find(folder => !nowProcessing.has(folder.id) && folder.givenName === title);
         // Find bookmarkless folder
@@ -119,7 +122,7 @@ async function getAvailableFolder(title, canContainBookmarks, parentId, nodes = 
 // Create folder if nonexistent, save tabs as bookmarks in folder. Close window if remove is true.
 //@ (Number, String, Boolean), state -> state
 export async function stashWindow(windowId, name, remove) {
-    nowProcessing.add(windowId);
+    nowStashing.add(windowId);
 
     const [window, allWindows, homeId] = await Promise.all([
         browser.windows.get(windowId, { populate: true }),
@@ -136,7 +139,7 @@ export async function stashWindow(windowId, name, remove) {
         () => browser.windows.remove(windowId),
     );
 
-    nowProcessing.delete(windowId);
+    nowStashing.delete(windowId);
 }
 
 // Turn current window's selected tabs into bookmarks at targeted bookmark location or in targeted folder.
@@ -149,7 +152,7 @@ export async function stashSelectedTabs(nodeId, remove) {
     ]);
 
     const windowId = tabs[0].windowId;
-    nowProcessing.add(windowId);
+    nowStashing.add(windowId);
 
     const selectedTabs = tabs.filter(tab => tab.highlighted);
     delete selectedTabs.find(tab => tab.active)?.active; // Avoid adding extra active tab to target stashed window
@@ -162,7 +165,7 @@ export async function stashSelectedTabs(nodeId, remove) {
         () => browser.tabs.remove(selectedTabs.map(tab => tab.id)),
     );
 
-    nowProcessing.delete(windowId);
+    nowStashing.delete(windowId);
 }
 
 // In case of a lone window to be closed, keep it open until stash operation is complete.
@@ -188,7 +191,7 @@ async function createBookmarksAtNode(tabs, node, logName = '') {
         StashProp.Tab.prepare(tabs),
     ]);
     const folderId = folder.id;
-    nowProcessing.add(folderId);
+    nowStashing.add(folderId);
 
     const index = isNodeFolder ? null : node.index;
     const count = tabs.length;
@@ -197,7 +200,7 @@ async function createBookmarksAtNode(tabs, node, logName = '') {
         creatingBookmarks[i] = createBookmark(tabs[i], folderId, index, logName);
     const bookmarks = await Promise.all(creatingBookmarks);
 
-    nowProcessing.delete(folderId);
+    nowStashing.delete(folderId);
     return bookmarks;
 }
 
@@ -225,7 +228,7 @@ export async function unstashNode(nodeId, remove = true) {
 }
 
 // Unstash single bookmark to current window.
-// This operation will not appear in nowProcessing.
+// This operation will not appear in nowUnstashing.
 //@ (Object, Boolean), state -> state
 async function unstashBookmark(node, remove) {
     const window = await browser.windows.getLastFocused();
@@ -246,7 +249,7 @@ async function unstashFolder(folder, remove) {
     ]);
     const folderId = folder.id;
     const windowId = window.id;
-    nowProcessing.add(folderId).add(windowId); // To be removed in populateWindow()
+    nowUnstashing.add(folderId).add(windowId); // To be removed in populateWindow()
     if (auto_name_unstash)
         nameWindow(windowId, name);
     populateWindow(window, folderId, name, remove);
@@ -279,13 +282,13 @@ async function populateWindow(window, folderId, logName, remove) {
         const tabs = await Promise.all(openingTabs);
         StashProp.Tab.postOpen(tabs, protoTabs);
     }
-    nowProcessing.delete(windowId);
+    nowUnstashing.delete(windowId);
 
     if (remove)
         subfolders.length // If folder contains subfolders
         ? await Promise.all( bookmarks.map(bookmark => removeNode(bookmark.id)) ) // remove each bookmark individually
         : await browser.bookmarks.removeTree(folderId); // else remove entire folder
-    nowProcessing.delete(folderId);
+    nowUnstashing.delete(folderId);
 }
 
 //@ (String), state -> (Promise: {[Object]})
@@ -313,6 +316,7 @@ function openTab(protoTab, logName = '') {
 // Can tabs in given or current window be stashed at/into this node?
 //@ (String, Number|undefined), state -> (Boolean)
 export async function canStashHere(nodeId, windowId = null) {
+    const nowProcessing = nowStashing.union(nowUnstashing);
     return !(
         nowProcessing.has(nodeId) || // Folder is being processed
         nowProcessing.has(windowId || await Storage.getValue('_focused_window_id')) || // Window is being processed
@@ -323,6 +327,7 @@ export async function canStashHere(nodeId, windowId = null) {
 // Can given node be unstashed?
 //@ (String), state -> (Boolean)
 export async function canUnstashThis(nodeId) {
+    const nowProcessing = nowStashing.union(nowUnstashing);
     if (ROOT_IDS.has(nodeId) || nowProcessing.has(nodeId)) // Is root folder, or folder is being processed
         return false;
     const node = await getNode(nodeId);

@@ -1,3 +1,5 @@
+import { isWindowId } from './utils.js';
+
 const NUMBER_POSTFIX = / (\d+)$/;
 
 //@ (Number), state -> (String)
@@ -52,7 +54,7 @@ export class NameMap extends Map {
     //@ state -> (Boolean)
     hasWindowName() {
         for (const [id, name] of this)
-            if (typeof id !== 'number') // No more open-windows in loop
+            if (!isWindowId(id)) // No more open-windows in loop
                 return false;
             else if (name)
                 return true;

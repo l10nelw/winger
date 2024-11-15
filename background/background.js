@@ -8,6 +8,7 @@ import * as StashMenu from './menu.stash.js';
 import * as SendMenu from './menu.send.js';
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
+import { isWindowId, isFolderId } from '../utils.js';
 
 //@ -> state
 async function debug() {
@@ -130,22 +131,30 @@ async function onAlarm({ name }) {
 async function onRequest(request) {
     switch (request.type) {
         case 'popup': {
-            const [flags, allow_private] = await Promise.all([
+            let [windows, flags, allow_private] = await Promise.all([
+                browser.windows.getAll({ populate: true }),
                 Storage.getDict(['show_popup_bring', 'show_popup_send', 'set_title_preface', 'enable_stash', 'show_popup_stash']),
                 browser.extension.isAllowedIncognitoAccess(),
             ]);
+            if (Stash.nowStashing.size)
+                windows = excludeByIds(windows, Stash.nowStashing.values().filter(isWindowId)); // Exclude windows currently being stashed
             flags.allow_private = allow_private;
             const winfoProps = ['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type'];
             winfoProps.push(flags.set_title_preface ? 'titleSansName' : 'title');
             if (!flags.enable_stash)
                 delete flags.show_popup_stash;
-            return { ...Winfo.arrange(await Winfo.getAll(winfoProps)), flags };
+            const winfos = await Winfo.getAll(winfoProps, windows);
+            return { ...Winfo.arrange(winfos), flags };
         }
 
         case 'popupStash': {
             const [enable_stash, homeId] = await Storage.getValue(['enable_stash', '_stash_home_id']);
-            return enable_stash && homeId ?
-                (new Stash.FolderList()).populate(homeId) : [];
+            if (!(enable_stash && homeId))
+                return [];
+            let folders = await (new Stash.FolderList()).populate(homeId);
+            if (Stash.nowStashing.size)
+                folders = excludeByIds(folders, Stash.nowUnstashing.values().filter(isFolderId)); // Exclude folders currently being unstashed
+            return folders;
         }
 
         case 'popupStashContents':
@@ -201,6 +210,27 @@ async function onRequest(request) {
         case 'debug':
             return debug();
     }
+}
+
+// Filter out objects that have given ids.
+// More efficient than `objects.filter(o => !ids.has(o.id))`.
+//@ ([Object], [Any]|Set(Any)) -> ([Object])
+function excludeByIds(objects, ids) {
+    if (!(ids.length || ids.size))
+        return objects;
+    if (!(ids instanceof Set))
+        ids = new Set(ids);
+    const remainders = [];
+    for (let i = 0, n = objects.length; i < n; i++) {
+        if (!ids.size) {
+            remainders.push(...objects.slice(i));
+            break;
+        }
+        const object = objects[i];
+        if (!ids.delete(object.id))
+            remainders.push(object);
+    }
+    return remainders;
 }
 
 //@ (Object), state -> (Promise: [Object]|Error)
