@@ -43,6 +43,18 @@ export function restoreTabRelations(tabs, referenceTabs, isMove = false) {
     }
 }
 
+// Re-discard discarded tabs.
+// To work around a rare issue where, for some reason, discarded tabs sometimes reload when moved.
+//@ ([Object]) -> state
+export function assertDiscard(tabs) {
+    const tabIds = [];
+    for (const tab of tabs)
+        if (tab.discarded)
+            tabIds.push(tab.id);
+    if (tabIds.length)
+        browser.tabs.discard(tabIds);
+}
+
 
 /* --- Placeholder tab --- */
 

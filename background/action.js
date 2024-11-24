@@ -117,6 +117,7 @@ async function sendTabs(request) {
 
     const movedTabs = await moveTabs(request);
     if (movedTabs.length) {
+        Auto.assertDiscard(tabs);
         Auto.restoreTabRelations(movedTabs, tabs, true);
         if (discard_minimized_window && request.minimized && request.action !== 'bring')
             Auto.discardWindow.schedule(request.windowId);
