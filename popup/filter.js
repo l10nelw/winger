@@ -3,7 +3,7 @@ import {
     $otherWindowRows,
 } from './common.js';
 
-export let $shownRows; // Visible other window rows
+export let $shownRows; // Visible non-current window rows
 
 //@ state -> state
 export function init() {
@@ -35,8 +35,8 @@ const compareNameLength = ($a, $b) => $a._nameLength - $b._nameLength; //@ (Obje
 //@ (String), state -> ([Object]), state
 function filter(str) {
     str = str.toUpperCase();
-    if ($otherWindowRows.$minHeading) // If called while popup is still in init, this may be undefined
-        $otherWindowRows.$minHeading.hidden = true;
+    if ($otherWindowRows.$minimizedHeading) // If called while popup is still in init, this may be undefined
+        $otherWindowRows.$minimizedHeading.hidden = true;
     const $filteredRows = [];
     for (const $row of $otherWindowRows) {
         const name = getNameOrTitle($row).toUpperCase();
@@ -60,7 +60,7 @@ function getNameOrTitle($row) {
 // Restore sort order by comparing 'live' $otherWindowsList.children against correctly-sorted $otherWindowRows.
 //@ state -> state
 function reset() {
-    $otherWindowRows.$withMinHeading.forEach(($correctRow, index) => {
+    $otherWindowRows.$withMinimizedHeading.forEach(($correctRow, index) => {
         $correctRow.hidden = false;
         const $row = $otherWindowsList.children[index];
         if ($row !== $correctRow)

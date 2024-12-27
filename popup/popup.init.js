@@ -60,12 +60,12 @@ function addRows(currentWinfo, otherWinfos) {
     Row.initCurrent();
     const currentIncognito = currentWinfo.incognito;
     const $rowsFragment = document.createDocumentFragment();
-    let $minHeading = $otherWindowsList.firstElementChild; // "---Minimized---"
-    let minHeadingIndex = -1, index = 0;
-    // Create other-rows (by cloning current-row), and set minHeadingIndex to index of first minimized row
+    const $minimizedHeading = document.getElementById('minimizedHeading');
+    let minimizedHeadingIndex = -1, index = 0;
+    // Create other-rows (by cloning current-row), and set minimizedHeadingIndex to index of first minimized row
     for (const winfo of otherWinfos) {
-        if (minHeadingIndex === -1 && winfo.minimized)
-            minHeadingIndex = index;
+        if (minimizedHeadingIndex === -1 && winfo.minimized)
+            minimizedHeadingIndex = index;
         $rowsFragment.appendChild(Row.createOther(winfo, currentIncognito));
         index++;
     }
@@ -74,21 +74,21 @@ function addRows(currentWinfo, otherWinfos) {
     Row.hydrateCurrent($currentWindowRow, currentWinfo);
 
     // Populate $otherWindowRows array
-    if (minHeadingIndex === -1) {
-        $minHeading.remove();
-        $otherWindowRows.$minHeading = {};
+    if (minimizedHeadingIndex === -1) {
+        $minimizedHeading.remove();
+        $otherWindowRows.$minimizedHeading = {};
     } else {
-        const $elAfterHeading = minHeadingIndex
-            ? $otherWindowsList.querySelector('.minimized') // Move to above the first minimized-row
-            : $otherWindowsList; // Move outside and above the list
-        $elAfterHeading.insertAdjacentElement('beforebegin', $minHeading);
-        $otherWindowRows.$minHeading = $minHeading;
-        $minHeading.hidden = false;
+        const $elAfterHeading = minimizedHeadingIndex > 0 ?
+            $otherWindowsList.querySelector('.minimized') : // Move to above the first minimized-row
+            $otherWindowsList; // Move outside and above the list
+        $elAfterHeading.insertAdjacentElement('beforebegin', $minimizedHeading);
+        $otherWindowRows.$minimizedHeading = $minimizedHeading;
+        $minimizedHeading.hidden = false;
     }
     const $otherRows = [...$otherWindowsList.children];
-    $otherWindowRows.$withMinHeading = [...$otherRows]; // Has no minimized-heading if minHeadingIndex <= 0
-    if (minHeadingIndex > 0)
-        $otherRows.splice(minHeadingIndex, 1);
+    $otherWindowRows.$withMinimizedHeading = [...$otherRows]; // Has no minimized-heading if minimizedHeadingIndex <= 0
+    if (minimizedHeadingIndex > 0)
+        $otherRows.splice(minimizedHeadingIndex, 1);
     $otherWindowRows.push(...$otherRows); // Always has no minimized-heading
 }
 
