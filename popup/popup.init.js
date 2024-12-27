@@ -17,18 +17,18 @@ import * as Request from './request.js';
 Request.popup().then(onSuccess).catch(onError);
 
 //@ ({ Object, [Object], Object }) -> state
-function onSuccess({ currentWinfo, otherWinfos, flags }) {
+async function initPopup({ fgWinfo, bgWinfos, flags }) {
     Object.assign(FLAGS, flags);
 
-    const hasName = currentWinfo.givenName || otherWinfos.find(winfo => winfo.givenName);
+    const hasName = fgWinfo.givenName || bgWinfos.find(winfo => winfo.givenName);
     $body.classList.toggle('nameless', !hasName);
 
-    addRows(currentWinfo, otherWinfos);
+    addRows(fgWinfo, bgWinfos);
     $names.push(...$body.querySelectorAll('.name'));
 
     Omnibox.init();
     Filter.init();
-    Status.init(currentWinfo, otherWinfos);
+    Status.init(fgWinfo, bgWinfos);
 
     lockHeight($otherWindowsList);
 
@@ -56,14 +56,14 @@ function onError() {
 
 // Populate $otherWindowsList and $otherWindowRows with rows
 //@ (Object, [Object], Object) -> state
-function addRows(currentWinfo, otherWinfos) {
+function addWindowRows(fgWinfo, bgWinfos) {
     Row.initCurrent();
-    const currentIncognito = currentWinfo.incognito;
+    const currentIncognito = fgWinfo.incognito;
     const $rowsFragment = document.createDocumentFragment();
     const $minimizedHeading = document.getElementById('minimizedHeading');
     let minimizedHeadingIndex = -1, index = 0;
     // Create other-rows (by cloning current-row), and set minimizedHeadingIndex to index of first minimized row
-    for (const winfo of otherWinfos) {
+    for (const winfo of bgWinfos) {
         if (minimizedHeadingIndex === -1 && winfo.minimized)
             minimizedHeadingIndex = index;
         $rowsFragment.appendChild(Row.createOther(winfo, currentIncognito));
@@ -71,7 +71,7 @@ function addRows(currentWinfo, otherWinfos) {
     }
     $otherWindowsList.appendChild($rowsFragment);
     // Hydrate current-row only after all other-rows have been created
-    Row.hydrateCurrent($currentWindowRow, currentWinfo);
+    Row.hydrateCurrent($currentWindowRow, fgWinfo);
 
     // Populate $otherWindowRows array
     if (minimizedHeadingIndex === -1) {

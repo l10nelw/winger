@@ -110,18 +110,18 @@ async function getOne(window, commonInfo) {
     return winfo;
 }
 
-// Split a list of winfos into the current-winfo and a SORTED list of other-winfos.
+// Split a list of winfos into the foreground/current winfo and a SORTED list of background winfos.
 // Needs winfos with `focused` and `lastFocused` properties for arrange() to work correctly.
 //@ ([Object]) -> (Object, [Object])
 export function arrange(winfos) {
-    const currentIndex = winfos.findIndex(winfo => winfo.focused);
-    if (currentIndex === -1)
+    const fgIndex = winfos.findIndex(winfo => winfo.focused);
+    if (fgIndex === -1)
         throw 'Expected winfo.focused property';
-    const currentWinfo = winfos.splice(currentIndex, 1)[0];
+    const fgWinfo = winfos.splice(fgIndex, 1)[0];
     winfos.sort((a, b) => (a.minimized - b.minimized) || (b.lastFocused - a.lastFocused));
     return {
-        currentWinfo,
-        otherWinfos: winfos,
+        fgWinfo,
+        bgWinfos: winfos,
     };
 }
 

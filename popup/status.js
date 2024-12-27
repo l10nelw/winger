@@ -47,15 +47,15 @@ const statusType = {
     },
 }
 
-//@ ([Object], Number, {Boolean}), state -> state
-export async function init(currentWinfo, otherWinfos) {
+//@ (Object, [Object]), state -> state
+export async function init(fgWinfo, bgWinfos) {
     if (!FLAGS.enable_stash)
         delete statusType.stashShift;
 
-    count.windows = 1 + otherWinfos.length;
-    count.selectedTabs = currentWinfo.selectedTabCount;
-    count.tabs = currentWinfo.tabCount;
-    for (const winfo of otherWinfos)
+    count.windows = 1 + bgWinfos.length;
+    count.selectedTabs = fgWinfo.selectedTabCount;
+    count.tabs = fgWinfo.tabCount;
+    for (const winfo of bgWinfos)
         count.tabs += winfo.tabCount;
     update();
 }

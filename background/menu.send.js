@@ -40,20 +40,20 @@ export async function handleShow(info, tab) {
     return true;
 }
 
-// Clear submenu and populate with sorted other-windows.
+// Clear submenu and populate with sorted background windows.
 // Submenu item ids are window ids.
 //@ ([Object]) -> state
 async function populate(windows) {
     const privateIcon = { 16: 'icons/private.svg' };
-    const { currentWinfo, otherWinfos } = Winfo.arrange(
+    const { fgWinfo, bgWinfos } = Winfo.arrange(
         await Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'titleSansName'], windows)
     );
     let hasMinimizedSeparator = false;
 
     browser.menus.remove('minimized');
-    browser.menus.remove(`${currentWinfo.id}`);
+    browser.menus.remove(`${fgWinfo.id}`);
 
-    for (let { id, givenName, incognito, minimized, titleSansName } of otherWinfos) {
+    for (let { id, givenName, incognito, minimized, titleSansName } of bgWinfos) {
         if (minimized && !hasMinimizedSeparator) {
             browser.menus.create({ parentId, id: 'minimized', type: 'separator' });
             hasMinimizedSeparator = true;
