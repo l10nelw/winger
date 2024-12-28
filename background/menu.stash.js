@@ -7,14 +7,14 @@ const contexts = ['bookmark']; // Menu only appears if bookmarks permission gran
 const parentId = 'bookmark';
 const menuBase = { contexts, parentId, enabled: false }; // Start out disabled
 const unstashMenu = { ...menuBase, id: 'unstash', title: '&Unstash', icons: { 16: 'icons/unstash.svg' } };
-const stashMenu = { ...menuBase, id: 'stash', title: '&Stash Tab Here', icons: { 16: 'icons/stash.svg' } };
+const stashMenu = { ...menuBase, id: 'stash', title: '&Send Tab Here', icons: { 16: 'icons/send.svg' } };
 
 //@ -> state
 export function init() {
     browser.menus.create({ contexts, id: parentId, title: '&Winger' });
-    browser.menus.create(unstashMenu);
-    browser.menus.create({ contexts, parentId, type: 'separator' });
     browser.menus.create(stashMenu);
+    browser.menus.create({ contexts, parentId, type: 'separator' });
+    browser.menus.create(unstashMenu);
 }
 
 // Event handler: When menu opens, check if menu items can be enabled for target.
@@ -23,17 +23,17 @@ export async function handleShow({ bookmarkId }) {
     if (!bookmarkId)
         return false;
     if (await Storage.getValue('enable_stash')) {
-        const [enableUnstash, enableStash] = await Promise.all([Stash.canUnstashThis(bookmarkId), Stash.canStashHere(bookmarkId)]);
-        if (enableUnstash)
-            browser.menus.update('unstash', { enabled: true });
-        if (enableStash) {
+        const [canStash, canUnstash] = await Promise.all([Stash.canStashHere(bookmarkId), Stash.canUnstashThis(bookmarkId)]);
+        if (canStash) {
             browser.menus.update('stash', { enabled: true });
             const tabs = await getSelectedTabs();
             const count = tabs.length;
             if (count > 1)
                 browser.menus.update('stash', { title: stashMenu.title.replace('Tab', `${count} Tabs`) });
         }
-        if (enableUnstash || enableStash)
+        if (canUnstash)
+            browser.menus.update('unstash', { enabled: true });
+        if (canStash || canUnstash)
             browser.menus.refresh();
     }
     return true; // Is handled as long as target is bookmark
@@ -42,8 +42,8 @@ export async function handleShow({ bookmarkId }) {
 // Event handler: When menu closes, reset menu items.
 //@ -> state
 export function handleHide() {
+    browser.menus.update('stash', { enabled: false, title: stashMenu.title });
     browser.menus.update('unstash', { enabled: false });
-    browser.menus.update('stash',   { enabled: false, title: stashMenu.title });
 }
 
 // Event handler: Invoke command on target.
@@ -53,11 +53,11 @@ export async function handleClick({ bookmarkId, menuItemId, modifiers }) {
         return false;
     const remove = !modifiers.includes(STASHCOPY);
     switch (menuItemId) {
-        case 'unstash':
-            Stash.unstashNode(bookmarkId, remove);
-            break;
         case 'stash':
             Stash.stashSelectedTabs(bookmarkId, remove);
+            break;
+        case 'unstash':
+            Stash.unstashNode(bookmarkId, remove);
             break;
     }
     return true; // Is handled as long as target is bookmark
