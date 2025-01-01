@@ -8,6 +8,10 @@ const sendMessage = browser.runtime.sendMessage;
 
 //@ -> (Promise: Object)
 export const popup = () => sendMessage({ type: 'popup' });
+//@ -> (Promise: [Object])
+export const popupStash = () => sendMessage({ type: 'popupStash' });
+//@ ([Object]) -> (Promise: [Object])
+export const popupStashContents = folders => sendMessage({ type: 'popupStashContents', folders });
 //@ (Number, String) -> state
 export const updateChrome = (windowId, name) => sendMessage({ type: 'update', windowId, name });
 //@ -> state

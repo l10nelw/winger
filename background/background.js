@@ -142,6 +142,15 @@ async function onRequest(request) {
             return { ...Winfo.arrange(await Winfo.getAll(winfoProps)), flags };
         }
 
+        case 'popupStash': {
+            const [enable_stash, homeId] = await Storage.getValue(['enable_stash', '_stash_home_id']);
+            return enable_stash && homeId ?
+                (new Stash.FolderList()).populate(homeId) : [];
+        }
+
+        case 'popupStashContents':
+            return (new Stash.FolderList()).populate(request.folders.parentId, { bookmarkCount: true }, request.folders);
+
         case 'stash':
             return Stash.stashWindow(request.windowId, request.name, request.close);
 

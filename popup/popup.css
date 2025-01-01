@@ -88,10 +88,16 @@ li > * {
 body:not([data-mode="edit"]) #otherWindows li:hover {
     background-color: var(--popup-hover-row-color);
 }
+body:not([data-mode="edit"]) #otherWindows .stashed,
+body:not([data-mode="edit"]) #otherWindows .stashed .name {
+    cursor: not-allowed;
+}
 
 .heading {
+    display: none;
     position: sticky;
     top: 0;
+    bottom: 0; /* Make last heading always visible at the bottom edge of the view */
     z-index: 1;
     justify-content: center;
     height: var(--popup-heading-height);
@@ -110,6 +116,32 @@ body:not([data-mode="edit"]) #otherWindows li:hover {
     padding: 0 2px;
     font-size: 95%;
 }
+#minimizedHeading:has(~ .minimized),
+#stashedHeading:has(~ .stashed) {
+    display: flex;
+}
+
+
+/* --- Row icon --- */
+
+.icon {
+    position: relative;
+}
+.stashed .icon::after {
+    content: url("/icons/folder.svg");
+    height: var(--popup-icon-size);
+    position: absolute;
+    left: calc(var(--popup-icon-size) - 8px);
+    transform: translateY(-50%);
+    opacity: .25;
+}
+.dark .stashed .icon::after {
+    filter: invert(1);
+}
+.stashed .name {
+    padding-left: calc(var(--popup-icon-size) + 8px);
+}
+
 
 
 /* --- Input field (Omnibox and name) --- */
@@ -200,7 +232,7 @@ body:not([data-mode="edit"]) #currentWindow .name:focus + .tabCount::before {
     border-color: transparent var(--popup-border-color);
 }
 #omnibox::placeholder {
-    opacity: .33;
+    opacity: .5;
 }
 #omnibox.error::placeholder {
     opacity: 1;
@@ -255,6 +287,7 @@ li.reopenTabs button.tabAction:is(:hover, :focus) {
 .send  { background-image: url("../icons/send.svg"); }
 .bring { background-image: url("../icons/bring.svg"); }
 .stash { background-image: url("../icons/stash.svg"); }
+.stashed .stash { background-image: url("../icons/unstash.svg"); }
 
 .tabAction[disabled] {
     visibility: hidden;

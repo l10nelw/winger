@@ -14,7 +14,8 @@ import * as Filter from './filter.js';
 import * as Status from './status.js';
 import * as Request from './request.js';
 
-Request.popup().then(onSuccess).catch(onError);
+const popupStashResponse = Request.popupStash();
+Request.popup().then(initPopup).catch(onError);
 
 //@ ({ Object, [Object], Object }) -> state
 async function initPopup({ fgWinfo, bgWinfos, flags }) {
@@ -23,17 +24,18 @@ async function initPopup({ fgWinfo, bgWinfos, flags }) {
     const hasName = fgWinfo.givenName || bgWinfos.find(winfo => winfo.givenName);
     $body.classList.toggle('nameless', !hasName);
 
-    addRows(fgWinfo, bgWinfos);
-    $names.push(...$body.querySelectorAll('.name'));
-
     Omnibox.init();
     Filter.init();
     Status.init(fgWinfo, bgWinfos);
 
-    lockHeight($otherWindowsList);
+    addWindowRows(fgWinfo, bgWinfos);
+    await popupStashResponse.then(addStashRows);
 
     if ($omnibox.value)
         Omnibox.handleInput({ target: $omnibox, inputType: '' });
+    $names.push(...$body.querySelectorAll('.name'));
+
+    lockHeight($otherWindowsList);
 }
 
 //@ -> state
@@ -58,43 +60,70 @@ function onError() {
 //@ (Object, [Object], Object) -> state
 function addWindowRows(fgWinfo, bgWinfos) {
     Row.initCurrent();
-    const currentIncognito = fgWinfo.incognito;
-    const $rowsFragment = document.createDocumentFragment();
     const $minimizedHeading = document.getElementById('minimizedHeading');
-    let minimizedHeadingIndex = -1, index = 0;
-    // Create other-rows (by cloning current-row), and set minimizedHeadingIndex to index of first minimized row
+    const currentIncognito = fgWinfo.incognito;
+    const $rows = [];
+    const $rowsFragment = document.createDocumentFragment();
+
+    // Create other-rows (by cloning current-row)
     for (const winfo of bgWinfos) {
-        if (minimizedHeadingIndex === -1 && winfo.minimized)
-            minimizedHeadingIndex = index;
-        $rowsFragment.appendChild(Row.createOther(winfo, currentIncognito));
-        index++;
+        const $row = Row.createOther(winfo, currentIncognito);
+        $rows.push($row);
+        $rowsFragment.appendChild($row);
     }
     $otherWindowsList.appendChild($rowsFragment);
+
     // Hydrate current-row only after all other-rows have been created
     Row.hydrateCurrent($currentWindowRow, fgWinfo);
 
-    // Populate $otherWindowRows array
-    if (minimizedHeadingIndex === -1) {
-        $minimizedHeading.remove();
-        $otherWindowRows.$minimizedHeading = {};
-    } else {
-        const $elAfterHeading = minimizedHeadingIndex > 0 ?
-            $otherWindowsList.querySelector('.minimized') : // Move to above the first minimized-row
-            $otherWindowsList; // Move outside and above the list
-        $elAfterHeading.insertAdjacentElement('beforebegin', $minimizedHeading);
-        $otherWindowRows.$minimizedHeading = $minimizedHeading;
-        $minimizedHeading.hidden = false;
+    // Hydrate $otherWindowRows and Filter.$shownRows
+    const $firstMinimizedRow = $otherWindowsList.querySelector('.minimized');
+    $firstMinimizedRow ?
+        $firstMinimizedRow.insertAdjacentElement('beforebegin', $minimizedHeading) :
+        $otherWindowsList.appendChild($minimizedHeading);
+    $otherWindowRows.$minimizedHeading = $minimizedHeading;
+    $otherWindowRows.$withHeadings = [...$otherWindowsList.children];
+    $otherWindowRows.push(...$rows);
+}
+
+//@ ([Object]) -> state
+async function addStashRows(folders) {
+    const $stashedHeading = document.getElementById('stashedHeading');
+    $otherWindowsList.appendChild($stashedHeading);
+
+    if (!folders?.length)
+        return;
+
+    // Modify $rowTemplate for stashed rows
+    Row.$rowTemplate.hidden = $otherWindowsList.classList.contains('filtered');
+    Row.$rowTemplate.querySelector('.name').placeholder = '(no title)';
+    if (Row.CELL_SELECTORS.delete('.bring'))
+        Row.disableElement(Row.$rowTemplate.querySelector('.bring'));
+
+    const $rows = [];
+    const $rowsFragment = document.createDocumentFragment();
+    for (let folder of folders) {
+        const $row = Row.createStashed(folder);
+        $rows.push($row);
+        $rowsFragment.appendChild($row);
+        folder = { id: folder.id }; // Strip down folder objects for Request.popupStashContents()
     }
-    const $otherRows = [...$otherWindowsList.children];
-    $otherWindowRows.$withMinimizedHeading = [...$otherRows]; // Has no minimized-heading if minimizedHeadingIndex <= 0
-    if (minimizedHeadingIndex > 0)
-        $otherRows.splice(minimizedHeadingIndex, 1);
-    $otherWindowRows.push(...$otherRows); // Always has no minimized-heading
+    $otherWindowsList.appendChild($rowsFragment);
+
+    // Hydrate tab counts
+    folders = await Request.popupStashContents(folders);
+    folders.forEach((folder, i) => $rows[i].$tabCount.textContent = folder.bookmarkCount);
+
+    // Hydrate $otherWindowRows and Filter.$shownRows
+    $otherWindowRows.$stashedHeading = $stashedHeading;
+    $otherWindowRows.$withHeadings.push($stashedHeading, ...$rows);
+    $otherWindowRows.push(...$rows);
 }
 
 const Row = {
 
     CELL_SELECTORS: new Set(['.send', '.bring', '.name', '.tabCount', '.stash']),
+    $rowTemplate: null,
 
     //@ (Object) -> state
     initCurrent() {
@@ -117,11 +146,13 @@ const Row = {
         }
         if (buttonCount)
             document.documentElement.style.setProperty('--popup-row-button-count', buttonCount);
+        // Init $rowTemplate
+        Row.$rowTemplate = $currentWindowRow.cloneNode(true);
     },
 
     //@ (Object, Boolean) -> (Object)
     createOther(winfo, currentIncognito) {
-        const $row = $currentWindowRow.cloneNode(true);
+        const $row = Row.$rowTemplate.cloneNode(true);
         Row.hydrate($row, winfo);
         // Disable send/bring/stash buttons if popup/panel-type window
         if (winfo.type !== 'normal') {
@@ -131,6 +162,18 @@ const Row = {
         // Indicate if a send/bring action to this window will be a reopen operation
         if (winfo.incognito != currentIncognito)
             $row.classList.add('reopenTabs');
+        return $row;
+    },
+
+    //@ ({ String, String, Object }) -> (Object)
+    createStashed({ givenName, id, protoWindow }) {
+        const $row = Row.$rowTemplate.cloneNode(true);
+        Row.referenceHydrate($row);
+        $row._id = id;
+        $row.$name._id = id;
+        $row.$name.value = givenName;
+        $row.classList.add('stashed');
+        $row.classList.toggle('private', protoWindow?.incognito ?? false);
         return $row;
     },
 
@@ -145,13 +188,7 @@ const Row = {
 
     //@ (Object, { String, Number, Boolean, Boolean, Number, String, String }) -> state
     hydrate($row, { givenName, id, incognito, minimized, tabCount, title, titleSansName }) {
-        // Add references to row's cells, and in each cell a reference back to the row
-        for (const selector of Row.CELL_SELECTORS) {
-            const $cell = $row.querySelector(selector);
-            const reference = selector.replace('.', '$');
-            $cell.$row = $row;
-            $row[reference] = $cell;
-        }
+        Row.referenceHydrate($row);
         title = titleSansName || title || '';
         // Add data
         $row._id = id;
@@ -162,6 +199,16 @@ const Row = {
         $row.$tabCount.textContent = tabCount;
         $row.classList.toggle('minimized', minimized);
         $row.classList.toggle('private', incognito);
+    },
+
+    // Add references to row's cells, and in each cell a reference back to the row
+    referenceHydrate($row) {
+        for (const selector of Row.CELL_SELECTORS) {
+            const $cell = $row.querySelector(selector);
+            const reference = selector.replace('.', '$');
+            $cell.$row = $row;
+            $row[reference] = $cell;
+        }
     },
 
     //@ (Object) -> state

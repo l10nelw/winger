@@ -32,18 +32,46 @@ export async function init({ enable_stash, stash_home_root, stash_home_folder })
 
 /* --- LIST FOLDERS --- */
 
-class FolderList extends Array {
+export class FolderList extends Array {
 
-    // Fill folderList with child folders, given a parentId and optionally already-procured child nodes of parentId.
-    //@ (String, [Object]|undefined), state -> ([Object])
-    async populate(parentId, nodes = null) {
+    // Fill folderList with child folders of `parentId`.
+    // Optional: boolean dict `config` for enabling these properties:
+    //  - children=true: Add an array of child nodes to each folder
+    //  - bookmarkCount=true: Add a bookmark count property to each folder
+    // Optional: already-procured child `nodes` of parentId can be supplied for efficiency.
+    //@ (String, Object|undefined, [Object]|undefined), state -> ([Object])
+    async populate(parentId, config = {}, nodes = null) {
         this.length = 0;
         this.parentId = parentId;
         nodes ||= await getChildNodes(parentId);
+
         // If parent is a root folder, take only nodes after last separator
         if (ROOT_IDS.has(parentId))
             nodes = nodes.slice(nodes.findLastIndex(isSeparator) + 1);
-        this.push(...nodes.filter(isFolder));
+
+        // Filter out non-folders and parse any annotations
+        for (const node of nodes) {
+            if (!isFolder(node))
+                continue;
+            const [title, protoWindow] = StashProp.Window.parse(node.title);
+            node.givenName = title;
+            if (protoWindow)
+                node.protoWindow = protoWindow;
+            this.push(node);
+        }
+
+        const { children, bookmarkCount } = config;
+        if (children || bookmarkCount) {
+            const nodeLists = await Promise.all( this.map(folder => getChildNodes(folder.id)) );
+            for (let i = this.length; i--;) {
+                const nodeList = nodeLists[i];
+                if (children)
+                    this[i].children = nodeList;
+                if (bookmarkCount)
+                    this[i].bookmarkCount = nodeList.filter(isBookmark).length;
+            }
+        }
+
         return this;
     }
 
@@ -51,14 +79,16 @@ class FolderList extends Array {
     //@ (String, Boolean), state -> (Object|undefined)
     async findByTitle(title, canContainBookmarks) {
         if (canContainBookmarks)
-            return this.find(folder => !nowProcessing.has(folder.id) && folder.title === title);
-        // Cannot contain bookmarks
-        const folders = this.filter(folder => !nowProcessing.has(folder.id) && folder.title === title);
+            return this.find(folder => !nowProcessing.has(folder.id) && folder.givenName === title);
+        // Find bookmarkless folder
+        const folders = this.filter(folder => !nowProcessing.has(folder.id) && folder.givenName === title);
         if (!folders.length)
             return;
-        const nodeLists = await Promise.all( folders.map(folder => getChildNodes(folder.id)) );
-        const foundIndex = nodeLists.findIndex(nodeList => !nodeList.find(isBookmark));
-        return folders[foundIndex];
+        const nodeLists = folders[0].children ?
+            folders.map(folder => folder.children) :
+            await Promise.all( folders.map(folder => getChildNodes(folder.id)) );
+        const index = nodeLists.findIndex(nodeList => !nodeList.find(isBookmark));
+        return folders[index];
     }
 
     // Add a new folder to the start of the folderList.
@@ -67,6 +97,8 @@ class FolderList extends Array {
         const parentId = this.parentId;
         const index = this[0]?.index;
         const folder = await createNode({ title, parentId, index });
+        if (this[0]?.children)
+            folder.children = [];
         this.push(folder);
         return folder;
     }
@@ -76,7 +108,7 @@ class FolderList extends Array {
 // Can optionally supply already-procured children-of-parentId `nodes` for performance.
 //@ (String, Boolean, String, [Object]|undefined), state -> (Object), state
 async function getAvailableFolder(title, canContainBookmarks, parentId, nodes = null) {
-    const folders = await (new FolderList()).populate(parentId, nodes);
+    const folders = await (new FolderList()).populate(parentId, {}, nodes);
     return await folders.findByTitle(title, canContainBookmarks) || await folders.add(title);
 }
 
