@@ -120,6 +120,9 @@ body:not([data-mode="edit"]) #otherWindows .stashed .name {
 #stashedHeading:has(~ .stashed) {
     display: flex;
 }
+.filtered .heading {
+    display: none !important;
+}
 
 
 /* --- Row icon --- */

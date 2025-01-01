@@ -160,7 +160,7 @@ export function handleInput(event) {
 
     $omnibox.classList.toggle('slashCommand', Parsed.startsSlashed);
 
-    if (Parsed.command && !isDeletion(event))
+    if (Parsed.command && !event._noAutocomplete && !isDeletion(event))
         autocompleteCommand(str, Parsed.command);
 
     return true;

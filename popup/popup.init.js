@@ -24,18 +24,18 @@ async function initPopup({ fgWinfo, bgWinfos, flags }) {
     const hasName = fgWinfo.givenName || bgWinfos.find(winfo => winfo.givenName);
     $body.classList.toggle('nameless', !hasName);
 
-    Omnibox.init();
-    Filter.init();
     Status.init(fgWinfo, bgWinfos);
+    Omnibox.init();
 
     addWindowRows(fgWinfo, bgWinfos);
-    await popupStashResponse.then(addStashRows);
-
+    // If omnibox has text, respond now
     if ($omnibox.value)
         Omnibox.handleInput({ target: $omnibox, inputType: '' });
-    $names.push(...$body.querySelectorAll('.name'));
 
-    lockHeight($otherWindowsList);
+    await popupStashResponse.then(addStashRows);
+    // Check omnibox and respond again, without command autocompletion (already done at first response)
+    if ($omnibox.value)
+        Omnibox.handleInput({ target: $omnibox, inputType: '', _noAutocomplete: true });
 }
 
 //@ -> state
@@ -84,6 +84,8 @@ function addWindowRows(fgWinfo, bgWinfos) {
     $otherWindowRows.$minimizedHeading = $minimizedHeading;
     $otherWindowRows.$withHeadings = [...$otherWindowsList.children];
     $otherWindowRows.push(...$rows);
+    Filter.$shownRows.push(...$rows);
+    $names.push($currentWindowRow.$name, ...$rows.map($row => $row.$name));
 }
 
 //@ ([Object]) -> state
@@ -118,6 +120,8 @@ async function addStashRows(folders) {
     $otherWindowRows.$stashedHeading = $stashedHeading;
     $otherWindowRows.$withHeadings.push($stashedHeading, ...$rows);
     $otherWindowRows.push(...$rows);
+    Filter.$shownRows.push(...$rows);
+    $names.push(...$rows.map($row => $row.$name));
 }
 
 const Row = {
@@ -218,10 +222,4 @@ const Row = {
         $el.removeAttribute('data-action');
     },
 
-}
-
-//@ (Object) -> state
-function lockHeight($el) {
-    $el.style.height = ``;
-    $el.style.height = `${$el.offsetHeight}px`;
 }
