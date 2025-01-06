@@ -22,4 +22,4 @@ export const isRow = $el => $el?.tagName === 'LI';
 export const isInToolbar = $el => $el?.parentElement === $toolbar;
 
 export const nameMap = new NameMap();
-nameMap.ready = () => nameMap.size ? nameMap : nameMap.populate($names); //@ state -> (Map(Number:String)), state|nil
+nameMap.ready = () => nameMap.size ? nameMap : nameMap.populate($names); //@ state -> (Map(Number|String:String)), state|nil

@@ -76,11 +76,13 @@ function addWindowRows(fgWinfo, bgWinfos) {
     // Hydrate current-row only after all other-rows have been created
     Row.hydrateCurrent($currentWindowRow, fgWinfo);
 
-    // Hydrate $otherWindowRows and Filter.$shownRows
+    // Position minimized-heading
     const $firstMinimizedRow = $otherWindowsList.querySelector('.minimized');
     $firstMinimizedRow ?
         $firstMinimizedRow.insertAdjacentElement('beforebegin', $minimizedHeading) :
         $otherWindowsList.appendChild($minimizedHeading);
+
+    // Hydrate globals
     $otherWindowRows.$minimizedHeading = $minimizedHeading;
     $otherWindowRows.$withHeadings = [...$otherWindowsList.children];
     $otherWindowRows.push(...$rows);
@@ -111,7 +113,7 @@ async function addStashRows(folders) {
     folders = await Request.popupStashContents(folders);
     folders.forEach((folder, i) => $rows[i].$tabCount.textContent = folder.bookmarkCount);
 
-    // Hydrate $otherWindowRows and Filter.$shownRows
+    // Hydrate globals
     $otherWindowRows.$stashedHeading = $stashedHeading;
     $otherWindowRows.$withHeadings.push($stashedHeading, ...$rows);
     $otherWindowRows.push(...$rows);

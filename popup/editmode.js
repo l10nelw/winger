@@ -145,23 +145,29 @@ async function trySaveNameAndHandleErrors($name) {
 
 //@ (Object, String) -> (Boolean), state
 export async function saveNameUpdateUI($name, name) {
-    const windowId = $name._id;
-    if (!await Name.save(windowId, name))
-        return false;
-    nameMap.ready().set(windowId, name);
-    // Update UI
-    Request.updateChrome(windowId, name);
+    const id = $name._id;
+    if (typeof id === 'number') {
+        // id is windowId
+        if (!await Name.save(id, name))
+            return false;
+        Request.updateChrome(id, name);
+    } else {
+        // id is folderId
+        if (!await saveStashName(id, name))
+            return false;
+    }
+    nameMap.ready().set(id, name);
     indicateSuccess($name.nextElementSibling);
-    $body.classList.toggle('nameless', !nameMap.hasName());
+    $body.classList.toggle('nameless', !nameMap.hasWindowName());
     return true;
 }
 
 // Indicate if name is invalid, as well as the duplicate name if any.
-//@ (Object, Number) -> state
+//@ (Object, Number|String) -> state
 function toggleError($name, error) {
     if (!error)
         return clearErrors();
-    if (error > 0)
+    if (error !== -1)
         $names.find($name => $name._id === error).classList.add('error');
     $name.classList.add('error');
 }
@@ -180,3 +186,6 @@ function toggleNameFields(isEnable) {
         $name.readOnly = isReadOnly;
     }
 }
+
+//@ (String, String) -> (Promise:Boolean), state
+const saveStashName = (folderId, title) => browser.bookmarks.update(folderId, { title }).then(() => true).catch(() => false);

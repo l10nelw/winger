@@ -31,11 +31,11 @@ function startsWithSlash(name) {
     return name.startsWith('/');
 }
 
-// Map windowIds to names, and provide methods that work in the context of all present names.
+// Map windowIds/folderIds to names, and provide methods that work in the context of all present names.
 export class NameMap extends Map {
 
     // `objects` is either an array of $names, or an array of winfos containing givenNames.
-    //@ ([Object]) -> (Map(Number:String)), state
+    //@ ([Object]) -> (Map(Number|String:String)), state
     populate(objects) {
         if (objects[0] instanceof HTMLInputElement) {
             for (const { _id, value } of objects) // $names
@@ -47,16 +47,19 @@ export class NameMap extends Map {
         return this;
     }
 
-    // Has at least one name.
+    // Has at least one open-window name (excludes stashed-windows).
+    // Expects all stashed-windows to be at the end of the map.
     //@ state -> (Boolean)
-    hasName() {
-        for (const [, name] of this)
-            if (name)
+    hasWindowName() {
+        for (const [id, name] of this)
+            if (typeof id !== 'number') // No more open-windows in loop
+                return false;
+            else if (name)
                 return true;
     }
 
     // Find name in map. Ignores blank. Return associated id if found, else return 0.
-    //@ (String), state -> (Number)
+    //@ (String), state -> (NumberString)
     findId(name) {
         if (name)
             for (const [id, _name] of this)
@@ -66,8 +69,8 @@ export class NameMap extends Map {
     }
 
     // Check name against map for errors, including duplication.
-    // Return 0 if name is blank or valid-and-unique or conflicting windowId is excludeId. Else return -1 or conflicting windowId.
-    //@ (String, Number), state -> (Number)
+    // Return 0 if name is blank or valid-and-unique or conflicting id is excludeId. Else return -1 or conflicting id.
+    //@ (String, Number|String), state -> (Number)
     checkForErrors(name, excludeId) {
         if (!name)
             return 0;
