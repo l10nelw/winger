@@ -22,25 +22,22 @@ $body.addEventListener('focusin', onFocusIn);
 //@ (Object) -> state|nil
 function onClick(event) {
     const { target } = event;
-
-    if (target.id in Toolbar)
-        return Toolbar[target.id]();
-
+    if (target.id in Toolbar) {
+        Toolbar[target.id]();
+        return;
+    }
     if (EditMode.isActive) {
         Status.update(event);
         return;
     }
-
     if (target === $currentWindowRow.$name) {
         EditMode.toggle();
         Status.update(event);
         return;
     }
-
     const $action = target.closest('[data-action]');
     if ($action?.tabIndex === -1)
         return;
-
     Request.action({ event, $action });
 }
 

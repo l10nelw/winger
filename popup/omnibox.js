@@ -12,7 +12,7 @@ import { validify } from '../name.js';
 
 //@ (String) -> (Function)
 const namingActionRequestFn = command =>
-    ({ event, argument }) => Request.action({ event, argument: validUniqueName(argument), command });
+    ({ event, argument }) => Request.action({ event, command, argument: validUniqueName(argument) });
 
 const COMMAND__CALLBACK = {
     help:     Toolbar.help,
@@ -208,11 +208,12 @@ function handleEnterKey(event) {
         return;
     }
 
-    if (!EditMode.isActive) {
-        const $action = Filter.$shownRows?.[0]; // First row below omnibox
-        if ($action)
-            Request.action({ event, $action });
-    }
+    if (EditMode.isActive)
+        return;
+
+    const $action = Filter.$shownRows?.[0]; // First row below omnibox
+    if ($action)
+        Request.action({ event, $action });
 }
 
 //@ (Object) -> (Boolean)

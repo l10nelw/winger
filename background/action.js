@@ -12,9 +12,9 @@ const ACTION_DICT = {
     bring:       bringTabs,
     send:        sendTabs,
     switch:      switchWindow,
-    new:         ({ argument: name, incognito }) => createWindow({ name, incognito }),
-    pop:         ({ argument: name, incognito }) => createWindow({ name, incognito, isMove: true }),
-    kick:        ({ argument: name, incognito }) => createWindow({ name, incognito, isMove: true, focused: false }),
+    new:         ({ argument: name }) => createWindow({ name }),
+    pop:         ({ argument: name }) => createWindow({ name, isMove: true }),
+    kick:        ({ argument: name }) => createWindow({ name, isMove: true, focused: false }),
     newnormal:   ({ argument: name }) => createWindow({ name, incognito: false }),
     popnormal:   ({ argument: name }) => createWindow({ name, incognito: false, isMove: true }),
     kicknormal:  ({ argument: name }) => createWindow({ name, incognito: false, isMove: true, focused: false }),
@@ -34,7 +34,7 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
         Storage.getValue('minimize_kick_window'),
         browser.windows.getLastFocused({ populate: isMove }),
     ]);
-    const currentWindowDetail = { windowId: currentWindow.id };
+    const currentWindowInfo = { windowId: currentWindow.id };
     incognito ??= currentWindow.incognito;
 
     const kick = !focused;
@@ -50,14 +50,14 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
     // Firefox ignores windows.create/update({ focused: false })
     // So if focused=false (i.e. kicked) and minimize_kick_window=false, switch back to current window
     if (kick && !minimize_kick_window)
-        switchWindow(currentWindowDetail);
+        switchWindow(currentWindowInfo);
 
     if (isMove) {
         const selectedTabs = currentWindow.tabs.filter(tab => tab.highlighted);
 
         // If all of the origin window's tabs are to be moved, add a tab to prevent the window from closing
         if (selectedTabs.length === currentWindow.tabs.length)
-            await browser.tabs.create(currentWindowDetail);
+            await browser.tabs.create(currentWindowInfo);
 
         await sendTabs({ tabs: selectedTabs, windowId: newWindowId, sendToMinimized: !!state });
         browser.tabs.remove(newWindow.tabs[0].id);

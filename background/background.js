@@ -151,11 +151,6 @@ async function onRequest(request) {
         case 'popupStashContents':
             return (new Stash.FolderList()).populate(request.folders.parentId, { bookmarkCount: true }, request.folders);
 
-        case 'stashInit': {
-            const settings = await Storage.getDict(['enable_stash', 'stash_home_root', 'stash_home_folder']);
-            return Stash.init(settings);
-        }
-
         case 'action': {
             if (request.folderId) {
                 if (request.action === 'send')
@@ -178,6 +173,11 @@ async function onRequest(request) {
             const winfos = await Winfo.getAll(['givenName']);
             const nameMap = (new Name.NameMap()).populate(winfos);
             return Chrome.update(nameMap);
+        }
+
+        case 'stashInit': {
+            const settings = await Storage.getDict(['enable_stash', 'stash_home_root', 'stash_home_folder']);
+            return Stash.init(settings);
         }
 
         case 'clearTitlePreface':
