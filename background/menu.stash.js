@@ -1,4 +1,4 @@
-import { BRING } from '../modifier.js';
+import { STASHCOPY } from '../modifier.js';
 import { getSelectedTabs } from './action.js';
 import * as Stash from './stash.js';
 import * as Storage from '../storage.js';
@@ -51,7 +51,7 @@ export function handleHide() {
 export async function handleClick({ bookmarkId, menuItemId, modifiers }) {
     if (!bookmarkId)
         return false;
-    const remove = !modifiers.includes(BRING);
+    const remove = !modifiers.includes(STASHCOPY);
     switch (menuItemId) {
         case 'unstash':
             Stash.unstashNode(bookmarkId, remove);

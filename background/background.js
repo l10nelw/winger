@@ -151,16 +151,22 @@ async function onRequest(request) {
         case 'popupStashContents':
             return (new Stash.FolderList()).populate(request.folders.parentId, { bookmarkCount: true }, request.folders);
 
-        case 'stash':
-            return Stash.stashWindow(request.windowId, request.name, request.close);
-
         case 'stashInit': {
             const settings = await Storage.getDict(['enable_stash', 'stash_home_root', 'stash_home_folder']);
             return Stash.init(settings);
         }
 
-        case 'action':
+        case 'action': {
+            if (request.folderId) {
+                if (request.action === 'send')
+                    return Stash.stashSelectedTabs(request.folderId, request.remove);
+                if (request.action === 'stash')
+                    return Stash.unstashNode(request.folderId, request.remove);
+            }
+            if (request.action === 'stash')
+                return Stash.stashWindow(request.windowId, request.name, request.remove);
             return Action.execute(request);
+        }
 
         case 'help':
             return Action.openHelp();

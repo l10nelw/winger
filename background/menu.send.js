@@ -1,4 +1,4 @@
-import { BRING } from '../modifier.js';
+import { BRING, modify } from '../modifier.js';
 import * as Winfo from './winfo.js';
 import * as Action from './action.js';
 
@@ -99,6 +99,9 @@ function openLink(url, windowId, modifiers) {
 // Move target tab to windowId. If target tab is a selected tab, move any other selected tabs as well.
 //@ (Object, Number, [String]) -> state
 function moveTab(tab, windowId, modifiers) {
-    const tabs = tab.highlighted ? null : [tab];
-    Action.execute({ action: 'send', tabs, windowId, modifiers });
+    Action.execute({
+        action: modify('send', modifiers),
+        tabs: tab.highlighted ? null : [tab], // tabs=null means all selected tabs
+        windowId,
+    });
 }

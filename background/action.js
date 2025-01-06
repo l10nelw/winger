@@ -1,6 +1,5 @@
 // User actions involving windows and tabs.
 
-import { BRING, SEND } from '../modifier.js';
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 import * as Chrome from './chrome.js';
@@ -24,42 +23,9 @@ const ACTION_DICT = {
     kickprivate: ({ argument: name }) => createWindow({ name, incognito: true, isMove: true, focused: false }),
 };
 
-const MODIFIABLE_ACTIONS_TABLE = {
-    switch:      { [BRING]: 'bring',      [SEND]: 'send' },
-    new:         { [BRING]: 'pop',        [SEND]: 'kick' },
-    newnormal:   { [BRING]: 'popnormal',  [SEND]: 'kicknormal' },
-    newprivate:  { [BRING]: 'popprivate', [SEND]: 'kickprivate' },
-    send:        { [BRING]: 'bring' },
-    kick:        { [BRING]: 'pop' },
-    kicknormal:  { [BRING]: 'popnormal' },
-    kickprivate: { [BRING]: 'popprivate' },
-    bring:       { [SEND]: 'send' },
-    pop:         { [SEND]: 'kick' },
-    popnormal:   { [SEND]: 'kicknormal' },
-    popprivate:  { [SEND]: 'kickprivate' },
-}
-
 // Select action to execute based on content of action request.
-// A request contains: { type: 'action', action, argument, modifiers, windowId }
 //@ (Object), state -> state
-export async function execute(request) {
-    request.action = modify(request.action, request.modifiers);
-    ACTION_DICT[request.action](request);
-}
-
-// Change an action to another based on any modifiers given.
-//@ (String, [String]) -> (String)
-function modify(action, modifiers) {
-    if (!modifiers.length)
-        return action;
-    const modifiedActionDict = MODIFIABLE_ACTIONS_TABLE[action];
-    if (!modifiedActionDict)
-        return action;
-    for (const modifier in modifiedActionDict)
-        if (modifiers.includes(modifier))
-            return modifiedActionDict[modifier];
-    return action;
-}
+export const execute = async request => ACTION_DICT[request.action](request);
 
 // Create a new window. If isMove=true, do so with currently selected tabs. If focused=false, minimize the window.
 //@ ({ String, Boolean, Boolean, Boolean }), state -> (Object), state
@@ -93,7 +59,7 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
         if (selectedTabs.length === currentWindow.tabs.length)
             await browser.tabs.create(currentWindowDetail);
 
-        await sendTabs({ tabs: selectedTabs, windowId: newWindowId });
+        await sendTabs({ tabs: selectedTabs, windowId: newWindowId, sendToMinimized: !!state });
         browser.tabs.remove(newWindow.tabs[0].id);
     }
 
@@ -119,7 +85,7 @@ async function sendTabs(request) {
     if (movedTabs.length) {
         Auto.assertDiscard(tabs);
         Auto.restoreTabRelations(movedTabs, tabs, true);
-        if (discard_minimized_window && request.minimized && request.action !== 'bring')
+        if (discard_minimized_window && request.sendToMinimized)
             Auto.discardWindow.schedule(request.windowId);
         return movedTabs;
     }

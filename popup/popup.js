@@ -37,12 +37,11 @@ function onClick(event) {
         return;
     }
 
-    if (target.dataset.action === 'stash') {
-        Request.stash(event);
+    const $action = target.closest('[data-action]');
+    if ($action?.tabIndex === -1)
         return;
-    }
 
-    Request.action({ event, $action: target });
+    Request.action({ event, $action });
 }
 
 //@ (Object) -> state|nil
@@ -101,6 +100,6 @@ function onFocusIn(event) {
     if (EditMode.handleFocusIn($focused, $defocused))
         return;
     if ($focused.tabIndex === -1)
-        return $defocused.focus?.();
-    $focused.select?.();
+        return $defocused?.focus?.();
+    $focused?.select?.();
 }

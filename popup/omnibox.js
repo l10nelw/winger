@@ -65,7 +65,7 @@ const SHORTHAND__COMMAND = { exa: 'extractallnames' };
 export function init() {
     Parsed.clear();
     if (FLAGS.enable_stash) {
-        COMMAND__CALLBACK.stash = ({ event }) => Request.stash(event);
+        COMMAND__CALLBACK.stash = ({ event }) => Request.action({ command: 'stash', event });
     }
     if (FLAGS.allow_private) {
         COMMAND__CALLBACK.newnormal   = namingActionRequestFn('newnormal');

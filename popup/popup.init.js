@@ -96,12 +96,7 @@ async function addStashRows(folders) {
     if (!folders?.length)
         return;
 
-    // Modify $rowTemplate for stashed rows
-    Row.$rowTemplate.hidden = $otherWindowsList.classList.contains('filtered');
-    Row.$rowTemplate.querySelector('.name').placeholder = '(no title)';
-    if (Row.CELL_SELECTORS.delete('.bring'))
-        Row.disableElement(Row.$rowTemplate.querySelector('.bring'));
-
+    Row.initStashed();
     const $rows = [];
     const $rowsFragment = document.createDocumentFragment();
     for (let folder of folders) {
@@ -129,7 +124,7 @@ const Row = {
     CELL_SELECTORS: new Set(['.send', '.bring', '.name', '.tabCount', '.stash']),
     $rowTemplate: null,
 
-    //@ (Object) -> state
+    //@ -> state
     initCurrent() {
         // Remove any toggled-off buttons
         const buttons = [
@@ -150,8 +145,17 @@ const Row = {
         }
         if (buttonCount)
             document.documentElement.style.setProperty('--popup-row-button-count', buttonCount);
-        // Init $rowTemplate
         Row.$rowTemplate = $currentWindowRow.cloneNode(true);
+    },
+
+    //@ -> state
+    initStashed() {
+        Row.$rowTemplate.hidden = $otherWindowsList.classList.contains('filtered'); // In case popup is currently in filtered state
+        Row.$rowTemplate.querySelector('.name').placeholder = '(no title)';
+        if (Row.CELL_SELECTORS.delete('.bring'))
+            disableElement(Row.$rowTemplate.querySelector('.bring'));
+        if (Row.CELL_SELECTORS.has('.stash'))
+            Row.$rowTemplate.querySelector('.stash').title = 'Unstash';
     },
 
     //@ (Object, Boolean) -> (Object)
@@ -160,7 +164,7 @@ const Row = {
         Row.hydrate($row, winfo);
         // Disable send/bring/stash buttons if popup/panel-type window
         if (winfo.type !== 'normal') {
-            $row.querySelectorAll('button').forEach(Row.disableElement);
+            $row.querySelectorAll('button').forEach(disableElement);
             $row.classList.add('tabless');
         } else
         // Indicate if a send/bring action to this window will be a reopen operation
@@ -184,8 +188,8 @@ const Row = {
     //@ (Object, Object) -> state
     hydrateCurrent($row, winfo) {
         Row.hydrate($row, winfo);
-        Row.disableElement($row);
-        $row.querySelectorAll('.tabAction').forEach(Row.disableElement);
+        disableElement($row);
+        $row.querySelectorAll('.tabAction').forEach(disableElement);
         $row.$name.tabIndex = 0;
         $row.$name.title = '';
     },
@@ -215,11 +219,10 @@ const Row = {
         }
     },
 
-    //@ (Object) -> state
-    disableElement($el) {
-        $el.disabled = true;
-        $el.tabIndex = -1;
-        $el.removeAttribute('data-action');
-    },
+}
 
+//@ (Object) -> state
+function disableElement($el) {
+    $el.disabled = true;
+    $el.tabIndex = -1;
 }

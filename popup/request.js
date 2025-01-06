@@ -1,7 +1,7 @@
 /* Send messages to the background frame */
 
+import * as Modifier from '../modifier.js';
 import { getValue } from '../storage.js';
-import { get as getModifiers } from '../modifier.js';
 import { $currentWindowRow } from './common.js';
 
 const sendMessage = browser.runtime.sendMessage;
@@ -20,38 +20,62 @@ export const help = () => sendMessage({ type: 'help' });
 export const debug = () => sendMessage({ type: 'debug' });
 
 // Gather action parameters to create request. Proceed only if action string given via `command` or derived from `$action`.
-//@ (Object) -> state|nil
-export function action({ event, $action, command, argument }) {
+// Args from slash-commands: { event, command, argument }; args from others: { event, $action }.
+// Request requirements based on action:
+// { type: 'action', action: 'switch'|'bring',  windowId }
+// { type: 'action', action: 'send',  windowId|folderId, sendToMinimized|remove }  // folderId + 'send' -> stash tabs to folder
+// { type: 'action', action: 'new'|'pop'|'kick'|...,  argument }
+// { type: 'action', action: 'stash',  windowId|folderId, name, remove }  // folderId + 'stash' -> unstash folder
+//@ ({ Object, String|undefined, String|undefined, Object|undefined }) -> state|nil
+export async function action({ event, command, argument, $action }) {
     const request = { type: 'action' };
+
+    // Obtain $row and request.action
+    let $row;
     if (command) {
+        $row = event.target.closest('li') || $currentWindowRow;
         request.action = command;
+        if (argument)
+            request.argument = argument;
     } else
     if ($action) {
-        const $row = $action.$row || $action;
-        if ($row.matches('.tabless') && (event.ctrlKey || event.shiftKey))
-            return; // Do not allow send/bring to a "tabless" window via modifier-click on row (send/bring buttons should be disabled)
-        request.windowId = $row._id;
-        request.minimized = $row.matches('.minimized');
+        $row = $action.$row || $action;
         request.action = $action.dataset.action || $row.dataset.action;
     }
     if (!request.action)
         return;
-    request.argument = argument;
-    request.modifiers = getModifiers(event);
-    sendMessage(request); // request = { type: 'action', action, argument, minimized, modifiers, windowId }
-    window.close();
-}
 
-//@ (Object) -> state
-export async function stash(event) {
-    const $row = event.target.closest('li') || $currentWindowRow;
-    if ($row.matches('.tabless'))
-        return; // Do not allow stashing a "tabless" window
-    const $name = $row.$name;
-    let name = $name.value;
-    if (!name && await getValue('stash_nameless_with_title'))
-        name = $name.placeholder;
-    const close = !event.shiftKey;
-    sendMessage({ type: 'stash', windowId: $row._id, name, close });
+    const isStashAction = request.action === 'stash';
+    const modifiers = Modifier.get(event);
+    request.action = Modifier.modify(request.action, modifiers);
+
+    // Disallow stashing a "tabless" window
+    // Disallow sending/bringing to a "tabless" window via modifier-click on row
+    // (action buttons should already be disabled)
+    if ($row.matches('.tabless') && (isStashAction || modifiers.length))
+        return;
+
+    if ($row.matches('.stashed')) {
+        // Only allow 'stash' and 'send' on stashed window
+        if (!isStashAction && request.action !== 'send')
+            return;
+        request.folderId = $row._id;
+        request.remove = !modifiers.includes(Modifier.STASHCOPY);
+    } else {
+        request.windowId = $row._id;
+        if (isStashAction) {
+            const $name = $row.$name;
+            let name = $name.value;
+            if (!name && await getValue('stash_nameless_with_title'))
+                name = $name.placeholder;
+            request.name = name;
+            request.remove = !modifiers.includes(Modifier.STASHCOPY);
+        } else {
+            if (request.action === 'send' && $row.matches('.minimized'))
+                request.sendToMinimized = true;
+        }
+    }
+
+    sendMessage(request);
     window.close();
 }

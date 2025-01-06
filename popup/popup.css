@@ -85,7 +85,7 @@ li > * {
     text-align: end;
 }
 
-body:not([data-mode="edit"]) #otherWindows li:hover {
+body:not([data-mode="edit"]) #otherWindows li:not(.stashed):hover {
     background-color: var(--popup-hover-row-color);
 }
 body:not([data-mode="edit"]) #otherWindows .stashed,
@@ -176,7 +176,7 @@ input:read-only {
 }
 
 /* Placeholder text looks like normal text when there are no names */
-.nameless .name::placeholder {
+.nameless .name:not(.stashed)::placeholder {
     opacity: 1;
     font-style: normal;
 }
