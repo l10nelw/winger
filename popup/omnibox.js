@@ -87,7 +87,7 @@ export function init() {
 //@ (String), state -> (String)
 const validUniqueName = name => nameMap.ready().uniquify(validify(name));
 
-const Parsed = {
+export const Parsed = {
 
     clear() {
         Parsed.startsSlashed = false;
