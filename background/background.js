@@ -46,14 +46,13 @@ async function onWindowCreated(window) {
         Winfo.saveFirstSeen(windowId);
 
     // Resolve any name duplication and update chrome, in case this is a restored named window
-    let { givenName } = winfos.at(-1); // The new window should be last in the array
+    const { givenName } = winfos.pop(); // The new window should be last in the array
     if (givenName) {
-        // Uniquify name
         const nameMap = (new Name.NameMap()).populate(winfos);
-        if (nameMap.findId(givenName) !== windowId)
-            Name.save(id, nameMap.uniquify(givenName));
-
-        Chrome.update([[windowId, givenName]]);
+        const uniqueName = nameMap.uniquify(givenName);
+        if (uniqueName !== givenName)
+            Name.save(windowId, uniqueName);
+        Chrome.update([[windowId, uniqueName]]);
     }
 }
 
