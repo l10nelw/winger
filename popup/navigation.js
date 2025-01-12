@@ -23,7 +23,7 @@ export function handleKeyDown(event) {
     const key = event.key;
     let $el = event.target;
 
-    if (isHorizontalKey(key) && isField($el))
+    if (isEditMode && isHorizontalKey(key) && isField($el))
         return;
 
     const navigatorKey = navigator[key];
