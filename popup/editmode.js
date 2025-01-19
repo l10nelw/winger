@@ -42,8 +42,10 @@ function done() {
 //@ (Boolean) -> state
 function toggleActive(isActivate) {
     isActive = isActivate;
-    $body.dataset.mode = isActivate ? 'edit' : 'normal';
-    toggleNameFields(isActivate);
+    isActive ?
+        $body.classList.replace('normal', 'edit') :
+        $body.classList.replace('edit', 'normal');
+    toggleNameFields(isActive);
 }
 
 //@ (Object) -> (Boolean), state|nil

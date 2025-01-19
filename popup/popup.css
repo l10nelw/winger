@@ -85,11 +85,11 @@ li > * {
     text-align: end;
 }
 
-body:not([data-mode="edit"]) #otherWindows li:not(.stashed):hover {
+body.normal #otherWindows li:not(.stashed):hover {
     background-color: var(--popup-hover-row-color);
 }
-body:not([data-mode="edit"]) #otherWindows .stashed,
-body:not([data-mode="edit"]) #otherWindows .stashed .name {
+body.normal #otherWindows li.stashed,
+body.normal #otherWindows li.stashed .name {
     cursor: not-allowed;
 }
 
@@ -116,11 +116,11 @@ body:not([data-mode="edit"]) #otherWindows .stashed .name {
     padding: 0 2px;
     font-size: 95%;
 }
-#minimizedHeading:has(~ .minimized),
-#stashedHeading:has(~ .stashed) {
+#minimizedHeading:has(~ li.minimized),
+#stashedHeading:has(~ li.stashed) {
     display: flex;
 }
-.filtered .heading {
+ul.filtered .heading {
     display: none !important;
 }
 
@@ -130,7 +130,7 @@ body:not([data-mode="edit"]) #otherWindows .stashed .name {
 .icon {
     position: relative;
 }
-.stashed .icon::after {
+li.stashed .icon::after {
     content: url("/icons/folder.svg");
     height: var(--popup-icon-size);
     position: absolute;
@@ -138,10 +138,10 @@ body:not([data-mode="edit"]) #otherWindows .stashed .name {
     transform: translateY(-50%);
     opacity: .25;
 }
-.dark .stashed .icon::after {
+body.dark li.stashed .icon::after {
     filter: invert(1);
 }
-.stashed .name {
+li.stashed .name {
     padding-left: calc(var(--popup-icon-size) + 8px);
 }
 
@@ -176,22 +176,22 @@ input:read-only {
 }
 
 /* Placeholder text looks like normal text when there are no names */
-.nameless .name:not(.stashed)::placeholder {
+body.nameless li:not(.stashed) .name::placeholder {
     opacity: 1;
     font-style: normal;
 }
 
-body:not([data-mode="edit"]) .name {
+body.normal .name {
     background-color: transparent;
     border-color: transparent;
     user-select: none;
 }
 
-body:not([data-mode="edit"]) .name::selection {
+body.normal .name::selection {
     background-color: transparent;
 }
 
-body:not([data-mode="edit"]) #currentWindow .name {
+body.normal #currentWindow .name {
     font-weight: bold;
 }
 
@@ -199,7 +199,7 @@ body:not([data-mode="edit"]) #currentWindow .name {
 #currentWindow .tabCount {
     position: relative;
 }
-body:not([data-mode="edit"]) #currentWindow .tabCount::before {
+body.normal #currentWindow .tabCount::before {
     position: absolute;
     display: none;
     pointer-events: none;
@@ -209,20 +209,20 @@ body:not([data-mode="edit"]) #currentWindow .tabCount::before {
     transform: translateY(-50%) scaleX(-1);
     font-size: 1.5rem;
 }
-body:not([data-mode="edit"]) #currentWindow .name:hover {
+body.normal #currentWindow .name:hover {
     background-color: var(--popup-hover-row-color);
     cursor: pointer;
 }
-body:not([data-mode="edit"]) #currentWindow .name:hover + .tabCount::before {
+body.normal #currentWindow .name:hover + .tabCount::before {
     display: block;
     background-color: var(--popup-hover-row-color);
 }
-body:not([data-mode="edit"]) #currentWindow .name:focus + .tabCount::before {
+body.normal #currentWindow .name:focus + .tabCount::before {
     display: block;
     background-color: var(--popup-row-color);
 }
 
-.private .name {
+li.private .name {
     color: var(--private-text-color);
 }
 
@@ -261,7 +261,7 @@ button {
 }
 
 button:hover,
-body:not([data-mode="edit"]) li button:focus {
+body.normal li button:focus {
     background-color: var(--popup-hover-button-color);
     background-size: 97%; /* Counteract shrinkage caused by focus-ring border, but also a nice hover effect */
     opacity: 1;
@@ -278,7 +278,7 @@ li button {
     opacity: .7;
 }
 
-body[data-mode="edit"] li button {
+body.edit li button {
     background-color: transparent;
     opacity: .1;
 }
@@ -287,12 +287,12 @@ li.reopenTabs button.tabAction:is(:hover, :focus) {
     background-color: var(--popup-private-button-color);
 }
 
-.send  { background-image: url("../icons/send.svg"); }
-.bring { background-image: url("../icons/bring.svg"); }
-.stash { background-image: url("../icons/stash.svg"); }
-.stashed .stash { background-image: url("../icons/unstash.svg"); }
+button.send  { background-image: url("../icons/send.svg"); }
+button.bring { background-image: url("../icons/bring.svg"); }
+button.stash { background-image: url("../icons/stash.svg"); }
+li.stashed button.stash { background-image: url("../icons/unstash.svg"); }
 
-.tabAction[disabled] {
+button.tabAction[disabled] {
     visibility: hidden;
 }
 
@@ -350,7 +350,7 @@ footer button:last-child {
 #restart img {
     vertical-align: bottom;
 }
-.dark #restart img {
+body.dark #restart img {
     filter: invert(1);
 }
 
