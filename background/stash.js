@@ -45,23 +45,31 @@ export class FolderList extends Array {
     async populate(parentId, config = {}, nodes = null) {
         this.length = 0;
         this.parentId = parentId;
-        nodes ||= await getChildNodes(parentId);
+        let allow_private;
+        [nodes, allow_private] = await Promise.all([
+            nodes || getChildNodes(parentId),
+            browser.extension.isAllowedIncognitoAccess(),
+        ]);
 
         // If parent is a root folder, take only nodes after last separator
         if (ROOT_IDS.has(parentId))
             nodes = nodes.slice(nodes.findLastIndex(isSeparator) + 1);
 
-        // Filter out non-folders and parse any annotations
+        // Filter out non- and invalid folders, parsing any annotations
         for (const node of nodes) {
             if (!isFolder(node))
-                continue;
+                continue; // Skip non-folder
             const [title, protoWindow] = StashProp.Window.parse(node.title);
-            node.givenName = title;
-            if (protoWindow)
+            if (protoWindow) {
+                if (protoWindow.incognito && !allow_private)
+                    continue; // Skip private-window folder if no private-window access
                 node.protoWindow = protoWindow;
+            }
+            node.givenName = title;
             this.push(node);
         }
 
+        // Add folder content related properties if desired
         const { children, bookmarkCount } = config;
         if (children || bookmarkCount) {
             const nodeLists = await Promise.all( this.map(folder => getChildNodes(folder.id)) );
@@ -330,8 +338,11 @@ export async function canUnstashThis(nodeId) {
     const nowProcessing = nowStashing.union(nowUnstashing);
     if (ROOT_IDS.has(nodeId) || nowProcessing.has(nodeId)) // Is root folder, or folder is being processed
         return false;
-    const node = await getNode(nodeId);
+    const [node, allow_private] = await Promise.all([ getNode(nodeId), Storage.getValue('allow_private') ]);
     if (isSeparator(node) || nowProcessing.has(node.parentId)) // Is separator, or parent folder is being processed
+        return false;
+    const [, protoWindow] = StashProp.Window.parse(node.title);
+    if (protoWindow?.incognito && !allow_private) // Is private-window folder but no private-window access
         return false;
     return true;
 }
