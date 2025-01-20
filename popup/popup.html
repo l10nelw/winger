@@ -15,17 +15,16 @@
         <button type="button" class="tabAction send" data-action="send" title="Send" hidden></button>
         <button type="button" class="tabAction bring" data-action="bring" title="Bring" hidden></button>
         <div class="icon"></div>
-        <input tabindex="-1" class="name" readonly autocomplete="off">
+        <input class="name" tabindex="-1" readonly>
         <div class="tabCount"></div>
         <button type="button" class="windowAction stash" data-action="stash" title="Stash" hidden></button>
       </li>
     </ul>
     <div id="omniboxWrapper">
-      <input id="omnibox" type="text" placeholder="Find windows" autofocus>
+      <input id="omnibox" placeholder="Find windows" autofocus>
     </div>
     <ul id="otherWindows" tabindex="-1">
-      <li id="minimizedHeading" class="heading" data-heading="Minimized"><hr></li>
-      <li id="stashedHeading" class="heading" data-heading="Stashed"><hr></li>
+      <li class="heading" data-heading="Minimized" id="minimizedHeading"><hr></li>
     </ul>
     <footer>
       <div id="status">Loading...</div>
