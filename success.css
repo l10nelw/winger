@@ -1,26 +1,28 @@
 /* Success indicator */
 .success {
   position: relative;
-}
-.success::after {
-  --tick-size: 18px;
-  content: "✓";
-  position: absolute;
-  /* Please define left or right in the specific context itself */
-  top: 50%;
-  translate: 0 -50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: var(--tick-size);
-  width: var(--tick-size);
-  border-radius: 50%;
-  background-color: var(--success-color);
-  color: var(--popup-field-color);
-  scale: 0;
-  transition: scale .5s;
-}
-.success.show-success::after {
-  scale: 1;
-  transition-duration: 0.01s;
+
+  &::after {
+    --tick-size: 18px;
+    content: "✓";
+    position: absolute;
+    /* Please define left or right in the specific context itself */
+    top: 50%;
+    translate: 0 -50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: var(--tick-size);
+    width: var(--tick-size);
+    border-radius: 50%;
+    background-color: var(--success-color);
+    color: var(--popup-field-color);
+    scale: 0;
+    transition: scale .5s;
+  }
+
+  &.show-success::after {
+    scale: 1;
+    transition-duration: 0.01s;
+  }
 }

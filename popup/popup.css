@@ -72,10 +72,10 @@ li {
     scroll-snap-align: start;
     border: 2px solid transparent;
     list-style: none;
-}
 
-li > * {
-    flex: 0 0 auto;
+    > * {
+        flex: 0 0 auto;
+    }
 }
 
 .tabCount {
@@ -88,9 +88,10 @@ li > * {
 body.normal #otherWindows li:not(.stashed):hover {
     background-color: var(--popup-hover-row-color);
 }
-body.normal #otherWindows li.stashed,
-body.normal #otherWindows li.stashed .name {
-    cursor: not-allowed;
+body.normal li.stashed {
+    &, & .name {
+        cursor: not-allowed;
+    }
 }
 
 .heading {
@@ -102,26 +103,27 @@ body.normal #otherWindows li.stashed .name {
     justify-content: center;
     height: var(--popup-heading-height);
     background-color: var(--popup-row-color) !important;
-}
-.heading > hr {
-    width: 97%;
-    margin: .5rem 0 .4rem;
-    border: .5px solid var(--muted-text-color);
-}
-.heading::after {
-    content: attr(data-heading);
-    position: absolute;
-    background-color: var(--popup-row-color);
-    color: var(--muted-text-color);
-    padding: 0 2px;
-    font-size: 95%;
+
+    > hr {
+        width: 97%;
+        margin: .5rem 0 .4rem;
+        border: .5px solid var(--muted-text-color);
+    }
+    &::after {
+        content: attr(data-heading);
+        position: absolute;
+        background-color: var(--popup-row-color);
+        color: var(--muted-text-color);
+        padding: 0 2px;
+        font-size: 95%;
+    }
+    ul.filtered & {
+        display: none !important;
+    }
 }
 #minimizedHeading:has(~ li.minimized),
 #stashedHeading:has(~ li.stashed) {
     display: flex;
-}
-ul.filtered .heading {
-    display: none !important;
 }
 
 
@@ -130,21 +132,22 @@ ul.filtered .heading {
 .icon {
     position: relative;
 }
-li.stashed .icon::after {
-    content: url("/icons/folder.svg");
-    height: var(--popup-icon-size);
-    position: absolute;
-    left: calc(var(--popup-icon-size) - 8px);
-    transform: translateY(-50%);
-    opacity: .25;
+li.stashed {
+    .icon::after {
+        content: url("/icons/folder.svg");
+        height: var(--popup-icon-size);
+        position: absolute;
+        left: calc(var(--popup-icon-size) - 8px);
+        transform: translateY(-50%);
+        opacity: .25;
+    }
+    body.dark & .icon::after {
+        filter: invert(1);
+    }
+    .name {
+        padding-left: calc(var(--popup-icon-size) + 8px);
+    }
 }
-body.dark li.stashed .icon::after {
-    filter: invert(1);
-}
-li.stashed .name {
-    padding-left: calc(var(--popup-icon-size) + 8px);
-}
-
 
 
 /* --- Input field (Omnibox and name) --- */
@@ -155,10 +158,10 @@ input {
     text-align: start;
     background-color: var(--popup-field-color);
     color: var(--text-color);
-}
 
-input:read-only {
-    cursor: default;
+    &:read-only {
+        cursor: default;
+    }
 }
 
 
@@ -170,60 +173,60 @@ input:read-only {
     border-radius: var(--border-radius);
     margin-left: .25rem;
     text-overflow: ellipsis;
-}
-.name::placeholder {
-    font-style: italic;
-}
 
-/* Placeholder text looks like normal text when there are no names */
-body.nameless li:not(.stashed) .name::placeholder {
-    opacity: 1;
-    font-style: normal;
-}
+    &::placeholder {
+        font-style: italic;
+    }
+    /* Placeholder text looks like normal text when there are no names */
+    body.nameless li:not(.stashed) &::placeholder {
+        opacity: 1;
+        font-style: normal;
+    }
+    &:read-only {
+        background-color: transparent;
+        border-color: transparent;
+        user-select: none;
 
-body.normal .name {
-    background-color: transparent;
-    border-color: transparent;
-    user-select: none;
-}
-
-body.normal .name::selection {
-    background-color: transparent;
-}
-
-body.normal #currentWindow .name {
-    font-weight: bold;
+        &::selection {
+            background-color: transparent;
+        }
+        #currentWindow & {
+            font-weight: bold;
+        }
+    }
+    li.private & {
+        color: var(--private-text-color);
+    }
 }
 
 /* Pencil icon to indicate clickable name */
-#currentWindow .tabCount {
-    position: relative;
-}
-body.normal #currentWindow .tabCount::before {
-    position: absolute;
-    display: none;
-    pointer-events: none;
-    content: "✎";
-    left: calc(-2rem - var(--tabcount-x-margin));
-    top: 50%;
-    transform: translateY(-50%) scaleX(-1);
-    font-size: 1.5rem;
-}
-body.normal #currentWindow .name:hover {
-    background-color: var(--popup-hover-row-color);
-    cursor: pointer;
-}
-body.normal #currentWindow .name:hover + .tabCount::before {
-    display: block;
-    background-color: var(--popup-hover-row-color);
-}
-body.normal #currentWindow .name:focus + .tabCount::before {
-    display: block;
-    background-color: var(--popup-row-color);
+#currentWindow {
+    .tabCount {
+        position: relative;
+    }
+    .name:read-only {
+        + .tabCount::before {
+            position: absolute;
+            display: none;
+            pointer-events: none;
+            content: "✎";
+            left: calc(-2rem - var(--tabcount-x-margin));
+            top: 50%;
+            transform: translateY(-50%) scaleX(-1);
+            font-size: 1.5rem;
+        }
+        &:hover {
+            background-color: var(--popup-hover-row-color);
+            cursor: pointer;
+        }
+        &:is(:hover, :focus) + .tabCount::before {
+            display: block;
+        }
+    }
 }
 
-li.private .name {
-    color: var(--private-text-color);
+.success::after {
+    left: calc(0px - var(--tabcount-x-margin) - var(--popup-field-x-padding) - var(--tick-size));
 }
 
 
@@ -233,23 +236,24 @@ li.private .name {
     height: var(--popup-row-height);
     width: 100%;
     border-color: transparent var(--popup-border-color);
-}
-#omnibox::placeholder {
-    opacity: .5;
-}
-#omnibox.error::placeholder {
-    opacity: 1;
-    color: var(--danger-color);
-    font-style: italic;
-}
 
+    &::placeholder {
+        opacity: .5;
+    }
+    &.error::placeholder {
+        opacity: 1;
+        color: var(--danger-color);
+        font-style: italic;
+    }
+}
 .slashCommand {
     color: var(--accent-color);
     font-weight: bold;
-}
-.slashCommand::selection {
-    color: var(--popup-field-color);
-    background-color: var(--accent-color);
+
+    &::selection {
+        color: var(--popup-field-color);
+        background-color: var(--accent-color);
+    }
 }
 
 
@@ -258,42 +262,40 @@ li.private .name {
 button {
     background-color: transparent;
     opacity: .7;
-}
 
-button:hover,
-body.normal li button:focus {
-    background-color: var(--popup-hover-button-color);
-    background-size: 97%; /* Counteract shrinkage caused by focus-ring border, but also a nice hover effect */
-    opacity: 1;
-}
+    body.normal &:hover,
+    li &:focus {
+        background-color: var(--popup-hover-button-color);
+        background-size: 97%; /* Counteract shrinkage caused by focus-ring border, but also a nice hover effect */
+        opacity: 1;
+    }
+    li & {
+        width: var(--popup-button-size);
+        height: var(--popup-button-size);
+        background-size: 90%;
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: var(--border-radius);
+        border: 1px solid transparent; /* Provide 2px space between buttons to accommodate focus-ring border */
+        opacity: .7;
 
-li button {
-    width: var(--popup-button-size);
-    height: var(--popup-button-size);
-    background-size: 90%;
-    background-repeat: no-repeat;
-    background-position: center;
-    border-radius: var(--border-radius);
-    border: 1px solid transparent; /* Provide 2px space between buttons to accommodate focus-ring border */
-    opacity: .7;
-}
-
-body.edit li button {
-    background-color: transparent;
-    opacity: .1;
-}
-
-li.reopenTabs button.tabAction:is(:hover, :focus) {
-    background-color: var(--popup-private-button-color);
-}
-
-button.send  { background-image: url("../icons/send.svg"); }
-button.bring { background-image: url("../icons/bring.svg"); }
-button.stash { background-image: url("../icons/stash.svg"); }
-li.stashed button.stash { background-image: url("../icons/unstash.svg"); }
-
-button.tabAction[disabled] {
-    visibility: hidden;
+        body.edit & {
+            background-color: transparent;
+            opacity: .1;
+        }
+    }
+    &.tabAction {
+        li.reopenTabs &:is(:hover, :focus) {
+            background-color: var(--popup-private-button-color);
+        }
+        &[disabled] {
+            visibility: hidden;
+        }
+    }
+    &.send  { background-image: url("../icons/send.svg"); }
+    &.bring { background-image: url("../icons/bring.svg"); }
+    &.stash { background-image: url("../icons/stash.svg"); }
+    li.stashed &.stash { background-image: url("../icons/unstash.svg"); }
 }
 
 
@@ -302,33 +304,19 @@ button.tabAction[disabled] {
 footer {
     display: flex;
     height: var(--popup-row-height);
-}
 
-#status {
-    align-self: center;
-    flex-grow: 1;
-    padding: 2px 5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--muted-text-color);
-}
+    button {
+        flex-basis: var(--popup-row-height);
+        flex-shrink: 0;
+        border: 2px solid transparent;
+        text-align: center;
 
-kbd {
-    font-size: .9rem;
+        /* Button in the bottom right corner of the popup */
+        &:last-child {
+            border-bottom-right-radius: var(--border-radius);
+        }
+    }
 }
-
-footer button {
-    flex-basis: var(--popup-row-height);
-    flex-shrink: 0;
-    border: 2px solid transparent;
-    text-align: center;
-}
-
-/* Button in the bottom right corner of the popup */
-footer button:last-child {
-    border-bottom-right-radius: var(--border-radius);
-}
-
 #help::before {
     content: "?";
     display: inline-block;
@@ -340,24 +328,34 @@ footer button:last-child {
     line-height: 1.3;
     font-weight: 900;
 }
-
 #restart {
     background-color: var(--popup-hover-button-color);
     color: var(--text-color);
     white-space: nowrap;
     border-top-right-radius: var(--border-radius);
-}
-#restart img {
-    vertical-align: bottom;
-}
-body.dark #restart img {
-    filter: invert(1);
+
+    img {
+        vertical-align: bottom;
+
+        body.dark & {
+            filter: invert(1);
+        }
+    }
 }
 
-.success::after {
-    left: calc(0px - var(--tabcount-x-margin) - var(--popup-field-x-padding) - var(--tick-size));
+#status {
+    align-self: center;
+    flex-grow: 1;
+    padding: 2px 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--muted-text-color);
+}
+kbd {
+    font-size: .9rem;
 }
 
-/* --- Utilities --- */
+
+/* --- Miscellaneous --- */
 
 [hidden] { display: none; } /* Must set explicitly because `display: x` overrides `hidden` behaviour */
