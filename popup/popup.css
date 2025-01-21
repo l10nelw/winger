@@ -117,7 +117,7 @@ body.normal li.stashed {
         padding: 0 2px;
         font-size: 95%;
     }
-    ul.filtered & {
+    body.filtered & {
         display: none !important;
     }
 }

@@ -1,4 +1,5 @@
 import {
+    $body,
     $otherWindowsList,
     $otherWindowRows,
 } from './common.js';
@@ -30,7 +31,7 @@ function filter(str) {
             $shownRows.push($row);
         }
     }
-    $otherWindowsList.classList.add('filtered');
+    $body.classList.add('filtered');
     return $shownRows.length;
 }
 
@@ -60,6 +61,6 @@ function reset() {
     });
     $shownRows.length = 0;
     $shownRows.push(...$otherWindowRows);
-    $otherWindowsList.classList.remove('filtered');
+    $body.classList.remove('filtered');
     $otherWindowsList.scroll(0, 0);
 }

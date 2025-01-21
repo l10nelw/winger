@@ -1,5 +1,6 @@
 import {
     FLAGS,
+    $body,
     $currentWindowRow,
     $otherWindowsList,
     $otherWindowRows,
@@ -156,7 +157,7 @@ const FolderRow = {
             disableElement(Template.$folder.querySelector('.bring'));
         if (CELL_SELECTORS.has('.stash'))
             Template.$folder.querySelector('.stash').title = 'Unstash';
-        if ($otherWindowsList.classList.contains('filtered'))
+        if ($body.classList.contains('filtered'))
             Template.$folder.hidden = true;
     },
 
