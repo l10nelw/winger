@@ -110,13 +110,11 @@ const WindowRow = {
         $row.classList.toggle('minimized', minimized);
         $row.classList.toggle('private', incognito);
     },
+
 };
 
 //@ ([Object]) -> state
-export async function addAllFolders(folders) {
-    if (!folders?.length)
-        return;
-
+export function addAllFolders(folders) {
     // Create stashed-heading
     const $stashedHeading = $otherWindowRows.$minimizedHeading.cloneNode(true);
     $stashedHeading.id = 'stashedHeading';
@@ -126,29 +124,50 @@ export async function addAllFolders(folders) {
     // Create stashed-rows
     FolderRow.init();
     const $rows = [];
+    const $_names = [];
     const $rowsFragment = document.createDocumentFragment();
     for (let folder of folders) {
         const $row = FolderRow.create(folder);
         $rows.push($row);
+        $_names.push($row.$name);
         $rowsFragment.appendChild($row);
-        $names.push($row.$name);
         folder = { id: folder.id }; // Strip down folder objects for Request.popupStashContents()
     }
     $otherWindowsList.appendChild($rowsFragment);
 
-    // Hydrate tab counts
-    folders = await Request.popupStashContents(folders);
-    folders.forEach((folder, i) => $rows[i].$tabCount.textContent = folder.bookmarkCount);
-
     // Hydrate globals
     $otherWindowRows.$stashedHeading = $stashedHeading;
-    $otherWindowRows.$withHeadings.push($stashedHeading, ...$rows);
-    $otherWindowRows.push(...$rows);
-    Filter.$shownRows.push(...$rows);
+    $otherWindowRows.$stashed = $rows;
+    $otherWindowRows.$stashed._startIndex = $otherWindowRows.length;
+    $names.$stashed = $_names;
+    $names.$stashed._startIndex = $names.length;
+
+    // Hydrate tab counts
+    Request.popupStashContents(folders).then(folders =>
+        folders.forEach((folder, i) => $rows[i].$tabCount.textContent = folder.bookmarkCount)
+    );
+}
+
+//@ state -> state
+export function toggleViewFolders() {
+    // Stashed-rows visibility governed by CSS (body.viewstash li.stashed)
+    if ($body.classList.toggle('viewstash')) {
+        const $rows = $otherWindowRows.$stashed;
+        $otherWindowRows.push(...$rows);
+        $otherWindowRows.$withHeadings.push($otherWindowRows.$stashedHeading, ...$rows);
+        Filter.$shownRows.push(...$rows);
+        $names.push(...$names.$stashed);
+        $rows[0].scrollIntoView({ behavior: 'smooth' });
+    } else {
+        const rowIndex = $otherWindowRows.$stashed._startIndex;
+        $otherWindowRows.splice(rowIndex);
+        $otherWindowRows.$withHeadings.splice(rowIndex + 1); // +1 to account for $minimizedHeading
+        Filter.$shownRows.splice(rowIndex);
+        $names.splice($names.$stashed._startIndex);
+    }
 }
 
 const FolderRow = {
-
     //@ -> state
     init() {
         Template.$folder = Template.$window.cloneNode(true);
@@ -172,6 +191,7 @@ const FolderRow = {
         $row.classList.toggle('private', protoWindow?.incognito ?? false);
         return $row;
     },
+
 };
 
 // Add references to row's cells, and in each cell a reference back to the row

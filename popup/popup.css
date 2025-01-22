@@ -126,6 +126,10 @@ body.normal li.stashed {
     display: flex;
 }
 
+body:not(.viewstash) li:is(#stashedHeading, .stashed) {
+    display: none;
+}
+
 
 /* --- Row icon --- */
 
@@ -243,6 +247,11 @@ input {
     &.error::placeholder {
         opacity: 1;
         color: var(--danger-color);
+        font-style: italic;
+    }
+    &.info::placeholder {
+        opacity: 1;
+        color: var(--accent-color);
         font-style: italic;
     }
 }

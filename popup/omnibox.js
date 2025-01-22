@@ -1,18 +1,29 @@
 import {
     FLAGS,
-    $omnibox,
     nameMap,
+    $body,
+    $omnibox,
     $names,
+    $otherWindowRows,
 } from './common.js';
 import * as Toolbar from './toolbar.js';
 import * as EditMode from './editmode.js';
 import * as Filter from './filter.js';
 import * as Request from './request.js';
+import * as Row from './row.js';
 import { validify } from '../name.js';
+
+const COMMANDS_WITH_ARG = new Set([
+    'new', 'newnormal', 'newprivate', 'pop', 'popnormal', 'popprivate', 'kick', 'kicknormal', 'kickprivate',
+    'name', 'extractname', 'extractallnames',
+]);
+const EDITMODE_VALID_COMMANDS = new Set(['help', 'settings', 'options', 'edit', 'viewstash']);
 
 //@ (String) -> (Function)
 const namingActionRequestFn = command =>
     ({ event, argument }) => Request.action({ event, command, argument: validUniqueName(argument) });
+//@ (String), state -> (String)
+const validUniqueName = name => nameMap.ready().uniquify(validify(name));
 
 const COMMAND__CALLBACK = {
     help:     Toolbar.help,
@@ -54,19 +65,29 @@ const COMMAND__CALLBACK = {
     },
 };
 
-const COMMANDS_WITH_ARG = new Set([
-    'new', 'newnormal', 'newprivate', 'pop', 'popnormal', 'popprivate', 'kick', 'kicknormal', 'kickprivate',
-    'name', 'extractname', 'extractallnames',
-]);
-const EDITMODE_VALID_COMMANDS = new Set(['help', 'settings', 'options', 'edit']);
 const SHORTHAND__COMMAND = { exa: 'extractallnames' };
 
 //@ state -> state
 export function init() {
     Parsed.clear();
+
     if (FLAGS.enable_stash) {
         COMMAND__CALLBACK.stash = ({ event }) => Request.action({ command: 'stash', event });
+
+        COMMAND__CALLBACK.viewstash = async function () {
+            if (!$otherWindowRows.$stashed) {
+                Placeholder.set('Loading stashed windows...', 'info');
+                const folders = await Request.popupStash();
+                Placeholder.reset();
+                if (!folders.length)
+                    return Placeholder.flash('No stashed windows found', 'info');
+                Row.addAllFolders(folders);
+            }
+            Row.toggleViewFolders();
+            respondIfFilled({ autocomplete: false });
+        };
     }
+
     if (FLAGS.allow_private) {
         COMMAND__CALLBACK.newnormal   = namingActionRequestFn('newnormal');
         COMMAND__CALLBACK.popnormal   = namingActionRequestFn('popnormal');
@@ -81,11 +102,9 @@ export function init() {
         SHORTHAND__COMMAND.pp = 'popprivate';
         SHORTHAND__COMMAND.kp = 'kickprivate';
     }
+
     $omnibox.focus();
 }
-
-//@ (String), state -> (String)
-const validUniqueName = name => nameMap.ready().uniquify(validify(name));
 
 export const Parsed = {
 
@@ -148,8 +167,8 @@ export const Parsed = {
 
 }
 
-//@ (Object), state -> state
-export function handleInput(event) {
+//@ (Object, Object|undefined), state -> state
+export function handleInput(event, optionDict) {
     if (event.target !== $omnibox)
         return false;
 
@@ -160,11 +179,15 @@ export function handleInput(event) {
 
     $omnibox.classList.toggle('slashCommand', Parsed.startsSlashed);
 
-    if (Parsed.command && !event._noAutocomplete && !isDeletion(event))
+    if (Parsed.command && optionDict?.autocomplete !== false && !isDeletion(event))
         autocompleteCommand(str, Parsed.command);
 
     return true;
 }
+
+// If omnibox has text, respond now as if there was an input event.
+//@ state -> state
+export const respondIfFilled = optionDict => $omnibox.value && handleInput({ target: $omnibox }, optionDict);
 
 //@ (Object), state -> state
 export function handleKeyDown(event) {
@@ -217,7 +240,7 @@ function handleEnterKey(event) {
 }
 
 //@ (Object) -> (Boolean)
-const isDeletion = event => event.inputType.startsWith('delete');
+const isDeletion = event => event.inputType?.startsWith('delete');
 const hasSelectedText = $field => $field.selectionStart !== $field.selectionEnd;
 
 //@ (String, String) -> state
@@ -242,16 +265,29 @@ function createRegex(str) {
     try {
         return new RegExp(str);
     } catch (e) {
-        showError(`RegExp ${e}`);
+        Placeholder.flash(`RegExp ${e}`, 'error');
     }
 }
 
-//@ (String) -> state
-function showError(message) {
-    $omnibox.classList.add('error');
-    $omnibox.placeholder = message;
-    setTimeout(() => {
-        $omnibox.classList.remove('error');
-        $omnibox.placeholder = '';
-    }, 1500);
+const Placeholder = {
+    TIMEOUT: 1500,
+    ORIGINAL: $omnibox.placeholder,
+    className: '',
+
+    set(text, className) {
+        Placeholder.className = className;
+        $omnibox.classList.add(className);
+        $omnibox.placeholder = text;
+    },
+
+    reset() {
+        $omnibox.placeholder = Placeholder.ORIGINAL;
+        $omnibox.classList.remove(Placeholder.className);
+        Placeholder.className = '';
+    },
+
+    flash(text, className, time = Placeholder.TIMEOUT) {
+        Placeholder.set(text, className);
+        setTimeout(Placeholder.reset, time);
+    },
 }

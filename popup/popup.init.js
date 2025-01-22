@@ -3,7 +3,6 @@ import {
     $body,
     $currentWindowRow,
     $omnibox,
-    $otherWindowRows,
     $otherWindowsList,
     $toolbar,
     $status,
@@ -13,7 +12,6 @@ import * as Omnibox from './omnibox.js';
 import * as Status from './status.js';
 import * as Request from './request.js';
 
-const popupStashResponse = Request.popupStash();
 Request.popup().then(initPopup).catch(onError);
 
 //@ ({ Object, [Object], Object }) -> state
@@ -27,15 +25,7 @@ async function initPopup({ fgWinfo, bgWinfos, flags }) {
     Omnibox.init();
 
     Row.addAllWindows(fgWinfo, bgWinfos);
-    // If omnibox has text, respond now
-    if ($omnibox.value)
-        Omnibox.handleInput({ target: $omnibox, inputType: '' });
-
-    await popupStashResponse.then(Row.addAllFolders);
-    $otherWindowRows.$stashedHeading?.nextElementSibling?.scrollIntoView({ behavior: 'smooth' });
-    // Check omnibox and respond again, without command autocompletion (already done at first response)
-    if ($omnibox.value)
-        Omnibox.handleInput({ target: $omnibox, inputType: '', _noAutocomplete: true });
+    Omnibox.respondIfFilled();
 }
 
 //@ -> state
