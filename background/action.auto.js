@@ -1,6 +1,7 @@
 // Automatic operations that follow or support Winger and native actions
 
 import * as Storage from '../storage.js';
+import * as Winfo from './winfo.js';
 
 // Open extension page tab, closing any duplicates found.
 //@ (String, String), state -> state
@@ -55,6 +56,65 @@ export function assertDiscard(tabs) {
         browser.tabs.discard(tabIds);
 }
 
+// Array of ids of alphabetically-sorted (by givenNames first then by title) non-minimized windows.
+// Populates itself if empty when getDestination() is called.
+// Should be reset (emptied) whenever a window is re/un/named, opened, closed, minimized or un-minimized.
+export const switchList = Object.assign([], {
+
+    inProgress: false, // To distinguish a shortcut-invoked type of window focus change from others
+
+    //@ state -> state
+    async _populate() {
+        const winfos = await Winfo.getAll(
+            ['givenName', 'title'],
+            (await browser.windows.getAll()).filter(window => window.state !== 'minimized'),
+        );
+        // Example sort result with this compare function: ['2', '10', 'A', 'a', 'B', 'b']
+        const compare = (a, b) => a.localeCompare(b, undefined, { caseFirst: 'upper', numeric: true });
+        winfos.sort((A, B) => {
+            if (A.givenName && B.givenName)
+                return compare(A.givenName, B.givenName);
+            if (A.givenName) return -1;
+            if (B.givenName) return 1;
+            return compare(A.title, B.title);
+        });
+        this.length = 0;
+        this.push(...winfos.map(winfo => winfo.id));
+    },
+
+    //@ (Number, Number) -> (Number)
+    async getDestination(windowId, offset) {
+        if (!this.length)
+            await this._populate();
+        const index = this.indexOf(windowId);
+        if (index === -1)
+            throw `Shortcut switch-next/previous: invalid origin windowId ${windowId}`;
+        return this.at(index + offset) ?? this[0];
+    },
+
+    //@ -> state
+    reset() {
+        this.length = 0;
+    },
+});
+
+export const discardWindow = {
+    //@ (Number) -> state
+    async schedule(windowId) {
+        const delayInMinutes = await Storage.getValue('discard_minimized_window_delay_mins');
+        delayInMinutes
+        ? browser.alarms.create(`discardWindow-${windowId}`, { delayInMinutes })
+        : discardWindow.now(windowId);
+    },
+    deschedule(windowId) {
+        browser.alarms.clear(`discardWindow-${windowId}`);
+    },
+    async now(windowId) {
+        const tabs = await browser.tabs.query({ windowId, active: false, discarded: false });
+        browser.tabs.discard(tabs.map(tab => tab.id));
+    },
+}
+
 
 /* --- Placeholder tab --- */
 
@@ -75,23 +135,3 @@ const PLACEHOLDER_PAGE = '../page/placeholder.html';
 const buildPlaceholderURL = (url, title) => `${PLACEHOLDER_PAGE}?${new URLSearchParams({ url, title })}`; //@ (String, String) -> (String)
 const isPlaceholder = url => url.startsWith(browser.runtime.getURL(PLACEHOLDER_PAGE)); //@ (String) -> (Boolean)
 const getUrlParam = originalUrl => (new URL(originalUrl)).searchParams.get('url'); //@ (String) -> (String)
-
-
-/* --- Background windows management --- */
-
-export const discardWindow = {
-    //@ (Number) -> state
-    async schedule(windowId) {
-        const delayInMinutes = await Storage.getValue('discard_minimized_window_delay_mins');
-        delayInMinutes
-        ? browser.alarms.create(`discardWindow-${windowId}`, { delayInMinutes })
-        : discardWindow.now(windowId);
-    },
-    deschedule(windowId) {
-        browser.alarms.clear(`discardWindow-${windowId}`);
-    },
-    async now(windowId) {
-        const tabs = await browser.tabs.query({ windowId, active: false, discarded: false });
-        browser.tabs.discard(tabs.map(tab => tab.id));
-    },
-}

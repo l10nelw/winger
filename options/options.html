@@ -112,9 +112,11 @@
       </fieldset>
 
       <fieldset>
-        <legend>Keyboard shortcut</legend>
-        <p>The keyboard shortcut to open the pop-up panel is <strong class="current-shortcut">[current-shortcut]</strong>. <span class="default-shortcut-text" hidden>(Default: <span class="default-shortcut">[default-shortcut]</span>)</span></p>
-        <p>It can be changed in Firefox's extension shortcuts manager: Click the ⚙️&nbsp;button above this page, click <cite>Manage Extension Shortcuts</cite>, and look for the Winger shortcut.</p>
+        <legend>Keyboard shortcuts</legend>
+        <template id="shortcut">
+          <p><span class="shortcut-description"></span>: <span class="shortcut-key"></span> <span class="shortcut-default-text muted" hidden>(default: <span class="shortcut-default"></span>)</span></p>
+        </template>
+        <p>They can be changed in Firefox's extension shortcuts manager: Click the ⚙️&nbsp;button above this page, click <cite>Manage Extension Shortcuts</cite>, and look for Winger.</p>
       </fieldset>
 
     </form>

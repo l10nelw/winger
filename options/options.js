@@ -129,16 +129,24 @@ const StashSection = {
 const StaticText = {
 
     //@ state -> state
-    async insertShortcut() {
-        const defaultShortcut = browser.runtime.getManifest().commands._execute_browser_action.suggested_key.default;
-        const currentShortcut = await getShortcut();
-        if (currentShortcut)
-            $form.querySelector('.current-shortcut').textContent = currentShortcut;
-        if (currentShortcut == defaultShortcut)
-            return;
-        const $defaultShortcutText = $form.querySelector('.default-shortcut-text');
-        $defaultShortcutText.querySelector('.default-shortcut').textContent = defaultShortcut;
-        $defaultShortcutText.hidden = false;
+    async insertShortcuts() {
+        const $templateSource = document.getElementById('shortcut');
+        const $template = $templateSource.content.firstElementChild;
+        const $fragment = document.createDocumentFragment();
+        const manifest = browser.runtime.getManifest().commands;
+        const formatShortcut = shortcut => shortcut.split('+').map(key => `<kbd>${key}</kbd>`).join('+');
+        for (const { name, description, shortcut } of await browser.commands.getAll()) {
+            const $shortcut = $template.cloneNode(true);
+            $shortcut.querySelector('.shortcut-description').textContent = description;
+            $shortcut.querySelector('.shortcut-key').innerHTML = formatShortcut(shortcut);
+            const defaultShortcut = manifest[name].suggested_key.default;
+            if (shortcut !== defaultShortcut) {
+                $shortcut.querySelector('.shortcut-default-text').hidden = false;
+                $shortcut.querySelector('.shortcut-default').innerHTML = formatShortcut(defaultShortcut);
+            }
+            $fragment.appendChild($shortcut);
+        }
+        $templateSource.parentNode.insertBefore($fragment, $templateSource.nextSibling); // Insert $fragment after $templateSource
     },
 
     //@ state -> state
@@ -158,7 +166,7 @@ const StaticText = {
     }
     if ($form.enable_stash.checked && !await StashSection.hasPermission())
         StashSection.onNoPermission();
-    StaticText.insertShortcut();
+    StaticText.insertShortcuts();
     StaticText.checkPrivateAccess();
 })();
 

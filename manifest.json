@@ -40,6 +40,18 @@
       "suggested_key": {
         "default": "F1"
       }
+    },
+    "switch-next": {
+      "description": "Switch to the next window",
+      "suggested_key": {
+        "default": "Alt+Q"
+      }
+    },
+    "switch-previous": {
+      "description": "Switch to the previous window",
+      "suggested_key": {
+        "default": "Shift+Alt+Q"
+      }
     }
   },
   "browser_specific_settings": {

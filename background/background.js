@@ -13,7 +13,7 @@ import { isWindowId, isFolderId } from '../utils.js';
 //@ -> state
 async function debug() {
     const StashProp = await import('./stash.prop.js');
-    const modules = { Storage, Winfo, Name, Action, Auto, Chrome, SendMenu, StashMenu, Stash, StashProp };
+    const modules = { Action, Auto, Chrome, Name, SendMenu, StashMenu, Stash, StashProp, Storage, Winfo };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
     Object.assign(globalThis, modules);
 }
@@ -26,6 +26,7 @@ browser.menus.onShown.addListener(onMenuShown);
 browser.menus.onHidden.addListener(onMenuHidden);
 browser.menus.onClicked.addListener(onMenuClicked);
 
+browser.commands.onCommand.addListener(onShortcut);
 browser.alarms.onAlarm.addListener(onAlarm);
 
 browser.runtime.onMessage.addListener(onRequest);
@@ -54,6 +55,8 @@ async function onWindowCreated(window) {
             Name.save(windowId, uniqueName);
         Chrome.update([[windowId, uniqueName]]);
     }
+
+    Auto.switchList.reset();
 }
 
 // Natively, detached tabs stay selected. To honour !keep_moved_tabs_selected, REFOCUS focused tab to deselect selected tabs.
@@ -72,12 +75,20 @@ async function onWindowFocusChanged(windowId) {
     if (windowId <= 0)
         return;
 
-    const [discard_minimized_window, set_title_preface] = await Storage.getValue(['discard_minimized_window', 'set_title_preface']);
+    const [discard_minimized_window, set_title_preface, defocusedWindowId] =
+        await Storage.getValue(['discard_minimized_window', 'set_title_preface', '_focused_window_id']);
+    const isDefocusedMinimized = (await browser.windows.get(defocusedWindowId).catch(() => null))?.state === 'minimized';
+
+    // Reset Auto.switchList if a window was minimized or un-minimized
+    // In a non-shortcut focus change, if the now-focused window is not in the last-populated switchList, that means it used to be minimized and now isn't
+    if (!Auto.switchList.inProgress &&
+        (isDefocusedMinimized || Auto.switchList.length && !Auto.switchList.includes(windowId)))
+            Auto.switchList.reset();
+    Auto.switchList.inProgress = false;
 
     if (discard_minimized_window) {
         Auto.discardWindow.deschedule(windowId); // Cancel any scheduled discard of now-focused window
-        const defocusedWindowId = await Storage.getValue('_focused_window_id');
-        if (await isMinimized(defocusedWindowId))
+        if (isDefocusedMinimized)
             Auto.discardWindow.schedule(defocusedWindowId);
     }
 
@@ -91,12 +102,10 @@ async function onWindowFocusChanged(windowId) {
     }
 }
 
-//@ (Number), state -> (Boolean)
-const isMinimized = async windowId => (await browser.windows.get(windowId).catch(() => null))?.state === 'minimized';
-
 //@ (Number) -> state
 function onWindowRemoved(windowId) {
     browser.menus.remove(`${windowId}`);
+    Auto.switchList.reset();
 }
 
 //@ (Object, Object) -> state|nil
@@ -113,6 +122,16 @@ function onMenuHidden() {
 //@ (Object, Object) -> state|nil
 async function onMenuClicked(info, tab) {
     await StashMenu.handleClick(info) || SendMenu.handleClick(info, tab);
+}
+
+//@ (String, Object) -> state
+async function onShortcut(shortcutName, { windowId }) {
+    if (shortcutName.startsWith('switch-')) {
+        const offset = shortcutName.endsWith('next') ? 1 : -1;
+        windowId = await Auto.switchList.getDestination(windowId, offset);
+        Auto.switchList.inProgress = true;
+        Action.switchWindow({ windowId });
+    }
 }
 
 //@ (Object) -> state
@@ -175,6 +194,7 @@ async function onRequest(request) {
             return Action.openHelp();
 
         case 'update': {
+            Auto.switchList.reset();
             const { windowId, name } = request;
             if (windowId && name)
                 return Chrome.update([[windowId, name]]);
