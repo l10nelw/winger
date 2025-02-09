@@ -31,6 +31,10 @@ const COMMAND__CALLBACK = {
     options:  Toolbar.settings,
     edit:     EditMode.toggle,
 
+    new:  namingActionRequestFn('new'),
+    pop:  namingActionRequestFn('pop'),
+    kick: namingActionRequestFn('kick'),
+
     async name({ argument }) {
         const $name = $names[0];
         if (argument === $name.value)
@@ -39,10 +43,6 @@ const COMMAND__CALLBACK = {
         if (await EditMode.saveNameUpdateUI($name, name))
             $name.value = name;
     },
-
-    new:  namingActionRequestFn('new'),
-    pop:  namingActionRequestFn('pop'),
-    kick: namingActionRequestFn('kick'),
 
     async extractname({ argument, $name, regex }) {
         $name ??= $names[0];
