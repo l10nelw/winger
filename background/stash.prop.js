@@ -21,6 +21,9 @@ Unstash procedure:
 import { GroupMap } from '../utils.js';
 import { restoreTabRelations } from './action.auto.js';
 
+//@ (String, Number) -> (String)
+const makeStashId = (folderId, tabId) => folderId.slice(0, 5) + tabId;
+
 // Write and read window/tab properties. Only truthy properties are written.
 const Props = {
 
@@ -43,8 +46,8 @@ const Props = {
             // From Container.prepare():
             container: ({ container }) => container,
             // From Parents.prepare():
-            id: ({ id, isParent }, folderId) => isParent && (folderId + id),
-            parentId: ({ openerTabId }, folderId) => openerTabId && (folderId + openerTabId), // 'parentId' alias of 'openerTabId'
+            id: ({ id, isParent }, folderId) => isParent && makeStashId(folderId, id),
+            parentId: ({ openerTabId }, folderId) => openerTabId && makeStashId(folderId, openerTabId), // 'parentId' alias of 'openerTabId'
         },
         //@ (Object) -> (Boolean)
         reader: {
