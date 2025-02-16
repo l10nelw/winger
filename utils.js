@@ -1,6 +1,3 @@
-//@ state -> (String)
-export const getShortcut = async () => (await browser.commands.getAll())[0].shortcut;
-
 //@ (String), state -> (Boolean)
 export const isOS = osName => navigator.userAgent.indexOf(osName) !== -1;
 

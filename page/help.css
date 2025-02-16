@@ -45,20 +45,33 @@ h1, h2 {
 ul, ol {
   padding-left: 1.5rem;
 }
-details[open] > summary {
-  margin-bottom: 1.5rem;
-}
+
 summary {
   cursor: pointer;
+
+  details[open] > & {
+    margin-bottom: 1.5rem;
+  }
+  &:has(h2)::marker {
+    font-size: 1.5rem;
+  }
 }
-summary.h2::marker { /* TODO: Use summary:has(h2)::marker once supported */
-  font-size: 1.5rem;
+
+figure {
+  margin: .5rem 0;
 }
-kbd + kbd { /* Text nodes to the left are ignored, which may cause unwanted margins. Use <span>s as a workaround. */
-  margin-left: .25rem;
+.mediaObject {
+  display: flex;
+  figure {
+    margin-right: .5rem;
+  }
 }
+
 cite {
   font-weight: bold;
+}
+samp {
+  user-select: all;
 }
 
 .topTools {
@@ -66,16 +79,6 @@ cite {
   justify-content: end;
   align-items: center;
   gap: 1rem;
-}
-
-.inlineLinkList {
-  list-style: none;
-}
-.inlineLinkList > li {
-  display: inline-block;
-}
-.inlineLinkList > li:not(:last-child)::after {
-  content: " | ";
 }
 
 .themeBtn {
@@ -93,13 +96,14 @@ cite {
   line-height: 1;
   aspect-ratio: 1;
   cursor: pointer;
-}
-.themeBtn::after {
-  content: var(--theme-icon);
-}
-.dark .themeBtn {
-  --theme-icon: var(--dark-theme-icon);
-  --theme-bg: var(--dark-theme-bg);
+
+  &::after {
+    content: var(--theme-icon);
+  }
+  .dark & {
+    --theme-icon: var(--dark-theme-icon);
+    --theme-bg: var(--dark-theme-bg);
+  }
 }
 
 .actionBtn {
@@ -112,9 +116,10 @@ cite {
   justify-content: center;
   align-items: center;
   vertical-align: top;
-}
-.actionBtn img {
-  width: 90%;
+
+  img {
+    width: 90%;
+  }
 }
 
 .row { display: flex; }
@@ -124,9 +129,10 @@ cite {
   border-radius: 2px;
   padding: 2px 5px;
   line-height: 1;
-}
-.settingsBtn::before {
-  content: "⚙️ ";
+
+  &::before {
+    content: "⚙️ ";
+  }
 }
 
 .bordered-box {
@@ -140,10 +146,11 @@ cite {
 
 :target {
   animation: target-fading-highlight 2s 1;
+  background-color: transparent;
 }
 @keyframes target-fading-highlight {
   from { background-color: var(--page-highlight-bg-color); }
-  to   { background-color: none; }
+  to   { background-color: transparent; }
 }
 
 .w100 { width: 100%; }
@@ -167,7 +174,7 @@ cite {
 .pl2 { padding-left: 2rem; }
 .px1 { padding-inline: 1rem; }
 
-small, .small { font-size: 80%; }
+small { font-size: 80%; }
 .fw-normal { font-weight: normal; }
 .nowrap { white-space: nowrap; }
 

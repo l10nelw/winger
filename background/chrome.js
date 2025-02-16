@@ -1,6 +1,5 @@
 // The 'chrome' refers to UI elements of the browser that frame the content.
 
-import { getShortcut } from '../utils.js';
 import * as Storage from '../storage.js';
 import * as Badge from './chrome.badge.js';
 
@@ -51,4 +50,4 @@ export async function update(nameMap) {
 }
 
 //@ state -> String
-const getBaseButtonTitle = async () => `${browser.runtime.getManifest().name} (${await getShortcut()})`;
+const getBaseButtonTitle = async () => `${browser.runtime.getManifest().name} (${(await browser.commands.getAll())[0].shortcut})`;

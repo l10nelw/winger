@@ -31,7 +31,7 @@
     "browser_style": true
   },
   "options_ui": {
-    "page": "options/options.html",
+    "page": "page/options.html",
     "browser_style": true
   },
   "commands": {

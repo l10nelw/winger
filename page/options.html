@@ -25,18 +25,18 @@
 
       <fieldset>
         <legend>Window name display</legend>
-        <label><input class="setting" type="checkbox" name="show_badge"> <span>Enable Winger button badge
+        <label><input class="setting" type="checkbox" name="show_badge"> <span>Show name in Winger button badge
           <br><small>Shows the first few characters of a window name</small>
         </span></label>
         <div class="indent">
-          <label><input class="setting" type="checkbox" data-enabled-by="show_badge" name="badge_show_emoji_first"> <span>Show emojis first</span></label>
+          <label><input class="setting" type="checkbox" data-enabled-by="show_badge" name="badge_show_emoji_first"> <span>Show emoji first</span></label>
           <div class="flex gap">
             <label><span>Apply regular expression:</span> <input class="setting" type="text" data-enabled-by="show_badge" name="badge_regex" placeholder="e.g. \b\w"></label>
-            <label><input class="setting" type="checkbox" data-enabled-by="badge_regex" name="badge_regex_gflag"> <span>Multi-match/global</span></label>
+            <label><input class="setting" type="checkbox" data-enabled-by="badge_regex" name="badge_regex_gflag"> <span>Match multiple (global)</span></label>
           </div>
         </div>
-        <label><input class="setting" type="checkbox" name="set_title_preface"> <span>Enable window title preface
-          <br><small>Disable if you rely on another extension that sets title prefaces</small>
+        <label><input class="setting" type="checkbox" name="set_title_preface"> <span>Show name in window title preface
+          <br><small>Disable if you rely on title prefaces set by another extension</small>
         </label>
         <div class="indent">
           <div class="flex gap">
@@ -44,7 +44,7 @@
             <label><span>Postfix</span> <input class="setting smallField" type="text" data-enabled-by="set_title_preface" name="title_preface_postfix"></label>
           </div>
           <label><input class="setting" type="checkbox" data-enabled-by="set_title_preface" name="assert_title_preface"> <span>Re-assert on every window switch
-            <br><small>Useful if Winger's title prefaces often disappear or get overridden
+            <br><small>Useful if Winger's title prefaces are often disappearing or overridden
             <br>(You should check for and deal with any conflicting extensions if possible)</small>
           </span></label>
         </div>
@@ -99,7 +99,7 @@
       </fieldset>
 
       <fieldset class="flex gap">
-        <p>Changed settings take effect immediately. You can try restarting Winger if you have any issues.</p>
+        <p>Changed settings should take effect immediately. You can try restarting Winger if you have any issues.</p>
         <button type="button" id="restart"><img src="../icons/refresh.svg" width="15" height="15"> Restart Winger</button>
       </fieldset>
 
@@ -117,6 +117,7 @@
           <p><span class="shortcut-description"></span>: <span class="shortcut-key"></span> <span class="shortcut-default-text muted" hidden>(default: <span class="shortcut-default"></span>)</span></p>
         </template>
         <p>They can be changed in Firefox's extension shortcuts manager: Click the ⚙️&nbsp;button above this page, click <cite>Manage Extension Shortcuts</cite>, and look for Winger.</p>
+        <small>Learn more about the <a class="help" href="#switch-shortcuts">switch shortcuts</a></small>
       </fieldset>
 
     </form>

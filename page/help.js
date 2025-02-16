@@ -1,4 +1,5 @@
-import { isOS, getShortcut } from '../utils.js';
+import { isOS } from '../utils.js';
+import * as Shortcut from './shortcut.js';
 
 const $body = document.body;
 const $ = (selector, $scope = $body) => $scope.querySelector(selector); //@ (Object, Object|undefined) -> (Object)
@@ -6,7 +7,7 @@ const $$ = (selector, $scope = $body) => $scope.querySelectorAll(selector); //@ 
 $body.onclick = onClick;
 
 Promise.all([
-    insertShortcut(),
+    insertShortcuts(),
 ])
 .then(() => {
     doOSSpecific();
@@ -22,10 +23,13 @@ function onClick({ target }) {
 }
 
 //@ state -> state
-async function insertShortcut() {
-    const shortcut = await getShortcut();
-    if (shortcut !== 'F1')
-        $$('.js-shortcut').forEach($el => $el.textContent = $el.textContent.replace('F1', shortcut));
+async function insertShortcuts() {
+    const shortcutDict = await Shortcut.getDict();
+    for (const $shortcut of $$('[data-shortcut]')) {
+        const { shortcut } = shortcutDict[$shortcut.dataset.shortcut];
+        if ($shortcut.innerText !== shortcut)
+            $shortcut.innerHTML = Shortcut.format(shortcut);
+    }
 }
 
 //@ state -> state
@@ -56,7 +60,7 @@ function updateMockPopups() {
         const statusText = $status.textContent;
         if (!statusText.includes('#'))
             return;
-        const $tabCounts = [...$$('.popup-tabCount', $popup)];
+        const $tabCounts = [...$$('.popup-tabCount:not(.nocount)', $popup)];
         const tabCount = $tabCounts.reduce((total, $el) => total + parseInt($el.textContent), 0);
         const windowCount = $tabCounts.length;
         $status.textContent = statusText.replace('#', windowCount).replace('#', tabCount);

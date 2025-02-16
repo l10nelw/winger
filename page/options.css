@@ -22,16 +22,18 @@ label {
     align-items: flex-start;
     margin-bottom: 1rem;
     gap: .3rem;
-}
-label small {
-    font-style: italic;
+
+    small {
+        font-style: italic;
+    }
 }
 
 .group {
     margin-bottom: 1rem;
-}
-.group label {
-    margin-bottom: .5rem;
+
+    label {
+        margin-bottom: .5rem;
+    }
 }
 
 select, input[type="text"] {
@@ -59,9 +61,10 @@ button {
 }
 #restart {
     white-space: nowrap;
-}
-#restart img {
-    vertical-align: bottom;
+
+    img {
+        vertical-align: bottom;
+    }
 }
 
 .muted { opacity: .5; } /* Used in options.js */

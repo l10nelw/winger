@@ -1,5 +1,6 @@
+import * as Shortcut from './shortcut.js';
 import * as Storage from '../storage.js';
-import { getShortcut, GroupMap } from '../utils.js';
+import { GroupMap } from '../utils.js';
 import { openHelp } from '../background/action.js';
 import { isDark } from '../theme.js';
 import indicateSuccess from '../success.js';
@@ -133,16 +134,13 @@ const StaticText = {
         const $templateSource = document.getElementById('shortcut');
         const $template = $templateSource.content.firstElementChild;
         const $fragment = document.createDocumentFragment();
-        const manifest = browser.runtime.getManifest().commands;
-        const formatShortcut = shortcut => shortcut.split('+').map(key => `<kbd>${key}</kbd>`).join('+');
-        for (const { name, description, shortcut } of await browser.commands.getAll()) {
+        for (const { description, shortcut, defaultShortcut } of Object.values(await Shortcut.getDict())) {
             const $shortcut = $template.cloneNode(true);
             $shortcut.querySelector('.shortcut-description').textContent = description;
-            $shortcut.querySelector('.shortcut-key').innerHTML = formatShortcut(shortcut);
-            const defaultShortcut = manifest[name].suggested_key.default;
-            if (shortcut !== defaultShortcut) {
+            $shortcut.querySelector('.shortcut-key').innerHTML = Shortcut.format(shortcut);
+            if (defaultShortcut) {
                 $shortcut.querySelector('.shortcut-default-text').hidden = false;
-                $shortcut.querySelector('.shortcut-default').innerHTML = formatShortcut(defaultShortcut);
+                $shortcut.querySelector('.shortcut-default').innerHTML = Shortcut.format(defaultShortcut);
             }
             $fragment.appendChild($shortcut);
         }
