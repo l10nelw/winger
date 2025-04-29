@@ -60,7 +60,7 @@ const isVerticalKey = key => VERTICAL_KEYS.includes(key); //@ (String) -> (Boole
 // Prevent scrolling if focus is on first/last few rows, to control the default scoll-ahead
 //@ (Object, Object) -> state|nil
 function restrictScroll($el, event) {
-    const index = $shownRows.indexOf($el);
+    const index = $shownRows.indexOf(row($el));
     if (index < SCROLL_THRESHOLD || ($shownRows.length - index) <= SCROLL_THRESHOLD)
         event.preventDefault(); // Suppress scrolling
 }
