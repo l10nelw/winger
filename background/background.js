@@ -104,7 +104,7 @@ async function onWindowFocusChanged(windowId) {
 
 //@ (Number) -> state
 function onWindowRemoved(windowId) {
-    browser.menus.remove(`${windowId}`);
+    browser.menus.remove(`${windowId}`).catch(() => {});
     Auto.switchList.reset();
 }
 

@@ -44,14 +44,15 @@ export async function handleShow(info, tab) {
 // Submenu item ids are window ids.
 //@ ([Object]) -> state
 async function populate(windows) {
+    const doNothing = () => {};
     const privateIcon = { 16: 'icons/private.svg' };
     const { fgWinfo, bgWinfos } = Winfo.arrange(
         await Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'titleSansName'], windows)
     );
     let hasMinimizedSeparator = false;
 
-    browser.menus.remove('minimized');
-    browser.menus.remove(`${fgWinfo.id}`);
+    browser.menus.remove('minimized').catch(doNothing);
+    browser.menus.remove(`${fgWinfo.id}`).catch(doNothing);
 
     for (let { id, givenName, incognito, minimized, titleSansName } of bgWinfos) {
         if (minimized && !hasMinimizedSeparator) {
@@ -63,11 +64,11 @@ async function populate(windows) {
         const menuToCreate = { parentId, id, title };
         if (incognito)
             menuToCreate.icons = privateIcon;
-        browser.menus.remove(id);
+        browser.menus.remove(id).catch(doNothing);
         browser.menus.create(menuToCreate);
     }
 
-    browser.menus.remove(dummyId);
+    browser.menus.remove(dummyId).catch(doNothing);
 }
 
 // Event handler: When menu closes, re-disable menu item.
