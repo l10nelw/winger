@@ -60,11 +60,14 @@ Promise.all([
 
     // Check for version update
     const version = browser.runtime.getManifest().version;
-    if (version !== info.__version) {
-        // Open help page on major or minor version change
-        if (version.split('.', 2).join('.') !== info.__version?.split('.', 2).join('.'))
-            Action.openHelp();
+    if (version !== info.version) {
+        if (info.show_help_upon_update) {
+            // Open help page when there's a major or minor (not patch) version change
+            const sansPatch = version => version.split('.', 2).join('.');
+            if (sansPatch(version) !== sansPatch(info.version))
+                Action.openHelp();
+        }
         // Remember new version
-        Storage.set({ __version: version });
+        Storage.set({ version });
     }
 });

@@ -1,12 +1,15 @@
 import { isOS } from '../utils.js';
 import * as Shortcut from './shortcut.js';
+import * as Storage from '../storage.js';
 
 const $body = document.body;
 const $ = (selector, $scope = $body) => $scope.querySelector(selector); //@ (Object, Object|undefined) -> (Object)
 const $$ = (selector, $scope = $body) => $scope.querySelectorAll(selector); //@ (Object, Object|undefined) -> ([Object])
 $body.onclick = onClick;
 
+$body.onchange = onChange;
 Promise.all([
+    loadSettings(),
     insertShortcuts(),
 ])
 .then(() => {
@@ -20,6 +23,15 @@ function onClick({ target }) {
         return $body.classList.toggle('dark');
     if (target.matches('.settingsBtn'))
         return browser.runtime.openOptionsPage();
+}
+
+function onChange({ target }) {
+    if (target.id === 'open_help_on_update')
+        return Storage.set({ open_help_on_update: target.checked });
+}
+
+async function loadSettings() {
+    document.getElementById('open_help_on_update').checked = await Storage.getValue('open_help_on_update');
 }
 
 //@ state -> state

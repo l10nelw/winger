@@ -25,6 +25,7 @@ export const DEFAULT_SETTINGS = {
     show_popup_stash: true,
 
     theme: '',
+    open_help_on_update: true,
 };
 
 // Return all stored data, merged with defaults of any unstored settings.
@@ -32,17 +33,18 @@ export const DEFAULT_SETTINGS = {
 //@ state -> (Object), state
 export async function init() {
     const ALLOWED_NON_SETTINGS_KEYS = [
-        '__version',
+        'version',
         '_focused_window_id',
         '_stash_home_id',
     ];
     const ENTRIES_TO_MIGRATE = [
         // oldKey, newKey, valueGetter
-        // v2.7.0
+        // e.g. ['__version', 'version', dict => dict.__version],
+        // v2.10.0
         [
-            'unload_minimized_window',
-            'discard_minimized_window',
-            dict => dict.unload_minimized_window,
+            '__version',
+            'version',
+            dict => dict.__version,
         ],
     ];
     const ALLOWED_VALUES_DICT = {
