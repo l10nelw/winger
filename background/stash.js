@@ -6,15 +6,31 @@ import * as Winfo from './winfo.js';
 import * as Storage from '../storage.js';
 import * as StashProp from './stash.prop.js';
 
+/** @typedef {import('../types.js').WindowId} WindowId */
+/** @typedef {import('../types.js').TabId} TabId */
+/** @typedef {import('../types.js').NodeId} NodeId */
+/** @typedef {import('../types.js').Window} Window */
+/** @typedef {import('../types.js').Tab} Tab */
+/** @typedef {import('../types.js').Node} Node */
+/** @typedef {import('../types.js').ProtoWindow} ProtoWindow */
+/** @typedef {import('../types.js').ProtoTab} ProtoTab */
+/** @typedef {import('../types.js').ProtoNode} ProtoNode */
+
+
 // Ids of windows and folders currently involved in stashing/unstashing operations
-export const nowStashing = new Set();
-export const nowUnstashing = new Set();
+/** @type {Set<WindowId | NodeId>} */ export const nowStashing = new Set();
+/** @type {Set<WindowId | NodeId>} */ export const nowUnstashing = new Set();
 
 
 /* --- INIT --- */
 
-// Identify the stash home's folder id based on settings.
-//@ (Object), state -> state
+/**
+ * Identify the stash home's folder id based on settings.
+ * @param {Object} config
+ * @param {boolean} config.enable_stash
+ * @param {string} config.stash_home_root
+ * @param {string} config.stash_home_folder
+ */
 export async function init({ enable_stash, stash_home_root, stash_home_folder }) {
     if (!enable_stash)
         return;
@@ -36,18 +52,25 @@ export async function init({ enable_stash, stash_home_root, stash_home_folder })
 
 export class FolderList extends Array {
 
-    // Fill folderList with child folders of `parentId`.
-    // Optional: boolean dict `config` for enabling these properties:
-    //  - children=true: Add an array of child nodes to each folder
-    //  - bookmarkCount=true: Add a bookmark count property to each folder
-    // Optional: already-procured child `nodes` of parentId can be supplied for efficiency.
-    //@ (String, Object|undefined, [Object]|undefined), state -> ([Object])
+    /**
+     * Fill folderList with child folders of `parentId`.
+     * Optional: boolean dict `config` for enabling these properties:
+     *  - children=true: Add an array of child nodes to each folder
+     *  - bookmarkCount=true: Add a bookmark count property to each folder
+     * Optional: already-procured child `nodes` of parentId can be supplied for efficiency.
+     * @param {NodeId} parentId
+     * @param {Object} [config]
+     * @param {boolean} [config.children]
+     * @param {boolean} [config.bookmarkCount]
+     * @param {Node[]} [nodes]
+     * @returns {Promise<Node[]>}
+     */
     async populate(parentId, config = {}, nodes = null) {
         this.length = 0;
         this.parentId = parentId;
-        let allow_private;
+        let allow_private = false;
         [nodes, allow_private] = await Promise.all([
-            nodes || getChildNodes(parentId),
+            nodes ?? getChildNodes(parentId),
             browser.extension.isAllowedIncognitoAccess(),
         ]);
 
@@ -72,6 +95,7 @@ export class FolderList extends Array {
         // Add folder content related properties if desired
         const { children, bookmarkCount } = config;
         if (children || bookmarkCount) {
+            /** @type {Node[][]} */
             const nodeLists = await Promise.all( this.map(folder => getChildNodes(folder.id)) );
             for (let i = this.length; i--;) {
                 const nodeList = nodeLists[i];
@@ -85,25 +109,36 @@ export class FolderList extends Array {
         return this;
     }
 
-    // Find folder with the given title and whether bookmarks are allowed.
-    //@ (String, Boolean), state -> (Object|undefined)
+    /**
+     * Find folder with the given title and whether bookmarks are allowed.
+     * @param {string} title
+     * @param {boolean} canContainBookmarks
+     * @return {Promise<Node?>}
+     */
     async findByTitle(title, canContainBookmarks) {
+        /** @type {Set<WindowId | NodeId>} */
         const nowProcessing = nowStashing.union(nowUnstashing);
         if (canContainBookmarks)
             return this.find(folder => !nowProcessing.has(folder.id) && folder.givenName === title);
         // Find bookmarkless folder
+        /** @type {Node[]} */
         const folders = this.filter(folder => !nowProcessing.has(folder.id) && folder.givenName === title);
         if (!folders.length)
             return;
+        /** @type {Node[][]} */
         const nodeLists = folders[0].children ?
             folders.map(folder => folder.children) :
             await Promise.all( folders.map(folder => getChildNodes(folder.id)) );
+        /** @type {number} */
         const index = nodeLists.findIndex(nodeList => !nodeList.find(isBookmark));
         return folders[index];
     }
 
-    // Add a new folder to the start of the folderList.
-    //@ (String) -> (Object), state
+    /**
+     * Add a new folder to the start of the folderList.
+     * @param {string} title
+     * @returns {Promise<Node>}
+     */
     async add(title) {
         const parentId = this.parentId;
         const index = this[0]?.index;
@@ -115,9 +150,15 @@ export class FolderList extends Array {
     }
 }
 
-// Find folder matching `title` and `parentId` parameters and `canContainBookmarks` condition, otherwise create a new one.
-// Can optionally supply already-procured children-of-parentId `nodes` for performance.
-//@ (String, Boolean, String, [Object]|undefined), state -> (Object), state
+/**
+ * Find folder matching `title` and `parentId` parameters and `canContainBookmarks` condition, otherwise create a new one.
+ * Can optionally supply already-procured children-of-parentId `nodes` for performance.
+ * @param {string} title
+ * @param {boolean} canContainBookmarks
+ * @param {NodeId} parentId
+ * @param {Node[]?} [nodes]
+ * @returns {Promise<Node>}
+ */
 async function getAvailableFolder(title, canContainBookmarks, parentId, nodes = null) {
     const folders = await (new FolderList()).populate(parentId, {}, nodes);
     return await folders.findByTitle(title, canContainBookmarks) || await folders.add(title);
@@ -126,12 +167,17 @@ async function getAvailableFolder(title, canContainBookmarks, parentId, nodes = 
 
 /* --- STASH WINDOW/TABS --- */
 
-// Turn window/tabs into folder/bookmarks.
-// Create folder if nonexistent, save tabs as bookmarks in folder. Close window if remove is true.
-//@ (Number, String, Boolean), state -> state
+/**
+ * Turn window/tabs into folder/bookmarks.
+ * Create folder if nonexistent, save tabs as bookmarks in folder. Close window if remove is true.
+ * @param {WindowId} windowId
+ * @param {string} name
+ * @param {boolean} remove
+ */
 export async function stashWindow(windowId, name, remove) {
     nowStashing.add(windowId);
 
+    /** @type {[Window, Window[], NodeId]} */
     const [window, allWindows, homeId] = await Promise.all([
         browser.windows.get(windowId, { populate: true }),
         remove && browser.windows.getAll(),
@@ -150,10 +196,14 @@ export async function stashWindow(windowId, name, remove) {
     nowStashing.delete(windowId);
 }
 
-// Turn current window's selected tabs into bookmarks at targeted bookmark location or in targeted folder.
-// Close tabs if remove is true.
-//@ (String, Boolean), state -> state
+/**
+ * Turn current window's selected tabs into bookmarks at targeted bookmark location or in targeted folder.
+ * Close tabs if remove is true.
+ * @param {NodeId} nodeId
+ * @param {boolean} remove
+ */
 export async function stashSelectedTabs(nodeId, remove) {
+    /** @type {[Tab[], Node]} */
     const [tabs, node] = await Promise.all([
         browser.tabs.query({ currentWindow: true }),
         getNode(nodeId),
@@ -165,6 +215,7 @@ export async function stashSelectedTabs(nodeId, remove) {
     const selectedTabs = tabs.filter(tab => tab.highlighted);
     delete selectedTabs.find(tab => tab.active)?.active; // Avoid adding extra active tab to target stashed window
 
+    /** @type {Window[]?} */
     const allWindows = remove && (selectedTabs.length === tabs.length) && await browser.windows.getAll();
 
     await handleLoneWindow(
@@ -176,8 +227,14 @@ export async function stashSelectedTabs(nodeId, remove) {
     nowStashing.delete(windowId);
 }
 
-// In case of a lone window to be closed, keep it open until stash operation is complete.
-//@ (Number, Boolean, [Object]|null, Promise:[Object], Function) -> state
+/**
+ * In case of a lone window to be closed, keep it open until stash operation is complete.
+ * @param {WindowId} windowId
+ * @param {boolean} remove
+ * @param {Window[]?} allWindows
+ * @param {Promise<Node[]>} bookmarksPromise
+ * @param {Function} closeCallback
+ */
 async function handleLoneWindow(windowId, remove, allWindows, bookmarksPromise, closeCallback) {
     const isLoneWindow = allWindows?.length === 1;
     if (remove) {
@@ -191,7 +248,12 @@ async function handleLoneWindow(windowId, remove, allWindows, bookmarksPromise, 
         closeCallback();
 }
 
-//@ ([Object], Object, String|undefined), state -> ([Object]), state
+/**
+ * @param {Tab[]} tabs
+ * @param {Node} node
+ * @param {string} [logName]
+ * @returns {Promise<Node[]>}
+ */
 async function createBookmarksAtNode(tabs, node, logName = '') {
     const isNodeFolder = isFolder(node);
     const [folder,] = await Promise.all([
@@ -201,9 +263,9 @@ async function createBookmarksAtNode(tabs, node, logName = '') {
     const folderId = folder.id;
     nowStashing.add(folderId);
 
-    const index = isNodeFolder ? null : node.index;
     const count = tabs.length;
-    const creatingBookmarks = new Array(count);
+    /** @type {Promise<Node>[]} */ const creatingBookmarks = new Array(count);
+    /** @type {number} */ const index = isNodeFolder ? null : node.index;
     for (let i = count; i--;) // Reverse iteration necessary for bookmarks to be in correct order
         creatingBookmarks[i] = createBookmark(tabs[i], folderId, index, logName);
     const bookmarks = await Promise.all(creatingBookmarks);
@@ -212,7 +274,13 @@ async function createBookmarksAtNode(tabs, node, logName = '') {
     return bookmarks;
 }
 
-//@ (Object, String, Number|null, String) -> (Promise: Object), state
+/**
+ * @param {Tab} tab
+ * @param {NodeId} parentId
+ * @param {number?} index
+ * @param {string} logName
+ * @returns {Promise<Node>}
+ */
 function createBookmark(tab, parentId, index, logName) {
     const url = Auto.deplaceholderize(tab.url);
     const title = StashProp.Tab.stringify(tab, parentId) || url;
@@ -223,9 +291,13 @@ function createBookmark(tab, parentId, index, logName) {
 
 /* --- UNSTASH WINDOW/TAB --- */
 
-// Turn folder/bookmarks into window/tabs. Delete folder/bookmarks if remove is true.
-//@ (String, Boolean), state -> state
+/**
+ * Turn folder/bookmarks into window/tabs. Delete folder/bookmarks if remove is true.
+ * @param {NodeId} nodeId
+ * @param {boolean} [remove=true]
+ */
 export async function unstashNode(nodeId, remove = true) {
+    /** @type {Node} */
     const node = (await browser.bookmarks.get(nodeId))[0];
     switch (node.type) {
         case 'bookmark':
@@ -235,12 +307,15 @@ export async function unstashNode(nodeId, remove = true) {
     }
 }
 
-// Unstash single bookmark to current window.
-// This operation will not appear in nowUnstashing.
-//@ (Object, Boolean), state -> state
+/**
+ * Unstash single bookmark to current window.
+ * This operation will not appear in nowUnstashing.
+ * @param {Node} node
+ * @param {boolean} remove
+ */
 async function unstashBookmark(node, remove) {
-    const window = await browser.windows.getLastFocused();
-    const protoTab = { url: node.url, windowId: window.id, ...StashProp.Tab.parse(node.title) };
+    /** @type {Window} */ const window = await browser.windows.getLastFocused();
+    /** @type {ProtoTab} */ const protoTab = { url: node.url, windowId: window.id, ...StashProp.Tab.parse(node.title) };
     await StashProp.Tab.preOpen([protoTab], window);
     const tab = await openTab(protoTab);
     browser.tabs.update(tab.id, { active: true });
@@ -248,9 +323,13 @@ async function unstashBookmark(node, remove) {
         removeNode(node.id);
 }
 
-//@ (Object, Boolean) -> (Object), state
+/**
+ * @param {Node} folder
+ * @param {boolean} remove
+ */
 async function unstashFolder(folder, remove) {
     const [name, protoWindow] = StashProp.Window.parse(folder.title);
+    /** @type {[Window, boolean]} */
     const [window, auto_name_unstash] = await Promise.all([
         browser.windows.create(protoWindow),
         Storage.getValue('auto_name_unstash'),
@@ -263,7 +342,10 @@ async function unstashFolder(folder, remove) {
     populateWindow(window, folderId, name, remove);
 }
 
-//@ (Number, String) -> state
+/**
+ * @param {WndowId} windowId
+ * @param {string} name
+ */
 async function nameWindow(windowId, name) {
     name = Name.validify(name);
     if (!name)
@@ -274,17 +356,21 @@ async function nameWindow(windowId, name) {
     Chrome.update([[windowId, name]]);
 }
 
-//@ (Object, String, String, Boolean) -> state
+/**
+ * @param {Window} window
+ * @param {NodeId} folderId
+ * @param {string} logName
+ * @param {boolean} remove
+ */
 async function populateWindow(window, folderId, logName, remove) {
     const windowId = window.id;
     const { bookmarks, subfolders } = await readFolder(folderId);
 
     if (bookmarks.length) {
-        let protoTabs, openingTabs;
-
-        protoTabs = bookmarks.map(({ title, url }) => ({ windowId, url, ...StashProp.Tab.parse(title) }));
+        const protoTabs = bookmarks.map(({ title, url }) => ({ windowId, url, ...StashProp.Tab.parse(title) }));
         await StashProp.Tab.preOpen(protoTabs, window);
-        openingTabs = protoTabs.map(protoTab => openTab(protoTab, logName));
+        /** @type {Promise<Tab>[]} */
+        const openingTabs = protoTabs.map(protoTab => openTab(protoTab, logName));
 
         Promise.any(openingTabs).then(() => browser.tabs.remove(window.tabs[0].id)); // Remove initial tab
         const tabs = await Promise.all(openingTabs);
@@ -299,8 +385,12 @@ async function populateWindow(window, folderId, logName, remove) {
     nowUnstashing.delete(folderId);
 }
 
-//@ (String), state -> (Promise: {[Object]})
+/**
+ * @param {NodeId} folderId
+ * @returns {Promise<{ bookmarks: Node[], subfolders: Node[] }>}
+ */
 async function readFolder(folderId) {
+    /** @type {{ bookmark: Node[], folder: Node[] }} */
     const nodesByType = { bookmark: [], folder: [] };
     for (const node of await getChildNodes(folderId))
         nodesByType[node.type]?.push(node);
@@ -310,7 +400,11 @@ async function readFolder(folderId) {
     };
 }
 
-//@ (Object, String|undefined) -> (Promise: Object), state
+/**
+ * @param {ProtoTab} protoTab
+ * @param {string} [logName]
+ * @returns {Promise<Tab>}
+ */
 function openTab(protoTab, logName = '') {
     console.log(`Unstashing ${logName} | ${protoTab.url} | ${protoTab.title}`);
     const safeProtoTab = StashProp.Tab.scrub(protoTab);
@@ -321,9 +415,14 @@ function openTab(protoTab, logName = '') {
 
 /* --- MENU HELPERS --- */
 
-// Can tabs in given or current window be stashed at/into this node?
-//@ (String, Number|undefined), state -> (Boolean)
+/**
+ * Can tabs in given or current window be stashed at/into this node?
+ * @param {NodeId} nodeId
+ * @param {WindowId?} [windowId]
+ * @returns {Promise<boolean>}
+ */
 export async function canStashHere(nodeId, windowId = null) {
+    /** @type {Set<WindowId | NodeId>} */
     const nowProcessing = nowStashing.union(nowUnstashing);
     return !(
         nowProcessing.has(nodeId) || // Folder is being processed
@@ -332,15 +431,22 @@ export async function canStashHere(nodeId, windowId = null) {
     );
 }
 
-// Can given node be unstashed?
-//@ (String), state -> (Boolean)
+/**
+ * Can given node be unstashed?
+ * @param {NodeId} nodeId
+ * @returns {Promise<boolean>}
+ */
 export async function canUnstashThis(nodeId) {
+    /** @type {Set<WindowId | NodeId>} */
     const nowProcessing = nowStashing.union(nowUnstashing);
     if (ROOT_IDS.has(nodeId) || nowProcessing.has(nodeId)) // Is root folder, or folder is being processed
         return false;
+    /** @type {[Node, boolean]} */
     const [node, allow_private] = await Promise.all([ getNode(nodeId), Storage.getValue('allow_private') ]);
     if (isSeparator(node) || nowProcessing.has(node.parentId)) // Is separator, or parent folder is being processed
         return false;
+    /** @type {[Node, boolean]} */
+
     const [, protoWindow] = StashProp.Window.parse(node.title);
     if (protoWindow?.incognito && !allow_private) // Is private-window folder but no private-window access
         return false;
@@ -350,15 +456,14 @@ export async function canUnstashThis(nodeId) {
 
 /* --- */
 
-const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
+/** @type {Set<NodeId>} */ const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
 
-//@ (Object) -> (Boolean)
-const isSeparator = node => node.type === 'separator';
-const isFolder    = node => node.type === 'folder';
-const isBookmark  = node => node.type === 'bookmark';
+/** @param {Node} node @returns {boolean} */ const isSeparator = node => node.type === 'separator';
+/** @param {Node} node @returns {boolean} */ const isFolder    = node => node.type === 'folder';
+/** @param {Node} node @returns {boolean} */ const isBookmark  = node => node.type === 'bookmark';
 
-const getNode = async nodeId => (await browser.bookmarks.get(nodeId))[0]; //@ (Number), state -> (Object)
-const getChildNodes = parentId => browser.bookmarks.getChildren(parentId); //@ (Number), state -> (Promise: [Object])
+/** @param {NodeId} nodeId   @returns {Promise<Node>}   */ const getNode = async nodeId => (await browser.bookmarks.get(nodeId))[0];
+/** @param {NodeId} parentId @returns {Promise<Node[]>} */ const getChildNodes = parentId => browser.bookmarks.getChildren(parentId);
 
-const createNode = properties => browser.bookmarks.create(properties); //@ (Object) -> (Promise: Object), state
-const removeNode = nodeId => browser.bookmarks.remove(nodeId); //@ (Number) -> (Promise: Object), state
+/** @param {ProtoNode} protoNode @returns {Promise<Node>} */ const createNode = protoNode => browser.bookmarks.create(protoNode);
+/** @param {NodeId} nodeId       @returns {Promise<void>} */ const removeNode = nodeId => browser.bookmarks.remove(nodeId);

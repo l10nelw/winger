@@ -21,48 +21,68 @@ Unstash procedure:
 import { GroupMap } from '../utils.js';
 import { restoreTabRelations } from './action.auto.js';
 
-//@ (String, Number) -> (String)
+/** @typedef {import('../types.js').WindowId} WindowId */
+/** @typedef {import('../types.js').TabId} TabId */
+/** @typedef {import('../types.js').NodeId} NodeId */
+/** @typedef {import('../types.js').Window} Window */
+/** @typedef {import('../types.js').Tab} Tab */
+/** @typedef {import('../types.js').Node} Node */
+/** @typedef {import('../types.js').ProtoWindow} ProtoWindow */
+/** @typedef {import('../types.js').ProtoTab} ProtoTab */
+
+/**
+ * @param {NodeId} folderId
+ * @param {TabId} tabId
+ * @returns {string}
+ */
 const makeStashId = (folderId, tabId) => folderId.slice(0, 5) + tabId;
 
-// Write and read window/tab properties. Only truthy properties are written.
+/** Write and read window/tab properties. Only truthy properties are written. */
 const Props = {
 
     // Define annotation-property writer and reader functions here.
-    //@ (Object) -> (Boolean)
     WINDOW: {
+        /** @type {Object<string, (thing: Window) => any>} */
         writer: {
             private: ({ incognito }) => incognito, // 'private' alias of 'incognito'; Firefox users are more familiar with the former
         },
+        /** @type {Object<string, (thing: ProtoWindow) => any>} */
         reader: {
             incognito: parsed => parsed.private || parsed.incognito, // Either 'private' or 'incognito' accepted
         },
     },
     TAB: {
-        //@ (Object) -> (Boolean)
+        /** @type {Object<string, (thing: Tab, [folderId]: NodeId) => any>} */
         writer: {
             active: ({ active, index }) => index && active,
             muted:  ({ mutedInfo: { muted } }) => muted,
             pinned: ({ pinned }) => pinned,
-            // From Container.prepare():
+            // After Containers.prepare():
             container: ({ container }) => container,
-            // From Parents.prepare():
+            // After Parents.prepare():
             id: ({ id, isParent }, folderId) => isParent && makeStashId(folderId, id),
             parentId: ({ openerTabId }, folderId) => openerTabId && makeStashId(folderId, openerTabId), // 'parentId' alias of 'openerTabId'
         },
-        //@ (Object) -> (Boolean)
+        /** @type {Object<string, (thing: ProtoTab) => any>} */
         reader: {
             active: ({ active }) => active,
             muted:  ({ muted }) => muted,
             pinned: ({ pinned }) => pinned,
-            // For Container.restore():
+            // Before Container.restore():
             container: ({ container }) => container,
-            // For Parents.prepare():
+            // Before Parents.restore():
             id: ({ id }) => id,
             openerTabId: ({ parentId, openerTabId }) => parentId || openerTabId, // Either 'parentId' or 'openerTabId' accepted
         },
     },
 
-    //@ (Object, Object, String|undefined) -> (Object)
+    /**
+     * @param {Window | Tab} thing
+     * @param {Object} fnCollection
+     * @param {Object<string, Function>} fnCollection.writer
+     * @param {NodeId} [folderId]
+     * @returns {Object}
+     */
     write(thing, { writer }, folderId = '') {
         const toStringify = {};
         for (const key in writer) {
@@ -73,8 +93,14 @@ const Props = {
         return toStringify;
     },
 
-    //@ (Object, Object) -> (Object)
+    /**
+     * @param {Object<string, any>} parsed
+     * @param {Object} fnCollection
+     * @param {Object<string, Function>} fnCollection.reader
+     * @returns {ProtoWindow | ProtoTab}
+     */
     read(parsed, { reader }) {
+        /** @type {ProtoWindow | ProtoTab} */
         const protoThing = {};
         for (const key in reader) {
             const value = reader[key](parsed);
@@ -86,18 +112,26 @@ const Props = {
 
 }
 
+/**
+ * @param {Tab} tab
+ * @returns {boolean}
+*/
+const isContainered = tab => !NON_CONTAINER_ID_SET.has(tab.cookieStoreId);
 const NON_CONTAINER_ID_SET = new Set(['firefox-default', 'firefox-private']);
-const isContainered = tab => !NON_CONTAINER_ID_SET.has(tab.cookieStoreId); //@ (Object) -> (Boolean)
 
 const Containers = {
 
-    // Mark containered tabs with a container='container-name' property.
-    //@ ([Object]) -> state
+    /**
+     * Mark containered tabs with a `container: 'container-name'` property.
+     * @param {Tab[]} tabs
+     * @modifies tabs
+     */
     async prepare(tabs) {
         if (!browser.contextualIdentities)
             return;
 
         // Find container ids among tabs to build Map(containerId: tabArray)
+        /** @type {Map<string, Tab[]>} */
         const containerIdTabMap = new GroupMap();
         for (const tab of tabs) if (isContainered(tab))
             containerIdTabMap.group(tab.cookieStoreId, tab);
@@ -105,7 +139,8 @@ const Containers = {
         if (!containerIdTabMap.size)
             return;
 
-        // Get container names to build {cookieStoreIds: containerName} dict
+        // Get container names to build {cookieStoreId: containerName} dict
+        /** @type {Object<string, string>} */
         const containerIdNameDict = Object.fromEntries(
             (await Promise.all(
                 [...containerIdTabMap.keys()].map(Containers._getIdNamePair)
@@ -119,17 +154,22 @@ const Containers = {
         }
     },
 
-    // Replace any container properties in protoTabs with cookieStoreId.
-    //@ ([Object], Object), state -> state
+    /**
+     * Replace any container properties in protoTabs with cookieStoreId.
+     * @param {ProtoTab[]} protoTabs
+     * @param {Window} window - For checking incognito state
+     * @modifies protoTabs
+     */
     async restore(protoTabs, window) {
+        // If window is private or container feature is disabled, forget container properties
         if (window.incognito || !browser.contextualIdentities) {
-            // If private window or container feature disabled, forget container properties
             for (const protoTab of protoTabs)
                 delete protoTab.container;
             return;
         }
 
-        // Find container names among protoTabs to build Map(containerName: protoTabArray)
+        // Find container names among protoTabs to build Map<containerName, protoTabArray>
+        /** @type {Map<string, ProtoTab[]>} */
         const containerNameTabMap = new GroupMap();
         for (const protoTab of protoTabs) if (protoTab.container) {
             containerNameTabMap.group(protoTab.container, protoTab);
@@ -138,8 +178,9 @@ const Containers = {
         if (!containerNameTabMap.size)
             return;
 
-        // Get cookieStoreIds to build {containerName: cookieStoreIds} dict
+        // Get cookieStoreIds to build a {containerName: cookieStoreIds} dict
         // Create new containers if needed
+        /** @type {Object<string, string>} */
         const containerNameIdDict = Object.fromEntries(
             (await Promise.all(
                 [...containerNameTabMap.keys()].map(Containers._getNameIdPair)
@@ -154,8 +195,11 @@ const Containers = {
         }
     },
 
-    // Find container of the given id and return [id, name] if found.
-    //@ (String), state -> ([String, String]|undefined)
+    /**
+     * Find container of the given id and return [id, name] if found.
+     * @param {string} id
+     * @returns {Promise<[string, string]?>}
+     */
     async _getIdNamePair(id) {
         try {
             const container = await browser.contextualIdentities.get(id);
@@ -164,8 +208,11 @@ const Containers = {
         } catch {}
     },
 
-    // Find container matching the given name, creating one if not found, and return [name, id].
-    //@ (String), state -> ([String, String]|undefined), state|nil
+    /**
+     * Find container matching the given name, creating one if not found, and return [name, id].
+     * @param {string} name
+     * @returns {Promise<[string, string]?>}
+     */
     async _getNameIdPair(name) {
         try {
             const container =
@@ -180,10 +227,14 @@ const Containers = {
 
 const Parents = {
 
-    // Mark tabs that are parents of other tabs with the isParent=true property.
-    // Remove references to any parents that are not in the list of tabs.
-    //@ ([Object]) -> state
+    /**
+     * Mark tabs that are parents of other tabs with the isParent=true property.
+     * Remove references to any parents that are not in the list of tabs.
+     * @param {Tab[]} tabs
+     * @modifies tabs
+     */
     prepare(tabs) {
+        /** @type {Map<number, Tab>} */
         const tabMap = new Map();
         for (const tab of tabs)
             tabMap.set(tab.id, tab);
@@ -196,8 +247,11 @@ const Parents = {
         }
     },
 
-    // Return shallow copy of protoTab sans id and openerTabId properties.
-    //@ (Object) -> (Object)
+    /**
+     * Return shallow copy of protoTab sans id and openerTabId properties.
+     * @param {ProtoTab} protoTab
+     * @returns {ProtoTab}
+     */
     scrub(protoTab) {
         const safeProtoTab = { ...protoTab };
         delete safeProtoTab.id;
@@ -205,24 +259,31 @@ const Parents = {
         return safeProtoTab;
     },
 
-    //@ ([Object], [Object]) -> state
+    /**
+     * @param {Tab[]} tabs
+     * @param {ProtoTab[]} protoTabs
+     * @modifies tabs
+     */
     restore(tabs, protoTabs) {
         restoreTabRelations(tabs, protoTabs);
     },
 
 }
 
-// Find valid JSON string at end of the title, split it off, and parse the JSON.
-// Return [cleaned title, result object], or [title, null] if JSON not found or invalid.
-//@ (String) -> ([String, Object|null])
+/**
+ * Find valid JSON string at end of the title, split it off, and parse the JSON.
+ * Return [cleaned title, result object], or [title, null] if JSON not found or invalid.
+ * @param {string} title
+ * @returns {[string, Object?]}
+ */
 function parseTitleJSON(title) {
     title = title.trim();
     if (title.at(-1) !== '}')
         return [title, null];
 
     // Extract JSON, retry with larger slices upon failure if more curly brackets found
-    let parsed;
-    let index = Infinity;
+    /** @type {Object?} */ let parsed;
+    /** @type {number} */ let index = Infinity;
     do {
         index = title.lastIndexOf('{', index - 1);
         if (index === -1)
@@ -238,10 +299,14 @@ function parseTitleJSON(title) {
 
 export const Window = {
 
-    /* Stashing */
+    // Stashing
 
-    // Produce a bookmark folder title that encodes window properties. Title may contain both window name and properties, one of them, or neither (empty string).
-    //@ (String, Object) -> (String)
+    /**
+     * Produce a bookmark folder title that encodes window properties. Title may contain both window name and properties, one of them, or neither (empty string).
+     * @param {string} name
+     * @param {Window} window
+     * @returns {string}
+     */
     stringify(name, window) {
         const props = Props.write(window, Props.WINDOW);
         const annotation = Object.keys(props).length ?
@@ -249,13 +314,17 @@ export const Window = {
         return `${name} ${annotation}`.trim();
     },
 
-    /* Unstashing */
+    // Unstashing
 
-    // Produce [cleaned title, protoWindow] from bookmark folder title. A protoWindow is an info object for browser.window.create().
-    // If no properties found, return [original title, null].
-    //@ (String) -> ([String, Object|null])
+    /**
+     * Produce [cleaned title, protoWindow] from bookmark folder title. A protoWindow is an info object for `browser.window.create()`.
+     * If no properties found, return [original title, null].
+     * @param {string} title
+     * @returns {[string, ProtoWindow?]}
+     */
     parse(title) {
         const [name, parsed] = parseTitleJSON(title);
+        /** @type {ProtoWindow} */
         const protoWindow = parsed ?
             Props.read(parsed, Props.WINDOW) : null;
         // browser.window.create() rejects unsupported properties, so return name and protoWindow separately
@@ -266,17 +335,23 @@ export const Window = {
 
 export const Tab = {
 
-    /* Stashing */
+    // Stashing
 
-    // Add properties to tabs marking containers and parents. To be done before creating bookmarks.
-    //@ ([Object]) -> state
+    /**
+     * Add properties to tabs marking containers and parents. To be done before creating bookmarks.
+     * @param {Tab[]} tabs
+     * @modifies tabs
+     */
     async prepare(tabs) {
         await Containers.prepare(tabs);
         Parents.prepare(tabs);
     },
 
-    // Produce bookmark title that encodes tab properties.
-    //@ (Object, String) -> (String)
+    /**
+     * Produce bookmark title that encodes tab properties.
+     * @param {Tab} tab
+     * @param {NodeId} folderId
+     */
     stringify(tab, folderId) {
         const props = Props.write(tab, Props.TAB, folderId);
         const annotation = Object.keys(props).length ?
@@ -284,32 +359,47 @@ export const Tab = {
         return `${tab.title ?? ''} ${annotation}`.trim();
     },
 
-    /* Unstashing */
+    // Unstashing
 
-    // Produce protoTab from bookmark title if properties found.
-    //@ (String) -> (Object)
+    /**
+     * Produce protoTab from bookmark title if properties found.
+     * @param {string} title
+     * @returns {ProtoTab}
+     */
     parse(title) {
         const [actualTitle, parsed] = parseTitleJSON(title);
+        /** @type {ProtoTab} */
         const protoTab = { title: actualTitle };
         if (parsed)
             Object.assign(protoTab, Props.read(parsed, Props.TAB));
         return protoTab;
     },
 
-    // Tasks before creating tabs.
-    //@ ([Object], Object), state -> state
+    /**
+     * Tasks before creating tabs.
+     * @param {ProtoTab[]} protoTabs
+     * @param {Window} window
+     * @modifies protoTabs
+     */
     async preOpen(protoTabs, window) {
         await Containers.restore(protoTabs, window);
     },
 
-    // Return modified copy of protoTab that is safe to create a tab with.
-    //@ (Object) -> (Object)
+    /**
+     * Return modified copy of protoTab that is safe to create a tab with.
+     * @param {ProtoTab} protoTab
+     * @returns {ProtoTab}
+     */
     scrub(protoTab) {
         return Parents.scrub(protoTab);
     },
 
-    // Tasks after creating tabs.
-    //@ ([Object], [Object]) -> state
+    /**
+     * Tasks after creating tabs.
+     * @param {Tab[]} tabs
+     * @param {ProtoTab[]} protoTabs
+     * @modifies tabs
+     */
     postOpen(tabs, protoTabs) {
         Parents.restore(tabs, protoTabs);
     },
