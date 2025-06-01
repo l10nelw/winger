@@ -233,8 +233,10 @@ $form.addEventListener('change', async ({ target: $field }) => {
 });
 
 $form.addEventListener('click', ({ target: $el }) => {
-    if ($el.classList.contains('help'))
+    if ($el.matches('.help'))
         return openHelp($el.getAttribute('href'));
+    if ($el.closest('.shortcut-key'))
+        return browser.commands.openShortcutSettings();
     if ($el.id === 'restart')
         browser.runtime.reload();
 });

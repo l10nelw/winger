@@ -66,6 +66,15 @@ button {
         vertical-align: bottom;
     }
 }
+.shortcut-key {
+    /* Remove default button styles */
+    padding: 0;
+    border: none;
+    color: var(--accent-color);
+    background-color: transparent;
+    cursor: pointer;
+}
+
 
 .muted { opacity: .5; } /* Used in options.js */
 .flex { display: flex; }
