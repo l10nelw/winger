@@ -196,13 +196,17 @@ $form.addEventListener('change', async ({ target: $field }) => {
     switch (fieldName) {
         case 'set_title_preface':
             if (!$field.checked) {
-                browser.runtime.sendMessage({ type: 'clearTitlePreface' });
+                browser.runtime.sendMessage({ type: 'clear', component: 'TitlePreface' });
                 return;
             }
         case 'title_preface_prefix':
         case 'title_preface_postfix':
         case 'assert_title_preface':
         case 'show_badge':
+            if (!$field.checked) {
+                browser.runtime.sendMessage({ type: 'clear', component: 'Badge' });
+                return;
+            }
         case 'badge_show_emoji_first':
         case 'badge_regex':
         case 'badge_regex_gflag':

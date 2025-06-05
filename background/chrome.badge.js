@@ -11,6 +11,13 @@ export async function update(nameMap) {
     }
 }
 
+//@ -> state
+export async function clear() {
+    const text = '';
+    for (const { id: windowId } of await browser.windows.getAll())
+        browser.browserAction.setBadgeText({ windowId, text });
+}
+
 //@ state -> (Function)
 async function createTextTransformer() {
     const { badge_show_emoji_first, badge_regex, badge_regex_gflag } = await Storage.getDict(['badge_show_emoji_first', 'badge_regex', 'badge_regex_gflag']);

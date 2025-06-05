@@ -1,9 +1,9 @@
-// The 'chrome' refers to UI elements of the browser that frame the content.
+// The 'chrome' refers to UI components of the browser that frame the content.
 
 import * as Storage from '../storage.js';
 import * as Badge from './chrome.badge.js';
 
-export const TitlePreface = {
+const TitlePreface = {
 
     //@ (Map(Number:String) | [[Number, String]]), state -> state
     async set(nameMap) {
@@ -27,6 +27,7 @@ export const TitlePreface = {
 
 //@ -> state
 export async function showWarningBadge() {
+    clear('Badge');
     browser.browserAction.setBadgeBackgroundColor({ color: 'transparent' });
     browser.browserAction.setBadgeText({ text: '⚠️' });
     browser.browserAction.setTitle({ title: await getBaseButtonTitle() });
@@ -47,6 +48,13 @@ export async function update(nameMap) {
         : browser.browserAction.setBadgeText({ text: '' });
     // Title preface
     TitlePreface.set(nameMap);
+}
+
+/**
+ * @param {'Badge' | 'TitlePreface'} component
+ */
+export function clear(component) {
+    ({ Badge, TitlePreface })[component]?.clear();
 }
 
 //@ state -> String

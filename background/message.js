@@ -120,6 +120,12 @@ const INTERNAL = {
 
     /**
      * @param {Object} request
+     * @param {string} request.component
+     */
+    clear: ({ component }) => Chrome.clear(component),
+
+    /**
+     * @param {Object} request
      * @param {boolean} request.enabled
      */
     async discardMinimized({ enabled }) {
@@ -142,8 +148,6 @@ const INTERNAL = {
     },
 
     help: () => Action.openHelp(),
-
-    clearTitlePreface: Chrome.TitlePreface.clear,
 
     warn: Chrome.showWarningBadge,
 
