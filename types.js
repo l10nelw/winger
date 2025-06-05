@@ -22,6 +22,7 @@
  * @typedef Tab
  * @property {boolean} active
  * @property {boolean} discarded
+ * @property {GroupId} groupId
  * @property {boolean} highlighted
  * @property {TabId} id
  * @property {number} index
@@ -46,6 +47,24 @@
  * @property {string} [url]
  * @property {WindowId} [windowId]
  * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create}
+ */
+/** @typedef {number} GroupId */
+/**
+ * @typedef Group
+ * @property {boolean} collapsed
+ * @property {string} color
+ * @property {GroupId} id
+ * @property {string} title
+ * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabGroups/TabGroup}
+ */
+/**
+ * @typedef ProtoGroup - browser.tabGroups.update() argument object
+ * @property {boolean} [collapsed]
+ * @property {string} [color]
+ * @property {string} [title]
+ * @property {number} [id] - groupId at stash time
+ * @property {TabId[]} [tabIds] - Added and used by (/background/stash.prop.js).Groups.restore()
+ * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabGroups/update}
  */
 /** @typedef {string} NodeId */
 /**

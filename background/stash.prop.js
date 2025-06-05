@@ -23,12 +23,15 @@ import { restoreTabRelations } from './action.auto.js';
 
 /** @typedef {import('../types.js').WindowId} WindowId */
 /** @typedef {import('../types.js').TabId} TabId */
+/** @typedef {import('../types.js').GroupId} GroupId */
 /** @typedef {import('../types.js').NodeId} NodeId */
 /** @typedef {import('../types.js').Window} Window */
 /** @typedef {import('../types.js').Tab} Tab */
+/** @typedef {import('../types.js').Group} Group */
 /** @typedef {import('../types.js').Node} Node */
 /** @typedef {import('../types.js').ProtoWindow} ProtoWindow */
 /** @typedef {import('../types.js').ProtoTab} ProtoTab */
+/** @typedef {import('../types.js').ProtoGroup} ProtoGroup */
 
 /**
  * @param {NodeId} folderId
@@ -59,6 +62,21 @@ const Props = {
             pinned: ({ pinned }) => pinned,
             // After Containers.prepare():
             container: ({ container }) => container,
+            // After Groups.prepare():
+            group: ({ groupId, group }) => {
+                if (groupId === -1)
+                    return;
+                const info = { id: groupId };
+                if (group) {
+                    if (group.collapsed)
+                        info.collapsed = true;
+                    if (group.color)
+                        info.color = group.color;
+                    if (group.title)
+                        info.title = group.title;
+                }
+                return info;
+            },
             // After Parents.prepare():
             id: ({ id, isParent }, folderId) => isParent && makeStashId(folderId, id),
             parentId: ({ openerTabId }, folderId) => openerTabId && makeStashId(folderId, openerTabId), // 'parentId' alias of 'openerTabId'
@@ -70,6 +88,8 @@ const Props = {
             pinned: ({ pinned }) => pinned,
             // Before Container.restore():
             container: ({ container }) => container,
+            // Before Groups.restore():
+            group: ({ group }) => group,
             // Before Parents.restore():
             id: ({ id }) => id,
             openerTabId: ({ parentId, openerTabId }) => parentId || openerTabId, // Either 'parentId' or 'openerTabId' accepted
@@ -225,6 +245,94 @@ const Containers = {
 
 }
 
+const Groups = {
+
+    /**
+     * Add a `group` property containing `{id, collapsed, color, title}` to the first tab of each group found.
+     * @param {Tab[]} tabs
+     * @modifies tabs
+     */
+    async prepare(tabs) {
+        const firstTabOfGroupMap = new Map();
+        for (const tab of tabs) {
+            const { groupId } = tab;
+            if (groupId !== -1 && !firstTabOfGroupMap.has(groupId))
+                firstTabOfGroupMap.set(groupId, tab);
+        }
+        await Promise.all([...firstTabOfGroupMap.values()].map(
+            /**
+             * @param {Tab} tab
+             * @returns {Promise<Tab & {group: Group}>}
+             * @modifies tab
+             */
+            async tab => Object.assign(tab, { group: await browser.tabGroups.get(tab.groupId) })
+        ));
+    },
+
+    /**
+     * Return shallow copy of protoTab sans `group` property.
+     * @param {ProtoTab} protoTab
+     * @returns {ProtoTab}
+     */
+    scrub(protoTab) {
+        const safeProtoTab = { ...protoTab };
+        delete safeProtoTab.group;
+        return safeProtoTab;
+    },
+
+    /**
+     * Using tab ids from `tabs` and group info in `protoTabs`, create tab groups.
+     * @param {Tab[]} tabs
+     * @param {ProtoTab[]} protoTabs
+     */
+    async restore(tabs, protoTabs) {
+        if (tabs.length !== protoTabs.length)
+            throw 'Groups.restore: The two tab arrays do not match in length';
+
+        /** @type {Map<number, ProtoGroup>} */
+        const protoGroupMap = new Map();
+
+        // Collect details of groups, including which tabs belong in them
+        protoTabs.forEach(
+            /**
+             * @param {ProtoTab} protoTab
+             * @param {ProtoGroup} [protoTab.group]
+             * @param {number} index
+             * @modifies protoGroupMap
+             */
+            ({ group: protoGroup }, index) => {
+                if (!protoGroup)
+                    return;
+                const groupId = protoGroup.id;
+                if (protoGroupMap.has(groupId)) {
+                    /** @type {ProtoGroup} */
+                    const protoGroup_ = protoGroupMap.get(groupId);
+                    Object.assign(protoGroup_, protoGroup); // Combine all protoGroups with this groupId
+                    protoGroup_.tabIds.push(tabs[index].id); // Accumulate tabIds for this group
+                } else {
+                    protoGroup.tabIds = [tabs[index].id]; // First tabId in array
+                    protoGroupMap.set(groupId, protoGroup);
+                }
+            }
+        );
+
+        // Create the tab groups
+        const { windowId } = tabs[0];
+        await Promise.all([...protoGroupMap.values()].map(
+            /**
+             * @param {ProtoGroup} protoGroup
+             * @returns {Promise<Group>}
+             */
+            async protoGroup => {
+                const { collapsed, color, title, tabIds } = protoGroup;
+                /** @type {GroupId} */
+                const newGroupId = await browser.tabs.group({ tabIds, createProperties: { windowId }});
+                return browser.tabGroups.update(newGroupId, { collapsed, color, title });
+            }
+        ));
+    },
+}
+
 const Parents = {
 
     /**
@@ -274,7 +382,7 @@ const Parents = {
  * Find valid JSON string at end of the title, split it off, and parse the JSON.
  * Return [cleaned title, result object], or [title, null] if JSON not found or invalid.
  * @param {string} title
- * @returns {[string, Object?]}
+ * @returns {[string, Object<string, any>?]}
  */
 function parseTitleJSON(title) {
     title = title.trim();
@@ -338,13 +446,16 @@ export const Tab = {
     // Stashing
 
     /**
-     * Add properties to tabs marking containers and parents. To be done before creating bookmarks.
+     * Add properties to tabs marking containers, groups, parents. To be done before creating bookmarks.
      * @param {Tab[]} tabs
      * @modifies tabs
      */
     async prepare(tabs) {
-        await Containers.prepare(tabs);
-        Parents.prepare(tabs);
+        await Promise.all([
+            Containers.prepare(tabs),
+            Groups.prepare(tabs),
+            Parents.prepare(tabs),
+        ]);
     },
 
     /**
@@ -391,7 +502,7 @@ export const Tab = {
      * @returns {ProtoTab}
      */
     scrub(protoTab) {
-        return Parents.scrub(protoTab);
+        return Parents.scrub(Groups.scrub(protoTab));
     },
 
     /**
@@ -402,6 +513,7 @@ export const Tab = {
      */
     postOpen(tabs, protoTabs) {
         Parents.restore(tabs, protoTabs);
+        Groups.restore(tabs, protoTabs);
     },
 
 }

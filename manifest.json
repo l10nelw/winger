@@ -14,7 +14,8 @@
     "menus",
     "sessions",
     "storage",
-    "tabs"
+    "tabs",
+    "tabGroups"
   ],
   "optional_permissions": [
     "bookmarks"
