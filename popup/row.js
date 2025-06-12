@@ -152,12 +152,13 @@ export function addAllFolders(folders) {
 export function toggleViewFolders() {
     // Stashed-rows visibility governed by CSS (body.viewstash li.stashed)
     if ($body.classList.toggle('viewstash')) {
+        const $lastWindowRow = $otherWindowRows.at(-1);
         const $rows = $otherWindowRows.$stashed;
         $otherWindowRows.push(...$rows);
         $otherWindowRows.$withHeadings.push($otherWindowRows.$stashedHeading, ...$rows);
         Filter.$shownRows.push(...$rows);
         $names.push(...$names.$stashed);
-        $rows[0].scrollIntoView({ behavior: 'smooth' });
+        $lastWindowRow.scrollIntoView({ behavior: 'smooth' });
     } else {
         const rowIndex = $otherWindowRows.$stashed._startIndex;
         $otherWindowRows.splice(rowIndex);
