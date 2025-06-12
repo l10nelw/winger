@@ -4,11 +4,14 @@ import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 import * as Chrome from './chrome.js';
 import * as Auto from './action.auto.js';
+import { GroupIdTabIdMap } from './action.group.js';
 
 /** @typedef {import('../types.js').WindowId} WindowId */
 /** @typedef {import('../types.js').TabId} TabId */
+/** @typedef {import('../types.js').GroupId} GroupId */
 /** @typedef {import('../types.js').Window} Window */
 /** @typedef {import('../types.js').Tab} Tab */
+/** @typedef {import('../types.js').Group} Group */
 /** @typedef {import('../types.js').ProtoTab} ProtoTab */
 
 /**
@@ -149,18 +152,33 @@ async function moveTabs({ tabs, windowId, keep_moved_tabs_selected }) {
     const index = pinnedTabs.length ?
         (await browser.tabs.query({ windowId, pinned: true })).length : 0;
 
+    // Take note of groups to be "moved", if all of its tabs are participating in the move
+    const groupIdTabIdMap = new GroupIdTabIdMap();
+    groupIdTabIdMap.addTabsIfGroup(tabs);
+    await groupIdTabIdMap.deletePartialGroupEntries();
+    const groups = await groupIdTabIdMap.getGroups();
+
     /** @type {Tab[]} */
     const movedTabs = (await Promise.all([
         browser.tabs.move(pinnedTabs.map(tab => tab.id), { windowId, index }),
         browser.tabs.move(unpinnedTabs.map(tab => tab.id), { windowId, index: -1 }),
     ])).flat();
 
+    if (!movedTabs.length)
+        return [];
+
+    // Recreate groups at destination
+    // Much simpler and faster than an implementation that uses `tabGroups.move()`
+    groupIdTabIdMap.recreateGroups(groups, windowId);
+
     if (keep_moved_tabs_selected && tabs[0]?.highlighted) {
         const preMoveFocusedTab = tabs.find(tab => tab.active);
-        preMoveFocusedTab && focusTab(preMoveFocusedTab.id);
-        tabs.forEach(tab => !tab.active && selectTab(tab.id));
+        if (preMoveFocusedTab)
+            focusTab(preMoveFocusedTab.id);
+        movedTabs.forEach(tab => !tab.active && selectTab(tab.id));
     }
 
+    // Note: Array contents not updated since creation
     return movedTabs;
 }
 
@@ -184,54 +202,74 @@ function splitTabsByPinnedState(tabs) {
  * @returns {Promise<Tab[]>}
  */
 async function reopenTabs({ tabs, windowId, keep_moved_tabs_selected }) {
-    /** @type {Tab[]} */ const protoTabs = [];
-    /** @type {number[]} */ const tabIds = [];
-    for (const tab of tabs) {
+    const groupIdTabIdMap = new GroupIdTabIdMap();
+    /** @type {(ProtoTab & { groupId: GroupId })[]} */
+    const protoTabs = [];
+    /** @type {TabId[]} */
+    const oldTabIds = [];
+
+    for (const { active, groupId, id, pinned, title, url } of tabs) {
         const protoTab = {
-            windowId,
-            url: tab.url,
-            title: tab.title,
-            pinned: tab.pinned,
-            discarded: true,
+            windowId, discarded: true,
+            pinned, title, url,
         };
-        if (keep_moved_tabs_selected && tab.active)
+        if (keep_moved_tabs_selected && active)
             protoTab.active = true;
+        if (groupId !== -1) {
+            protoTab.groupId = groupId;
+            groupIdTabIdMap.group(groupId, id);
+        }
         protoTabs.push(protoTab);
-        tabIds.push(tab.id);
+        oldTabIds.push(id);
     }
-    /** @type {Tab[]} */
-    const openedTabs = await Promise.all(protoTabs.map(openTab));
-    browser.tabs.remove(tabIds);
+
+    await groupIdTabIdMap.deletePartialGroupEntries();
+    const groups = await groupIdTabIdMap.getGroups();
+    groupIdTabIdMap.clear(); // Done with old tabs; will reuse for new tabs
+
+    const newTabs = await Promise.all(protoTabs.map(
+        async protoTab => {
+            const newTab = await openTab(protoTab);
+            if (protoTab.groupId)
+                groupIdTabIdMap.group(protoTab.groupId, newTab.id);
+            return newTab;
+        }
+    ));
+
+    groupIdTabIdMap.recreateGroups(groups, windowId);
 
     if (keep_moved_tabs_selected && tabs[0]?.highlighted)
-        openedTabs.forEach(tab => !tab.active && selectTab(tab.id));
+        newTabs.forEach(newTab => !newTab.active && selectTab(newTab.id));
 
-    return openedTabs;
+    browser.tabs.remove(oldTabIds);
+
+    // Note: Array contents not updated since creation
+    return newTabs;
 }
 
 /**
- * Create a tab with given properties a.k.a. a protoTab, or create a placeholder tab if protoTab.url is invalid.
- * Less strict than tabs.create(): protoTab can contain some invalid combinations, which are automatically fixed.
- * Unlike tabs.create(), undefined protoTab.active defaults to false.
- * @param {Tab} protoTab - Tab creation config object
+ * With given properties a.k.a. a `protoTab`, create a tab, or a placeholder tab if `protoTab.url` is invalid.
+ * Less strict than `tabs.create()`: `protoTab` can contain invalid properties and property combinations, which are automatically fixed.
+ * Unlike `tabs.create()`, undefined `protoTab.active` defaults to `false`.
  * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create}
+ * @param {ProtoTab} protoTab
  * @returns {Promise<Tab>}
  */
 export function openTab(protoTab) {
-    const { url, title, pinned } = protoTab;
+    protoTab = scrubbedProtoTab(protoTab); // Create valid protoTab while keeping original intact
+
+    const { pinned, title, url } = protoTab;
 
     protoTab.active ??= false;
 
     if (protoTab.active || url.startsWith('about:'))
         delete protoTab.discarded;
-
     const { discarded } = protoTab;
+    discarded
+        ? delete protoTab.pinned // Tab cannot be created both pinned and discarded - pin later if expected
+        : delete protoTab.title; // Setting title only allowed if discarded
 
-    // Tab cannot be created both pinned and discarded - to pin later if needed
-    // title only allowed if discarded
-    delete protoTab[discarded ? 'pinned' : 'title'];
-
-    if (url === 'about:newtab' || url === 'about:privatebrowsing') { // Urls tabs.create() cannot open, but unnecessary for the end result
+    if (url === 'about:newtab' || url === 'about:privatebrowsing') { // Urls tabs.create() cannot open explicitly; they are opened via absent url
         delete protoTab.url;
     } else if (isReader(url)) {
         protoTab.url = getReaderTarget(url);
@@ -240,9 +278,26 @@ export function openTab(protoTab) {
 
     /** @type {Promise<Tab>} */
     const tabPromise = browser.tabs.create(protoTab).catch(() => Auto.openPlaceholder(protoTab, title));
-    return (pinned && discarded) ?
+    return (pinned && discarded) ? // Pin discarded tab now if expected
         tabPromise.then(tab => pinTab(tab.id)) : tabPromise;
 }
+
+/**
+ * Recreate protoTab with only valid properties.
+ * @param {ProtoTab} protoTab
+ * @returns {ProtoTab}
+ */
+function scrubbedProtoTab(protoTab) {
+    const safeProtoTab = {};
+    for (const key of VALID_PROTOTAB_PROPS)
+        if (key in protoTab)
+            safeProtoTab[key] = protoTab[key];
+    return safeProtoTab;
+}
+
+/** @constant */
+const VALID_PROTOTAB_PROPS =
+    ['active', 'cookieStoreId', 'discarded', 'index', 'muted', 'openerTabId', 'openInReaderMode', 'pinned', 'title', 'url', 'windowId'];
 
 /** @returns {Promise<Tab[]>} */ export const getSelectedTabs = () => browser.tabs.query({ currentWindow: true, highlighted: true });
 
