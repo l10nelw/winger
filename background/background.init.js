@@ -10,9 +10,10 @@ import * as Name from '../name.js';
 
 Promise.all([
     Storage.init(),
-    Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized']),
+    Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized', 'title']),
+    browser.tabs.query({ active: true }),
 ])
-.then(async ([info, winfos]) => {
+.then(async ([info, winfos, focusedTabs]) => {
 
     browser.menus.removeAll();
     SendMenu.init();
@@ -21,12 +22,14 @@ Promise.all([
     Stash.init(info);
 
     const nameMap = new Name.NameMap();
-    let anyNameFound = false;
+    let givenNameFound = false;
+    let unknownTitlePrefaceFound = false;
+    let i = 0; // Iterating index for `winfos` and `focusedTabs`
 
     // `winfos` should be in id-ascending order, which shall be assumed as age-descending
-    for (let { id, focused, firstSeen, givenName, minimized } of winfos) {
+    for (let { id, focused, firstSeen, givenName, minimized, title } of winfos) {
         if (givenName) {
-            anyNameFound = true;
+            givenNameFound = true;
             // Check if name is already in use (e.g. a named window was restored while Winger was not active)
             // Rename the newer of any duplicate names found
             const uniquifiedName = nameMap.uniquify(givenName);
@@ -34,6 +37,10 @@ Promise.all([
                 givenName = uniquifiedName;
                 Name.save(id, givenName);
             }
+        } else {
+            const focusedTabTitle = focusedTabs[i].title;
+            if (title.indexOf(focusedTabTitle) > 0)
+                unknownTitlePrefaceFound = true;
         }
         nameMap.set(id, givenName);
 
@@ -47,11 +54,15 @@ Promise.all([
 
         if (minimized && info.discard_minimized_window)
             Auto.discardWindow.schedule(id);
+
+        i++;
     }
 
-    // If set_title_preface has not been explicitly user-set yet but named windows already exist,
-    // then assume user is not a new Winger user and wants it enabled
-    if (info.set_title_preface === undefined && anyNameFound) {
+    // If set_title_preface hasn't been explicitly user-set yet, but:
+    // (A) at least one stored name was found, then assume not a new Winger user...
+    // (B) no unknown (externally set) title prefaces were found, then assume a new Winger user who's not using another window namer...
+    // ... and assume they want set_title_preface enabled
+    if (info.set_title_preface === undefined && (givenNameFound || !unknownTitlePrefaceFound)) {
         await Storage.set({ set_title_preface: true });
         info.set_title_preface = true;
     }
