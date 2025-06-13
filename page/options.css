@@ -35,6 +35,10 @@ label {
         margin-bottom: .5rem;
     }
 }
+.indent {
+    margin-inline-start: 2rem;
+}
+
 
 select, input[type="text"] {
     margin-bottom: -.5rem;
@@ -73,17 +77,20 @@ button {
     cursor: pointer;
 }
 
-
-.muted { opacity: .5; } /* Used in options.js */
-.flex { display: flex; }
-.gap { gap: 1rem; }
-.indent { margin-inline-start: 2rem; }
-.center { text-align: center; }
-
 .success::after {
     top: 1.5ex;
     right: 0;
 }
+
+
+/* Utilities */
+
+.muted { opacity: .5; } /* Used in options.js */
+.flex { display: flex; }
+.gap { gap: 1rem; }
+.ms { margin-inline-start: 1rem; }
+.center { text-align: center; }
+
 
 /* Dark theme */
 

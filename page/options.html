@@ -55,10 +55,10 @@
       <fieldset>
         <legend>Minimized windows</legend>
         <div class="flex gap">
-          <label><input class="setting" type="checkbox" name="discard_minimized_window"> <span>Unload tabs in minimized windows</span></label>
+          <label><input class="setting" type="checkbox" name="discard_minimized_window"> <span>Unload tabs in minimized window</span></label>
           <label><input class="setting smallField" type="number" min="0" max="99" data-enabled-by="discard_minimized_window" name="discard_minimized_window_delay_mins"> <span>minute(s) after minimization</span></label>
         </div>
-        <label><input class="setting" type="checkbox" name="minimize_kick_window"> <span>Minimize <samp>/kick</samp> windows</span></label>
+        <label><input class="setting" type="checkbox" name="minimize_kick_window"> <span>Minimize window opened with <samp>/kick</samp></span></label>
       </fieldset>
 
       <fieldset>
@@ -68,11 +68,11 @@
         </span></label>
         <div class="indent">
           <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="show_popup_stash"> <span>Show stash buttons in pop-up panel</span></label>
-          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="stash_nameless_with_title"> <span>Stash nameless windows using window titles as names
-            <br><small>If disabled, nameless windows are stashed as nameless folders</small>
+          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="stash_nameless_with_title"> <span>Stash nameless window using its window title as its name
+            <br><small>If disabled, nameless window is stashed as nameless folder</small>
           </span></label>
-          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="auto_name_unstash"> <span>Auto-name unstashed windows
-            <br><small>If disabled, unstashed windows are not named</small>
+          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="auto_name_unstash"> <span>Auto-name unstashed window
+            <br><small>If disabled, unstashed window is not named</small>
           </span></label>
           <div class="group">
             <label class="flex">
