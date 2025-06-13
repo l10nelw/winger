@@ -39,10 +39,8 @@ label {
 select, input[type="text"] {
     margin-bottom: -.5rem;
 }
-.smallField {
-    width: 3.5rem;
-    text-align: center;
-}
+.smallField { width: 3.5rem; }
+.mediumField { width: 6.5rem; }
 
 hr {
     margin: 1rem 0;
@@ -80,6 +78,7 @@ button {
 .flex { display: flex; }
 .gap { gap: 1rem; }
 .indent { margin-inline-start: 2rem; }
+.center { text-align: center; }
 
 .success::after {
     top: 1.5ex;

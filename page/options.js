@@ -155,6 +155,14 @@ const StaticText = {
     },
 };
 
+const BadgeRegex = {
+    $field: $form.badge_regex,
+    $checkbox: $form.querySelector('input[data-checked-by="badge_regex"]'),
+
+    update() {
+        BadgeRegex.$checkbox.checked = BadgeRegex.$field.value !== '';
+    },
+};
 
 (async function init() {
     const SETTINGS = await Storage.getDict(Storage.DEFAULT_SETTINGS);
@@ -166,6 +174,7 @@ const StaticText = {
         StashSection.onNoPermission();
     StaticText.insertShortcuts();
     StaticText.checkPrivateAccess();
+    BadgeRegex.update();
 })();
 
 browser.permissions.onRemoved.addListener(({ permissions }) => {
@@ -210,6 +219,7 @@ $form.addEventListener('change', async ({ target: $field }) => {
         case 'badge_show_emoji_first':
         case 'badge_regex':
         case 'badge_regex_gflag':
+            BadgeRegex.update();
             browser.runtime.sendMessage({ type: 'update' });
             return;
 

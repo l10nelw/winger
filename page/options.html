@@ -30,9 +30,10 @@
         </span></label>
         <div class="indent">
           <label><input class="setting" type="checkbox" data-enabled-by="show_badge" name="badge_show_emoji_first"> <span>Show emoji first</span></label>
-          <div class="flex gap">
-            <label><span>Apply regular expression:</span> <input class="setting" type="text" data-enabled-by="show_badge" name="badge_regex" placeholder="e.g. \b\w"></label>
-            <label><input class="setting" type="checkbox" data-enabled-by="badge_regex" name="badge_regex_gflag"> <span>Match multiple (global)</span></label>
+          <div class="flex">
+            <label><input type="checkbox" data-checked-by="badge_regex" disabled> <span></span></label>
+            <label><span>Show only regex match:</span> <input class="setting mediumField" type="text" data-enabled-by="show_badge" name="badge_regex" placeholder="e.g. \b\w"></label>
+            <label class="ms"><input class="setting" type="checkbox" data-enabled-by="badge_regex" name="badge_regex_gflag"> <span>Multiple matches ("global")</span></label>
           </div>
         </div>
         <label><input class="setting" type="checkbox" name="set_title_preface"> <span>Show name in window title preface
@@ -40,15 +41,15 @@
         </label>
         <div class="indent">
           <div class="flex gap">
-            <label><span>Prefix</span> <input class="setting smallField" type="text" data-enabled-by="set_title_preface" name="title_preface_prefix"></label>
-            <label><span>Postfix</span> <input class="setting smallField" type="text" data-enabled-by="set_title_preface" name="title_preface_postfix"></label>
+            <label><span>Prefix</span> <input class="setting smallField center" type="text" data-enabled-by="set_title_preface" name="title_preface_prefix"></label>
+            <label><span>Postfix</span> <input class="setting smallField center" type="text" data-enabled-by="set_title_preface" name="title_preface_postfix"></label>
           </div>
           <label><input class="setting" type="checkbox" data-enabled-by="set_title_preface" name="assert_title_preface"> <span>Re-assert on every window switch
             <br><small>Useful if Winger's title prefaces are often disappearing or overridden
             <br>(You should check for and deal with any conflicting extensions if possible)</small>
           </span></label>
         </div>
-        <small>Learn more about <a class="help" href="#name">window naming</a></small>
+        <small>Learn more about <a class="help" href="#name">window naming</a>. See example badge regexes in <a class="help" href="#name-tips">naming tips</a></small>
       </fieldset>
 
       <fieldset>
