@@ -17,7 +17,11 @@ const count = {
 
 const ctrlCmd = isOS('Mac OS') ? 'Ctrl' : 'Cmd';
 
-// Dict of memoized subconditions used while seeking a matching hintType condition.
+/**
+ * Dict of memoized subconditions used while seeking a matching hintType condition.
+ * @namespace sc - Subconditions
+ * @type {Object<string, (event: KeyboardEvent) => boolean | string>}
+ */
 const sc = {
     reset() { for (const subcondition in sc) delete sc[subcondition].cache; },
     isKeydown: event => sc.isKeydown.cache ??= event.type === 'keydown',
@@ -34,40 +38,44 @@ const sc = {
     isDestinationStashed: event => sc.isDestinationStashed.cache ??= sc.isRowStashed(event) || sc.isTopRowStashed(event),
 }
 
+/**
+ * @namespace hintType
+ * @type {Object<string, { condition: (event: KeyboardEvent?) => boolean, content: () => string }>}
+ */
 const hintType = {
     edit: {
         condition: () => EditMode.isActive,
         content: event => isNameField(event.target) ?
             `Edit mode: Type a name then <kbd>▲</kbd> or <kbd>▼</kbd> to save, or <kbd>Enter</kbd> to save and exit edit mode` :
-            `Edit mode: Click on a window row or navigate with <kbd>▲</kbd> and <kbd>▼</kbd>. Enter <samp>/edit</samp> to exit edit mode`,
+            `Edit mode: Click on a window row or navigate with <kbd>▲</kbd> <kbd>▼</kbd>. Enter <samp>/edit</samp> to exit edit mode`,
     },
     stashCopyTab: {
-        condition: event => sc.isKeydownCtrlShift(event) && !sc.isStashAction(event) && sc.isDestinationStashed(event),
+        condition: event => sc.isKeydownCtrlShift(event) && !sc.isStashAction?.(event) && sc.isDestinationStashed?.(event),
         content: () => `<kbd>Ctrl</kbd>+<kbd>Shift</kbd>: Stash-copy ${count.selectedTabs === 1 ? 'tab' : 'tabs'} to...`,
     },
     sendCopyTab: {
-        condition: event => sc.isKeydownShift(event) && sc.isRowStashed(event) && sc.action(event) === 'send',
+        condition: event => sc.isKeydownShift(event) && sc.isRowStashed?.(event) && sc.action(event) === 'send',
         content: () => `<kbd>Shift</kbd>: Stash-copy ${count.selectedTabs === 1 ? 'tab' : 'tabs'} to...`,
     },
     unstashCopy: {
-        condition: event => sc.isKeydownShift(event) && sc.isRowStashed(event) && sc.isStashAction(event),
+        condition: event => sc.isKeydownShift(event) && sc.isRowStashed?.(event) && sc.isStashAction?.(event),
         content: () => `<kbd>Shift</kbd>: Unstash-copy window`,
     },
     stashCopy: {
-        condition: event => sc.isKeydownShift(event) && (sc.isStashCommand() || sc.isStashAction(event)),
+        condition: event => sc.isKeydownShift(event) && (sc.isStashCommand?.() || sc.isStashAction?.(event)),
         content: () => `<kbd>Shift</kbd>: Stash-copy window`,
     },
     send: {
-        condition: event => sc.isKeydownCtrl(event) && !sc.isStashCommand() && !sc.isStashAction(event),
+        condition: event => sc.isKeydownCtrl(event) && !sc.isStashCommand?.() && !sc.isStashAction?.(event),
         content: () => `<kbd>Ctrl</kbd>: Send ${count.selectedTabs === 1 ? 'tab' : 'tabs'} to...`,
     },
     bring: {
-        condition: event => sc.isKeydownShift(event) && !sc.isDestinationStashed(event),
+        condition: event => sc.isKeydownShift(event) && !sc.isDestinationStashed?.(event),
         content: () => `<kbd>Shift</kbd>: Bring ${count.selectedTabs === 1 ? 'tab' : 'tabs'} to...`,
     },
     oneWindow: {
         condition: () => count.windows === 1,
-        content: () => `1 window &ndash; Press <kbd>${ctrlCmd}</kbd>+<kbd>N</kbd> to add another!`,
+        content: () => `1 window &ndash; Press <kbd>${ctrlCmd}</kbd>+<kbd>N</kbd> to open another!`,
     },
     default: {
         condition: () => true,
@@ -78,12 +86,15 @@ const hintType = {
     },
 }
 
-//@ (Object, [Object]), state -> state
+/**
+ * @param {Object} fgWinfo
+ * @param {Object[]} bgWinfos
+ */
 export async function init(fgWinfo, bgWinfos) {
     if (!FLAGS.enable_stash) {
         for (const subcondition in sc)
             if (subcondition.includes('stash'))
-                sc[subcondition] = () => false;
+                delete sc[subcondition];
         for (const type in hintType)
             if (type.includes('copy'))
                 delete hintType[type];
@@ -98,8 +109,11 @@ export async function init(fgWinfo, bgWinfos) {
     update();
 }
 
-// Find the hintType that meets the current condition and assign its content to the status bar.
-//@ (Object) -> (String), state
+/**
+ * Find the hintType that meets the current condition and assign its content to the status bar.
+ * @param {KeyboardEvent} [event]
+ * @returns {string}
+ */
 export function update(event = {}) {
     sc.reset();
     for (const type in hintType) {

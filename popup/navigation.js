@@ -11,22 +11,30 @@ import {
 import { isActive as isEditMode } from './editmode.js';
 import { $shownRows } from './filter.js';
 
+/** @typedef {string} Key */
+
 const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
 const HORIZONTAL_KEYS = ['ArrowRight', 'ArrowLeft'];
 const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
 
-// Upon an arrow or tab keydown, focus on the next focusable element in that direction and return true.
-// Return nothing if key not an arrow or tab.
-// Control vertical scrolling.
-//@ (Object), state -> (Boolean), state|nil
+/** @param {HTMLElement} $el @returns {boolean} */ const isUnfocusable = $el => row($el).hidden || $el.tabIndex === -1;
+/** @param {Key} key @returns {boolean} */         const isHorizontalKey = key => HORIZONTAL_KEYS.includes(key);
+/** @param {Key} key @returns {boolean} */         const isVerticalKey = key => VERTICAL_KEYS.includes(key);
+
+/**
+ * Upon an arrow or tab keydown, focus on the next focusable element in that direction and return true.
+ * Control vertical scrolling.
+ * @param {KeyboardEvent} event
+ * @returns {boolean?}
+ */
 export function handleKeyDown(event) {
-    const key = event.key;
-    let $el = event.target;
+    /** @type {Key} */ const key = event.key;
+    /** @type {HTMLElement} */ let $el = event.target;
 
     if (isHorizontalKey(key) && isField($el) && !$el.readOnly)
         return;
 
-    const navigatorKey = navigator[key];
+    const navigatorKey = Navigator[key];
     if (!navigatorKey)
         return;
 
@@ -44,7 +52,10 @@ export function handleKeyDown(event) {
     return true;
 }
 
-//@ (Object), state -> (Boolean), state|nil
+/**
+ * @param {KeyboardEvent} event
+ * @returns {boolean?}
+ */
 export function handleKeyUp(event) {
     if (event.key === 'Tab') {
         setColumn(event.target);
@@ -52,21 +63,27 @@ export function handleKeyUp(event) {
     }
 }
 
-const isUnfocusable = $el => row($el).hidden || $el.tabIndex === -1; //@ (Object) -> (Boolean)
-const isHorizontalKey = key => HORIZONTAL_KEYS.includes(key); //@ (String) -> (Boolean)
-const isVerticalKey = key => VERTICAL_KEYS.includes(key); //@ (String) -> (Boolean)
-
-
-// Prevent scrolling if focus is on first/last few rows, to control the default scoll-ahead
-//@ (Object, Object) -> state|nil
+/**
+ * Prevent scrolling if focus is on first/last few rows, to control the default scoll-ahead.
+ * @param {HTMLElement} $el
+ * @param {KeyboardEvent} event
+ */
 function restrictScroll($el, event) {
     const index = $shownRows.indexOf(row($el));
     if (index < SCROLL_THRESHOLD || ($shownRows.length - index) <= SCROLL_THRESHOLD)
         event.preventDefault(); // Suppress scrolling
 }
 
-let column; // Currently-focused button column
-//@ (Object) -> state
+/**
+ * Currently-focused button column e.g. "send", "bring".
+ * @type {string?}
+ */
+let column;
+
+/**
+ * @param {HTMLElement} $el
+ * @modifies column
+ */
 function setColumn($el) {
     column =
         isRow($el) || isField($el) ? null : // if row or name: null
@@ -74,20 +91,23 @@ function setColumn($el) {
         column; // no change
 }
 
-//@ (Object) -> (Object)
-const navigator = {
+/**
+ * @namespace Navigator
+ * @type {Object<Key, ($el: HTMLElement, [event]: KeyboardEvent) => HTMLElement>}
+ */
+const Navigator = {
     ArrowDown($el) {
         if (isInToolbar($el))
             return currentWindow();
         if (isCurrentWindow($el))
             return $omnibox;
-        if ($el === $omnibox)
+        if (isOmnibox($el))
             return rowOrCell($shownRows[0]) || toolbar();
         const $nextRow = row($el).nextElementSibling;
         return rowOrCell($nextRow) || toolbar();
     },
     ArrowUp($el) {
-        if ($el === $omnibox)
+        if (isOmnibox($el))
             return currentWindow();
         if (isCurrentWindow($el))
             return toolbar();
@@ -97,7 +117,7 @@ const navigator = {
         return rowOrCell($nextRow) || $omnibox;
     },
     ArrowRight($el) {
-        if ($el === $omnibox)
+        if (isOmnibox($el))
             return $omnibox;
         if (isEditMode && isField($el))
             return $el;
@@ -107,7 +127,7 @@ const navigator = {
             ($el.nextElementSibling || $el.$row);
     },
     ArrowLeft($el) {
-        if ($el === $omnibox)
+        if (isOmnibox($el))
             return $omnibox;
         if (isEditMode && isField($el))
             return $el;
@@ -137,7 +157,7 @@ const navigator = {
             return currentWindow();
         }
         if (isEditMode) {
-            if ($el === $omnibox) {
+            if (isOmnibox($el)) {
                 event.preventDefault();
                 return $shownRows[0]?.$name || toolbar();
             }
@@ -154,23 +174,33 @@ const navigator = {
     },
 }
 
-// Return cell at given row and current column.
-//@ (Object), state -> (Object|undefined)
+/**
+ * Return cell at given row and current column.
+ * @param {HTMLElement} $row
+ * @returns {HTMLElement?}
+ */
 function columnCell($row) {
     const $cell = $row?.['$'+column];
     if ($cell && !$cell.disabled)
         return $cell;
 }
-// Take and return row, unless a cell can be returned instead.
-//@ (Object), state -> (Object|undefined)
-const rowOrCell = $row => isEditMode && $row?.$name || columnCell($row) || $row;
-//@ state -> (Object)
-const currentWindow = () => columnCell($currentWindowRow) || $currentWindowRow.$name || $currentWindowRow;
-// Element's parent row, else assume element is a row.
-//@ (Object) -> (Object)
-const row = $el => $el.$row || $el;
-//@ -> (Object)
-const toolbar = () => $toolbar.querySelector('button') || $toolbar;
 
-//@ (Object) -> (Boolean)
-const isCurrentWindow = $el => row($el) === $currentWindowRow;
+/**
+ * Take and return row, unless a cell can be returned instead.
+ * @param {HTMLElement} $row
+ * @returns {HTMLElement}
+ */
+const rowOrCell = $row => isEditMode && $row?.$name || columnCell($row) || $row;
+
+/**
+ * Element's parent row, else assume element is a row.
+ * @param {HTMLElement} $el
+ * @returns {HTMLElement}
+ */
+const row = $el => $el.$row || $el;
+
+/** @returns {HTMLElement} */ const currentWindow = () => columnCell($currentWindowRow) || $currentWindowRow.$name || $currentWindowRow;
+/** @returns {HTMLElement} */ const toolbar = () => $toolbar.querySelector('button') || $toolbar;
+
+/** @param {HTMLElement} $el @returns {boolean} */ const isCurrentWindow = $el => row($el) === $currentWindowRow;
+/** @param {HTMLElement} $el @returns {boolean} */ const isOmnibox = $el => $el === $omnibox;

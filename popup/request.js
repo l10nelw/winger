@@ -24,7 +24,7 @@ export const debug = () => sendMessage({ type: 'debug' });
 // Request requirements based on action:
 // { type: 'action', action: 'switch'|'bring',  windowId }
 // { type: 'action', action: 'send',  windowId|folderId, sendToMinimized|remove }  // folderId + 'send' -> stash tabs to folder
-// { type: 'action', action: 'new'|'pop'|'kick'|...,  argument }
+// { type: 'action', action: 'new'|'pop'|'kick'|'newnormal'|'newprivate'|...,  argument }
 // { type: 'action', action: 'stash',  windowId|folderId, name, remove }  // folderId + 'stash' -> unstash folder
 //@ ({ Object, String|undefined, String|undefined, Object|undefined }) -> state|nil
 export async function action({ event, command, argument, $action }) {
