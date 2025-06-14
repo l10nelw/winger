@@ -22,9 +22,24 @@ export async function getDict() {
     return dict;
 }
 
+export const format = shortcut => shortcut.split('+').map(key => `<kbd>${key}</kbd>`).join('+');
+
 /**
  * Wrap each key of shortcut in <kbd> tags.
+ * Verbose implementation to avoid using `innerHTML`.
  * @param {string} shortcut
  * @returns {string}
  */
-export const format = shortcut => shortcut.split('+').map(key => `<kbd>${key}</kbd>`).join('+');
+export function formatHTML(shortcut) {
+    const $fragment = document.createDocumentFragment();
+    /** @type {string[]} */
+    const keys = shortcut.split('+');
+    for (let i = 0, count = keys.length; i < count; i++) {
+        const $kbd = document.createElement('kbd');
+        $kbd.textContent = keys[i];
+        $fragment.append($kbd);
+        if (i < count - 1)
+            $fragment.append('+');
+    }
+    return $fragment;
+}

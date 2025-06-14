@@ -61,7 +61,7 @@ async function insertShortcuts() {
     for (const $shortcut of $$('[data-shortcut]')) {
         const { shortcut } = shortcutDict[$shortcut.dataset.shortcut];
         if ($shortcut.innerText !== shortcut)
-            $shortcut.innerHTML = Shortcut.format(shortcut);
+            $shortcut.replaceChildren(Shortcut.formatHTML(shortcut));
     }
 }
 

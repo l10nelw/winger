@@ -185,10 +185,10 @@ const StaticText = {
         for (const { description, shortcut, defaultShortcut } of Object.values(await Shortcut.getDict())) {
             const $shortcut = $template.cloneNode(true);
             $shortcut.querySelector('.shortcut-description').textContent = description;
-            $shortcut.querySelector('.shortcut-key').innerHTML = Shortcut.format(shortcut);
+            $shortcut.querySelector('.shortcut-key').replaceChildren(Shortcut.formatHTML(shortcut));
             if (defaultShortcut) {
                 $shortcut.querySelector('.shortcut-default-text').hidden = false;
-                $shortcut.querySelector('.shortcut-default').innerHTML = Shortcut.format(defaultShortcut);
+                $shortcut.querySelector('.shortcut-default').replaceChildren(Shortcut.formatHTML(defaultShortcut));
             }
             $fragment.appendChild($shortcut);
         }
