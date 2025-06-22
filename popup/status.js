@@ -16,10 +16,11 @@ const count = {
 }
 
 const ctrlCmd = isOS('Mac OS') ? 'Ctrl' : 'Cmd';
+const tabOrTabs = (all = false) => ((all ? count.tabs : count.selectedTabs) === 1) ? 'tab' : 'tabs';
 
 /**
  * Dict of memoized subconditions used while seeking a matching hintType condition.
- * @namespace sc - Subconditions
+ * @namespace
  * @type {Object<string, (event: KeyboardEvent) => boolean | string>}
  */
 const sc = {
@@ -39,51 +40,77 @@ const sc = {
 }
 
 /**
- * @namespace hintType
- * @type {Object<string, { condition: (event: KeyboardEvent?) => boolean, content: () => string }>}
+ * Either `[text]` for a TextNode or `[text, tag]` for an HTMLElement.
+ * An array of these is used to represent a Hint's content and generate its DOM form for $status.
+ * This is all to avoid using `$status.innerHTML = content`.
+ * @typedef {[string] | [string, string]} ContentNode
+ */
+/**
+ * @typedef Hint
+ * @property {(event?: KeyboardEvent) => boolean} condition
+ * @property {() => ContentNode[]} content
+ */
+
+/**
+ * @namespace
+ * @type {Object<string, Hint>}
  */
 const hintType = {
     edit: {
         condition: () => EditMode.isActive,
         content: event => isNameField(event.target) ?
-            `Edit mode: Type a name then <kbd>▲</kbd> or <kbd>▼</kbd> to save, or <kbd>Enter</kbd> to save and exit edit mode` :
-            `Edit mode: Click on a window row or navigate with <kbd>▲</kbd> <kbd>▼</kbd>. Enter <samp>/edit</samp> to exit edit mode`,
+            [[`Edit mode: Type a name then `], ['▲', 'kbd'], [` or `], ['▼', 'kbd'], [`to save, or `], ['Enter', 'kbd'], [` to save and exit edit mode`]] :
+            [[`Edit mode: Click on a window row or navigate with `], ['▲', 'kbd'], [` `], ['▼', 'kbd'], [`. Enter `], ['/edit', 'samp'], [` to exit edit mode`]],
     },
     stashCopyTab: {
         condition: event => sc.isKeydownCtrlShift(event) && !sc.isStashAction?.(event) && sc.isDestinationStashed?.(event),
-        content: () => `<kbd>Ctrl</kbd>+<kbd>Shift</kbd>: Stash-copy ${count.selectedTabs === 1 ? 'tab' : 'tabs'} to...`,
+        content: () => [['Ctrl', 'kbd'], [`+`], ['Shift', 'kbd'], [`: Stash-copy ${tabOrTabs()} to...`]],
     },
     sendCopyTab: {
         condition: event => sc.isKeydownShift(event) && sc.isRowStashed?.(event) && sc.action(event) === 'send',
-        content: () => `<kbd>Shift</kbd>: Stash-copy ${count.selectedTabs === 1 ? 'tab' : 'tabs'} to...`,
+        content: () => [['Shift', 'kbd'], [`: Stash-copy ${tabOrTabs()} to...`]],
     },
     unstashCopy: {
         condition: event => sc.isKeydownShift(event) && sc.isRowStashed?.(event) && sc.isStashAction?.(event),
-        content: () => `<kbd>Shift</kbd>: Unstash-copy window`,
+        content: () => [['Shift', 'kbd'], [`: Unstash-copy window`]],
     },
     stashCopy: {
         condition: event => sc.isKeydownShift(event) && (sc.isStashCommand?.() || sc.isStashAction?.(event)),
-        content: () => `<kbd>Shift</kbd>: Stash-copy window`,
+        content: () => [['Shift', 'kbd'], [`: Stash-copy window`]],
     },
     send: {
         condition: event => sc.isKeydownCtrl(event) && !sc.isStashCommand?.() && !sc.isStashAction?.(event),
-        content: () => `<kbd>Ctrl</kbd>: Send ${count.selectedTabs === 1 ? 'tab' : 'tabs'} to...`,
+        content: () => [['Ctrl', 'kbd'], [`: Send ${tabOrTabs()} to...`]],
     },
     bring: {
         condition: event => sc.isKeydownShift(event) && !sc.isDestinationStashed?.(event),
-        content: () => `<kbd>Shift</kbd>: Bring ${count.selectedTabs === 1 ? 'tab' : 'tabs'} to...`,
+        content: () => [['Shift', 'kbd'], [`: Bring ${tabOrTabs()} to...`]],
     },
     oneWindow: {
         condition: () => count.windows === 1,
-        content: () => `1 window &ndash; Press <kbd>${ctrlCmd}</kbd>+<kbd>N</kbd> to open another!`,
+        content: () => [[`1 window – Press `], [ctrlCmd, 'kbd'], [`+`], ['N', 'kbd'], [` to open another!`]],
     },
     default: {
         condition: () => true,
         content: () => {
-            const summary = `${count.windows} windows / ${count.tabs} ${count.tabs === 1 ? 'tab' : 'tabs'}`;
-            return count.selectedTabs > 1 ? `${summary} (${count.selectedTabs} selected)` : summary;
+            const summary = `${count.windows} windows / ${count.tabs} ${tabOrTabs(true)}`;
+            return [[count.selectedTabs > 1 ? `${summary} (${count.selectedTabs} selected)` : summary]];
         },
     },
+}
+
+/**
+ * @param {ContentNode[]} contentNodes
+ * @returns {DocumentFragment}
+ */
+function buildHintContent(contentNodes) {
+    const $fragment = document.createDocumentFragment();
+    for (const [textContent, tag] of contentNodes)
+        $fragment.append(
+            tag ? Object.assign(document.createElement(tag), { textContent })
+                : textContent
+        );
+    return $fragment;
 }
 
 /**
@@ -111,7 +138,7 @@ export async function init(fgWinfo, bgWinfos) {
 
 /**
  * Find the hintType that meets the current condition and assign its content to the status bar.
- * @param {KeyboardEvent} [event]
+ * @param {KeyboardEvent} [event={}]
  * @returns {string}
  */
 export function update(event = {}) {
@@ -119,7 +146,8 @@ export function update(event = {}) {
     for (const type in hintType) {
         const hint = hintType[type];
         if (hint.condition(event)) {
-            $status.innerHTML = hint.content(event);
+            const $content = buildHintContent(hint.content(event));
+            $status.replaceChildren($content);
             return type;
         }
     }
