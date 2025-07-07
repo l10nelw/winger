@@ -1,11 +1,13 @@
 // The 'chrome' refers to UI components of the browser that frame the content.
 
-import * as Storage from '../storage.js';
 import * as Badge from './chrome.badge.js';
+import * as Storage from '../storage.js';
 
 const TitlePreface = {
 
-    //@ (Map(Number:String) | [[Number, String]]), state -> state
+    /**
+     * @param {Map<WindowId, string> | [WindowId, string][]} nameMap
+     */
     async set(nameMap) {
         if (!await Storage.getValue('set_title_preface'))
             return;
@@ -17,7 +19,6 @@ const TitlePreface = {
         }
     },
 
-    //@ -> state
     async clear() {
         const info = { titlePreface: '' };
         for (const { id } of await browser.windows.getAll())
@@ -25,7 +26,6 @@ const TitlePreface = {
     },
 }
 
-//@ -> state
 export async function showWarningBadge() {
     clear('Badge');
     browser.browserAction.setBadgeBackgroundColor({ color: 'transparent' });
@@ -33,8 +33,11 @@ export async function showWarningBadge() {
     browser.browserAction.setTitle({ title: await getBaseButtonTitle() });
 }
 
-//@ (Map(Number:String) | [[Number, String]]), state -> state
+/**
+ * @param {Map<WindowId, string> | [WindowId, string][]} nameMap
+ */
 export async function update(nameMap) {
+    /** @type {[string, boolean]} */
     const [baseButtonTitle, show_badge] = await Promise.all([ getBaseButtonTitle(), Storage.getValue('show_badge') ]);
     // Button tooltip
     for (const [windowId, name] of nameMap) {
@@ -57,5 +60,7 @@ export function clear(component) {
     ({ Badge, TitlePreface })[component]?.clear();
 }
 
-//@ state -> String
+/**
+ * @returns {Promise<string>}
+ */
 const getBaseButtonTitle = async () => `${browser.runtime.getManifest().name} (${(await browser.commands.getAll())[0].shortcut})`;

@@ -1,22 +1,40 @@
-import * as Winfo from './winfo.js';
 import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
 import * as Stash from './stash.js';
+import * as Winfo from './winfo.js';
+
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
-import { isWindowId, isFolderId } from '../utils.js';
+import { isWindowId, isNodeId } from '../utils.js';
 
 /** @typedef {import('../types.js').WindowId} WindowId */
 /** @typedef {import('../types.js').TabId} TabId */
-/** @typedef {import('../types.js').NodeId} NodeId */
-/** @typedef {import('../types.js').Node} Node */
+/** @typedef {import('../types.js').BNodeId} BNodeId */
+/** @typedef {import('../types.js').BNode} BNode */
+/** @typedef {import('../types.js').Winfo} Winfo */
+/** @typedef {import('../types.js').PopupInitMessage} PopupInitMessage */
+/** @typedef {import('../types.js').ActionRequest} ActionRequest */
 
-browser.runtime.onMessage.addListener(request => INTERNAL[request.type]?.(request));
-browser.runtime.onMessageExternal.addListener(onExternalMessage);
+browser.runtime.onMessage.addListener(request => onMessage(INTERNAL, request));
+browser.runtime.onMessageExternal.addListener(request => onMessage(EXTERNAL, request));
 
 /**
- * @namespace INTERNAL
+ * @listens browser.runtime.onMessage
+ * @listens browser.runtime.onMessageExternal
+ * @param {Object<string, Function>} fnCollection
+ * @param {Object} message
+ * @returns {Promise<any>}
+ */
+function onMessage(fnCollection, message) {
+    /** @type {Function?} */
+    const processor = fnCollection[message.type];
+    return processor ?
+        processor(message) :
+        new Error('Missing or unrecognised message/request type');
+}
+
+/**
  * @listens browser.runtime.onMessage
  * @type {Object<string, Function>}
  */
@@ -40,10 +58,10 @@ const INTERNAL = {
     },
 
     /**
-     * @returns {Promise<{ fgWinfo: Object, bgWinfos: Object[], flags: Object<string, boolean> }>}
+     * @returns {Promise<PopupInitMessage>}
      */
     async popup() {
-        /** @type {[Object[], Object<string, boolean>, boolean]} */
+        /** @type {[Window[], Object<string, boolean>, boolean]} */
         let [windows, flags, allow_private] = await Promise.all([
             browser.windows.getAll({ populate: true }),
             Storage.getDict(['show_popup_bring', 'show_popup_send', 'set_title_preface', 'enable_stash', 'show_popup_stash']),
@@ -61,36 +79,31 @@ const INTERNAL = {
     },
 
     /**
-     * @returns {Promise<Node[]>}
+     * @returns {Promise<BNode[]>}
      */
     async popupStash() {
-        /** @type {[boolean, NodeId]} */
+        /** @type {[boolean, BNodeId]} */
         const [enable_stash, homeId] = await Storage.getValue(['enable_stash', '_stash_home_id']);
         if (!(enable_stash && homeId))
             return [];
         let folders = await (new Stash.FolderList()).populate(homeId);
         if (Stash.nowStashing.size)
-            folders = excludeByIds(folders, Stash.nowUnstashing.values().filter(isFolderId)); // Exclude folders currently being unstashed
+            folders = excludeByIds(folders, Stash.nowUnstashing.values().filter(isNodeId)); // Exclude folders currently being unstashed
         return folders;
     },
 
     /**
      * @param {Object} request
-     * @param {Node[]} request.folders
-     * @returns {Promise<Node[]>}
+     * @param {BNode[]} request.folders
+     * @returns {Promise<BNode[]>}
      */
     popupStashContents({ folders }) {
         return (new Stash.FolderList()).populate(folders[0].parentId, { bookmarkCount: true }, folders);
     },
 
     /**
-     * @param {Object} request
-     * @param {string} [request.argument]
-     * @param {NodeId} [request.folderId]
-     * @param {string} [request.name]
-     * @param {boolean} [request.remove]
-     * @param {boolean} [request.sendToMinimized]
-     * @param {WindowId} [request.windowId]
+     * @param {ActionRequest} request
+     * @returns {Promise<Window | Tab[] | void>}
      */
     action(request) {
         if (request.folderId) {
@@ -142,7 +155,6 @@ const INTERNAL = {
     },
 
     async stashInit() {
-        /** @type {[boolean, NodeId, string]} */
         const settings = await Storage.getDict(['enable_stash', 'stash_home_root', 'stash_home_folder']);
         return Stash.init(settings);
     },
@@ -154,46 +166,6 @@ const INTERNAL = {
 }
 
 /**
- * Filter out objects that have the given unique ids.
- * More efficient than `ids = new Set(ids); objects.filter(o => !ids.has(o.id));`
- * @template Thing
- * @param {Thing[]} objects
- * @param {any[] | Set<any>} ids
- * @returns {Thing[]}
- */
-function excludeByIds(objects, ids) {
-    if (!ids.length)
-        return objects;
-    ids = new Set(ids);
-    const remainders = [];
-    for (let i = 0, n = objects.length; i < n; i++) {
-        if (ids.size) {
-            const object = objects[i];
-            if (!ids.delete(object.id))
-                remainders.push(object);
-        } else {
-            remainders.push(...objects.slice(i));
-            break;
-        }
-    }
-    return remainders;
-}
-
-/**
- * @param {Object} request
- * @param {string} request.type
- * @returns {Promise<any>}
- */
-function onExternalMessage(request) {
-    /** @type {Function?} */
-    const processor = EXTERNAL[request.type];
-    return processor ?
-        processor(request) :
-        Promise.reject(new Error('Missing or unrecognized `type`'));
-}
-
-/**
- * @namespace EXTERNAL
  * @listens browser.runtime.onMessageExternal
  * @type {Object<string, Function>}
  */
@@ -204,8 +176,8 @@ const EXTERNAL = {
      * If `windowIds` given, return only the winfos for them.
      * @param {Object} request
      * @param {string[]} request.properties
-     * @returns {Promise<Object[] | Error>}
      * @param {WindowId[]} [request.windowIds]
+     * @returns {Promise<Winfo[] | Error>}
      */
     info(request) {
         const { properties } = request;
@@ -220,4 +192,31 @@ const EXTERNAL = {
         return Winfo.getAll(properties, bareWinfos);
     },
 
+}
+
+/**
+ * Filter out `objects` that have the given unique `ids`, returning a new array.
+ * More efficient than `ids = new Set(ids); objects.filter(o => !ids.has(o.id));`,
+ * since the exclusion list shrinks until it's gone which ends the loop early.
+ * @template {Window | Tab} Thing
+ * @param {Thing[]} objects
+ * @param {any[]} ids
+ * @returns {Thing[]}
+ */
+function excludeByIds(objects, ids) {
+    if (!ids.length)
+        return objects;
+    const idSet = new Set(ids);
+    const included = [];
+    for (let i = 0, n = objects.length; i < n; i++) {
+        if (idSet.size) {
+            const object = objects[i];
+            if (!idSet.delete(object.id))
+                included.push(object);
+        } else {
+            included.push(...objects.slice(i));
+            break;
+        }
+    }
+    return included;
 }

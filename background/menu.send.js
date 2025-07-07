@@ -1,12 +1,18 @@
-import { BRING, modify } from '../modifier.js';
-import * as Winfo from './winfo.js';
 import * as Action from './action.js';
+import * as Winfo from './winfo.js';
+
+import { BRING, modify } from '../modifier.js';
+
+/** @typedef {import('../types.js').WindowId} WindowId */
+/** @typedef {import('../types.js').TabId} TabId */
+/** @typedef {import('../types.js').Window} Window */
+/** @typedef {import('../types.js').Tab} Tab */
+/** @typedef {import('../types.js').Winfo} Winfo */
 
 const parentId = 'send';
 const dummyId = '-';
 const contexts = ['tab', 'link'];
 
-//@ -> state
 export function init() {
     // Parent menu item
     browser.menus.create({
@@ -23,12 +29,14 @@ export function init() {
     });
 }
 
-//@ ([String], [String]) -> (Boolean)
-const isIntersect = (array1, array2) => array1.some(item => array2.includes(item));
-
-// Event handler: When menu shown and there is more than one window, enable menu and populate submenu.
-//@ (Object, Object) -> (Boolean), state|nil
-export async function handleShow(info, tab) {
+/**
+ * Event handler: When menu shown and there is more than one window, enable menu and populate submenu.
+ * @listens browser.menus.onShown
+ * @param {Object} info
+ * @param {string[]} info.contexts
+ * @returns {Promise<boolean>}
+ */
+export async function handleShow(info) {
     if (!isIntersect(info.contexts, contexts))
         return false;
     const windows = await browser.windows.getAll();
@@ -40,9 +48,19 @@ export async function handleShow(info, tab) {
     return true;
 }
 
-// Clear submenu and populate with sorted background windows.
-// Submenu item ids are window ids.
-//@ ([Object]) -> state
+/**
+ * Check if two arrays have at least one common item.
+ * @param {any[]} array1
+ * @param {any[]} array2
+ * @returns {boolean}
+ */
+const isIntersect = (array1, array2) => array1.some(item => array2.includes(item));
+
+/**
+ * Clear submenu and populate with sorted background windows.
+ * Submenu item ids are window ids.
+ * @param {Window[]} windows
+ */
 async function populate(windows) {
     const doNothing = () => {};
     const privateIcon = { 16: 'icons/private.svg' };
@@ -59,7 +77,7 @@ async function populate(windows) {
             browser.menus.create({ parentId, id: 'minimized', type: 'separator' });
             hasMinimizedSeparator = true;
         }
-        id = `${id}`; // Menu id must be string
+        id = /** @type {string} */ (`${id}`); // Menu id must be string
         const title = givenName || titleSansName || '-';
         const menuToCreate = { parentId, id, title };
         if (incognito)
@@ -71,14 +89,24 @@ async function populate(windows) {
     browser.menus.remove(dummyId).catch(doNothing);
 }
 
-// Event handler: When menu closes, re-disable menu item.
-//@ -> state
+/**
+ * Event handler: When menu closes, re-disable menu item.
+ * @listens browser.menus.onHidden
+ */
 export function handleHide() {
     browser.menus.update(parentId, { enabled: false });
 }
 
-// Event handler: Invoke submenu item click response based on context.
-//@ (Object, Object) -> (Boolean), state|nil
+/**
+ * Event handler: Invoke submenu item click response based on context.
+ * @listens browser.menus.onClicked
+ * @param {Object} info
+ * @param {string} info.menuItemId
+ * @param {string[]} info.modifiers
+ * @param {string} [info.linkUrl]
+ * @param {Tab} tab
+ * @returns {boolean}
+ */
 export function handleClick(info, tab) {
     const windowId = +info.menuItemId;
     if (windowId) {
@@ -89,16 +117,24 @@ export function handleClick(info, tab) {
     }
 }
 
-// Open url at windowId.
-//@ (String, Number, [String]) -> state
+/**
+ * Open url at windowId.
+ * @param {string} url
+ * @param {WindowId} windowId
+ * @param {string[]} modifiers
+ */
 function openLink(url, windowId, modifiers) {
     browser.tabs.create({ windowId, url });
     if (modifiers.includes(BRING))
         Action.switchWindow({ windowId });
 }
 
-// Move target tab to windowId. If target tab is a selected tab, move any other selected tabs as well.
-//@ (Object, Number, [String]) -> state
+/**
+ * Move target tab to windowId. If target tab is a selected tab, move any other selected tabs as well.
+ * @param {Tab} tab
+ * @param {WindowId} windowId
+ * @param {string[]} modifiers
+ */
 function moveTab(tab, windowId, modifiers) {
     Action.execute({
         action: modify('send', modifiers),

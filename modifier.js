@@ -22,7 +22,10 @@ const MODIFIABLE_ACTIONS_TABLE = {
     kickprivate: { [BRING]: 'popprivate' },
 }
 
-//@ (Object) -> ([String])
+/**
+ * @param {Event} event
+ * @returns {string[]}
+ */
 export function get(event) {
     const modifiers = [];
     for (const key in EVENT_KEYS)
@@ -31,8 +34,12 @@ export function get(event) {
     return modifiers;
 }
 
-// Change an action to another based on given event or array of modifiers.
-//@ (String, [String]|undefined) -> (String)
+/**
+ * Change an action to another based on given event or array of modifiers.
+ * @param {string} action
+ * @param {string[]} modifiers
+ * @returns {string}
+ */
 export function modify(action, modifiers) {
     if (!modifiers.length)
         return action;

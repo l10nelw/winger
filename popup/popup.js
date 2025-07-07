@@ -1,16 +1,24 @@
-import './popup.init.js';
 import {
+    FLAGS,
     $body,
     $currentWindowRow,
+    $omnibox,
+    $otherWindowsList,
+    $toolbar,
+    $status,
     isRow,
 } from './common.js';
-import * as Omnibox from './omnibox.js';
-import * as Toolbar from './toolbar.js';
-import * as Status from './status.js';
 import * as EditMode from './editmode.js';
-import * as Request from './request.js';
 import * as Navigation from './navigation.js';
+import * as Omnibox from './omnibox.js';
+import * as Row from './row.js';
+import * as Request from './request.js';
+import * as Status from './status.js';
+import * as Toolbar from './toolbar.js';
 
+/** @typedef {import('../types.js').PopupInitMessage} PopupInitMessage */
+
+Request.popup().then(init, initError);
 $body.addEventListener('click', onClick);
 $body.addEventListener('mousedown', onMouseDown);
 $body.addEventListener('contextmenu', onContextMenu);
@@ -19,7 +27,41 @@ $body.addEventListener('keyup', onKeyUp);
 $body.addEventListener('input', onInput);
 $body.addEventListener('focusin', onFocusIn);
 
-//@ (Object) -> state|nil
+/**
+ * @param {PopupInitMessage}
+ */
+async function init({ fgWinfo, bgWinfos, flags }) {
+    Object.assign(FLAGS, flags);
+
+    const hasName = fgWinfo.givenName || bgWinfos.find(winfo => winfo.givenName);
+    $body.classList.toggle('nameless', !hasName);
+
+    Status.init(fgWinfo, bgWinfos);
+    Omnibox.init();
+
+    Row.addAllWindows(fgWinfo, bgWinfos);
+    Omnibox.respondIfFilled();
+}
+
+function initError() {
+    Request.debug();
+    Request.showWarningBadge();
+
+    $currentWindowRow.hidden = true;
+    $omnibox.hidden = true;
+    $otherWindowsList.hidden = true;
+
+    $status.textContent = 'Close and try again. If issue persists, restart Winger.';
+    $toolbar.querySelectorAll('button').forEach($button => $button.remove());
+    const $restartBtn = document.getElementById('restartTemplate').content.firstElementChild;
+    $toolbar.appendChild($restartBtn);
+    $restartBtn.onclick = () => browser.runtime.reload();
+    $restartBtn.focus();
+}
+
+/**
+ * @param {MouseEvent} event
+ */
 function onClick(event) {
     const { target } = event;
     if (target.id in Toolbar) {
@@ -35,19 +77,24 @@ function onClick(event) {
         Status.update(event);
         return;
     }
+    /** @type {HTMLElement} */
     const $action = target.closest('[data-action]');
     if ($action?.tabIndex === -1)
         return;
     Request.action({ event, $action });
 }
 
-//@ (Object) -> state|nil
+/**
+ * @param {MouseEvent} event
+ */
 function onMouseDown(event) {
     if (EditMode.handleMouseDown(event.target))
         return;
 }
 
-//@ (Object) -> state|nil
+/**
+ * @param {MouseEvent} event
+ */
 function onContextMenu(event) {
     // Allow right-click only on non-readonly input
     if (event.target.matches('input:not([readonly])'))
@@ -55,7 +102,9 @@ function onContextMenu(event) {
     event.preventDefault();
 }
 
-//@ (Object) -> state|nil
+/**
+ * @param {KeyboardEvent} event
+ */
 function onKeyDown(event) {
     if (Omnibox.handleKeyDown(event))
         return;
@@ -63,7 +112,9 @@ function onKeyDown(event) {
     Status.update(event);
 }
 
-//@ (Object) -> state|nil
+/**
+ * @param {KeyboardEvent} event
+ */
 function onKeyUp(event) {
     (() => {
         if (EditMode.handleKeyUp(event))
@@ -83,7 +134,9 @@ function onKeyUp(event) {
     Status.update(event);
 }
 
-//@ (Object) -> state|nil
+/**
+ * @param {InputEvent} event
+ */
 async function onInput(event) {
     if (await EditMode.handleInput(event.target))
         return;
@@ -91,7 +144,9 @@ async function onInput(event) {
         return;
 }
 
-//@ (Object) -> state|nil
+/**
+ * @param {FocusEvent} event
+ */
 function onFocusIn(event) {
     const { target: $focused, relatedTarget: $defocused } = event;
     if (EditMode.handleFocusIn($focused, $defocused))

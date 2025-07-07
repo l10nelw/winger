@@ -7,8 +7,7 @@ import { GroupMap } from '../utils.js';
 /** @typedef {import('../types.js').Group} Group */
 
 /**
- * Map of groupIds to arrays of their associated tabIds.
- * @type {Map<GroupId, TabId[]>}
+ * Map of groupIds to arrays of their associated tabIds - `Map<GroupId, TabId[]>`
  */
 export class GroupIdTabIdMap extends GroupMap {
 
@@ -24,7 +23,7 @@ export class GroupIdTabIdMap extends GroupMap {
     }
 
     /**
-     * Exclude groups that do not have all their tabs listed.
+     * Purge groups that do not have all their tabs listed.
      * @modifies this
      */
     async deletePartialGroupEntries() {
@@ -40,6 +39,7 @@ export class GroupIdTabIdMap extends GroupMap {
     }
 
     /**
+     * For each groupId key, get the group details.
      * @returns {Promise<Group[]>}
      */
     async getGroups() {

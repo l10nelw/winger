@@ -1,13 +1,14 @@
-import { isOS } from '../utils.js';
 import {
     FLAGS,
     $status,
     isNameField,
     $omnibox,
 } from './common.js';
-import * as Omnibox from './omnibox.js';
-import * as Filter from './filter.js';
 import * as EditMode from './editmode.js';
+import * as Filter from './filter.js';
+import * as Omnibox from './omnibox.js';
+
+import { isOS } from '../utils.js';
 
 const count = {
     windows: 0,
@@ -20,7 +21,6 @@ const tabOrTabs = (all = false) => ((all ? count.tabs : count.selectedTabs) === 
 
 /**
  * Dict of memoized subconditions used while seeking a matching hintType condition.
- * @namespace
  * @type {Object<string, (event: KeyboardEvent) => boolean | string>}
  */
 const sc = {
@@ -52,7 +52,6 @@ const sc = {
  */
 
 /**
- * @namespace
  * @type {Object<string, Hint>}
  */
 const hintType = {
@@ -116,6 +115,7 @@ function buildHintContent(contentNodes) {
 /**
  * @param {Object} fgWinfo
  * @param {Object[]} bgWinfos
+ * @modifies count
  */
 export async function init(fgWinfo, bgWinfos) {
     if (!FLAGS.enable_stash) {
@@ -139,7 +139,7 @@ export async function init(fgWinfo, bgWinfos) {
 /**
  * Find the hintType that meets the current condition and assign its content to the status bar.
  * @param {KeyboardEvent} [event={}]
- * @returns {string}
+ * @returns {string?}
  */
 export function update(event = {}) {
     sc.reset();

@@ -28,9 +28,11 @@ export const DEFAULT_SETTINGS = {
     open_help_on_update: true,
 };
 
-// Return all stored data, merged with defaults of any unstored settings.
-// Migrate/remove legacy data (remnants of past versions) if any.
-//@ state -> (Object), state
+/**
+ * Return all stored data, merged with defaults of any unstored settings.
+ * Migrate/remove legacy data (remnants of past versions) if any.
+ * @returns {Promise<Object<string, any>>}
+ */
 export async function init() {
     const ALLOWED_NON_SETTINGS_KEYS = [
         'version',
@@ -83,23 +85,31 @@ export async function init() {
     return dict;
 }
 
-
-//@ (Object) -> (Boolean), state
-export function set(dict) {
-    return browser.storage.local.set(dict).then(() => true).catch(() => false);
+/**
+ * @param {Object<string, any>} dict
+ * @returns {Promise<boolean>}
+ */
+export async function set(dict) {
+    return browser.storage.local.set(dict).then(() => true, () => false);
 }
 
-// Given a keys array or dict, return a dict of keys mapped to their values.
-// If `keys` is undefined, return all stored data.
-//@ (Object|[String]|undefined), state -> (Promise: Object)
+/**
+ * Given a keys array or dict, return a dict of keys mapped to their values.
+ * If `keys` is undefined, return all stored data.
+ * @param {string[] | Object<string, string>} [keys]
+ * @returns {Promise<Object<string, any>>}
+ */
 export function getDict(keys) {
     if (Array.isArray(keys))
         keys = settingsArrayToDict(keys);
     return browser.storage.local.get(keys);
 }
 
-// Given a key or array of keys, return the respective value or array of values.
-//@ (String|[String]), state -> (Any|[Any])
+/**
+ * Given a key or array of keys, return the respective value or array of values.
+ * @param {string | string[]} key
+ * @returns {Promise<any | any[]>}
+ */
 export async function getValue(key) {
     if (Array.isArray(key)) {
         const dict = await browser.storage.local.get(settingsArrayToDict(key));
@@ -109,8 +119,11 @@ export async function getValue(key) {
     return dict[key];
 }
 
-// Turn an array of settings keys into a dict of keys and default values.
-//@ ([String]) -> (Object)
+/**
+ * Turn an array of settings keys into a dict of keys and default values.
+ * @param {string[]} keys
+ * @returns {Object<string, any>}
+ */
 function settingsArrayToDict(keys) {
     const dict = {};
     for (const key of keys)

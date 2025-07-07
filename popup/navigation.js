@@ -11,7 +11,15 @@ import {
 import { isActive as isEditMode } from './editmode.js';
 import { $shownRows } from './filter.js';
 
+/** @typedef {import('./common.js').WindowRow$} WindowRow$ */
 /** @typedef {string} Key */
+
+/**
+ * @callback KeyProcessor
+ * @param {HTMLElement} $el
+ * @param {KeyboardEvent} event
+ * @returns {HTMLElement}
+ */
 
 const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
 const HORIZONTAL_KEYS = ['ArrowRight', 'ArrowLeft'];
@@ -25,18 +33,18 @@ const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
  * Upon an arrow or tab keydown, focus on the next focusable element in that direction and return true.
  * Control vertical scrolling.
  * @param {KeyboardEvent} event
- * @returns {boolean?}
+ * @returns {boolean}
  */
 export function handleKeyDown(event) {
     /** @type {Key} */ const key = event.key;
     /** @type {HTMLElement} */ let $el = event.target;
 
     if (isHorizontalKey(key) && isField($el) && !$el.readOnly)
-        return;
+        return false;
 
     const navigatorKey = Navigator[key];
     if (!navigatorKey)
-        return;
+        return false;
 
     // Repeat in same direction until focusable element found
     do {
@@ -92,10 +100,11 @@ function setColumn($el) {
 }
 
 /**
- * @namespace Navigator
- * @type {Object<Key, ($el: HTMLElement, [event]: KeyboardEvent) => HTMLElement>}
+ * @type {Object<Key, KeyProcessor>}
  */
 const Navigator = {
+
+    /** @type {KeyProcessor} */
     ArrowDown($el) {
         if (isInToolbar($el))
             return currentWindow();
@@ -106,6 +115,8 @@ const Navigator = {
         const $nextRow = row($el).nextElementSibling;
         return rowOrCell($nextRow) || toolbar();
     },
+
+    /** @type {KeyProcessor} */
     ArrowUp($el) {
         if (isOmnibox($el))
             return currentWindow();
@@ -116,6 +127,8 @@ const Navigator = {
         const $nextRow = row($el).previousElementSibling;
         return rowOrCell($nextRow) || $omnibox;
     },
+
+    /** @type {KeyProcessor} */
     ArrowRight($el) {
         if (isOmnibox($el))
             return $omnibox;
@@ -126,6 +139,8 @@ const Navigator = {
         return isRow($el) ? $el.firstElementChild :
             ($el.nextElementSibling || $el.$row);
     },
+
+    /** @type {KeyProcessor} */
     ArrowLeft($el) {
         if (isOmnibox($el))
             return $omnibox;
@@ -136,6 +151,8 @@ const Navigator = {
         return isRow($el) ? $el.lastElementChild :
             ($el.previousElementSibling || $el.$row);
     },
+
+    /** @type {KeyProcessor} */
     Tab($el, event) {
         if (event.shiftKey) {
             if (isCurrentWindow($el)) {
@@ -172,14 +189,17 @@ const Navigator = {
         }
         return $el;
     },
+
 }
 
 /**
  * Return cell at given row and current column.
- * @param {HTMLElement} $row
+ * Uses {string?} `column`
+ * @param {WindowRow$?} $row
  * @returns {HTMLElement?}
  */
 function columnCell($row) {
+    /** @type {HTMLElement?} */
     const $cell = $row?.['$'+column];
     if ($cell && !$cell.disabled)
         return $cell;
@@ -187,15 +207,16 @@ function columnCell($row) {
 
 /**
  * Take and return row, unless a cell can be returned instead.
- * @param {HTMLElement} $row
- * @returns {HTMLElement}
+ * Uses {boolean} `isEditMode`
+ * @param {WindowRow$} $row
+ * @returns {WindowRow$ | HTMLElement}
  */
 const rowOrCell = $row => isEditMode && $row?.$name || columnCell($row) || $row;
 
 /**
  * Element's parent row, else assume element is a row.
  * @param {HTMLElement} $el
- * @returns {HTMLElement}
+ * @returns {WindowRow$}
  */
 const row = $el => $el.$row || $el;
 

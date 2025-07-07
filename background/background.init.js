@@ -1,19 +1,23 @@
-import * as Winfo from './winfo.js';
 import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
-import * as Stash from './stash.js';
 import * as SendMenu from './menu.send.js';
 import * as StashMenu from './menu.stash.js';
+import * as Stash from './stash.js';
+import * as Winfo from './winfo.js';
+
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
+
+/** @typedef {import('../types.js').Tab} Tab */
+/** @typedef {import('../types.js').Winfo} Winfo */
 
 Promise.all([
     Storage.init(),
     Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized', 'title']),
     browser.tabs.query({ active: true }),
 ])
-.then(async ([info, winfos, focusedTabs]) => {
+.then(/** @param {[Object<string, any>, Winfo[], Tab[]]} */ async ([info, winfos, focusedTabs]) => {
 
     browser.menus.removeAll();
     SendMenu.init();

@@ -1,13 +1,20 @@
 import './background.init.js';
 import './message.js';
-import * as Winfo from './winfo.js';
 import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
 import * as StashMenu from './menu.stash.js';
 import * as SendMenu from './menu.send.js';
+import * as Winfo from './winfo.js';
+
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
+
+/** @typedef {import('../types.js').WindowId} WindowId */
+/** @typedef {import('../types.js').TabId} TabId */
+/** @typedef {import('../types.js').Window} Window */
+/** @typedef {import('../types.js').Tab} Tab */
+/** @typedef {import('../types.js').Winfo} Winfo */
 
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onFocusChanged.addListener(onWindowFocusChanged);
@@ -20,12 +27,16 @@ browser.menus.onClicked.addListener(onMenuClicked);
 browser.commands.onCommand.addListener(onShortcut);
 browser.alarms.onAlarm.addListener(onAlarm);
 
-//@ (Object) -> state
+/**
+ * @listens browser.windows.onCreated
+ * @param {Window} window
+ */
 async function onWindowCreated(window) {
     const windowId = window.id;
 
     handleDetachedTabs(windowId); // In case window created from detached tabs
 
+    /** @type {[number?, Winfo[]]} */
     const [firstSeen, winfos] = await Promise.all([
         Winfo.loadFirstSeen(windowId),
         Winfo.getAll(['givenName']),
@@ -34,7 +45,8 @@ async function onWindowCreated(window) {
     if (!firstSeen)
         Winfo.saveFirstSeen(windowId);
 
-    // Resolve any name duplication and update chrome, in case this is a restored named window
+    // Resolve any name duplication and update the chrome, in case this is a restored named window
+    /** @type {Winfo} */
     const { givenName } = winfos.pop(); // The new window should be last in the array
     if (givenName) {
         const nameMap = (new Name.NameMap()).populate(winfos);
@@ -47,27 +59,35 @@ async function onWindowCreated(window) {
     Auto.switchList.reset();
 }
 
-// Natively, detached tabs stay selected. To honour !keep_moved_tabs_selected, REFOCUS focused tab to deselect selected tabs.
-//@ (Number) -> state
+/**
+ * @param {WindowId} windowId
+ */
 async function handleDetachedTabs(windowId) {
-    if (await Storage.getValue('keep_moved_tabs_selected'))
-        return;
-    const focusedTab = (await browser.tabs.query({ windowId, active: true }))[0];
-    if (focusedTab)
-        Action.focusTab(focusedTab.id);
+    // Natively, detached tabs stay selected. To honour `!keep_moved_tabs_selected`, we REFOCUS focused tab to deselect selected tabs.
+    if (!await Storage.getValue('keep_moved_tabs_selected')) {
+        /** @type {Tab} */
+        const focusedTab = (await browser.tabs.query({ windowId, active: true }))[0];
+        if (focusedTab)
+            Action.focusTab(focusedTab.id);
+    }
 }
 
-//@ (Number), state -> state|nil
+/**
+ * @listens browser.windows.onFocusChanged
+ * @param {WindowId} windowId
+ */
 async function onWindowFocusChanged(windowId) {
     // windowId is -1 when a window loses focus in Windows/Linux, or when no window has focus in MacOS
     if (windowId <= 0)
         return;
 
+    /** @type {[boolean, boolean, WindowId]} */
     const [discard_minimized_window, set_title_preface, defocusedWindowId] =
         await Storage.getValue(['discard_minimized_window', 'set_title_preface', '_focused_window_id']);
+    /** @type {boolean} */
     const isDefocusedMinimized = (await browser.windows.get(defocusedWindowId).catch(() => null))?.state === 'minimized';
 
-    // Reset Auto.switchList if a window was minimized or un-minimized
+    // Reset `Auto.switchList` if a window was minimized or un-minimized
     // In a non-shortcut focus change, if the now-focused window is not in the last-populated switchList, that means it used to be minimized and now isn't
     if (!Auto.switchList.inProgress &&
         (isDefocusedMinimized || Auto.switchList.length && !Auto.switchList.includes(windowId)))
@@ -90,29 +110,45 @@ async function onWindowFocusChanged(windowId) {
     }
 }
 
-//@ (Number) -> state
+/**
+ * @listens browser.windows.onRemoved
+ * @param {WindowId} windowId
+ */
 function onWindowRemoved(windowId) {
     browser.menus.remove(`${windowId}`).catch(() => {});
     Auto.switchList.reset();
 }
 
-//@ (Object, Object) -> state|nil
-async function onMenuShown(info, tab) {
+/**
+ * @listens browser.menus.onShown
+ * @param {Object} info
+ */
+async function onMenuShown(info,) {
     await StashMenu.handleShow(info) || SendMenu.handleShow(info);
 }
 
-//@ -> state
+/**
+ * @listens browser.menus.onHidden
+ */
 function onMenuHidden() {
     SendMenu.handleHide();
     StashMenu.handleHide();
 }
 
-//@ (Object, Object) -> state|nil
+/**
+ * @listens browser.menus.onClicked
+ * @param {Object} info
+ * @param {Tab} tab
+ */
 async function onMenuClicked(info, tab) {
     await StashMenu.handleClick(info) || SendMenu.handleClick(info, tab);
 }
 
-//@ (String, Object) -> state
+/**
+ * @listens browser.commands.onCommand
+ * @param {string} shortcutName
+ * @param {Tab} tab
+ */
 async function onShortcut(shortcutName, { windowId }) {
     if (shortcutName.startsWith('switch-')) {
         const offset = shortcutName.endsWith('next') ? 1 : -1;
@@ -122,7 +158,10 @@ async function onShortcut(shortcutName, { windowId }) {
     }
 }
 
-//@ (Object) -> state
+/**
+ * @listens browser.alarms.onAlarm
+ * @param {{ name: string }} alarm
+ */
 async function onAlarm({ name }) {
     const [action, id] = name.split('-');
     switch (action) {

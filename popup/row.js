@@ -9,21 +9,29 @@ import {
 import * as Filter from './filter.js';
 import * as Request from './request.js';
 
-const CELL_SELECTORS = new Set(['.send', '.bring', '.name', '.tabCount', '.stash']);
-const Template = {};
+/** @typedef {import('../types.js').Winfo} Winfo */
+/** @typedef {import('../types.js').BNode} Folder */
+/** @typedef {import('./common.js').WindowRow$} WindowRow$ */
+/** @typedef {import('./common.js').NameField$} NameField$ */
 
-//@ (Object, [Object], Object) -> state
+const CELL_SELECTORS = new Set(['.send', '.bring', '.name', '.tabCount', '.stash']);
+/** @type {Object<string, WindowRow$>} */ const Template = {};
+
+/**
+ * @param {Winfo} fgWinfo
+ * @param {Winfo[]} bgWinfos
+ */
 export function addAllWindows(fgWinfo, bgWinfos) {
     WindowRow.init();
-    const $minimizedHeading = document.getElementById('minimizedHeading');
     const currentIncognito = fgWinfo.incognito;
-    const $rows = [];
-    const $_names = [];
+    /** @type {HTMLLIElement} */ const $minimizedHeading = document.getElementById('minimizedHeading');
+    /** @type {WindowRow$[]} */ const $rows = [];
+    /** @type {NameField$[]} */const $_names = [];
     const $rowsFragment = document.createDocumentFragment();
 
     // Create other-rows (by cloning current-row)
     for (const winfo of bgWinfos) {
-        const $row = WindowRow.create(winfo, currentIncognito);
+        /** @type {WindowRow$} */ const $row = WindowRow.create(winfo, currentIncognito);
         $rows.push($row);
         $_names.push($row.$name);
         $rowsFragment.appendChild($row);
@@ -34,7 +42,7 @@ export function addAllWindows(fgWinfo, bgWinfos) {
     WindowRow.hydrateCurrent($currentWindowRow, fgWinfo);
 
     // Position minimized-heading
-    const $firstMinimizedRow = $otherWindowsList.querySelector('.minimized');
+    /** @type {WindowRow$?} */ const $firstMinimizedRow = $otherWindowsList.querySelector('.minimized');
     $firstMinimizedRow ?
         $firstMinimizedRow.insertAdjacentElement('beforebegin', $minimizedHeading) :
         $otherWindowsList.appendChild($minimizedHeading);
@@ -48,7 +56,6 @@ export function addAllWindows(fgWinfo, bgWinfos) {
 }
 
 const WindowRow = {
-    //@ -> state
     init() {
         // Remove any toggled-off buttons
         const buttons = [
@@ -58,7 +65,7 @@ const WindowRow = {
         ];
         let buttonCount = buttons.length;
         for (const [setting, selector] of buttons) {
-            const $button = $currentWindowRow.querySelector(selector);
+            /** @type {HTMLButtonElement} */ const $button = $currentWindowRow.querySelector(selector);
             if (FLAGS[setting]) {
                 $button.hidden = false;
             } else {
@@ -72,9 +79,13 @@ const WindowRow = {
         Template.$window = $currentWindowRow.cloneNode(true);
     },
 
-    //@ (Object, Boolean) -> (Object)
+    /**
+     * @param {Winfo} winfo
+     * @param {boolean} currentIncognito
+     * @returns {WindowRow$}
+     */
     create(winfo, currentIncognito) {
-        const $row = Template.$window.cloneNode(true);
+        /** @type {WindowRow$} */ const $row = Template.$window.cloneNode(true);
         WindowRow._hydrate($row, winfo);
         // Disable send/bring/stash buttons if popup/panel-type window
         if (winfo.type !== 'normal') {
@@ -87,7 +98,10 @@ const WindowRow = {
         return $row;
     },
 
-    //@ (Object, Object) -> state
+    /**
+     * @param {WindowRow$} $row
+     * @param {Winfo} winfo
+     */
     hydrateCurrent($row, winfo) {
         WindowRow._hydrate($row, winfo);
         disableElement($row);
@@ -96,7 +110,10 @@ const WindowRow = {
         $row.$name.title = '';
     },
 
-    //@ (Object, { String, Number, Boolean, Boolean, Number, String, String }) -> state
+    /**
+     * @param {WindowRow$} $row
+     * @param {Winfo} winfo
+     */
     _hydrate($row, { givenName, id, incognito, minimized, tabCount, title, titleSansName }) {
         referenceHydrate($row);
         title = titleSansName || title || '';
@@ -113,25 +130,27 @@ const WindowRow = {
 
 };
 
-//@ ([Object]) -> state
+/**
+ * @param {Folder[]} folders
+ */
 export function addAllFolders(folders) {
     // Create stashed-heading
-    const $stashedHeading = $otherWindowRows.$minimizedHeading.cloneNode(true);
+    /** @type {HTMLLIElement} */ const $stashedHeading = $otherWindowRows.$minimizedHeading.cloneNode(true);
     $stashedHeading.id = 'stashedHeading';
     $stashedHeading.dataset.heading = 'Stashed';
     $otherWindowsList.appendChild($stashedHeading);
 
     // Create stashed-rows
     FolderRow.init();
-    const $rows = [];
-    const $_names = [];
+    /** @type {WindowRow$[]} */ const $rows = [];
+    /** @type {NameField$[]} */ const $_names = [];
     const $rowsFragment = document.createDocumentFragment();
     for (let folder of folders) {
         const $row = FolderRow.create(folder);
         $rows.push($row);
         $_names.push($row.$name);
         $rowsFragment.appendChild($row);
-        folder = { id: folder.id }; // Strip down folder objects for Request.popupStashContents()
+        folder = { id: folder.id }; // Strip down folder objects for `Request.popupStashContents()`
     }
     $otherWindowsList.appendChild($rowsFragment);
 
@@ -148,9 +167,8 @@ export function addAllFolders(folders) {
     );
 }
 
-//@ state -> state
 export function toggleViewFolders() {
-    // Stashed-rows visibility governed by CSS (body.viewstash li.stashed)
+    // Stashed-rows visibility governed by CSS (`body.viewstash li.stashed`)
     if ($body.classList.toggle('viewstash')) {
         const $lastWindowRow = $otherWindowRows.at(-1);
         const $rows = $otherWindowRows.$stashed;
@@ -162,14 +180,13 @@ export function toggleViewFolders() {
     } else {
         const rowIndex = $otherWindowRows.$stashed._startIndex;
         $otherWindowRows.splice(rowIndex);
-        $otherWindowRows.$withHeadings.splice(rowIndex + 1); // +1 to account for $minimizedHeading
+        $otherWindowRows.$withHeadings.splice(rowIndex + 1); // +1 to account for `$minimizedHeading`
         Filter.$shownRows.splice(rowIndex);
         $names.splice($names.$stashed._startIndex);
     }
 }
 
 const FolderRow = {
-    //@ -> state
     init() {
         Template.$folder = Template.$window.cloneNode(true);
         Template.$folder.querySelector('.name').placeholder = '(no title)';
@@ -181,7 +198,10 @@ const FolderRow = {
             Template.$folder.hidden = true;
     },
 
-    //@ ({ String, String, Object }) -> (Object)
+    /**
+     * @param {Folder} folder
+     * @returns {WindowRow$}
+     */
     create({ givenName, id, protoWindow }) {
         const $row = Template.$folder.cloneNode(true);
         referenceHydrate($row);
@@ -195,10 +215,13 @@ const FolderRow = {
 
 };
 
-// Add references to row's cells, and in each cell a reference back to the row
-//@ (Object) -> state
+/**
+ * Add references to row's cells, and in each cell a reference back to the row.
+ * @param {WindowRow$} $row
+ */
 function referenceHydrate($row) {
     for (const selector of CELL_SELECTORS) {
+        /** @type {HTMLElement & { $row: WindowRow$ }} */
         const $cell = $row.querySelector(selector);
         const reference = selector.replace('.', '$');
         $cell.$row = $row;
@@ -206,7 +229,9 @@ function referenceHydrate($row) {
     }
 }
 
-//@ (Object) -> state
+/**
+ * @param {HTMLElement} $el
+ */
 function disableElement($el) {
     $el.disabled = true;
     $el.tabIndex = -1;

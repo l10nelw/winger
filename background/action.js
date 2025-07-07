@@ -1,10 +1,11 @@
 // User actions involving windows and tabs.
 
-import * as Storage from '../storage.js';
-import * as Name from '../name.js';
-import * as Chrome from './chrome.js';
 import * as Auto from './action.auto.js';
 import { GroupIdTabIdMap } from './action.group.js';
+import * as Chrome from './chrome.js';
+
+import * as Name from '../name.js';
+import * as Storage from '../storage.js';
 
 /** @typedef {import('../types.js').WindowId} WindowId */
 /** @typedef {import('../types.js').TabId} TabId */
@@ -13,6 +14,7 @@ import { GroupIdTabIdMap } from './action.group.js';
 /** @typedef {import('../types.js').Tab} Tab */
 /** @typedef {import('../types.js').Group} Group */
 /** @typedef {import('../types.js').ProtoTab} ProtoTab */
+/** @typedef {import('../types.js').ActionRequest} ActionRequest */
 
 /**
  * @param {string} hash
@@ -21,15 +23,13 @@ import { GroupIdTabIdMap } from './action.group.js';
 export const openHelp = hash => Auto.openUniquePage('page/help.html', hash);
 
 /**
- * @param {Object} request
- * @param {WindowId} request.windowId
+ * @param {ActionRequest}
  * @returns {Promise<Window>}
  */
 export const switchWindow = ({ windowId }) => browser.windows.update(windowId, { focused: true });
 
 /**
- * @namespace ACTION_DICT
- * @type {Object<string, (request: Object) => Promise<Window | Tab[] | void>>}
+ * @type {Object<string, (request: ActionRequest) => Promise<Window | Tab[] | void>>}
  */
 const ACTION_DICT = {
     bring:       bringTabs,
@@ -48,7 +48,7 @@ const ACTION_DICT = {
 
 /**
  * Select action to execute based on content of action request.
- * @param {Object} request
+ * @param {ActionRequest} request
  * @returns {Promise<Window | Tab[] | void>}
  */
 export const execute = request => ACTION_DICT[request.action](request);
@@ -72,21 +72,20 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
 
     const kick = !focused;
     const state = (kick && minimize_kick_window) ? 'minimized' : null;
-    /** @type {Window}   */ const newWindow = await browser.windows.create({ incognito, state });
-    /** @type {WindowId} */ const newWindowId = newWindow.id;
+    /** @type {Window} */ const newWindow = await browser.windows.create({ incognito, state });
+    const newWindowId = newWindow.id;
 
     if (name) {
         Name.save(newWindowId, name);
         Chrome.update([[newWindowId, name]]);
     }
 
-    // Firefox ignores windows.create/update({ focused: false })
-    // So if focused=false (i.e. kicked) and minimize_kick_window=false, switch back to current window
+    // Firefox ignores `windows.create/update({ focused: false })`
+    // So if `focused=false` (i.e. kicked) and `minimize_kick_window=false`, switch back to current window
     if (kick && !minimize_kick_window)
         switchWindow(currentWindowInfo);
 
     if (isMove) {
-        /** @type {Tab[]} */
         const selectedTabs = currentWindow.tabs.filter(tab => tab.highlighted);
 
         // If all of the origin window's tabs are to be moved, add a tab to prevent the window from closing
@@ -101,7 +100,7 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
 }
 
 /**
- * @param {Object} request
+ * @param {ActionRequest} request
  */
 async function bringTabs(request) {
     await sendTabs(request) && switchWindow(request);
@@ -109,10 +108,7 @@ async function bringTabs(request) {
 
 /**
  * Attempt `moveTabs`; if unsuccessful (e.g. windows are of different private statuses) then `reopenTabs`.
- * @param {Object} request
- * @param {WindowId} request.windowId
- * @param {Tab[]} [request.tabs]
- * @param {boolean} [request.sendToMinimized]
+ * @param {ActionRequest} request
  * @returns {Promise<Tab[]>}
  */
 async function sendTabs(request) {
@@ -139,10 +135,7 @@ async function sendTabs(request) {
 }
 
 /**
- * @param {Object} request
- * @param {Tab[]} request.tabs
- * @param {WindowId} request.windowId
- * @param {boolean} request.keep_moved_tabs_selected
+ * @param {ActionRequest} request
  * @returns {Promise<Tab[]>}
  */
 async function moveTabs({ tabs, windowId, keep_moved_tabs_selected }) {
@@ -178,7 +171,7 @@ async function moveTabs({ tabs, windowId, keep_moved_tabs_selected }) {
         movedTabs.forEach(tab => !tab.active && selectTab(tab.id));
     }
 
-    // Note: Array contents not updated since creation
+    // Note: Array contents not updated since its creation
     return movedTabs;
 }
 
@@ -195,18 +188,13 @@ function splitTabsByPinnedState(tabs) {
 
 /**
  * Recreate given tabs in a given window and remove given tabs.
- * @param {Object} request
- * @param {Tab[]} request.tabs
- * @param {WindowId} request.windowId
- * @param {boolean} request.keep_moved_tabs_selected
+ * @param {ActionRequest} request
  * @returns {Promise<Tab[]>}
  */
 async function reopenTabs({ tabs, windowId, keep_moved_tabs_selected }) {
     const groupIdTabIdMap = new GroupIdTabIdMap();
-    /** @type {(ProtoTab & { groupId: GroupId })[]} */
-    const protoTabs = [];
-    /** @type {TabId[]} */
-    const oldTabIds = [];
+    /** @type {(ProtoTab & { groupId: GroupId })[]} */ const protoTabs = [];
+    /** @type {TabId[]} */ const oldTabIds = [];
 
     for (const { active, groupId, id, pinned, title, url } of tabs) {
         const protoTab = {
@@ -243,15 +231,15 @@ async function reopenTabs({ tabs, windowId, keep_moved_tabs_selected }) {
 
     browser.tabs.remove(oldTabIds);
 
-    // Note: Array contents not updated since creation
+    // Note: Array contents not updated since its creation
     return newTabs;
 }
 
 /**
- * With given properties a.k.a. a `protoTab`, create a tab, or a placeholder tab if `protoTab.url` is invalid.
- * Less strict than `tabs.create()`: `protoTab` can contain invalid properties and property combinations, which are automatically fixed.
- * Unlike `tabs.create()`, undefined `protoTab.active` defaults to `false`.
- * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create}
+ * Given `protoTab`, create a tab, or a placeholder tab if tab creation fails.
+ * Less strict than `browser.tabs.create()`: `protoTab` can contain invalid properties and property combinations, which are automatically fixed.
+ * Unlike `browser.tabs.create()`, undefined `protoTab.active` defaults to `false`.
+ * @see ProtoTab
  * @param {ProtoTab} protoTab
  * @returns {Promise<Tab>}
  */
@@ -267,9 +255,9 @@ export function openTab(protoTab) {
     const { discarded } = protoTab;
     discarded
         ? delete protoTab.pinned // Tab cannot be created both pinned and discarded - pin later if expected
-        : delete protoTab.title; // Setting title only allowed if discarded
+        : delete protoTab.title; // Can only set title if discarded
 
-    if (url === 'about:newtab' || url === 'about:privatebrowsing') { // Urls tabs.create() cannot open explicitly; they are opened via absent url
+    if (url === 'about:newtab' || url === 'about:privatebrowsing') { // Urls `browser.tabs.create()` cannot open explicitly; they are opened via absent url
         delete protoTab.url;
     } else if (isReader(url)) {
         protoTab.url = getReaderTarget(url);
@@ -295,7 +283,6 @@ function scrubbedProtoTab(protoTab) {
     return safeProtoTab;
 }
 
-/** @constant */
 const VALID_PROTOTAB_PROPS =
     ['active', 'cookieStoreId', 'discarded', 'index', 'muted', 'openerTabId', 'openInReaderMode', 'pinned', 'title', 'url', 'windowId'];
 
@@ -306,6 +293,6 @@ const VALID_PROTOTAB_PROPS =
 /** @param {TabId} tabId @returns {Promise<Tab>} */ const selectTab = tabId => browser.tabs.update(tabId, { active: false, highlighted: true });
 export { focusTab };
 
-/** @constant */ const READER_HEAD = 'about:reader?url=';
+const READER_HEAD = 'about:reader?url=';
 /** @param {string} url @returns {boolean}      */ const isReader = url => url.startsWith(READER_HEAD);
 /** @param {string} readerURL @returns {string} */ const getReaderTarget = readerURL => decodeURIComponent(readerURL.slice(READER_HEAD.length));

@@ -18,23 +18,22 @@ Unstash procedure:
 - StashProp.Tab.postOpen(tabs, protoTabs)
 */
 
-import { GroupMap } from '../utils.js';
 import { restoreTabRelations } from './action.auto.js';
+import { GroupMap } from '../utils.js';
 
 /** @typedef {import('../types.js').WindowId} WindowId */
 /** @typedef {import('../types.js').TabId} TabId */
 /** @typedef {import('../types.js').GroupId} GroupId */
-/** @typedef {import('../types.js').NodeId} NodeId */
+/** @typedef {import('../types.js').BNodeId} BNodeId */
 /** @typedef {import('../types.js').Window} Window */
 /** @typedef {import('../types.js').Tab} Tab */
 /** @typedef {import('../types.js').Group} Group */
-/** @typedef {import('../types.js').Node} Node */
 /** @typedef {import('../types.js').ProtoWindow} ProtoWindow */
 /** @typedef {import('../types.js').ProtoTab} ProtoTab */
 /** @typedef {import('../types.js').ProtoGroup} ProtoGroup */
 
 /**
- * @param {NodeId} folderId
+ * @param {BNodeId} folderId
  * @param {TabId} tabId
  * @returns {string}
  */
@@ -55,7 +54,7 @@ const Props = {
         },
     },
     TAB: {
-        /** @type {Object<string, (thing: Tab, [folderId]: NodeId) => any>} */
+        /** @type {Object<string, (thing: Tab, folderId?: BNodeId) => any>} */
         writer: {
             active: ({ active, index }) => index && active,
             muted:  ({ mutedInfo: { muted } }) => muted,
@@ -100,7 +99,7 @@ const Props = {
      * @param {Window | Tab} thing
      * @param {Object} fnCollection
      * @param {Object<string, Function>} fnCollection.writer
-     * @param {NodeId} [folderId]
+     * @param {BNodeId} [folderId]
      * @returns {Object}
      */
     write(thing, { writer }, folderId = '') {
@@ -135,7 +134,7 @@ const Props = {
 /**
  * @param {Tab} tab
  * @returns {boolean}
-*/
+ */
 const isContainered = tab => !NON_CONTAINER_ID_SET.has(tab.cookieStoreId);
 const NON_CONTAINER_ID_SET = new Set(['firefox-default', 'firefox-private']);
 
@@ -151,7 +150,7 @@ const Containers = {
             return;
 
         // Find container ids among tabs to build Map(containerId: tabArray)
-        /** @type {Map<string, Tab[]>} */
+        /** @type {GroupMap & Map<string, Tab[]>} */
         const containerIdTabMap = new GroupMap();
         for (const tab of tabs) if (isContainered(tab))
             containerIdTabMap.group(tab.cookieStoreId, tab);
@@ -189,7 +188,7 @@ const Containers = {
         }
 
         // Find container names among protoTabs to build Map<containerName, protoTabArray>
-        /** @type {Map<string, ProtoTab[]>} */
+        /** @type {GroupMap & Map<string, ProtoTab[]>} */
         const containerNameTabMap = new GroupMap();
         for (const protoTab of protoTabs) if (protoTab.container) {
             containerNameTabMap.group(protoTab.container, protoTab);
@@ -461,7 +460,7 @@ export const Tab = {
     /**
      * Produce bookmark title that encodes tab properties.
      * @param {Tab} tab
-     * @param {NodeId} folderId
+     * @param {BNodeId} folderId
      */
     stringify(tab, folderId) {
         const props = Props.write(tab, Props.TAB, folderId);

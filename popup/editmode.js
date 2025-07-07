@@ -1,4 +1,3 @@
-import * as Name from '../name.js';
 import {
     $body,
     $currentWindowRow,
@@ -11,17 +10,22 @@ import {
 } from './common.js';
 import * as Omnibox from './omnibox.js';
 import * as Request from './request.js';
+
+import * as Name from '../name.js';
 import indicateSuccess from '../success.js';
 import { isWindowId } from '../utils.js';
 
-export let isActive = false; // Indicates if popup is in edit mode
+/** @typedef {import('../types.js').WindowId} WindowId */
+/** @typedef {import('../types.js').BNodeId} FolderId */
+/** @typedef {import('./common.js').NameField$} NameField$ */
 
-//@ state -> state
+/** Indicates if popup is in edit mode */
+export let isActive = false;
+
 export function toggle() {
     isActive ? done() : activate();
 }
 
-//@ state -> state
 function activate() {
     nameMap.ready();
     toggleActive(true);
@@ -31,7 +35,6 @@ function activate() {
         rememberNameNow($currentWindowRow.$name);
 }
 
-//@ -> state
 function done() {
     toggleActive(false);
     clearErrors();
@@ -39,7 +42,9 @@ function done() {
     $omnibox.focus();
 }
 
-//@ (Boolean) -> state
+/**
+ * @param {boolean} isActivate
+ */
 function toggleActive(isActivate) {
     isActive = isActivate;
     isActive ?
@@ -48,7 +53,10 @@ function toggleActive(isActivate) {
     toggleNameFields(isActive);
 }
 
-//@ (Object) -> (Boolean), state|nil
+/**
+ * @param {HTMLElement} $el
+ * @returns {boolean}
+ */
 export function handleMouseDown($el) {
     if (!isActive)
         return false;
@@ -56,6 +64,7 @@ export function handleMouseDown($el) {
     if (isNameField($el))
         return true;
 
+    /** @type {NameField$} */
     const $name = $el.closest('li')?.$name;
     if ($name) {
         $name.focus();
@@ -64,7 +73,11 @@ export function handleMouseDown($el) {
     return true;
 }
 
-//@ (Object, Object) -> (Boolean), state|nil
+/**
+ * @param {HTMLElement} $focused
+ * @param {HTMLElement} $defocused
+ * @returns {boolean}
+ */
 export function handleFocusIn($focused, $defocused) {
     if (!isActive)
         return false;
@@ -88,19 +101,25 @@ export function handleFocusIn($focused, $defocused) {
     return isHandled;
 }
 
-//@ (Object) -> (Boolean), state|nil
+/**
+ * @param {NameField$} $name
+ * @returns {Promise<boolean>}
+ */
 export async function handleInput($name) {
     if (!isActive || !isNameField($name))
         return false;
 
     // Check name for validity, mark if invalid
-    const error = nameMap.checkForErrors($name.value.trim(), $name._id);
-    toggleError($name, error);
+    const errorId = nameMap.checkForErrors($name.value.trim(), $name._id);
+    toggleError($name, errorId);
 
     return true;
 }
 
-//@ (Object, String) -> (Boolean), state|nil
+/**
+ * @param {KeyboardEvent} event
+ * @returns {boolean}
+ */
 export function handleKeyUp({ target, key }) {
     if (!isActive || !isNameField(target))
         return false;
@@ -112,15 +131,20 @@ export function handleKeyUp({ target, key }) {
     return true;
 }
 
-// Remember $name's value at this time (cases: when entering edit mode, and when $name is focused).
-//@ (Object) -> state
+/**
+ * Remember `$name`'s value at this time (cases: when entering edit mode, and when `$name` is focused).
+ * @param {NameField$} $name
+ */
 function rememberNameNow($name) {
     $name._original = $name.value;
 }
 
-// If name is invalid: restore original name and return false.
-// Otherwise: proceed to save and return true.
-//@ (Object) -> (Boolean), state|nil
+/**
+ * If name is invalid: restore original name and return false.
+ * Otherwise: proceed to save and return true.
+ * @param {NameField$} $name
+ * @returns {Promise<boolean>}
+ */
 async function trySaveNameAndHandleErrors($name) {
     const originalName = $name._original;
 
@@ -146,7 +170,11 @@ async function trySaveNameAndHandleErrors($name) {
     return false;
 }
 
-//@ (Object, String) -> (Boolean), state
+/**
+ * @param {NameField$} $name
+ * @param {string} name
+ * @returns {Promise<boolean>}
+ */
 export async function saveNameUpdateUI($name, name) {
     const id = $name._id;
     if (isWindowId(id)) {
@@ -165,22 +193,26 @@ export async function saveNameUpdateUI($name, name) {
     return true;
 }
 
-// Indicate if name is invalid, as well as the duplicate name if any.
-//@ (Object, Number|String) -> state
-function toggleError($name, error) {
-    if (!error)
+/**
+ * Indicate if name is invalid, as well as the duplicate name if any.
+ * @param {NameField$} $name
+ * @param {0 | -1 | WindowId | FolderId} errorId
+ */
+function toggleError($name, errorId) {
+    if (!errorId)
         return clearErrors();
-    if (error !== -1)
-        $names.find($name => $name._id === error).classList.add('error');
+    if (errorId !== -1)
+        $names.find($name => $name._id === errorId).classList.add('error');
     $name.classList.add('error');
 }
 
-///@ -> state|nil
 function clearErrors() {
     $names.forEach($name => $name.classList.remove('error'));
 }
 
-//@ (Boolean) -> state
+/**
+ * @param {boolean} isEnable
+ */
 function toggleNameFields(isEnable) {
     const tabIndex = isEnable ? 0 : -1;
     const isReadOnly = !isEnable;
@@ -190,5 +222,9 @@ function toggleNameFields(isEnable) {
     }
 }
 
-//@ (String, String) -> (Promise:Boolean), state
-const saveStashName = (folderId, title) => browser.bookmarks.update(folderId, { title }).then(() => true).catch(() => false);
+/**
+ * @param {FolderId} folderId
+ * @param {string} title
+ * @returns {Promise<boolean>}
+ */
+const saveStashName = (folderId, title) => browser.bookmarks.update(folderId, { title }).then(() => true, () => false);

@@ -6,6 +6,11 @@ import * as Winfo from './winfo.js';
 /** @typedef {import('../types.js').WindowId} WindowId */
 /** @typedef {import('../types.js').TabId} TabId */
 /** @typedef {import('../types.js').Tab} Tab */
+/** @typedef {import('../types.js').ProtoTab} ProtoTab */
+/** @typedef {import('./types.js').Winfo} Winfo */
+
+
+/* --- Pages --- */
 
 /**
  * Open extension page tab, closing any duplicates found.
@@ -15,12 +20,15 @@ import * as Winfo from './winfo.js';
  */
 export async function openUniquePage(pathname, hash) {
     /** @type {string} */ const url = browser.runtime.getURL(pathname);
-    /** @type {Tab[]}  */ const tabsToClose = await browser.tabs.query({ url });
+    /** @type {Tab[]} */ const tabsToClose = await browser.tabs.query({ url });
     if (hash)
         pathname += hash;
     browser.tabs.remove(tabsToClose.map(tab => tab.id));
     return browser.tabs.create({ url: `/${pathname}` });
 }
+
+
+/* --- Tab fixing --- */
 
 /**
  * Given `referenceTabs` with parent-child relationships, and same-length `tabs` with none, restore the same relationships within `tabs` (note: not mutated).
@@ -40,7 +48,7 @@ export function restoreTabRelations(tabs, referenceTabs, isMove) {
                 browser.tabs.update(id, { openerTabId });
         return;
     }
-    /** @type {Map<TabId, {index: number, openerTabId: TabId?}>} */
+    /** @type {Map<TabId, { index: number, openerTabId: TabId? }>} */
     const referenceMap = new Map();
     referenceTabs.forEach(({ id, openerTabId }, index) => {
         id ??= tabs[index].id; // If no reference id (e.g. id-less protoTab), just use the corresponding tab id
@@ -72,21 +80,21 @@ export function assertDiscard(tabs) {
         browser.tabs.discard(tabIds);
 }
 
-/**
- * Array of ids of alphabetically-sorted (by givenNames first then by title) non-minimized windows.
- * Populates itself if empty when getDestination() is called.
- * Should be reset (emptied) whenever a window is re/un/named, opened, closed, minimized or un-minimized.
- * @type {WindowId[]}
- */
-export const switchList = Object.assign([], {
+
+/* --- Window switch list --- */
+
+class WindowSwitchList extends Array {
     /**
      * Flag to distinguish a shortcut-invoked type of window focus change from others.
      * @type {boolean}
      */
-    inProgress: false,
+    inProgress = false;
 
-    /** @modifies switchList */
+    /**
+     * @modifies switchList
+     */
     async _populate() {
+        /** @type {Winfo[]} */
         const winfos = await Winfo.getAll(
             ['givenName', 'title'],
             (await browser.windows.getAll()).filter(window => window.state !== 'minimized'),
@@ -110,13 +118,14 @@ export const switchList = Object.assign([], {
 
         this.length = 0;
         this.push(...winfos.map(winfo => winfo.id));
-    },
+    }
 
     /**
      * @param {WindowId} windowId
      * @param {number} offset
-     * @returns {WindowId}
+     * @returns {Promise<WindowId>}
      * @throws If origin windowId not found in switchList
+     * @modifies switchList if empty
      */
     async getDestination(windowId, offset) {
         if (!this.length)
@@ -125,13 +134,25 @@ export const switchList = Object.assign([], {
         if (index === -1)
             throw `Shortcut switch-next/previous: invalid origin windowId ${windowId}`;
         return this.at(index + offset) ?? this[0];
-    },
+    }
 
-    /** @modifies switchList */
+    /**
+     * @modifies switchList
+     */
     reset() {
         this.length = 0;
-    },
-});
+    }
+}
+/**
+ * Array of ids of alphabetically-sorted (by givenNames first then by title) non-minimized windows.
+ * Populates itself if empty when `getDestination()` is called.
+ * Should be reset (emptied) whenever a window is re/un/named, opened, closed, minimized or un-minimized.
+ * @type {WindowSwitchList & WindowId[]}
+ */
+export const switchList = new WindowSwitchList();
+
+
+/* --- Discard window --- */
 
 export const discardWindow = {
     /**
@@ -141,8 +162,8 @@ export const discardWindow = {
         /** @type {number} */
         const delayInMinutes = await Storage.getValue('discard_minimized_window_delay_mins');
         delayInMinutes
-        ? browser.alarms.create(`discardWindow-${windowId}`, { delayInMinutes })
-        : discardWindow.now(windowId);
+            ? browser.alarms.create(`discardWindow-${windowId}`, { delayInMinutes })
+            : discardWindow.now(windowId);
     },
 
     /**
@@ -165,8 +186,7 @@ export const discardWindow = {
 /* --- Placeholder tab --- */
 
 /**
- * @param {Object} protoTab
- * @param {string} protoTab.url
+ * @param {ProtoTab} protoTab
  * @param {string} title
  * @returns {Promise<Tab>}
  */

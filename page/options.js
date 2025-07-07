@@ -1,9 +1,10 @@
 import * as Shortcut from './shortcut.js';
-import * as Storage from '../storage.js';
-import { GroupMap } from '../utils.js';
+
 import { openHelp } from '../background/action.js';
-import { isDark } from '../theme.js';
+import * as Storage from '../storage.js';
 import indicateSuccess from '../success.js';
+import { isDark } from '../theme.js';
+import { GroupMap } from '../utils.js';
 
 /** @type {HTMLFormElement} */
 const $form = document.body.querySelector('form');
@@ -57,9 +58,60 @@ function validateRegex($field) {
     }
 }
 
+class EnablerMap extends GroupMap {
+    /**
+     * @param {HTMLInputElement} $target
+     * @param {boolean} disable
+     * @modifies $target
+     * @private
+     */
+    _updateTarget($target, disable) {
+        $target.disabled = disable;
+        $target.closest('label')?.classList.toggle('muted', disable);
+    }
+
+    /**
+     * @param {HTMLInputElement} $target
+     * @modifies this
+     */
+    addTarget($target) {
+        const $enabler = $form[$target.dataset.enabledBy];
+        if (!$enabler)
+            return;
+        this.group($enabler, $target);
+        this._updateTarget($target, $enabler.disabled || !$enabler[relevantProp($enabler.type)]);
+    }
+
+    /**
+     * Enable/disable fields that $enabler controls and save their associated settings.
+     * Return true if no save failures.
+     * @param {HTMLInputElement} $enabler
+     * @returns {boolean}
+     * @modifies $enabler
+     */
+    async trigger($enabler) {
+        /** @type {HTMLInputElement[]} */
+        const $targets = this.get($enabler);
+        if (!$targets)
+            return true;
+        // Disable targets if enabler is unchecked, empty or is itself disabled
+        const disable = $enabler.disabled || !$enabler[relevantProp($enabler.type)];
+        const saving = [];
+        for (const $target of $targets) {
+            this._updateTarget($target, disable);
+            this.trigger($target); // In case $target is itself an enabler
+            saving.push(Setting.save($target));
+        }
+        return (await Promise.all(saving)).every(Boolean);
+    }
+}
 /**
- * @namespace Setting
+ * Maps enabler fields to arrays of target fields.
+ * An "enabler" enables/disables fields that have a `data-enabled-by="{enabler_name}"` attribute.
+ * @type {EnablerMap & Map<HTMLInputElement, HTMLInputElement[]>}
  */
+const enablerMap = new EnablerMap();
+
 const Setting = {
     /** @type {HTMLInputElement[]} */
     $fields: [...$form.querySelectorAll('.setting')],
@@ -90,65 +142,8 @@ const Setting = {
     },
 };
 
-/**
- * Maps enabler fields to arrays of target fields.
- * An enabler enables/disables fields that have a `data-enabled-by="{enabler_name}"` attribute.
- * @type {Map<HTMLInputElement, HTMLInputElement[]>}
- */
-const enablerMap = Object.assign(new GroupMap(), {
-    /**
-     * @param {HTMLInputElement} $target
-     * @param {boolean} disable
-     * @modifies $target
-     * @private
-     */
-    _updateTarget($target, disable) {
-        $target.disabled = disable;
-        $target.closest('label')?.classList.toggle('muted', disable);
-    },
-
-    /**
-     * @param {HTMLInputElement} $target
-     * @modifies this
-     */
-    addTarget($target) {
-        const $enabler = $form[$target.dataset.enabledBy];
-        if (!$enabler)
-            return;
-        this.group($enabler, $target);
-        this._updateTarget($target, $enabler.disabled || !$enabler[relevantProp($enabler.type)]);
-    },
-
-    /**
-     * Enable/disable fields that $enabler controls and save their associated settings.
-     * Return true if no save failures.
-     * @param {HTMLInputElement} $enabler
-     * @returns {boolean}
-     * @modifies $enabler
-     */
-    async trigger($enabler) {
-        /** @type {HTMLInputElement[]} */
-        const $targets = this.get($enabler);
-        if (!$targets)
-            return true;
-        // Disable targets if enabler is unchecked, empty or is itself disabled
-        const disable = $enabler.disabled || !$enabler[relevantProp($enabler.type)];
-        const saving = [];
-        for (const $target of $targets) {
-            this._updateTarget($target, disable);
-            this.trigger($target); // In case $target is itself an enabler
-            saving.push(Setting.save($target));
-        }
-        return (await Promise.all(saving)).every(Boolean);
-    },
-});
-
-/**
- * @namespace StashSection
- */
 const StashSection = {
-    /** @constant */
-    permissionInfo: { permissions: ['bookmarks'] },
+    /** @constant */ permissionInfo: { permissions: ['bookmarks'] },
 
     /**
      * @returns {Promise<boolean>}
@@ -173,14 +168,11 @@ const StashSection = {
     },
 };
 
-/**
- * @namespace StaticText
- */
 const StaticText = {
 
     async insertShortcuts() {
-        /** @type {HTMLElement}      */ const $templateSource = document.getElementById('shortcut');
-        /** @type {HTMLElement}      */ const $template = $templateSource.content.firstElementChild;
+        /** @type {HTMLElement} */ const $templateSource = document.getElementById('shortcut');
+        /** @type {HTMLElement} */ const $template = $templateSource.content.firstElementChild;
         /** @type {DocumentFragment} */ const $fragment = document.createDocumentFragment();
         for (const { description, shortcut, defaultShortcut } of Object.values(await Shortcut.getDict())) {
             const $shortcut = $template.cloneNode(true);
@@ -232,16 +224,12 @@ browser.permissions.onRemoved.addListener(
      * @param {Object} permissionsObject
      * @param {string[]} permissionsObject.permissions
      */
-    ({ permissions }) => {
-        if (permissions.includes('bookmarks'))
-            StashSection.onNoPermission();
-    }
+    ({ permissions }) => permissions.includes('bookmarks') && StashSection.onNoPermission()
 );
 
 $form.addEventListener('change',
     /**
-     * @param {Object} event
-     * @param {HTMLInputElement} event.target
+     * @param {{ target: HTMLInputElement }} event
      */
     async ({ target: $field }) => {
         const fieldName = $field.name;
@@ -250,7 +238,7 @@ $form.addEventListener('change',
         switch (fieldName) {
             case 'badge_regex':
                 if (!validateRegex($field))
-                    return;
+                    return; // Stop to prevent save
             case 'enable_stash':
                 await StashSection.onEnabled($field);
         }
@@ -311,8 +299,7 @@ $form.addEventListener('change',
 
 $form.addEventListener('click',
     /**
-     * @param {Object} event
-     * @param {HTMLElement} event.target
+     * @param {{ target: HTMLElement }} event
      */
     ({ target: $el }) => {
         if ($el.matches('.help'))

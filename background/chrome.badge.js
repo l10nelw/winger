@@ -1,6 +1,8 @@
 import * as Storage from '../storage.js';
 
-//@ (Map(Number:String) | [[Number, String]]), state -> state
+/**
+ * @param {Map<WindowId, string> | [WindowId, string][]} nameMap
+ */
 export async function update(nameMap) {
     browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
     const transformFn = await createTextTransformer();
@@ -11,17 +13,19 @@ export async function update(nameMap) {
     }
 }
 
-//@ -> state
 export async function clear() {
     const text = '';
     for (const { id: windowId } of await browser.windows.getAll())
         browser.browserAction.setBadgeText({ windowId, text });
 }
 
-//@ state -> (Function)
+/**
+ * @returns {Promise<(text: string) => string>}
+ */
 async function createTextTransformer() {
-    const { badge_show_emoji_first, badge_regex, badge_regex_gflag } = await Storage.getDict(['badge_show_emoji_first', 'badge_regex', 'badge_regex_gflag']);
-    const regexObj = badge_regex && new RegExp(badge_regex, badge_regex_gflag ? 'g' : undefined);
+    /** @type {[boolean, string, boolean]} */
+    const [badge_show_emoji_first, badge_regex, badge_regex_gflag] = await Storage.getValue(['badge_show_emoji_first', 'badge_regex', 'badge_regex_gflag']);
+    const regexObj = !!badge_regex && new RegExp(badge_regex, badge_regex_gflag ? 'g' : undefined);
 
     if (badge_show_emoji_first)
         return regexObj ?
@@ -37,7 +41,10 @@ async function createTextTransformer() {
     return (text => text);
 }
 
-//@ (String) -> ([String, String])
+/**
+ * @param {string} text
+ * @returns {[string, string]}
+ */
 function extractEmojis(text) {
     const emojis = text.match(EMOJI_REGEX)?.join('') ?? '';
     const others = text.replace(EMOJI_REGEX, '');
@@ -45,5 +52,9 @@ function extractEmojis(text) {
 }
 const EMOJI_REGEX = /[\p{Extended_Pictographic}]/ug; // /[\p{RGI_Emoji}]/vg;
 
-//@ (Object, String) -> (String)
+/**
+ * @param {RegExp} regexObj
+ * @param {string} text
+ * @returns {string}
+ */
 const applyRegex = (regexObj, text) => text.match(regexObj).join('');
