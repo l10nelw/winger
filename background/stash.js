@@ -443,12 +443,9 @@ export async function canUnstashThis(nodeId) {
     const nowProcessing = nowStashing.union(nowUnstashing);
     if (ROOT_IDS.has(nodeId) || nowProcessing.has(nodeId)) // Is root folder, or folder is being processed
         return false;
-    /** @type {[BNode, boolean]} */
-    const [node, allow_private] = await Promise.all([ getNode(nodeId), Storage.getValue('allow_private') ]);
+    const [node, allow_private] = await Promise.all([ getNode(nodeId), browser.extension.isAllowedIncognitoAccess() ]);
     if (isSeparator(node) || nowProcessing.has(node.parentId)) // Is separator, or parent folder is being processed
         return false;
-    /** @type {[BNode, boolean]} */
-
     const [, protoWindow] = StashProp.Window.parse(node.title);
     if (protoWindow?.incognito && !allow_private) // Is private-window folder but no private-window access
         return false;
