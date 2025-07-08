@@ -68,6 +68,7 @@ class EnablerMap extends GroupMap {
     _updateTarget($target, disable) {
         $target.disabled = disable;
         $target.closest('label')?.classList.toggle('muted', disable);
+        $form.querySelector(`label[for="${$target.id}"]`)?.classList.toggle('muted', disable);
     }
 
     /**
