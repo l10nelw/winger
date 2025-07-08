@@ -27,10 +27,10 @@ import * as Storage from '../storage.js';
 
 /**
  * Identify the stash home's folder id based on settings.
- * @param {Object} config
- * @param {boolean} config.enable_stash
- * @param {string} config.stash_home_root
- * @param {string} config.stash_home_folder
+ * @param {Object} settings
+ * @param {boolean} settings.enable_stash
+ * @param {string} settings.stash_home_root
+ * @param {string} settings.stash_home_folder
  */
 export async function init({ enable_stash, stash_home_root, stash_home_folder }) {
     if (!enable_stash)
@@ -55,10 +55,10 @@ export class FolderList extends Array {
 
     /**
      * Fill folderList with child folders of `parentId`.
-     * Each child folder will have `givenName` and possible `protoWindow` properties from `StashProp.Window.parse()`.
+     * Each child folder will have `givenName` and possible `protoWindow` property from `StashProp.Window.parse()`.
      * Optional: boolean dict `config` for enabling these properties:
-     *  - `children`=true: Add an array of child nodes to each folder
-     *  - `bookmarkCount`=true: Add a bookmark count property to each folder
+     *  - `children: true` - Add an array of child nodes to each folder
+     *  - `bookmarkCount: true` - Add a bookmark count property to each folder
      * Optional: already-procured child `nodes` of parentId can be supplied for efficiency.
      * @param {BNodeId} parentId
      * @param {Object} [config]
@@ -267,7 +267,7 @@ async function createBookmarksAtNode(tabs, node, logName = '') {
 
     const count = tabs.length;
     /** @type {Promise<BNode>[]} */ const creatingBookmarks = new Array(count);
-    /** @type {number} */ const index = isNodeFolder ? null : node.index;
+    /** @type {number?} */ const index = isNodeFolder ? null : node.index;
     for (let i = count; i--;) // Reverse iteration necessary for bookmarks to be in correct order
         creatingBookmarks[i] = createBookmark(tabs[i], folderId, index, logName);
     const bookmarks = await Promise.all(creatingBookmarks);
@@ -345,7 +345,7 @@ async function unstashFolder(folder, remove) {
 }
 
 /**
- * @param {WndowId} windowId
+ * @param {WindowId} windowId
  * @param {string} name
  */
 async function nameWindow(windowId, name) {

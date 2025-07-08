@@ -1,3 +1,5 @@
+// "Send to Window" menu
+
 import * as Action from './action.js';
 import * as Winfo from './winfo.js';
 

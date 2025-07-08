@@ -1,7 +1,7 @@
 import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
-import * as Stash from './stash.js';
+import * as Stash from './stash.main.js';
 import * as Winfo from './winfo.js';
 
 import * as Storage from '../storage.js';
@@ -46,9 +46,9 @@ const INTERNAL = {
             Auto,
             Chrome,
             Name,
-            SendMenu: await import('./menu.send.js'),
+            SendMenu: await import('./menu.js'),
             Stash,
-            StashMenu: await import('./menu.stash.js'),
+            StashMenu: await import('./stash.menu.js'),
             StashProp: await import('./stash.prop.js'),
             Storage,
             Winfo,

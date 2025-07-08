@@ -1,5 +1,5 @@
 import { getSelectedTabs } from './action.js';
-import * as Stash from './stash.js';
+import * as Stash from './stash.main.js';
 
 import { STASHCOPY } from '../modifier.js';
 import * as Storage from '../storage.js';
