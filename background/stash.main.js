@@ -1,3 +1,5 @@
+// Module loaded only if `enable_stash=true`
+
 import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
@@ -28,13 +30,10 @@ import * as Storage from '../storage.js';
 /**
  * Identify the stash home's folder id based on settings.
  * @param {Object} settings
- * @param {boolean} settings.enable_stash
  * @param {string} settings.stash_home_root
  * @param {string} settings.stash_home_folder
  */
-export async function init({ enable_stash, stash_home_root, stash_home_folder }) {
-    if (!enable_stash)
-        return;
+export async function init({ stash_home_root, stash_home_folder }) {
     if (stash_home_folder) {
         // Home is a subfolder of a root folder
         const folder = await getAvailableFolder(stash_home_folder, true, stash_home_root);

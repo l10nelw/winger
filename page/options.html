@@ -64,7 +64,7 @@
       <fieldset>
         <legend>Stashing</legend>
         <label><input class="setting" type="checkbox" name="enable_stash"> <span>Enable stashing
-          <br><small>Requires permission to read and modify bookmarks</small>
+          <br><small>Requires permission to read and modify bookmarks. Disabling restarts Winger</small>
         </span></label>
         <div class="indent">
           <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="show_popup_stash"> <span>Show stash buttons in pop-up panel</span></label>
@@ -84,7 +84,7 @@
               </select> /
               <input type="text" class="setting" data-enabled-by="enable_stash" name="stash_home_folder" id="stash_home_folder" aria-label="Folder name (optional)" placeholder="Folder name (optional)">
             </label>
-            <label for="stash_home_folder"><small>If folder name is specified, stash home is a subfolder with this name in the selected root folder. If blank, stash home is the selected root folder</small></label>
+            <label for="stash_home_folder"><small>If folder name is specified, stash home is the subfolder with this name in the selected root folder. If blank, stash home is the selected root folder</small></label>
           </div>
         </div>
         <small>Learn more about <a class="help" href="#stash">stashing</a></small>

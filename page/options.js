@@ -1,6 +1,7 @@
 import * as Shortcut from './shortcut.js';
 
 import { openHelp } from '../background/action.js';
+import * as Stash from '../background/stash.js';
 import * as Storage from '../storage.js';
 import indicateSuccess from '../success.js';
 import { isDark } from '../theme.js';
@@ -146,17 +147,13 @@ const Setting = {
 const StashSection = {
     /** @constant */ permissionInfo: { permissions: ['bookmarks'] },
 
-    /**
-     * @returns {Promise<boolean>}
-     */
-    hasPermission: async () => (await browser.permissions.getAll()).permissions.includes('bookmarks'),
-
-    onNoPermission() {
+    async onNoPermission() {
         /** @type {HTMLInputElement} */
         const $enable_stash = $form.enable_stash;
         $enable_stash.checked = false;
         enablerMap.trigger($enable_stash);
-        Setting.save($enable_stash);
+        await Setting.save($enable_stash);
+        browser.runtime.reload(); // Start over to unload Stash module
     },
 
     /**
@@ -213,8 +210,8 @@ const BadgeRegex = {
         Setting.load(SETTINGS[$field.name], $field);
         enablerMap.addTarget($field);
     }
-    if ($form.enable_stash.checked && !await StashSection.hasPermission())
-        StashSection.onNoPermission();
+    if ($form.enable_stash.checked && !await Stash.hasPermission())
+        await StashSection.onNoPermission();
     StaticText.insertShortcuts();
     StaticText.checkPrivateAccess();
     BadgeRegex.update();
@@ -222,6 +219,7 @@ const BadgeRegex = {
 
 browser.permissions.onRemoved.addListener(
     /**
+     * Bug: If permission removed while option page is not loaded and therefore this listener is not running, `StashSection.onNoPermission()` here will not execute.
      * @param {Object} permissionsObject
      * @param {string[]} permissionsObject.permissions
      */
@@ -255,18 +253,16 @@ $form.addEventListener('change',
         // After save
         switch (fieldName) {
             case 'set_title_preface':
-                if (!$field.checked) {
+                if (!$field.checked)
                     browser.runtime.sendMessage({ type: 'clear', component: 'TitlePreface' });
-                    return;
-                }
+                return;
             case 'title_preface_prefix':
             case 'title_preface_postfix':
             case 'assert_title_preface':
             case 'show_badge':
-                if (!$field.checked) {
+                if (!$field.checked)
                     browser.runtime.sendMessage({ type: 'clear', component: 'Badge' });
-                    return;
-                }
+                return;
             case 'badge_show_emoji_first':
             case 'badge_regex':
             case 'badge_regex_gflag':
@@ -275,10 +271,9 @@ $form.addEventListener('change',
                 return;
 
             case 'discard_minimized_window':
-                if (!$field.checked) {
+                if (!$field.checked)
                     browser.runtime.sendMessage({ type: 'discardMinimized', enabled: false });
-                    return;
-                }
+                return;
             case 'discard_minimized_window_delay_mins':
                 if ($form.discard_minimized_window.checked)
                     browser.runtime.sendMessage({ type: 'discardMinimized', enabled: true });

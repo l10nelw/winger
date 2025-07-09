@@ -2,8 +2,7 @@ import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
 import * as SendMenu from './menu.js';
-import * as StashMenu from './stash.menu.js';
-import * as Stash from './stash.main.js';
+import * as Stash from './stash.js';
 import * as Winfo from './winfo.js';
 
 import * as Storage from '../storage.js';
@@ -19,11 +18,12 @@ Promise.all([
 ])
 .then(/** @param {[Object<string, any>, Winfo[], Tab[]]} */ async ([info, winfos, focusedTabs]) => {
 
+    // Load `Stash` module if `info.stash_enabled` and bookmarks permission granted
+    await Stash.init(info);
+
     browser.menus.removeAll();
     SendMenu.init();
-    StashMenu.init();
-
-    Stash.init(info);
+    Stash.Menu?.init();
 
     const nameMap = new Name.NameMap();
     let givenNameFound = false;

@@ -3,7 +3,7 @@ import './message.js';
 import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
-import * as StashMenu from './stash.menu.js';
+import * as Stash from './stash.js';
 import * as SendMenu from './menu.js';
 import * as Winfo from './winfo.js';
 
@@ -124,7 +124,7 @@ function onWindowRemoved(windowId) {
  * @param {Object} info
  */
 async function onMenuShown(info,) {
-    await StashMenu.handleShow(info) || SendMenu.handleShow(info);
+    await Stash.Menu?.handleShow(info) || SendMenu.handleShow(info);
 }
 
 /**
@@ -132,7 +132,7 @@ async function onMenuShown(info,) {
  */
 function onMenuHidden() {
     SendMenu.handleHide();
-    StashMenu.handleHide();
+    Stash.Menu?.handleHide();
 }
 
 /**
@@ -141,7 +141,7 @@ function onMenuHidden() {
  * @param {Tab} tab
  */
 async function onMenuClicked(info, tab) {
-    await StashMenu.handleClick(info) || SendMenu.handleClick(info, tab);
+    await Stash.Menu?.handleClick(info) || SendMenu.handleClick(info, tab);
 }
 
 /**

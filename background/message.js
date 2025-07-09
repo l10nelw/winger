@@ -1,7 +1,7 @@
 import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
-import * as Stash from './stash.main.js';
+import * as Stash from './stash.js';
 import * as Winfo from './winfo.js';
 
 import * as Storage from '../storage.js';
@@ -48,7 +48,6 @@ const INTERNAL = {
             Name,
             SendMenu: await import('./menu.js'),
             Stash,
-            StashMenu: await import('./stash.menu.js'),
             StashProp: await import('./stash.prop.js'),
             Storage,
             Winfo,
@@ -67,8 +66,8 @@ const INTERNAL = {
             Storage.getDict(['show_popup_bring', 'show_popup_send', 'set_title_preface', 'enable_stash', 'show_popup_stash']),
             browser.extension.isAllowedIncognitoAccess(),
         ]);
-        if (Stash.nowStashing.size)
-            windows = excludeByIds(windows, Stash.nowStashing.values().filter(isWindowId)); // Exclude windows currently being stashed
+        if (Stash.Main?.nowStashing.size)
+            windows = excludeByIds(windows, Stash.Main.nowStashing.values().filter(isWindowId)); // Exclude windows currently being stashed
         flags.allow_private = allow_private;
         const winfoProps = ['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type'];
         winfoProps.push(flags.set_title_preface ? 'titleSansName' : 'title');
@@ -86,9 +85,9 @@ const INTERNAL = {
         const [enable_stash, homeId] = await Storage.getValue(['enable_stash', '_stash_home_id']);
         if (!(enable_stash && homeId))
             return [];
-        let folders = await (new Stash.FolderList()).populate(homeId);
-        if (Stash.nowStashing.size)
-            folders = excludeByIds(folders, Stash.nowUnstashing.values().filter(isNodeId)); // Exclude folders currently being unstashed
+        let folders = await (new Stash.Main.FolderList()).populate(homeId);
+        if (Stash.Main.nowStashing.size)
+            folders = excludeByIds(folders, Stash.Main.nowUnstashing.values().filter(isNodeId)); // Exclude folders currently being unstashed
         return folders;
     },
 
@@ -98,22 +97,21 @@ const INTERNAL = {
      * @returns {Promise<BNode[]>}
      */
     popupStashContents({ folders }) {
-        return (new Stash.FolderList()).populate(folders[0].parentId, { bookmarkCount: true }, folders);
+        return (new Stash.Main.FolderList()).populate(folders[0].parentId, { bookmarkCount: true }, folders);
     },
 
     /**
      * @param {ActionRequest} request
-     * @returns {Promise<Window | Tab[] | void>}
      */
     action(request) {
         if (request.folderId) {
             if (request.action === 'send')
-                return Stash.stashSelectedTabs(request.folderId, request.remove);
+                return Stash.Main.stashSelectedTabs(request.folderId, request.remove);
             if (request.action === 'stash')
-                return Stash.unstashNode(request.folderId, request.remove);
+                return Stash.Main.unstashNode(request.folderId, request.remove);
         }
         if (request.action === 'stash')
-            return Stash.stashWindow(request.windowId, request.name, request.remove);
+            return Stash.Main.stashWindow(request.windowId, request.name, request.remove);
         return Action.execute(request);
     },
 
@@ -128,7 +126,7 @@ const INTERNAL = {
             return Chrome.update([[windowId, name]]);
         const winfos = await Winfo.getAll(['givenName']);
         const nameMap = (new Name.NameMap()).populate(winfos);
-        return Chrome.update(nameMap);
+        Chrome.update(nameMap);
     },
 
     /**
@@ -151,12 +149,12 @@ const INTERNAL = {
                 if (name.startsWith('discardWindow'))
                     browser.alarms.clear(name);
         }
-        return;
     },
 
     async stashInit() {
         const settings = await Storage.getDict(['enable_stash', 'stash_home_root', 'stash_home_folder']);
-        return Stash.init(settings);
+        await Stash.init(settings);
+        Stash.Menu.init();
     },
 
     help: () => Action.openHelp(),
