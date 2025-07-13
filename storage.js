@@ -49,10 +49,6 @@ export async function init() {
             dict => dict.__version,
         ],
     ];
-    const ALLOWED_VALUES_DICT = {
-        // v2.4.1
-        theme: ['', 'dark', 'light'],
-    };
 
     // Get all stored entries plus defaults for missing settings
     const dict = { ...DEFAULT_SETTINGS, ...await getDict() };
@@ -71,15 +67,6 @@ export async function init() {
             continue;
         delete dict[key];
         browser.storage.local.remove(key);
-    }
-
-    // Reset any invalid values
-    for (const [key, allowedValues] of Object.entries(ALLOWED_VALUES_DICT)) {
-        if (allowedValues.includes(dict[key]))
-            continue;
-        const value = allowedValues[0];
-        dict[key] = value;
-        set({ [key]: value });
     }
 
     return dict;
