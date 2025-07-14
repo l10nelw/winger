@@ -37,11 +37,11 @@ export async function init({ stash_home_root, stash_home_folder }) {
     if (stash_home_folder) {
         // Home is a subfolder of a root folder
         const folder = await getAvailableFolder(stash_home_folder, true, stash_home_root);
-        Storage.set({ _stash_home_id: folder.id });
+        Storage.set({ _stashHomeId: folder.id });
         return;
     }
     // Home is a root folder
-    Storage.set({ _stash_home_id: stash_home_root });
+    Storage.set({ _stashHomeId: stash_home_root });
     // If home has no separator, add one
     if (!(await getChildNodes(stash_home_root)).find(isSeparator))
         createNode({ type: 'separator', parentId: stash_home_root });
@@ -182,7 +182,7 @@ export async function stashWindow(windowId, name, remove) {
     const [window, allWindows, homeId] = await Promise.all([
         browser.windows.get(windowId, { populate: true }),
         remove && browser.windows.getAll(),
-        Storage.getValue('_stash_home_id'),
+        Storage.getValue('_stashHomeId'),
     ]);
 
     name = StashProp.Window.stringify(name, window);
@@ -427,7 +427,7 @@ export async function canStashHere(nodeId, windowId = null) {
     const nowProcessing = nowStashing.union(nowUnstashing);
     return !(
         nowProcessing.has(nodeId) || // Folder is being processed
-        nowProcessing.has(windowId || await Storage.getValue('_focused_window_id')) || // Window is being processed
+        nowProcessing.has(windowId || await Storage.getValue('_focusedWindowId')) || // Window is being processed
         nowProcessing.has((await getNode(nodeId)).parentId) // Parent folder is being processed
     );
 }

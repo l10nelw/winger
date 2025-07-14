@@ -82,7 +82,7 @@ const INTERNAL = {
      */
     async popupStash() {
         /** @type {[boolean, BNodeId]} */
-        const [enable_stash, homeId] = await Storage.getValue(['enable_stash', '_stash_home_id']);
+        const [enable_stash, homeId] = await Storage.getValues(['enable_stash', '_stashHomeId']);
         if (!(enable_stash && homeId))
             return [];
         let folders = await (new Stash.Main.FolderList()).populate(homeId);

@@ -205,7 +205,7 @@ const BadgeRegex = {
 };
 
 (async function init() {
-    const SETTINGS = await Storage.getDict(Storage.DEFAULT_SETTINGS);
+    const SETTINGS = await Storage.getDict();
     for (const $field of Setting.$fields) {
         Setting.load(SETTINGS[$field.name], $field);
         enablerMap.addTarget($field);

@@ -49,7 +49,7 @@ Promise.all([
         nameMap.set(id, givenName);
 
         if (focused) {
-            Storage.set({ _focused_window_id: id });
+            Storage.set({ _focusedWindowId: id });
             Winfo.saveLastFocused(id);
         }
 

@@ -81,9 +81,8 @@ async function onWindowFocusChanged(windowId) {
     if (windowId <= 0)
         return;
 
-    /** @type {[boolean, boolean, WindowId]} */
     const [discard_minimized_window, set_title_preface, defocusedWindowId] =
-        await Storage.getValue(['discard_minimized_window', 'set_title_preface', '_focused_window_id']);
+        await Storage.getValues(['discard_minimized_window', 'set_title_preface', '_focusedWindowId']);
     /** @type {boolean} */
     const isDefocusedMinimized = (await browser.windows.get(defocusedWindowId).catch(() => null))?.state === 'minimized';
 
@@ -101,7 +100,7 @@ async function onWindowFocusChanged(windowId) {
     }
 
     // Record window focus state and time
-    Storage.set({ _focused_window_id: windowId });
+    Storage.set({ _focusedWindowId: windowId });
     Winfo.saveLastFocused(windowId);
 
     if (set_title_preface && await Storage.getValue('assert_title_preface')) {

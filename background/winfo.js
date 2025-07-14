@@ -74,7 +74,7 @@ export async function getAll(wantedProps, windows = null) {
 
     [windows, nameAffixes] = await Promise.all([
         windows ?? browser.windows.getAll({ populate: wantedProps.has('tabs') || wantedProps.has('tabCount') }),
-        wantTitleSansName && Storage.getValue(['title_preface_prefix', 'title_preface_postfix']),
+        wantTitleSansName && Storage.getValues(['title_preface_prefix', 'title_preface_postfix']),
     ]);
 
     if (wantTitleSansName)

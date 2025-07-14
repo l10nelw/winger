@@ -159,7 +159,6 @@ export const discardWindow = {
      * @param {WindowId} windowId
      */
     async schedule(windowId) {
-        /** @type {number} */
         const delayInMinutes = await Storage.getValue('discard_minimized_window_delay_mins');
         delayInMinutes
             ? browser.alarms.create(`discardWindow-${windowId}`, { delayInMinutes })

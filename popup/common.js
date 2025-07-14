@@ -3,6 +3,8 @@ import { NameMap } from '../name.js';
 /** @typedef {import('../types.js').WindowId} WindowId */
 /** @typedef {import('../types.js').BNodeId} FolderId */
 /** @typedef {import('../types.js').Winfo} Winfo */
+/** @import { STORED_PROPS } from '../storage.js' */
+
 /**
  * @typedef WindowRow$Properties
  * @property {WindowId | FolderId} _id
@@ -24,7 +26,7 @@ import { NameMap } from '../name.js';
 
 // Populated at init //
 
-/** @type {Object<string, boolean>} */ export const FLAGS = {};
+/** @type {Partial<STORED_PROPS>} */ export const FLAGS = {};
 
 /** @type {NameField$[] & { $stashed: NameField$[] & { _startIndex: number } }} */
 export const $names = [];
