@@ -15,6 +15,7 @@ import * as Storage from '../storage.js';
 /** @typedef {import('../types.js').Window} Window */
 /** @typedef {import('../types.js').Tab} Tab */
 /** @typedef {import('../types.js').BNode} BNode */
+/** @typedef {import('../types.js').StashFolder} StashFolder */
 /** @typedef {import('../types.js').ProtoWindow} ProtoWindow */
 /** @typedef {import('../types.js').ProtoTab} ProtoTab */
 /** @typedef {import('../types.js').ProtoBNode} ProtoBNode */
@@ -24,9 +25,6 @@ import * as Storage from '../storage.js';
 /** @type {Set<WindowId | BNodeId>} */ export const nowStashing = new Set();
 /** @type {Set<WindowId | BNodeId>} */ export const nowUnstashing = new Set();
 
-
-/* --- INIT --- */
-
 /**
  * Identify the stash home's folder id based on settings.
  * @param {Object} settings
@@ -34,135 +32,18 @@ import * as Storage from '../storage.js';
  * @param {string} settings.stash_home_folder
  */
 export async function init({ stash_home_root, stash_home_folder }) {
+    /** @type {BNodeId} */ let _stashHomeId;
     if (stash_home_folder) {
-        // Home is a subfolder of a root folder
-        const folder = await getAvailableFolder(stash_home_folder, true, stash_home_root);
-        Storage.set({ _stashHomeId: folder.id });
-        return;
+        // Home is a SUBFOLDER of a root folder
+        const home =
+            (await getChildNodes(stash_home_root)).find(node => node.title === stash_home_folder && isFolder(node)) // Find subfolder by title
+            || await createNode({ parentId: stash_home_root, title: stash_home_folder }); // Otherwise, create subfolder with title
+        _stashHomeId = home.id;
+    } else {
+        // Home is a root folder
+        _stashHomeId = stash_home_root;
     }
-    // Home is a root folder
-    Storage.set({ _stashHomeId: stash_home_root });
-    // If home has no separator, add one
-    if (!(await getChildNodes(stash_home_root)).find(isSeparator))
-        createNode({ type: 'separator', parentId: stash_home_root });
-}
-
-
-/* --- LIST FOLDERS --- */
-
-export class FolderList extends Array {
-
-    /**
-     * Fill folderList with child folders of `parentId`.
-     * Each child folder will have `givenName` and possible `protoWindow` property from `StashProp.Window.parse()`.
-     * Optional: boolean dict `config` for enabling these properties:
-     *  - `children: true` - Add an array of child nodes to each folder
-     *  - `bookmarkCount: true` - Add a bookmark count property to each folder
-     * Optional: already-procured child `nodes` of parentId can be supplied for efficiency.
-     * @param {BNodeId} parentId
-     * @param {Object} [config]
-     * @param {boolean} [config.children]
-     * @param {boolean} [config.bookmarkCount]
-     * @param {BNode[]} [nodes]
-     * @returns {Promise<BNode[]>}
-     */
-    async populate(parentId, config = {}, nodes = null) {
-        this.length = 0;
-        this.parentId = parentId;
-        let allow_private = false;
-        [nodes, allow_private] = await Promise.all([
-            nodes ?? getChildNodes(parentId),
-            browser.extension.isAllowedIncognitoAccess(),
-        ]);
-
-        // If parent is a root folder, take only nodes after last separator
-        if (ROOT_IDS.has(parentId))
-            nodes = nodes.slice(nodes.findLastIndex(isSeparator) + 1);
-
-        // Filter out non- and invalid folders, parsing any annotations
-        for (const node of nodes) {
-            if (!isFolder(node))
-                continue; // Skip non-folder
-            const [title, protoWindow] = StashProp.Window.parse(node.title);
-            if (protoWindow) {
-                if (protoWindow.incognito && !allow_private)
-                    continue; // Skip private-window folder if no private-window access
-                node.protoWindow = protoWindow;
-            }
-            node.givenName = title;
-            this.push(node);
-        }
-
-        // Add folder content related properties if desired
-        const { children, bookmarkCount } = config;
-        if (children || bookmarkCount) {
-            /** @type {BNode[][]} */
-            const nodeLists = await Promise.all( this.map(folder => getChildNodes(folder.id)) );
-            for (let i = this.length; i--;) {
-                const nodeList = nodeLists[i];
-                if (children)
-                    this[i].children = nodeList;
-                if (bookmarkCount)
-                    this[i].bookmarkCount = nodeList.filter(isBookmark).length;
-            }
-        }
-
-        return this;
-    }
-
-    /**
-     * Find folder with the given title and whether bookmarks are allowed.
-     * @param {string} title
-     * @param {boolean} canContainBookmarks
-     * @return {Promise<BNode?>}
-     */
-    async findByTitle(title, canContainBookmarks) {
-        /** @type {Set<WindowId | BNodeId>} */
-        const nowProcessing = nowStashing.union(nowUnstashing);
-        if (canContainBookmarks)
-            return this.find(folder => !nowProcessing.has(folder.id) && folder.givenName === title);
-        // Find bookmarkless folder
-        /** @type {BNode[]} */
-        const folders = this.filter(folder => !nowProcessing.has(folder.id) && folder.givenName === title);
-        if (!folders.length)
-            return;
-        /** @type {BNode[][]} */
-        const nodeLists = folders[0].children ?
-            folders.map(folder => folder.children) :
-            await Promise.all( folders.map(folder => getChildNodes(folder.id)) );
-        /** @type {number} */
-        const index = nodeLists.findIndex(nodeList => !nodeList.find(isBookmark));
-        return folders[index];
-    }
-
-    /**
-     * Add a new folder to the start of the folderList.
-     * @param {string} title
-     * @returns {Promise<BNode>}
-     */
-    async add(title) {
-        const parentId = this.parentId;
-        const index = this[0]?.index;
-        const folder = await createNode({ title, parentId, index });
-        if (this[0]?.children)
-            folder.children = [];
-        this.push(folder);
-        return folder;
-    }
-}
-
-/**
- * Find folder matching `title` and `parentId` parameters and `canContainBookmarks` condition, otherwise create a new one.
- * Can optionally supply already-procured children-of-parentId `nodes` for performance.
- * @param {string} title
- * @param {boolean} canContainBookmarks
- * @param {BNodeId} parentId
- * @param {BNode[]?} [nodes]
- * @returns {Promise<BNode>}
- */
-async function getAvailableFolder(title, canContainBookmarks, parentId, nodes = null) {
-    const folders = await (new FolderList()).populate(parentId, {}, nodes);
-    return await folders.findByTitle(title, canContainBookmarks) || await folders.add(title);
+    Storage.set({ _stashHomeId });
 }
 
 
@@ -186,7 +67,8 @@ export async function stashWindow(windowId, name, remove) {
     ]);
 
     name = StashProp.Window.stringify(name, window);
-    const folder = await getAvailableFolder(name, false, homeId); // Find bookmarkless folder, or create one
+    const folderList = await (new FolderList()).populate(homeId);
+    const folder = await folderList.findBookmarklessByTitle(name) || await folderList.addNew(name);
 
     await handleLoneWindow(
         windowId, remove, allWindows,
@@ -440,7 +322,7 @@ export async function canStashHere(nodeId, windowId = null) {
 export async function canUnstashThis(nodeId) {
     /** @type {Set<WindowId | BNodeId>} */
     const nowProcessing = nowStashing.union(nowUnstashing);
-    if (ROOT_IDS.has(nodeId) || nowProcessing.has(nodeId)) // Is root folder, or folder is being processed
+    if (isRootId(nodeId) || nowProcessing.has(nodeId)) // Is root folder, or folder is being processed
         return false;
     const [node, allow_private] = await Promise.all([ getNode(nodeId), browser.extension.isAllowedIncognitoAccess() ]);
     if (isSeparator(node) || nowProcessing.has(node.parentId)) // Is separator, or parent folder is being processed
@@ -452,9 +334,10 @@ export async function canUnstashThis(nodeId) {
 }
 
 
-/* --- */
+/* --- GENERAL HELPERS --- */
 
 /** @type {Set<BNodeId>} */ const ROOT_IDS = new Set(['toolbar_____', 'menu________', 'unfiled_____']);
+/** @param {BNodeId} nodeId @returns {boolean} */ const isRootId = nodeId => ROOT_IDS.has(nodeId);
 
 /** @param {BNode} node @returns {boolean} */ const isSeparator = node => node.type === 'separator';
 /** @param {BNode} node @returns {boolean} */ const isFolder    = node => node.type === 'folder';
@@ -465,3 +348,121 @@ export async function canUnstashThis(nodeId) {
 
 /** @param {ProtoBNode} protoNode @returns {Promise<BNode>} */ const createNode = protoNode => browser.bookmarks.create(protoNode);
 /** @param {BNodeId} nodeId       @returns {Promise<void>}  */ const removeNode = nodeId => browser.bookmarks.remove(nodeId);
+
+export class FolderList extends Array {
+
+    /** @type {BNodeId} */ parentId;
+    hasBookmarkCount = false;
+
+    /**
+     * Populate list with valid folders by providing either: a complete `nodes` array, or just their common `parentId`.
+     * If the parentId is a root id, list starts after the last separator, or add a separator if none found and the list starts empty.
+     * Each child folder will have `givenName` and possible `protoWindow` property from `StashProp.Window.parse()`.
+     * @param {BNode[] | BNodeId} nodes_or_parentId
+     * @returns {Promise<this>}
+     */
+    async populate(nodes_or_parentId) {
+
+        /** @type {BNodeId} */
+        const parentId = nodes_or_parentId[0]?.parentId ?? nodes_or_parentId;
+        /** @type {[StashFolder[], boolean]} */
+        let [nodes, allow_private] = await Promise.all([
+            Array.isArray(nodes_or_parentId) ? nodes_or_parentId : getChildNodes(parentId),
+            browser.extension.isAllowedIncognitoAccess(),
+        ]);
+
+        this.parentId = parentId;
+        this.length = 0;
+
+        // If parent is a root folder and `nodes` is a complete array of children, take only `nodes` after last separator
+        // If no separator found, add one at the end and empty `nodes`
+        if (isRootId(parentId) && nodes[0].index === 0) {
+            const lastSeparator = nodes.findLast(isSeparator);
+            if (lastSeparator)
+                nodes = nodes.slice(lastSeparator.index + 1);
+            else {
+                createNode({ type: 'separator', parentId });
+                nodes = [];
+            }
+        }
+
+        // Filter out invalid and non-folders
+        // Parse any annotations, adding `givenName` and `protoWindow` properties
+        for (const node of nodes) {
+            if (!isFolder(node))
+                continue; // Skip non-folder
+            const [title, protoWindow] = StashProp.Window.parse(node.title);
+            if (protoWindow) {
+                if (protoWindow.incognito && !allow_private)
+                    continue; // Skip private-window folder if no private-window access
+                node.protoWindow = protoWindow;
+            }
+            node.givenName = title;
+            this.push(node);
+        }
+
+        return this;
+    }
+
+    /**
+     * Adds `bookmarkCount` property to each folder.
+     * @returns {Promise<this>}
+     * @this {StashFolder[]}
+     */
+    async countBookmarks() {
+        /** "Grandchildren" @type {BNode[][]} */
+        const nodeLists = await Promise.all( this.map(folder => getChildNodes(folder.id)) );
+        for (let i = this.length; i--;)
+            this[i].bookmarkCount = nodeLists[i].filter(isBookmark).length;
+        this.hasBookmarkCount = true;
+        return this;
+    }
+
+    /**
+     * Find folder with the given title.
+     * @param {string} title
+     * @return {BNode?}
+     * @this {StashFolder[]}
+     */
+    findByTitle(title) {
+        /** @type {Set<WindowId | BNodeId>} */
+        const nowProcessing = nowStashing.union(nowUnstashing);
+        return this.find(folder => !nowProcessing.has(folder.id) && folder.givenName === title);
+    }
+
+    /**
+     * Find bookmarkless folder with the given `title`.
+     * @param {string} title
+     * @return {Promise<BNode?>}
+     * @this {StashFolder[]}
+     */
+    async findBookmarklessByTitle(title) {
+        /** @type {Set<WindowId | BNodeId>} */
+        const nowProcessing = nowStashing.union(nowUnstashing);
+
+        if (this.hasBookmarkCount)
+            return this.find(folder => !nowProcessing.has(folder.id) && folder.bookmarkCount === 0 && folder.givenName === title);
+
+        // If no `bookmarkCount`, find folders matching `title` then check for any bookmarks inside
+        const folders = this.filter(folder => !nowProcessing.has(folder.id) && folder.givenName === title);
+        if (!folders.length)
+            return;
+        /** "Grandchildren" @type {BNode[][]} */
+        const nodeLists = await Promise.all( folders.map(folder => getChildNodes(folder.id)) );
+        const index = nodeLists.findIndex(nodeList => !nodeList.find(isBookmark));
+        return folders[index];
+    }
+
+    /**
+     * Add a new folder to the start of the folderList.
+     * @param {string} title
+     * @returns {Promise<BNode>}
+     */
+    async addNew(title) {
+        const parentId = this.parentId;
+        const index = this[0]?.index;
+        const folder = await createNode({ title, parentId, index });
+        this.unshift(folder);
+        return folder;
+    }
+}

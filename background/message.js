@@ -96,8 +96,9 @@ const INTERNAL = {
      * @param {BNode[]} request.folders
      * @returns {Promise<BNode[]>}
      */
-    popupStashContents({ folders }) {
-        return (new Stash.Main.FolderList()).populate(folders[0].parentId, { bookmarkCount: true }, folders);
+    async popupStashContents({ folders }) {
+        const folderList = await (new Stash.Main.FolderList()).populate(folders);
+        return folderList.countBookmarks();
     },
 
     /**

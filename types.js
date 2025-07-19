@@ -96,9 +96,6 @@
  * @property {string} [title]
  * @property {string} [url]
  * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/BookmarkTreeNode}
- * @property {number} [bookmarkCount] - Added by `(stash.js).FolderList`
- * @property {string} [givenName] - Added by `(stash.js).FolderList`
- * @property {ProtoWindow} [protoWindow] - Added by `(stash.js).FolderList`
  */
 /**
  * `browser.bookmarks.create()` argument object.
@@ -109,6 +106,16 @@
  * @property {string} [type]
  * @property {string} [url]
  * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/CreateDetails}
+ */
+/**
+ * Stash folder info object used in FolderList and stored in cache.
+ * @typedef StashFolder
+ * @property {BNodeId} id
+ * @property {number} index
+ * @property {string} [title]
+ * @property {string} [givenName]
+ * @property {number} [bookmarkCount]
+ * @property {ProtoWindow} [protoWindow]
  */
 /**
  * @typedef PopupInitMessage
