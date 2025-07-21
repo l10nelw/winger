@@ -211,18 +211,28 @@ async function unstashBookmark(node, remove) {
  * @param {boolean} remove
  */
 async function unstashFolder(folder, remove) {
+    const folderId = folder.id;
     const [name, protoWindow] = StashProp.Window.parse(folder.title);
-    /** @type {[Window, boolean]} */
-    const [window, auto_name_unstash] = await Promise.all([
+
+    /** @type {[Object<string, BNode[]>, Window, boolean]} */
+    const [{ bookmarks, subfolders }, window, auto_name_unstash] = await Promise.all([
+        readFolder(folderId),
         browser.windows.create(protoWindow),
         Storage.getValue('auto_name_unstash'),
     ]);
-    const folderId = folder.id;
     const windowId = window.id;
-    nowUnstashing.add(folderId).add(windowId); // To be removed in populateWindow()
+    nowUnstashing.add(folderId).add(windowId);
+
     if (auto_name_unstash)
         nameWindow(windowId, name);
-    populateWindow(window, folderId, name, remove);
+    await populateWindow(window, bookmarks, name);
+    nowUnstashing.delete(windowId);
+
+    if (remove)
+        subfolders.length // If folder contains subfolders
+            ? await Promise.all( bookmarks.map(({ id }) => removeNode(id)) ) // remove each bookmark individually
+            : await browser.bookmarks.removeTree(folderId); // else remove entire folder
+    nowUnstashing.delete(folderId);
 }
 
 /**
@@ -241,31 +251,22 @@ async function nameWindow(windowId, name) {
 
 /**
  * @param {Window} window
- * @param {BNodeId} folderId
+ * @param {BNode[]} bookmarks
  * @param {string} logName
- * @param {boolean} remove
  */
-async function populateWindow(window, folderId, logName, remove) {
+async function populateWindow(window, bookmarks, logName) {
+    if (!bookmarks.length)
+        return;
+
     const windowId = window.id;
-    const { bookmarks, subfolders } = await readFolder(folderId);
+    const protoTabs = bookmarks.map(({ title, url }) => ({ windowId, url, ...StashProp.Tab.parse(title) }));
 
-    if (bookmarks.length) {
-        const protoTabs = bookmarks.map(({ title, url }) => ({ windowId, url, ...StashProp.Tab.parse(title) }));
-        await StashProp.Tab.preOpen(protoTabs, window);
-        /** @type {Promise<Tab>[]} */
-        const openingTabs = protoTabs.map(protoTab => openTab(protoTab, logName));
+    await StashProp.Tab.preOpen(protoTabs, window);
+    const openingTabs = protoTabs.map(protoTab => openTab(protoTab, logName));
 
-        Promise.any(openingTabs).then(() => browser.tabs.remove(window.tabs[0].id)); // Remove initial tab
-        const tabs = await Promise.all(openingTabs);
-        StashProp.Tab.postOpen(tabs, protoTabs);
-    }
-    nowUnstashing.delete(windowId);
-
-    if (remove)
-        subfolders.length // If folder contains subfolders
-        ? await Promise.all( bookmarks.map(bookmark => removeNode(bookmark.id)) ) // remove each bookmark individually
-        : await browser.bookmarks.removeTree(folderId); // else remove entire folder
-    nowUnstashing.delete(folderId);
+    Promise.any(openingTabs).then(() => browser.tabs.remove(window.tabs[0].id)); // Remove initial tab
+    const tabs = await Promise.all(openingTabs);
+    StashProp.Tab.postOpen(tabs, protoTabs);
 }
 
 /**
@@ -322,14 +323,19 @@ export async function canStashHere(nodeId, windowId = null) {
 export async function canUnstashThis(nodeId) {
     /** @type {Set<WindowId | BNodeId>} */
     const nowProcessing = nowStashing.union(nowUnstashing);
-    if (isRootId(nodeId) || nowProcessing.has(nodeId)) // Is root folder, or folder is being processed
-        return false;
-    const [node, allow_private] = await Promise.all([ getNode(nodeId), browser.extension.isAllowedIncognitoAccess() ]);
-    if (isSeparator(node) || nowProcessing.has(node.parentId)) // Is separator, or parent folder is being processed
-        return false;
+    if (isRootId(nodeId) || nowProcessing.has(nodeId))
+        return false; // Disallow root folders and folders being processed
+    const node = await getNode(nodeId);
+    switch (node.type) {
+        case 'separator':
+            return false; // Disallow separators
+        case 'bookmark':
+            return !nowProcessing.has(node.parentId); // Allow bookmarks, unless they are inside a folder being processed
+    }
+    // Is folder
     const [, protoWindow] = StashProp.Window.parse(node.title);
-    if (protoWindow?.incognito && !allow_private) // Is private-window folder but no private-window access
-        return false;
+    if (protoWindow?.incognito && !await browser.extension.isAllowedIncognitoAccess())
+        return false; // Disallow private-window folders without private-window access
     return true;
 }
 
