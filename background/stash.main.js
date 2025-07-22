@@ -57,6 +57,7 @@ export async function init({ stash_home_root, stash_home_folder }) {
  * @param {boolean} remove
  */
 export async function stashWindow(windowId, name, remove) {
+    console.info(`Stashing window id ${windowId}: ${name}...`);
     nowStashing.add(windowId);
 
     /** @type {[Window, Window[], BNodeId]} */
@@ -72,11 +73,12 @@ export async function stashWindow(windowId, name, remove) {
 
     await handleLoneWindow(
         windowId, remove, allWindows,
-        createBookmarksAtNode(window.tabs, folder, name),
+        createBookmarksAtNode(window.tabs, folder),
         () => browser.windows.remove(windowId),
     );
 
     nowStashing.delete(windowId);
+    console.info(`...Done stashing window id ${windowId}: ${name}`);
 }
 
 /**
@@ -86,6 +88,7 @@ export async function stashWindow(windowId, name, remove) {
  * @param {boolean} remove
  */
 export async function stashSelectedTabs(nodeId, remove) {
+    console.info(`Stashing tabs to node id ${nodeId}...`);
     /** @type {[Tab[], BNode]} */
     const [tabs, node] = await Promise.all([
         browser.tabs.query({ currentWindow: true }),
@@ -108,6 +111,7 @@ export async function stashSelectedTabs(nodeId, remove) {
     );
 
     nowStashing.delete(windowId);
+    console.info(`...Done stashing tabs to node id ${nodeId}`);
 }
 
 /**
@@ -134,10 +138,9 @@ async function handleLoneWindow(windowId, remove, allWindows, bookmarksPromise, 
 /**
  * @param {Tab[]} tabs
  * @param {BNode} node
- * @param {string} [logName]
  * @returns {Promise<BNode[]>}
  */
-async function createBookmarksAtNode(tabs, node, logName = '') {
+async function createBookmarksAtNode(tabs, node) {
     const isNodeFolder = isFolder(node);
     const [folder,] = await Promise.all([
         isNodeFolder ? node : getNode(node.parentId),
@@ -150,7 +153,7 @@ async function createBookmarksAtNode(tabs, node, logName = '') {
     /** @type {Promise<BNode>[]} */ const creatingBookmarks = new Array(count);
     /** @type {number?} */ const index = isNodeFolder ? null : node.index;
     for (let i = count; i--;) // Reverse iteration necessary for bookmarks to be in correct order
-        creatingBookmarks[i] = createBookmark(tabs[i], folderId, index, logName);
+        creatingBookmarks[i] = createBookmark(tabs[i], folderId, index);
     const bookmarks = await Promise.all(creatingBookmarks);
 
     nowStashing.delete(folderId);
@@ -161,14 +164,14 @@ async function createBookmarksAtNode(tabs, node, logName = '') {
  * @param {Tab} tab
  * @param {BNodeId} parentId
  * @param {number?} index
- * @param {string} logName
  * @returns {Promise<BNode>}
  */
-function createBookmark(tab, parentId, index, logName) {
+async function createBookmark(tab, parentId, index) {
     const url = Auto.deplaceholderize(tab.url);
     const title = StashProp.Tab.stringify(tab, parentId) || url;
-    console.log(`Stashing ${logName} | ${url} | ${title}`);
-    return createNode({ parentId, url, title, index });
+    const bookmark = await createNode({ parentId, url, title, index });
+    console.info(`Stashed bookmark id ${bookmark.id}: ${url} | ${title}`);
+    return bookmark;
 }
 
 
@@ -212,6 +215,7 @@ async function unstashBookmark(node, remove) {
 async function unstashFolder(folder, remove) {
     const folderId = folder.id;
     const [name, protoWindow] = StashProp.Window.parse(folder.title);
+    console.info(`Unstashing folder id ${folderId}: ${name}...`);
 
     /** @type {[Object<string, BNode[]>, Window, boolean]} */
     const [{ bookmarks, subfolders }, window, auto_name_unstash] = await Promise.all([
@@ -232,6 +236,7 @@ async function unstashFolder(folder, remove) {
             ? await Promise.all( bookmarks.map(({ id }) => removeNode(id)) ) // remove each bookmark individually
             : await browser.bookmarks.removeTree(folderId); // else remove entire folder
     nowUnstashing.delete(folderId);
+    console.info(`... Done unstashing folder id ${folderId}: ${name}`);
 }
 
 /**
@@ -266,9 +271,8 @@ async function nameWindow(windowId, name) {
 /**
  * @param {Window} window
  * @param {BNode[]} bookmarks
- * @param {string} logName
  */
-async function populateWindow(window, bookmarks, logName) {
+async function populateWindow(window, bookmarks) {
     if (!bookmarks.length)
         return;
 
@@ -276,7 +280,7 @@ async function populateWindow(window, bookmarks, logName) {
     const protoTabs = bookmarks.map(({ title, url }) => ({ windowId, url, ...StashProp.Tab.parse(title) }));
 
     await StashProp.Tab.preOpen(protoTabs, window);
-    const openingTabs = protoTabs.map(protoTab => openTab(protoTab, logName));
+    const openingTabs = protoTabs.map(protoTab => openTab(protoTab));
 
     Promise.any(openingTabs).then(() => browser.tabs.remove(window.tabs[0].id)); // Remove initial tab
     const tabs = await Promise.all(openingTabs);
@@ -285,14 +289,14 @@ async function populateWindow(window, bookmarks, logName) {
 
 /**
  * @param {ProtoTab} protoTab
- * @param {string} [logName]
  * @returns {Promise<Tab>}
  */
-function openTab(protoTab, logName = '') {
-    console.log(`Unstashing ${logName} | ${protoTab.url} | ${protoTab.title}`);
+async function openTab(protoTab) {
     const safeProtoTab = StashProp.Tab.scrub(protoTab);
     safeProtoTab.discarded = true;
-    return Action.openTab(safeProtoTab);
+    const tab = await Action.openTab(safeProtoTab);
+    console.info(`Unstashed tab id ${tab.id}: ${tab.url} | ${tab.title}`);
+    return tab;
 }
 
 
