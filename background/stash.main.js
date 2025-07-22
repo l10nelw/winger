@@ -180,8 +180,7 @@ function createBookmark(tab, parentId, index, logName) {
  * @param {boolean} [remove=true]
  */
 export async function unstashNode(nodeId, remove = true) {
-    /** @type {BNode} */
-    const node = (await browser.bookmarks.get(nodeId))[0];
+    const node = await getNode(nodeId);
     switch (node.type) {
         case 'bookmark':
             return unstashBookmark(node, remove);
@@ -236,6 +235,21 @@ async function unstashFolder(folder, remove) {
 }
 
 /**
+ * @param {BNodeId} folderId
+ * @returns {Promise<{ bookmarks: BNode[], subfolders: BNode[] }>}
+ */
+async function readFolder(folderId) {
+    /** @type {{ bookmark: BNode[], folder: BNode[] }} */
+    const nodesByType = { bookmark: [], folder: [] };
+    for (const node of await getChildNodes(folderId))
+        nodesByType[node.type]?.push(node);
+    return {
+        bookmarks: nodesByType.bookmark,
+        subfolders: nodesByType.folder,
+    };
+}
+
+/**
  * @param {WindowId} windowId
  * @param {string} name
  */
@@ -267,21 +281,6 @@ async function populateWindow(window, bookmarks, logName) {
     Promise.any(openingTabs).then(() => browser.tabs.remove(window.tabs[0].id)); // Remove initial tab
     const tabs = await Promise.all(openingTabs);
     StashProp.Tab.postOpen(tabs, protoTabs);
-}
-
-/**
- * @param {BNodeId} folderId
- * @returns {Promise<{ bookmarks: BNode[], subfolders: BNode[] }>}
- */
-async function readFolder(folderId) {
-    /** @type {{ bookmark: BNode[], folder: BNode[] }} */
-    const nodesByType = { bookmark: [], folder: [] };
-    for (const node of await getChildNodes(folderId))
-        nodesByType[node.type]?.push(node);
-    return {
-        bookmarks: nodesByType.bookmark,
-        subfolders: nodesByType.folder,
-    };
 }
 
 /**
