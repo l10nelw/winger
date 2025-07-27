@@ -16,7 +16,7 @@ import * as Request from './request.js';
 import * as Status from './status.js';
 import * as Toolbar from './toolbar.js';
 
-/** @typedef {import('../types.js').PopupInitMessage} PopupInitMessage */
+/** @import { PopupInitMessage } from '../types.js' */
 
 Request.popup().then(init, initError);
 $body.addEventListener('click', onClick);

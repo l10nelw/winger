@@ -9,16 +9,8 @@ import * as Winfo from './winfo.js';
 import * as Name from '../name.js';
 import * as Storage from '../storage.js';
 
-/** @typedef {import('../types.js').WindowId} WindowId */
-/** @typedef {import('../types.js').TabId} TabId */
-/** @typedef {import('../types.js').BNodeId} BNodeId */
-/** @typedef {import('../types.js').Window} Window */
-/** @typedef {import('../types.js').Tab} Tab */
-/** @typedef {import('../types.js').BNode} BNode */
-/** @typedef {import('../types.js').StashFolder} StashFolder */
-/** @typedef {import('../types.js').ProtoWindow} ProtoWindow */
-/** @typedef {import('../types.js').ProtoTab} ProtoTab */
-/** @typedef {import('../types.js').ProtoBNode} ProtoBNode */
+/** @import { WindowId, BNodeId, Window, Tab, BNode, StashFolder, ProtoTab, ProtoBNode } from '../types.js' */
+/** @import { STORED_PROPS } from '../storage.js' */
 
 
 // Ids of windows and folders currently involved in stashing/unstashing operations
@@ -27,9 +19,7 @@ import * as Storage from '../storage.js';
 
 /**
  * Identify the stash home's folder id based on settings.
- * @param {Object} settings
- * @param {string} settings.stash_home_root
- * @param {string} settings.stash_home_folder
+ * @param {Partial<STORED_PROPS>}
  */
 export async function init({ stash_home_root, stash_home_folder }) {
     /** @type {BNodeId} */ let _stashHomeId;
@@ -60,7 +50,7 @@ export async function stashWindow(windowId, name, remove) {
     console.info(`Stashing window id ${windowId}: ${name}...`);
     nowStashing.add(windowId);
 
-    /** @type {[Window, Window[], BNodeId]} */
+    /** @type {[Window, Window[]?, BNodeId]} */
     const [window, allWindows, homeId] = await Promise.all([
         browser.windows.get(windowId, { populate: true }),
         remove && browser.windows.getAll(),

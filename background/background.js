@@ -10,11 +10,7 @@ import * as Winfo from './winfo.js';
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 
-/** @typedef {import('../types.js').WindowId} WindowId */
-/** @typedef {import('../types.js').TabId} TabId */
-/** @typedef {import('../types.js').Window} Window */
-/** @typedef {import('../types.js').Tab} Tab */
-/** @typedef {import('../types.js').Winfo} Winfo */
+/** @import { Tab, Window, WindowId, Winfo } from '../types.js' */
 
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onFocusChanged.addListener(onWindowFocusChanged);
@@ -65,7 +61,7 @@ async function onWindowCreated(window) {
 async function handleDetachedTabs(windowId) {
     // Natively, detached tabs stay selected. To honour `!keep_moved_tabs_selected`, we REFOCUS focused tab to deselect selected tabs.
     if (!await Storage.getValue('keep_moved_tabs_selected')) {
-        /** @type {Tab} */
+        /** @type {Tab?} */
         const focusedTab = (await browser.tabs.query({ windowId, active: true }))[0];
         if (focusedTab)
             Action.focusTab(focusedTab.id);

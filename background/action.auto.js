@@ -3,11 +3,7 @@
 import * as Storage from '../storage.js';
 import * as Winfo from './winfo.js';
 
-/** @typedef {import('../types.js').WindowId} WindowId */
-/** @typedef {import('../types.js').TabId} TabId */
-/** @typedef {import('../types.js').Tab} Tab */
-/** @typedef {import('../types.js').ProtoTab} ProtoTab */
-/** @typedef {import('./types.js').Winfo} Winfo */
+/** @import { WindowId, TabId, Tab, ProtoTab } from '../types.js' */
 
 
 /* --- Pages --- */
@@ -90,11 +86,7 @@ class WindowSwitchList extends Array {
      */
     inProgress = false;
 
-    /**
-     * @modifies switchList
-     */
     async _populate() {
-        /** @type {Winfo[]} */
         const winfos = await Winfo.getAll(
             ['givenName', 'title'],
             (await browser.windows.getAll()).filter(window => window.state !== 'minimized'),
@@ -124,8 +116,7 @@ class WindowSwitchList extends Array {
      * @param {WindowId} windowId
      * @param {number} offset
      * @returns {Promise<WindowId>}
-     * @throws If origin windowId not found in switchList
-     * @modifies switchList if empty
+     * @throws If origin windowId not found
      */
     async getDestination(windowId, offset) {
         if (!this.length)
@@ -136,9 +127,6 @@ class WindowSwitchList extends Array {
         return this.at(index + offset) ?? this[0];
     }
 
-    /**
-     * @modifies switchList
-     */
     reset() {
         this.length = 0;
     }

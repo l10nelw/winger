@@ -8,13 +8,7 @@ import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 import { isWindowId, isNodeId } from '../utils.js';
 
-/** @typedef {import('../types.js').WindowId} WindowId */
-/** @typedef {import('../types.js').TabId} TabId */
-/** @typedef {import('../types.js').BNodeId} BNodeId */
-/** @typedef {import('../types.js').BNode} BNode */
-/** @typedef {import('../types.js').Winfo} Winfo */
-/** @typedef {import('../types.js').PopupInitMessage} PopupInitMessage */
-/** @typedef {import('../types.js').ActionRequest} ActionRequest */
+/** @import { WindowId, BNodeId, BNode, Winfo, PopupInitMessage, ActionRequest } from '../types.js' */
 
 browser.runtime.onMessage.addListener(request => onMessage(INTERNAL, request));
 browser.runtime.onMessageExternal.addListener(request => onMessage(EXTERNAL, request));

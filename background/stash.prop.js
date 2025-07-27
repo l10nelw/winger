@@ -21,16 +21,7 @@ Unstash procedure:
 import { restoreTabRelations } from './action.auto.js';
 import { GroupMap } from '../utils.js';
 
-/** @typedef {import('../types.js').WindowId} WindowId */
-/** @typedef {import('../types.js').TabId} TabId */
-/** @typedef {import('../types.js').GroupId} GroupId */
-/** @typedef {import('../types.js').BNodeId} BNodeId */
-/** @typedef {import('../types.js').Window} Window */
-/** @typedef {import('../types.js').Tab} Tab */
-/** @typedef {import('../types.js').Group} Group */
-/** @typedef {import('../types.js').ProtoWindow} ProtoWindow */
-/** @typedef {import('../types.js').ProtoTab} ProtoTab */
-/** @typedef {import('../types.js').ProtoGroup} ProtoGroup */
+/** @import { TabId, GroupId, BNodeId, Window, Tab, Group, ProtoWindow, ProtoTab, ProtoGroup } from '../types.js' */
 
 /**
  * @param {BNodeId} folderId

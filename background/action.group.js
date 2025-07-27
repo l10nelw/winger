@@ -1,10 +1,6 @@
 import { GroupMap } from '../utils.js';
 
-/** @typedef {import('../types.js').WindowId} WindowId */
-/** @typedef {import('../types.js').TabId} TabId */
-/** @typedef {import('../types.js').GroupId} GroupId */
-/** @typedef {import('../types.js').Tab} Tab */
-/** @typedef {import('../types.js').Group} Group */
+/** @import { WindowId, TabId, GroupId, Tab, Group } from '../types.js' */
 
 /**
  * Map of groupIds to arrays of their associated tabIds - `Map<GroupId, TabId[]>`
@@ -14,7 +10,6 @@ export class GroupIdTabIdMap extends GroupMap {
     /**
      * Include tabIds in map for each tab that is part of a group.
      * @param {Tab[]} tabs
-     * @modifies this
      */
     addTabsIfGroup(tabs) {
         for (const tab of tabs)
@@ -24,7 +19,6 @@ export class GroupIdTabIdMap extends GroupMap {
 
     /**
      * Purge groups that do not have all their tabs listed.
-     * @modifies this
      */
     async deletePartialGroupEntries() {
         if (!this.size)
@@ -43,7 +37,6 @@ export class GroupIdTabIdMap extends GroupMap {
      * @returns {Promise<Group[]>}
      */
     async getGroups() {
-        /** @type {GroupId[]} */
         return this.size ?
             Promise.all( [...this.keys()].map(groupId => browser.tabGroups.get(groupId)) ) : [];
     }

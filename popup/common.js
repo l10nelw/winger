@@ -1,19 +1,21 @@
 import { NameMap } from '../name.js';
 
-/** @typedef {import('../types.js').WindowId} WindowId */
-/** @typedef {import('../types.js').BNodeId} FolderId */
-/** @typedef {import('../types.js').Winfo} Winfo */
+/** @import { WindowId, BNodeId } from '../types.js' */
 /** @import { STORED_PROPS } from '../storage.js' */
 
 /**
- * @typedef WindowRow$Properties
- * @property {WindowId | FolderId} _id
+ * Window row element.
+ * @typedef {HTMLLIElement & _WindowRow$} WindowRow$
+ * @typedef _WindowRow$
+ * @property {WindowId | BNodeId} _id
  * @property {number} [_nameLength]
  * @property {NameField$} $name
  * @property {HTMLElement} $tabCount
  */
-/** @typedef {HTMLLIElement & WindowRow$Properties} WindowRow$ - Window row element */
-/** @typedef {HTMLInputElement & { _id: WindowId | FolderId }} NameField$ - Name field element */
+/**
+ * Name field element.
+ * @typedef {HTMLInputElement & { _id: WindowId | BNodeId }} NameField$
+ */
 
 // Elements of the popup //
 
@@ -35,8 +37,10 @@ export const $names = [];
  * Original order of only window rows, unlike `$otherWindowsList.children` whose order can change and may contain heading rows.
  * `$withHeadings` has all rows in original order.
  * @type {WindowRow$[] & {
- *     $minimizedHeading: HTMLLIElement, $withHeadings: HTMLLIElement[],
- *     $stashedHeading?: HTMLLIElement, $stashed?: WindowRow$[] & { _startIndex: number },
+ *     $minimizedHeading: HTMLLIElement,
+ *     $withHeadings: HTMLLIElement[],
+ *     $stashedHeading?: HTMLLIElement,
+ *     $stashed?: WindowRow$[] & { _startIndex: number },
  * }}
  */
 export const $otherWindowRows = [];

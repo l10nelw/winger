@@ -1,7 +1,6 @@
 import { isWindowId } from './utils.js';
 
-/** @typedef {import('./types.js').WindowId} WindowId */
-/** @typedef {import('./types.js').BNodeId} FolderId */
+/** @import { WindowId, BNodeId } from './types.js' */
 
 const NUMBER_POSTFIX = / (\d+)$/;
 
@@ -59,7 +58,7 @@ export class NameMap extends Map {
 
     /**
      * @param {HTMLInputElement[] | Winfo[]} objects - Either an array of $names, or an array of winfos containing givenNames.
-     * @returns {this & Map<(WindowId | FolderId), string>}
+     * @returns {this & Map<(WindowId | BNodeId), string>}
      */
     populate(objects) {
         if (objects[0] instanceof HTMLInputElement) {
@@ -88,7 +87,7 @@ export class NameMap extends Map {
     /**
      * Find name in map. Ignores blank. Return associated id if found, else return 0.
      * @param {string} name
-     * @returns {WindowId | FolderId | 0}
+     * @returns {WindowId | BNodeId | 0}
      */
     findId(name) {
         if (name)
@@ -102,8 +101,8 @@ export class NameMap extends Map {
      * Check name against map for errors, including duplication.
      * Return 0 if name is blank or valid-and-unique or conflicting id is excludeId. Else return -1 or conflicting id.
      * @param {string} name
-     * @param {WindowId | FolderId} excludeId
-     * @returns {0 | -1 | WindowId | FolderId}
+     * @param {WindowId | BNodeId} excludeId
+     * @returns {0 | -1 | WindowId | BNodeId}
      */
     checkForErrors(name, excludeId) {
         if (!name)

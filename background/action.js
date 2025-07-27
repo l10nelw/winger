@@ -7,14 +7,7 @@ import * as Chrome from './chrome.js';
 import * as Name from '../name.js';
 import * as Storage from '../storage.js';
 
-/** @typedef {import('../types.js').WindowId} WindowId */
-/** @typedef {import('../types.js').TabId} TabId */
-/** @typedef {import('../types.js').GroupId} GroupId */
-/** @typedef {import('../types.js').Window} Window */
-/** @typedef {import('../types.js').Tab} Tab */
-/** @typedef {import('../types.js').Group} Group */
-/** @typedef {import('../types.js').ProtoTab} ProtoTab */
-/** @typedef {import('../types.js').ActionRequest} ActionRequest */
+/** @import { ActionRequest, GroupId, ProtoTab, Tab, TabId, Window } from '../types.js' */
 
 /**
  * @param {string} hash
@@ -71,7 +64,7 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
     incognito ??= currentWindow.incognito;
 
     const kick = !focused;
-    const state = (kick && minimize_kick_window) ? 'minimized' : null;
+    const state = (kick && minimize_kick_window) ? 'minimized' : undefined;
     /** @type {Window} */ const newWindow = await browser.windows.create({ incognito, state });
     const newWindowId = newWindow.id;
 

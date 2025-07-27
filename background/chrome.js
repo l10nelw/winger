@@ -3,6 +3,8 @@
 import * as Badge from './chrome.badge.js';
 import * as Storage from '../storage.js';
 
+/** @import { WindowId } from '../types.js' */
+
 const TitlePreface = {
 
     /**

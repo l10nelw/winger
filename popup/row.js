@@ -9,10 +9,8 @@ import {
 import * as Filter from './filter.js';
 import * as Request from './request.js';
 
-/** @typedef {import('../types.js').Winfo} Winfo */
-/** @typedef {import('../types.js').BNode} Folder */
-/** @typedef {import('./common.js').WindowRow$} WindowRow$ */
-/** @typedef {import('./common.js').NameField$} NameField$ */
+/** @import { NameField$, WindowRow$ } from './common.js' */
+/** @import { Winfo, BNode, StashFolder } from '../types.js' */
 
 const CELL_SELECTORS = new Set(['.send', '.bring', '.name', '.tabCount', '.stash']);
 /** @type {Object<string, WindowRow$>} */ const Template = {};
@@ -131,7 +129,7 @@ const WindowRow = {
 };
 
 /**
- * @param {Folder[]} folders
+ * @param {BNode[]} folders
  */
 export function addAllFolders(folders) {
     // Create stashed-heading
@@ -199,11 +197,11 @@ const FolderRow = {
     },
 
     /**
-     * @param {Folder} folder
+     * @param {StashFolder}
      * @returns {WindowRow$}
      */
     create({ givenName, id, protoWindow }) {
-        const $row = Template.$folder.cloneNode(true);
+        /** @type {WindowRow$} */ const $row = Template.$folder.cloneNode(true);
         referenceHydrate($row);
         $row._id = id;
         $row.$name._id = id;

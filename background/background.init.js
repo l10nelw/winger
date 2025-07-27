@@ -8,15 +8,15 @@ import * as Winfo from './winfo.js';
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 
-/** @typedef {import('../types.js').Tab} Tab */
-/** @typedef {import('../types.js').Winfo} Winfo */
+/** @import { Tab, Winfo } from '../types.js' */
+/** @import { STORED_PROPS } from '../storage.js' */
 
 Promise.all([
     Storage.init(),
     Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized', 'title']),
     browser.tabs.query({ active: true }),
 ])
-.then(/** @param {[Object<string, any>, Winfo[], Tab[]]} */ async ([info, winfos, focusedTabs]) => {
+.then(/** @param {[typeof STORED_PROPS, Winfo[], Tab[]]} */ async ([info, winfos, focusedTabs]) => {
 
     // Load `Stash` module if `info.stash_enabled` and bookmarks permission granted
     await Stash.init(info);

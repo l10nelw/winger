@@ -5,11 +5,7 @@ import * as Winfo from './winfo.js';
 
 import { BRING, modify } from '../modifier.js';
 
-/** @typedef {import('../types.js').WindowId} WindowId */
-/** @typedef {import('../types.js').TabId} TabId */
-/** @typedef {import('../types.js').Window} Window */
-/** @typedef {import('../types.js').Tab} Tab */
-/** @typedef {import('../types.js').Winfo} Winfo */
+/** @import { WindowId, Window, Tab, Winfo, ActionRequest } from '../types.js' */
 
 const parentId = 'send';
 const dummyId = '-';
@@ -138,9 +134,11 @@ function openLink(url, windowId, modifiers) {
  * @param {string[]} modifiers
  */
 function moveTab(tab, windowId, modifiers) {
-    Action.execute({
+    /** @type {ActionRequest} */
+    const request = {
         action: modify('send', modifiers),
         tabs: tab.highlighted ? null : [tab], // tabs=null means all selected tabs
         windowId,
-    });
+    };
+    Action.execute(request);
 }

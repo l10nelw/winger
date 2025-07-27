@@ -15,9 +15,8 @@ import * as Name from '../name.js';
 import indicateSuccess from '../success.js';
 import { isWindowId } from '../utils.js';
 
-/** @typedef {import('../types.js').WindowId} WindowId */
-/** @typedef {import('../types.js').BNodeId} FolderId */
-/** @typedef {import('./common.js').NameField$} NameField$ */
+/** @import { NameField$ } from './common.js' */
+/** @import { WindowId, BNodeId } from '../types.js' */
 
 /** Indicates if popup is in edit mode */
 export let isActive = false;
@@ -196,7 +195,7 @@ export async function saveNameUpdateUI($name, name) {
 /**
  * Indicate if name is invalid, as well as the duplicate name if any.
  * @param {NameField$} $name
- * @param {0 | -1 | WindowId | FolderId} errorId
+ * @param {0 | -1 | WindowId | BNodeId} errorId
  */
 function toggleError($name, errorId) {
     if (!errorId)
@@ -223,7 +222,7 @@ function toggleNameFields(isEnable) {
 }
 
 /**
- * @param {FolderId} folderId
+ * @param {BNodeId} folderId
  * @param {string} title
  * @returns {Promise<boolean>}
  */

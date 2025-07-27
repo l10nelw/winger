@@ -11,7 +11,7 @@ import {
 import { isActive as isEditMode } from './editmode.js';
 import { $shownRows } from './filter.js';
 
-/** @typedef {import('./common.js').WindowRow$} WindowRow$ */
+/** @import { WindowRow$ } from './common.js' */
 /** @typedef {string} Key */
 
 /**

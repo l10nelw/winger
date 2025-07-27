@@ -4,7 +4,7 @@ import {
     $otherWindowRows,
 } from './common.js';
 
-/** @typedef {import('./common.js').WindowRow$} WindowRow$ */
+/** @import { WindowRow$ } from './common.js' */
 
 /**
  * Visible other-window rows.

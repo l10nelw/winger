@@ -1,12 +1,7 @@
-/**
- * @see Winfo for description of winfos.
- */
-
 import * as Storage from '../storage.js';
 
-/** @typedef {import('../types.js').WindowId} WindowId */
-/** @typedef {import('../types.js').Window} Window */
-/** @typedef {import('../types.js').Winfo} Winfo */
+/** @import { WindowId, Window, Winfo } from '../types.js' */
+/** @see Winfo for definition of winfos. */
 
 /** Dict of keys for `sessions.getWindowValue()` mapped to default values. */
 const PROPS_TO_LOAD = {
@@ -170,4 +165,4 @@ export function arrange(winfos) {
 
 /** @param {WindowId} windowId @returns {Promise<void>} */ export const saveLastFocused = windowId => browser.sessions.setWindowValue(windowId, 'lastFocused', Date.now());
 /** @param {WindowId} windowId @returns {Promise<void>} */ export const saveFirstSeen = windowId => browser.sessions.setWindowValue(windowId, 'firstSeen', Date.now());
-/** @param {WindowId} windowId @returns {Promise<number?>} */ export const loadFirstSeen = windowId => browser.sessions.getWindowValue(windowId, 'firstSeen');
+/** @param {WindowId} windowId @returns {Promise<EpochTimeStamp?>} */ export const loadFirstSeen = windowId => browser.sessions.getWindowValue(windowId, 'firstSeen');

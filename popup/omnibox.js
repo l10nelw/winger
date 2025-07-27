@@ -13,7 +13,7 @@ import * as Toolbar from './toolbar.js';
 
 import { validify } from '../name.js';
 
-/** @typedef {import('./common.js').NameField$} NameField$ */
+/** @import { NameField$ } from './common.js' */
 /**
  * @callback CommandCallback
  * @param {Object} [info]
@@ -345,7 +345,7 @@ const Placeholder = {
      * @param {string} className
      * @param {number} [time]
      */
-    flash(text, className, time = Placeholder.TIMEOUT) {
+    flash(text, className, time = this.TIMEOUT) {
         Placeholder.set(text, className);
         setTimeout(Placeholder.reset, time);
     },

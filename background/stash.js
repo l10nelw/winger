@@ -19,5 +19,5 @@ export async function init(settings) {
             import('./stash.menu.js'),
         ]);
     }
-    Main.init(settings);
+    await Main.init(settings);
 }

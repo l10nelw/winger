@@ -5,7 +5,7 @@ import * as StashMain from './stash.main.js';
 
 import { STASHCOPY } from '../modifier.js';
 
-/** @typedef {import('../types.js').BNodeId} BNodeId */
+/** @import { BNodeId } from '../types.js' */
 
 const contexts = ['bookmark']; // Menu only appears if bookmarks permission granted
 const parentId = 'bookmark';

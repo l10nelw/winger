@@ -4,13 +4,8 @@ import { $currentWindowRow } from './common.js';
 import * as Modifier from '../modifier.js';
 import { getValue } from '../storage.js';
 
-/** @typedef {import('../types.js').WindowId} WindowId */
-/** @typedef {import('../types.js').Winfo} Winfo */
-/** @typedef {import('../types.js').BNode} Folder */
-/** @typedef {import('../types.js').PopupInitMessage} PopupInitMessage */
-/** @typedef {import('../types.js').ActionRequest} ActionRequest */
-/** @typedef {import('./common.js').WindowRow$} WindowRow$ */
-
+/** @import { WindowRow$ } from './common.js' */
+/** @import { WindowId, BNode, PopupInitMessage, ActionRequest } from '../types.js' */
 
 /** @type {(message: any) => Promise} */
 const sendMessage = browser.runtime.sendMessage;
@@ -25,13 +20,13 @@ export const debug = () => sendMessage({ type: 'debug' });
 export const popup = () => sendMessage({ type: 'popup' });
 
 /**
- * @returns {Promise<Folder[]>}
+ * @returns {Promise<BNode[]>}
  */
 export const popupStash = () => sendMessage({ type: 'popupStash' });
 
 /**
- * @param {Folder[]} folders
- * @returns {Promise<Folder[]>}
+ * @param {BNode[]} folders
+ * @returns {Promise<BNode[]>}
  */
 export const popupStashContents = folders => sendMessage({ type: 'popupStashContents', folders });
 
@@ -42,9 +37,10 @@ export const popupStashContents = folders => sendMessage({ type: 'popupStashCont
 export const updateChrome = (windowId, name) => sendMessage({ type: 'update', windowId, name });
 
 /**
- * Gather action parameters to create request. Proceed only if action string given via `command` or derived from `$action`.
+ * Gather action parameters to create an ActionRequest. Proceed only if action string is given via `command` or derived from `$action`.
  *
- * Args from slash-commands: `{ event, command, argument }`. Args from others: `{ event, $action }`.
+ * Args from slash-commands: `{ event, command, argument }`.
+ * Args from others: `{ event, $action }`.
  *
  * Request requirements based on action:
  * ```
@@ -53,12 +49,12 @@ export const updateChrome = (windowId, name) => sendMessage({ type: 'update', wi
  * { type: 'action', action: 'new'|'pop'|'kick'|'newnormal'|'newprivate'|...,  argument }
  * { type: 'action', action: 'stash',  windowId|folderId, name, remove }  // folderId + 'stash' -> unstash folder
  * ```
+ * @see ActionRequest
  * @param {Object} info
  * @param {Event} info.event
  * @param {string} [info.command]
  * @param {string} [info.argument]
  * @param {HTMLElement} [info.$action]
- * @see ActionRequest
  */
 export async function action({ event, command, argument, $action }) {
     /** @type {ActionRequest} */ const request = { type: 'action' };
