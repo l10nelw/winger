@@ -20,7 +20,7 @@
           <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="true"> <span>selected sent/brought tabs stay selected</span></label>
           <label><input class="setting" type="radio" name="keep_moved_tabs_selected" value="false"> <span>the destination window's originally selected tabs stay selected</span></label>
         </div>
-        <small>Learn more about <a class="help" href="#common">send and bring</a></small>
+        <small>Learn more about <a class="help" href="#basic">send and bring</a></small>
       </fieldset>
 
       <fieldset>
@@ -31,9 +31,9 @@
         <div class="indent">
           <label><input class="setting" type="checkbox" data-enabled-by="show_badge" name="badge_show_emoji_first"> <span>Show emoji first</span></label>
           <div class="flex">
-            <label><input type="checkbox" data-checked-by="badge_regex" disabled> <span></span></label>
+            <label><input type="checkbox" data-checked-by="badge_regex" disabled title="Automatically enabled when field is filled"> <span></span></label>
             <label><span>Show only regex match:</span> <input class="setting mediumField" type="text" data-enabled-by="show_badge" name="badge_regex" placeholder="e.g. \b\w"></label>
-            <label class="ms"><input class="setting" type="checkbox" data-enabled-by="badge_regex" name="badge_regex_gflag"> <span>Multiple matches ("global")</span></label>
+            <label class="ms"><input class="setting" type="checkbox" data-enabled-by="badge_regex" name="badge_regex_gflag"> <span>Multiple matches within name ("global")</span></label>
           </div>
         </div>
         <label><input class="setting" type="checkbox" name="set_title_preface"> <span>Show name in window title preface

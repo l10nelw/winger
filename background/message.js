@@ -40,6 +40,9 @@ function onMessage(fnCollection, message) {
  */
 const INTERNAL = {
 
+    /**
+     * @see /popup/request.js#debug
+     */
     async debug() {
         const modules = {
             Action,
@@ -58,6 +61,7 @@ const INTERNAL = {
 
     /**
      * @returns {Promise<PopupInitMessage>}
+     * @see /popup/request.js#popup
      */
     async popup() {
         /** @type {[Window[], Object<string, boolean>, boolean]} */
@@ -79,6 +83,7 @@ const INTERNAL = {
 
     /**
      * @returns {Promise<BNode[]>}
+     * @see /popup/request.js#popupStash
      */
     async popupStash() {
         /** @type {[boolean, BNodeId]} */
@@ -95,6 +100,7 @@ const INTERNAL = {
      * @param {Object} request
      * @param {BNode[]} request.folders
      * @returns {Promise<BNode[]>}
+     * @see /popup/request.js#popupStashContents
      */
     async popupStashContents({ folders }) {
         const folderList = await (new Stash.Main.FolderList()).populate(folders);
@@ -103,6 +109,7 @@ const INTERNAL = {
 
     /**
      * @param {ActionRequest} request
+     * @see /popup/request.js#action
      */
     action(request) {
         if (request.folderId) {
@@ -120,6 +127,8 @@ const INTERNAL = {
      * @param {Object} request
      * @param {string} [request.name]
      * @param {WindowId} [request.windowId]
+     * @see /page/options.js#onFieldChanged
+     * @see /popup/request.js#updateChrome
      */
     async update({ name, windowId }) {
         Auto.switchList.reset();
@@ -133,12 +142,14 @@ const INTERNAL = {
     /**
      * @param {Object} request
      * @param {string} request.component
+     * @see /page/options.js#onFieldChanged
      */
     clear: ({ component }) => Chrome.clear(component),
 
     /**
      * @param {Object} request
      * @param {boolean} request.enabled
+     * @see /page/options.js#onFieldChanged
      */
     async discardMinimized({ enabled }) {
         if (enabled) {
@@ -152,14 +163,26 @@ const INTERNAL = {
         }
     },
 
+    /**
+     * @see /page/options.js#onFieldChanged
+     */
     async stashInit() {
         const settings = await Storage.getDict(['enable_stash', 'stash_home_root', 'stash_home_folder']);
         await Stash.init(settings);
         Stash.Menu.init();
     },
 
-    help: () => Action.openHelp(),
+    /**
+     * @param {Object} request
+     * @param {string} [request.hash]
+     * @see /page/options.js#onFormClicked
+     * @see /popup/request.js#help
+     */
+    help: ({ hash }) => Action.openHelp(hash),
 
+    /**
+     * @see /popup/request.js#showWarningBadge
+     */
     warn: Chrome.showWarningBadge,
 
 }

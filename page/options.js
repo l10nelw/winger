@@ -1,7 +1,6 @@
 import * as Shortcut from './shortcut.js';
 
-import { openHelp } from '../background/action.js';
-import * as Stash from '../background/stash.js';
+import { hasPermission as Stash_hasPermission } from '../background/stash.js';
 import * as Storage from '../storage.js';
 import indicateSuccess from '../success.js';
 import { isDark } from '../theme.js';
@@ -204,105 +203,108 @@ const BadgeRegex = {
     },
 };
 
-(async function init() {
+async function init() {
     const SETTINGS = await Storage.getDict();
     for (const $field of Setting.$fields) {
         Setting.load(SETTINGS[$field.name], $field);
         enablerMap.addTarget($field);
     }
-    if ($form.enable_stash.checked && !await Stash.hasPermission())
+    if ($form.enable_stash.checked && !await Stash_hasPermission())
         await StashSection.onNoPermission();
     StaticText.insertShortcuts();
     StaticText.checkPrivateAccess();
     BadgeRegex.update();
-})();
+}
 
-browser.permissions.onRemoved.addListener(
-    /**
-     * Bug: If permission removed while option page is not loaded and therefore this listener is not running, `StashSection.onNoPermission()` here will not execute.
-     * @param {Object} permissionsObject
-     * @param {string[]} permissionsObject.permissions
-     */
-    ({ permissions }) => permissions.includes('bookmarks') && StashSection.onNoPermission()
-);
+/**
+ * @listens browser.permissions.onRemoved
+ * @param {Object} permissionsObject
+ * @param {string[]} permissionsObject.permissions
+*/
+function onPermissionRemoved({ permissions }) {
+    if (permissions.includes('bookmarks'))
+        StashSection.onNoPermission();
+        // Bug: If permission removed while option page is not loaded and therefore this listener is not running, this will not execute
+}
 
-$form.addEventListener('change',
-    /**
-     * @param {{ target: HTMLInputElement }} event
-     */
-    async ({ target: $field }) => {
-        const fieldName = $field.name;
+/**
+ * @listens Event - change in $form
+ * @param {{ target: HTMLInputElement }} event
+ */
+async function onFieldChanged({ target: $field }) {
+    const fieldName = $field.name;
 
-        // Before save
-        switch (fieldName) {
-            case 'badge_regex':
-                if (!validateRegex($field))
-                    return; // Stop to prevent save
-            case 'enable_stash':
-                await StashSection.onEnabled($field);
-        }
-
-        // Save
-        /** @type {boolean} */
-        const isAllSaved = (
-            await Promise.all([ enablerMap.trigger($field), Setting.save($field) ])
-        ).every(Boolean);
-        if (isAllSaved)
-            indicateSuccess($field.closest('.flex') || $field.closest('label'));
-
-        // After save
-        switch (fieldName) {
-            case 'set_title_preface':
-                if (!$field.checked)
-                    browser.runtime.sendMessage({ type: 'clear', component: 'TitlePreface' });
-                return;
-            case 'title_preface_prefix':
-            case 'title_preface_postfix':
-            case 'assert_title_preface':
-            case 'show_badge':
-                if (!$field.checked)
-                    browser.runtime.sendMessage({ type: 'clear', component: 'Badge' });
-                return;
-            case 'badge_show_emoji_first':
-            case 'badge_regex':
-            case 'badge_regex_gflag':
-                BadgeRegex.update();
-                browser.runtime.sendMessage({ type: 'update' });
-                return;
-
-            case 'discard_minimized_window':
-                if (!$field.checked)
-                    browser.runtime.sendMessage({ type: 'discardMinimized', enabled: false });
-                return;
-            case 'discard_minimized_window_delay_mins':
-                if ($form.discard_minimized_window.checked)
-                    browser.runtime.sendMessage({ type: 'discardMinimized', enabled: true });
-                return;
-
-            case 'theme':
-                document.body.classList.toggle('dark', isDark($form.theme.value));
-                return;
-
-            case 'enable_stash':
-            case 'stash_home_folder':
-            case 'stash_home_root':
-                if ($form.enable_stash.checked)
-                    browser.runtime.sendMessage({ type: 'stashInit' });
-                return;
-        }
+    // Before save
+    switch (fieldName) {
+        case 'badge_regex':
+            if (!validateRegex($field))
+                return; // Stop to prevent save
+        case 'enable_stash':
+            await StashSection.onEnabled($field);
     }
-);
 
-$form.addEventListener('click',
-    /**
-     * @param {{ target: HTMLElement }} event
-     */
-    ({ target: $el }) => {
-        if ($el.matches('.help'))
-            return openHelp($el.getAttribute('href'));
-        if ($el.closest('.shortcut-key'))
-            return browser.commands.openShortcutSettings();
-        if ($el.id === 'restart')
-            browser.runtime.reload();
+    // Save
+    const isAllSaved = (await Promise.all([ enablerMap.trigger($field), Setting.save($field) ])).every(Boolean);
+    if (isAllSaved)
+        indicateSuccess($field.closest('.flex') || $field.closest('label'));
+
+    // After save
+    switch (fieldName) {
+        case 'set_title_preface':
+            if (!$field.checked)
+                browser.runtime.sendMessage({ type: 'clear', component: 'TitlePreface' });
+            return;
+        case 'title_preface_prefix':
+        case 'title_preface_postfix':
+        case 'assert_title_preface':
+        case 'show_badge':
+            if (!$field.checked) {
+                browser.runtime.sendMessage({ type: 'clear', component: 'Badge' });
+                return;
+            }
+        case 'badge_show_emoji_first':
+        case 'badge_regex':
+        case 'badge_regex_gflag':
+            BadgeRegex.update();
+            browser.runtime.sendMessage({ type: 'update' });
+            return;
+
+        case 'discard_minimized_window':
+            if (!$field.checked)
+                browser.runtime.sendMessage({ type: 'discardMinimized', enabled: false });
+            return;
+        case 'discard_minimized_window_delay_mins':
+            if ($form.discard_minimized_window.checked)
+                browser.runtime.sendMessage({ type: 'discardMinimized', enabled: true });
+            return;
+
+        case 'theme':
+            document.body.classList.toggle('dark', isDark($form.theme.value));
+            return;
+
+        case 'enable_stash':
+        case 'stash_home_folder':
+        case 'stash_home_root':
+            if ($form.enable_stash.checked)
+                browser.runtime.sendMessage({ type: 'stashInit' });
+            return;
     }
-);
+}
+
+/**
+ * @listens MouseEvent - click in $form
+ * @param {{ target: HTMLElement }} event
+ */
+function onFormClicked({ target: $el }) {
+    if ($el.matches('.help'))
+        return browser.runtime.sendMessage({ type: 'help', hash: $el.getAttribute('href')});
+    if ($el.closest('.shortcut-key'))
+        return browser.commands.openShortcutSettings();
+    if ($el.id === 'restart')
+        browser.runtime.reload();
+}
+
+init();
+browser.permissions.onRemoved.addListener(onPermissionRemoved);
+$form.addEventListener('change', onFieldChanged);
+$form.addEventListener('click', onFormClicked);
