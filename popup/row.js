@@ -165,16 +165,20 @@ export function addAllFolders(folders) {
     );
 }
 
-export function toggleViewFolders() {
+/**
+ * @param {Object} [config]
+ * @param {boolean} [config.scrollIntoView]
+ */
+export function toggleViewFolders({ scrollIntoView } = {}) {
     // Stashed-rows visibility governed by CSS (`body.viewstash li.stashed`)
     if ($body.classList.toggle('viewstash')) {
-        const $lastWindowRow = $otherWindowRows.at(-1);
         const $rows = $otherWindowRows.$stashed;
         $otherWindowRows.push(...$rows);
         $otherWindowRows.$withHeadings.push($otherWindowRows.$stashedHeading, ...$rows);
         Filter.$shownRows.push(...$rows);
         $names.push(...$names.$stashed);
-        $lastWindowRow.scrollIntoView({ behavior: 'smooth' });
+        if (scrollIntoView)
+            $otherWindowRows.$stashedHeading.previousElementSibling?.scrollIntoView({ behavior: 'smooth' });
     } else {
         const rowIndex = $otherWindowRows.$stashed._startIndex;
         $otherWindowRows.splice(rowIndex);

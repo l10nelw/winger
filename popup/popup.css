@@ -121,11 +121,13 @@ body.normal li.stashed {
         display: none !important;
     }
 }
+/* Show heading only when its respective rows exist */
 #minimizedHeading:has(~ li.minimized),
 #stashedHeading:has(~ li.stashed) {
     display: flex;
 }
 
+/* Hide folder rows when `/viewstash` toggled off */
 body:not(.viewstash) li:is(#stashedHeading, .stashed) {
     display: none;
 }

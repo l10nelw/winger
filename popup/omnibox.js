@@ -12,6 +12,7 @@ import * as Row from './row.js';
 import * as Toolbar from './toolbar.js';
 
 import { validify } from '../name.js';
+import { set } from '../storage.js';
 
 /** @import { NameField$ } from './common.js' */
 /**
@@ -98,6 +99,7 @@ export function init() {
         COMMAND__CALLBACK.stash = ({ event }) => Request.action({ command: 'stash', event });
 
         COMMAND__CALLBACK.viewstash = async function () {
+            // Create folder rows if absent
             if (!$otherWindowRows.$stashed) {
                 Placeholder.set('Loading stashed windows...', 'info');
                 const folders = await Request.popupStash();
@@ -106,8 +108,13 @@ export function init() {
                     return Placeholder.flash('No stashed windows found', 'info');
                 Row.addAllFolders(folders);
             }
-            Row.toggleViewFolders();
+
+            Row.toggleViewFolders({ scrollIntoView: true });
             respondIfFilled({ autocomplete: false });
+
+            // Toggle `show_popup_stashed_items` setting
+            FLAGS.show_popup_stashed_items = !FLAGS.show_popup_stashed_items;
+            set({ show_popup_stashed_items: FLAGS.show_popup_stashed_items });
         };
     }
 

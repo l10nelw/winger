@@ -31,6 +31,7 @@ export const STORED_PROPS = {
     stash_nameless_with_title: false,
     auto_name_unstash: true,
     show_popup_stash: true,
+    show_popup_stashed_items: false,
 
     theme: '',
     open_help_on_update: true,

@@ -58,7 +58,7 @@
           <label><input class="setting" type="checkbox" name="discard_minimized_window"> <span>Unload tabs in minimized window</span></label>
           <label><input class="setting smallField" type="number" min="0" max="99" data-enabled-by="discard_minimized_window" name="discard_minimized_window_delay_mins"> <span>minute(s) after minimization</span></label>
         </div>
-        <label><input class="setting" type="checkbox" name="minimize_kick_window"> <span>Minimize window opened with <samp>/kick</samp></span></label>
+        <label><input class="setting" type="checkbox" name="minimize_kick_window"> <span>Minimize window opened with <samp>/kick</samp> command</span></label>
       </fieldset>
 
       <fieldset>
@@ -68,6 +68,9 @@
         </span></label>
         <div class="indent">
           <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="show_popup_stash"> <span>Show stash buttons in pop-up panel</span></label>
+        <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="show_popup_stashed_items"> <span>Show "stashed windows" in pop-up panel
+          <br><small>Toggleable with <samp>/viewstash</samp> command</small>
+        </span></label>
           <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="stash_nameless_with_title"> <span>Stash nameless window using its window title as its name
             <br><small>If disabled, nameless window is stashed as nameless folder</small>
           </span></label>
