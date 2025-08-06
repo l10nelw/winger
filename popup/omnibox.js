@@ -119,18 +119,18 @@ export function init() {
     }
 
     if (FLAGS.allow_private) {
-        COMMAND__CALLBACK.newnormal   = namingActionRequestFn('newnormal');
-        COMMAND__CALLBACK.popnormal   = namingActionRequestFn('popnormal');
-        COMMAND__CALLBACK.kicknormal  = namingActionRequestFn('kicknormal');
-        COMMAND__CALLBACK.newprivate  = namingActionRequestFn('newprivate');
-        COMMAND__CALLBACK.popprivate  = namingActionRequestFn('popprivate');
-        COMMAND__CALLBACK.kickprivate = namingActionRequestFn('kickprivate');
-        SHORTHAND__COMMAND.nn = 'newnormal';
-        SHORTHAND__COMMAND.pn = 'popnormal';
-        SHORTHAND__COMMAND.kn = 'kicknormal';
-        SHORTHAND__COMMAND.np = 'newprivate';
-        SHORTHAND__COMMAND.pp = 'popprivate';
-        SHORTHAND__COMMAND.kp = 'kickprivate';
+        const commands = [
+            ['nn', 'newnormal'],
+            ['pn', 'popnormal'],
+            ['kn', 'kicknormal'],
+            ['np', 'newprivate'],
+            ['pp', 'popprivate'],
+            ['kp', 'kickprivate'],
+        ];
+        for (const [shorthand, command] of commands) {
+            COMMAND__CALLBACK[command] = namingActionRequestFn(command);
+            SHORTHAND__COMMAND[shorthand] = command;
+        }
     }
 
     $omnibox.focus();
