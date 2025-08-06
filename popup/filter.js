@@ -19,16 +19,15 @@ export const $shownRows = [];
 export function execute(str) {
     str = str.trim();
     if (str)
-        filter(str) && sort();
+        (filter(str) > 1) && sortShown();
     else
         reset();
 }
 
 /**
  * Hide window rows whose names do not contain `str`, case-insensitive. The rest are shown and given `_nameLength` property.
- * Return count of shown rows.
  * @param {string} str
- * @returns {number}
+ * @returns {number} Count of shown rows
  */
 function filter(str) {
     str = str.toUpperCase();
@@ -56,14 +55,16 @@ function getNameOrTitle($row) {
 }
 
 /** Sort shown rows by name length, shortest first. */
-function sort() {
+function sortShown() {
     $shownRows.sort(($a, $b) => $a._nameLength - $b._nameLength);
     for (const $row of $shownRows)
         $otherWindowsList.appendChild($row);
 }
 
-/** Revert all changes made by `filter()` and `sort()`. */
+/** Show all rows in the correct order. */
 function reset() {
+    if (!$body.classList.contains('filtered'))
+        return;
     // Restore sort order of 'live' `$otherWindowsList.children` by comparing against correctly-sorted `$otherWindowRows.$withHeadings`
     $otherWindowRows.$withHeadings.forEach(($correctRow, index) => {
         $correctRow.hidden = false;
