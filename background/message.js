@@ -61,7 +61,7 @@ const INTERNAL = {
         /** @type {[Window[], Object<string, boolean>, boolean]} */
         let [windows, flags, allow_private] = await Promise.all([
             browser.windows.getAll({ populate: true }),
-            Storage.getDict(['show_popup_bring', 'show_popup_send', 'set_title_preface', 'enable_stash', 'show_popup_stash', 'show_popup_stashed_items']),
+            Storage.getDict(['show_popup_bring', 'show_popup_send', 'set_title_preface', 'enable_stash', 'show_popup_stash', 'show_popup_stashed_items', 'compact_popup']),
             browser.extension.isAllowedIncognitoAccess(),
         ]);
         if (Stash.Main?.nowStashing.size)

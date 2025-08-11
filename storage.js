@@ -34,6 +34,7 @@ export const STORED_PROPS = {
     show_popup_stashed_items: false,
 
     theme: '',
+    compact_popup: false,
     open_help_on_update: true,
 
     // Non-settings. Temporary keys have a "_" prefix.

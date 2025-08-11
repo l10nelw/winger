@@ -35,6 +35,7 @@ function init({ fgWinfo, bgWinfos, flags }) {
 
     const hasName = fgWinfo.givenName || bgWinfos.find(winfo => winfo.givenName);
     $body.classList.toggle('nameless', !hasName);
+    $body.classList.toggle('compact', FLAGS.compact_popup);
 
     Status.init(fgWinfo, bgWinfos);
     Omnibox.init();

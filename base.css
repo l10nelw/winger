@@ -41,6 +41,10 @@
     --popup-hover-button-color: #666;
 }
 
+.compact {
+    --popup-row-height: 32px;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     accent-color: var(--accent-color);
