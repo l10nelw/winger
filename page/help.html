@@ -22,7 +22,7 @@
         <span style="font-size: 2.5rem; font-weight: normal"><b>Winger</b>: A <b>Win</b>dow Mana<b>ger</b></span>
         <br><b>A Comprehensive Guide</b>
       </h1>
-      <p>Last updated for v2.10.0 (14 Jun 2025)
+      <p>Last updated for v2.11.0 (12 Aug 2025)
         <br><label><input type="checkbox" id="open_help_on_update"> Show this page after every non-patch release</label>
         <br><a href="https://addons.mozilla.org/firefox/addon/winger/versions/" target="_blank">View release notes</a>
       </p>
@@ -120,7 +120,7 @@
           </ul>
           <p>The top row represents the currently focused window (<strong>current window</strong>).</p>
           <p>Just below it is the panel <strong><a href="#omnibox">omnibox</a></strong>.</p>
-          <p>If there are <strong>other windows</strong>, they are listed below the omnibox, ordered from most recently to least recently focused, with minimized windows grouped at the bottom.</p>
+          <p>If there are <strong>other windows</strong>, they are listed below the omnibox, ordered from most recently to least recently focused, with minimized windows grouped together.</p>
           </ol>
           <p>At the bottom is the <strong>status bar</strong> showing the total number of open windows and tabs, and the <strong>help button</strong>.</p>
           <p>You can interact with the panel by keyboard:</p>
@@ -300,7 +300,7 @@
           <p>Apart from the Winger <a href="#panel">panel</a>, window names appear in:</p>
           <ul class="children-mb1">
             <li>
-              the <strong>title preface</strong> (if enabled in <button type="button" class="settingsBtn">Settings</button>), added to the <strong>window title</strong>. The title preface includes customisable <strong>decorators</strong>: a prefix and postfix. e.g.<br>
+              the <strong>title preface</strong> (if enabled in <button type="button" class="settingsBtn">Settings</button>), which is added to the start of the <strong>window title</strong>. A title preface can include customisable <strong>decorators</strong>: a prefix and postfix. e.g.<br>
               <em class="inline-block pl1">
                 learn<samp> - </samp> &nbsp;...<br>
                 <samp>[</samp>learn<samp>] </samp> &nbsp;...
@@ -555,7 +555,7 @@
               <br>The window will close and its tabs saved as bookmarks, in a new bookmark folder named after it, located in the <a href="#stash-home">stash home</a>.</p>
           </div>
           <ul class="children-mb1">
-            <li>For each tab, if any of the following properties are found, they are captured as a JSON-format <strong>property annotation</strong> in the new bookmark's title: pinned, tab group, muted (audio off), active (currently focused), parent-child relationship (tab opened from another tab), and container name. </li>
+            <li>For each tab, if any of the following properties are found, they are captured as a JSON-format <strong>property annotation</strong> in the new bookmark's title: pinned, tab group, muted (audio off), active (currently focused), parent-child relationship (tab opened from another tab), and container name.</li>
             <li>A private window's private state is likewise captured in the new stash folder's title.</li>
             <li>If a name-matching bookmarkless folder is found in the stash home, Winger will use it instead of creating a new folder.</li>
           </ul>
@@ -575,8 +575,8 @@
                 <br><cite><u>W</u>inger &rarr; <u>U</u>nstash</cite></p>
             </li>
             <li>
-              <p>To display stash home contents in the panel, type <samp>/viewstash</samp> <kbd>Enter</kbd> in the omnibox.
-                <br>Once displayed, "stashed windows" are findable, renamable, can be sent tabs to, and can be unstashed. (No switching or bringing tabs to them since they're not real windows.)</p>
+              <p>To toggle displaying stash folders in the panel, type <samp>/viewstash</samp> <kbd>Enter</kbd> in the omnibox.
+                <br>When displayed, "stashed windows" are findable, renamable, can be sent tabs to, and can be unstashed. (No switching or bringing tabs to them since they're not real windows.)</p>
             <figure class="popup popup-rounded mb1" role="img" aria-label="Winger panel with stashed window">
               <div class="popup-row">
                 <span class="popup-btn"></span><span class="popup-btn"></span>
@@ -630,17 +630,17 @@
           <ul class="children-mb1">
             <li>You can also <strong>unstash a bookmark</strong> via right-click &rarr; <cite><u>W</u>inger &rarr; <u>U</u>nstash</cite>. It will delete and open the bookmark as a new tab in the current window.</li>
             <li>Unstashed tabs are <a href="#reopened">reopened tabs</a>: unloaded if possible, as placeholder tabs if necessary.</li>
-            <li>When unstashing a contained tab, Winger assigns a container that matches the captured container name. If no match is found, Winger will create a new container with that name to guarantee containment.</li>
+            <li>When unstashing a container tab, Winger assigns a container that matches the captured container name. If no match is found, Winger will create a new container with that name to guarantee containment.</li>
             <li>If the folder has subfolders, nothing happens to them and the folder itself is not deleted; it is only emptied of its own bookmarks.</li>
             </li>
           </ul>
         </section>
       </div>
-      <div class="row equal-col">
+      <div class="row">
         <div class="col mr1">
           <section class="mx1-content mb2">
             <h3>Stash-copy / Unstash-copy</h3>
-            <p>Hold down <kbd>Shift</kbd> while performing a stash/unstash action to make it <strong class="nowrap">non-destructive</strong>: windows/tabs being stashed are not closed, folders/bookmarks being unstashed are not deleted. This effectively lets you create "copies" of windows and tabs.</p>
+            <p>Hold down <kbd>Shift</kbd> while invoking a stash/unstash action to make it <strong class="nowrap">non-destructive</strong>: windows/tabs being stashed are not closed, folders/bookmarks being unstashed are not deleted. This effectively lets you create "copies" of windows and tabs.</p>
             <p>For example:</p>
             <ul>
               <li>Panel row: <kbd>Shift</kbd>+click <strong>unstash</strong> button</li>
@@ -649,10 +649,10 @@
             </ul>
           </section>
           <section id="stash-home" class="mx1-content mb2">
-            <h3>Stash home location</h3>
-            <p>The <strong>stash home</strong> folder can be one of the three root folders &ndash; Bookmarks Toolbar, Bookmarks Menu, Other Bookmarks &ndash; or a user-named folder inside a root folder. You can specify it in <button type="button" class="settingsBtn">Settings</button>.</p>
+            <h3>Stash home</h3>
+            <p>The <strong>stash home</strong> folder is where your stash folders live in. It can be one of the three <em>root folders</em> &ndash; Bookmarks Toolbar, Bookmarks Menu, Other Bookmarks &ndash; or a user-named folder inside a root folder. You can specify it in <button type="button" class="settingsBtn">Settings</button>.</p>
             <p>Changing the stash home location will not move existing stash folders.</p>
-            <p>If the stash home is a root folder, its last separator is considered the <em>stash separator</em>, partitioning stash folders (to its right) from other bookmark items, if any (to its left). This allows you to have statically-positioned, non-stash items coexisting with stash folders. Winger will auto-add a separator if necessary.</p>
+            <p>If the stash home is a root folder, its last separator is considered the <strong>stash separator</strong>, which partitions stash folders (after it) from other bookmark items (before it), if any. This allows you to have statically-positioned, non-stash items coexisting with stash folders. Winger will auto-add a separator if necessary.</p>
           </section>
         </div>
         <div class="col">
@@ -660,13 +660,18 @@
             <h3>💡 Stash tips</h3>
             <ul>
               <li><p>As a storage format for stashed windows, bookmarks are simple and transparent; they are accessible and useful independently from Winger &ndash; to you, to Firefox Sync, to other extensions, etc. &ndash; and you don't lose them if you uninstall Winger. (Note however, currently only Winger can process property annotations.)</p></li>
-              <li><p>With Firefox's bookmark syncing, you can stash windows in one profile/computer and unstash them on another &ndash; effectively moving browser windows between profiles/computers!</p></li>
               <li>
-                <p>You are free to manipulate stashes as regular bookmarks and folders: add, edit, delete, reorder, and so on.</p>
+                <p>With Firefox's bookmark syncing, you can stash windows in one profile/computer and unstash them on another &ndash; effectively moving browser windows between profiles/computers!</p>
                 <ul>
-                  <li><p>You can move folders in and out of the stash home to include or exclude them in a <samp>/viewstash</samp>-on panel.</p></li>
-                  <li><p>Winger ignores invalid or incorrect annotations. So you can move a "containered tab" bookmark into a "private window" folder, an "active tab" bookmark into a folder that already has one, etc... and nothing surprising will happen when unstashed. You can also manually edit/add/remove annotations with little risk.</p></li>
-                  <li><p>If you deleted a bookmark or folder by accident, no worries: Go to <cite>Manage Bookmarks</cite> (via browser's <cite><u>B</u>ookmarks</cite> menu or via shortcut <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd>), and press <span><kbd>Ctrl</kbd>+<kbd>Z</kbd></span> to <strong>undo</strong> the last bookmark action.</p></li>
+                  <li><p>Ensure container names are unique <em>within</em> each profile/computer. Stashing captures only names of containers, so duplicates may lead to unstashing tabs into wrong containers. However the benefit is portability <em>across</em> profiles/computers: Since a "Personal" container on one, for example, is likely used the same way as a "Personal" container on another, you should feel free to unstash "Personal" tabs anywhere.</p></li>
+                </ul>
+              </li>
+              <li>
+                <p>You are welcome to manipulate stashes like regular bookmarks and folders: add, edit, delete, reorder, and so on.</p>
+                <ul>
+                  <li><p>You can move folders in and out of the stash home to include or exclude them for display in the panel.</p></li>
+                  <li><p>Winger ignores invalid or incorrect annotations. So you can move a "container tab" bookmark into a "private window" folder, an "active tab" bookmark into a folder that already has one, etc... and nothing surprising will happen when unstashed. You can also manually edit/add/remove annotations with little risk.</p></li>
+                  <li><p class="js-cmdOnMac">If you deleted a bookmark or folder by accident, no worries: Go to <cite>Manage Bookmarks</cite> (via browser's <cite><u>B</u>ookmarks</cite> menu or via shortcut <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd>), and press <span><kbd>Ctrl</kbd>+<kbd>Z</kbd></span> to <strong>undo</strong> the last bookmark action.</p></li>
                 </ul>
               </li>
             </ul>

@@ -17,6 +17,14 @@ Promise.all([
 });
 
 /**
+ * @param {string} selector
+ * @param {HTMLElement} [$scope=$body]
+ * @returns {HTMLElement[]}
+ */
+const QSA = (selector, $scope = $body) => $scope.querySelectorAll(selector);
+
+/**
+ * @listens MouseEvent - click in $body
  * @param {{ target: HTMLElement }} event
  */
 function onClick({ target }) {
@@ -27,6 +35,7 @@ function onClick({ target }) {
 }
 
 /**
+ * @listens Event - change in $body
  * @param {{ target: HTMLElement }} event
  */
 function onChange({ target }) {
@@ -40,7 +49,7 @@ async function loadSettings() {
 
 async function insertShortcuts() {
     const shortcutDict = await Shortcut.getDict();
-    for (const $shortcut of $body.querySelectorAll('[data-shortcut]')) {
+    for (const $shortcut of QSA('[data-shortcut]')) {
         const { shortcut } = shortcutDict[$shortcut.dataset.shortcut];
         if ($shortcut.innerText !== shortcut)
             $shortcut.replaceChildren(Shortcut.formatHTML(shortcut));
@@ -57,26 +66,26 @@ function doOSSpecific() {
     addCSSRule(`.js-${isWin ? 'hide' : 'show'}OnWin { visibility: hidden }`);
 
     if (isMac) {
-        $body.querySelectorAll('.js-cmdOnMac kbd').forEach($el => {
-            const oldText = $el.textContent;
+        for (const $kbd of QSA('.js-cmdOnMac kbd')) {
+            const oldText = $kbd.textContent;
             const newText = oldText.replace('Ctrl', 'Cmd');
             if (newText !== oldText)
-                $el.textContent = newText;
-        });
+                $kbd.textContent = newText;
+        }
     }
 }
 
 function updateMockPopups() {
-    $body.querySelectorAll('.popup').forEach($popup => {
+    for (const $popup of QSA('.popup')) {
         const $status = $popup.querySelector('.popup-status');
         if (!$status)
             return;
         const statusText = $status.textContent;
         if (!statusText.includes('#'))
             return;
-        const $tabCounts = [...$popup.querySelectorAll('.popup-tabCount:not(.nocount)')];
+        const $tabCounts = [...QSA('.popup-tabCount:not(.nocount)', $popup)];
         const tabCount = $tabCounts.reduce((total, $el) => total + parseInt($el.textContent), 0);
         const windowCount = $tabCounts.length;
         $status.textContent = statusText.replace('#', windowCount).replace('#', tabCount);
-    });
+    }
 }
