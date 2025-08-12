@@ -85,10 +85,10 @@ li {
     text-align: end;
 }
 
-body.normal #otherWindows li:not(.stashed):hover {
+body:not(.edit) #otherWindows li:not(.stashed):hover {
     background-color: var(--popup-hover-row-color);
 }
-body.normal li.stashed {
+body:not(.edit) li.stashed {
     &, & .name {
         cursor: not-allowed;
     }
@@ -274,7 +274,7 @@ button {
     background-color: transparent;
     opacity: .7;
 
-    body.normal &:hover,
+    body:not(.edit) &:hover,
     li &:focus {
         background-color: var(--popup-hover-button-color);
         background-size: 97%; /* Counteract shrinkage caused by focus-ring border, but also a nice hover effect */

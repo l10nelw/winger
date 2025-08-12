@@ -46,9 +46,7 @@ function done() {
  */
 function toggleActive(isActivate) {
     isActive = isActivate;
-    isActive ?
-        $body.classList.replace('normal', 'edit') :
-        $body.classList.replace('edit', 'normal');
+    $body.classList.toggle('edit', isActive);
     toggleNameFields(isActive);
 }
 
