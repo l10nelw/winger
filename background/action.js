@@ -221,6 +221,7 @@ async function reopenTabs({ tabs, windowId, keep_moved_tabs_selected }) {
     if (keep_moved_tabs_selected && tabs[0]?.highlighted)
         newTabs.forEach(newTab => !newTab.active && selectTab(newTab.id));
 
+    await browser.tabs.ungroup(oldTabIds); // Prevent Firefox saving closed groups
     browser.tabs.remove(oldTabIds);
 
     // Note: Array contents not updated since its creation

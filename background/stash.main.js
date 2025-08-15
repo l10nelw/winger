@@ -50,22 +50,17 @@ export async function stashWindow(windowId, name, remove) {
     console.info(`Stashing window id ${windowId}: ${name}...`);
     nowStashing.add(windowId);
 
-    /** @type {[Window, Window[]?, BNodeId]} */
-    const [window, allWindows, homeId] = await Promise.all([
+    /** @type {[Window, Window[]?, FolderList]} */
+    const [window, allWindows, folderList] = await Promise.all([
         browser.windows.get(windowId, { populate: true }),
         remove && browser.windows.getAll(),
-        Storage.getValue('_stashHomeId'),
+        (new FolderList()).populate(await Storage.getValue('_stashHomeId')),
     ]);
 
     name = StashProp.Window.stringify(name, window);
-    const folderList = await (new FolderList()).populate(homeId);
     const folder = await folderList.findBookmarklessByTitle(name) || await folderList.addNew(name);
 
-    await handleLoneWindow(
-        windowId, remove, allWindows,
-        createBookmarksAtNode(window.tabs, folder),
-        () => browser.windows.remove(windowId),
-    );
+    await runStashTasks({ window, node: folder, remove, allWindows });
 
     nowStashing.delete(windowId);
     console.info(`...Done stashing window id ${windowId}: ${name}`);
@@ -91,38 +86,53 @@ export async function stashSelectedTabs(nodeId, remove) {
     const selectedTabs = tabs.filter(tab => tab.highlighted);
     delete selectedTabs.find(tab => tab.active)?.active; // Avoid adding extra active tab to target stashed window
 
-    /** @type {Window[]?} */
-    const allWindows = remove && (selectedTabs.length === tabs.length) && await browser.windows.getAll();
+    /** Defined if all tabs in window will be closed. @type {Window[]?} */
+    const allWindows =
+        remove && (selectedTabs.length === tabs.length) &&
+        await browser.windows.getAll();
 
-    await handleLoneWindow(
-        windowId, remove, allWindows,
-        createBookmarksAtNode(selectedTabs, node),
-        () => browser.tabs.remove(selectedTabs.map(tab => tab.id)),
-    );
+    await runStashTasks({ tabs: selectedTabs, node, remove, allWindows });
 
     nowStashing.delete(windowId);
     console.info(`...Done stashing tabs to node id ${nodeId}`);
 }
 
 /**
- * In case of a lone window to be closed, keep it open until stash operation is complete.
- * @param {WindowId} windowId
- * @param {boolean} remove
- * @param {Window[]?} allWindows
- * @param {Promise<BNode[]>} bookmarksPromise
- * @param {Function} closeCallback
+ * @param {Object} info
+ * @param {Window} [info.window] - Not required if stashing tabs. Should have `tabs` property.
+ * @param {Tab[]} [info.tabs] - Not required if stashing window.
+ * @param {BNode} info.node
+ * @param {boolean} info.remove
+ * @param {Window[]} [info.allWindows] - Required if `remove` is true and removing will result in closing a window.
  */
-async function handleLoneWindow(windowId, remove, allWindows, bookmarksPromise, closeCallback) {
-    const isLoneWindow = allWindows?.length === 1;
+async function runStashTasks({ window, tabs, node, remove, allWindows }) {
+    tabs ??= window.tabs;
+    await StashProp.Tab.prepare(tabs);
+
+    const windowId = tabs[0].windowId;
+    /** @type {(() => void)?} */ let removeFn;
+
     if (remove) {
-        // Close or minimize now for immediate visual feedback
-        isLoneWindow
-        ? browser.windows.update(windowId, { state: 'minimized' })
-        : closeCallback();
+        removeFn = async () => {
+            const tabIds = tabs.map(tab => tab.id);
+            await browser.tabs.ungroup(tabIds); // Prevent Firefox saving closed groups
+            window
+                ? browser.windows.remove(windowId)
+                : browser.tabs.remove(tabIds);
+        };
+
+        // If window is alone: minimize for immediate visual feedback, and only close later after all bookmarks created
+        if (allWindows?.length === 1) {
+            browser.windows.update(windowId, { state: 'minimized' });
+        } else {
+            removeFn();
+            removeFn = null;
+        }
     }
-    await bookmarksPromise;
-    if (remove && isLoneWindow)
-        closeCallback();
+
+    await createBookmarksAtNode(tabs, node);
+
+    removeFn?.();
 }
 
 /**
@@ -132,10 +142,7 @@ async function handleLoneWindow(windowId, remove, allWindows, bookmarksPromise, 
  */
 async function createBookmarksAtNode(tabs, node) {
     const isNodeFolder = isFolder(node);
-    const [folder,] = await Promise.all([
-        isNodeFolder ? node : getNode(node.parentId),
-        StashProp.Tab.prepare(tabs),
-    ]);
+    const folder = isNodeFolder ? node : await getNode(node.parentId);
     const folderId = folder.id;
     nowStashing.add(folderId);
 
