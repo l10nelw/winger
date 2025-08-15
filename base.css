@@ -42,7 +42,10 @@
 }
 
 .compact {
-    --popup-row-height: 32px;
+    --popup-button-size: 26px;
+    --popup-row-height: 30px;
+    --popup-name-height: 26px;
+    --popup-heading-height: 20px;
 }
 
 body {
