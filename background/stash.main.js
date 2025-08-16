@@ -18,22 +18,36 @@ import * as Storage from '../storage.js';
 /** @type {Set<WindowId | BNodeId>} */ export const nowUnstashing = new Set();
 
 /**
- * Identify the stash home's folder id based on settings.
+ * Awaitable stash home id; allows eventual access to stash features while still initializing.
+ * @type {Promise<BNodeId>}
+ */
+export let homeId;
+
+/**
+ * Identify the stash home's folder id based on settings. May create the folder if necessary.
  * @param {Partial<STORED_PROPS>}
  */
-export async function init({ stash_home_root, stash_home_folder }) {
-    /** @type {BNodeId} */ let _stashHomeId;
-    if (stash_home_folder) {
-        // Home is a SUBFOLDER of a root folder
-        const home =
-            (await getChildNodes(stash_home_root)).find(node => node.title === stash_home_folder && isFolder(node)) // Find subfolder by title
-            || await createNode({ parentId: stash_home_root, title: stash_home_folder }); // Otherwise, create subfolder with title
-        _stashHomeId = home.id;
-    } else {
-        // Home is a root folder
-        _stashHomeId = stash_home_root;
+export function init(settings) {
+    homeId = initHomeId(settings);
+
+    /**
+     * @param {Partial<STORED_PROPS>}
+     * @returns {Promise<BNodeId>}
+     */
+    async function initHomeId({ stash_home_root, stash_home_folder }) {
+        /** @type {BNodeId} */ let _homeId;
+        if (stash_home_folder) {
+            // Home is a SUBFOLDER of a root folder
+            const home =
+                (await getChildNodes(stash_home_root)).find(node => node.title === stash_home_folder && isFolder(node)) // Find subfolder by title
+                || await createNode({ parentId: stash_home_root, title: stash_home_folder }); // Otherwise, create subfolder with title
+            _homeId = home.id;
+        } else {
+            // Home is a root folder
+            _homeId = stash_home_root;
+        }
+        return _homeId;
     }
-    Storage.set({ _stashHomeId });
 }
 
 
@@ -54,7 +68,7 @@ export async function stashWindow(windowId, name, remove) {
     const [window, allWindows, folderList] = await Promise.all([
         browser.windows.get(windowId, { populate: true }),
         remove && browser.windows.getAll(),
-        (new FolderList()).populate(await Storage.getValue('_stashHomeId')),
+        (new FolderList()).populate(await homeId),
     ]);
 
     name = StashProp.Window.stringify(name, window);

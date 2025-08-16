@@ -42,7 +42,7 @@ function init({ fgWinfo, bgWinfos, flags }) {
 
     Row.addAllWindows(fgWinfo, bgWinfos);
     if (FLAGS.show_popup_stashed_items)
-        Request.popupStash().then(folders => {
+        Request.popupStashedItems().then(folders => {
             if (!folders.length)
                 return;
             Row.addAllFolders(folders);

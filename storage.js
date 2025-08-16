@@ -41,7 +41,6 @@ export const STORED_PROPS = {
     // These properties are to be correctly populated at init; the "default values" are only for type inference.
     version: '',
     _focusedWindowId: 0,
-    _stashHomeId: '',
 };
 
 /**

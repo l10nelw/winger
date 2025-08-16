@@ -8,7 +8,8 @@ import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 import { isWindowId, isNodeId } from '../utils.js';
 
-/** @import { WindowId, BNodeId, BNode, Winfo, PopupInitMessage, ActionRequest } from '../types.js' */
+/** @import { WindowId, BNode, Winfo, PopupInitMessage, ActionRequest, StashFolder } from '../types.js' */
+/** @import { STORED_PROPS } from '../storage.js' */
 
 browser.runtime.onMessage.addListener(request => onMessage(INTERNAL, request));
 browser.runtime.onMessageExternal.addListener(request => onMessage(EXTERNAL, request));
@@ -69,22 +70,23 @@ const INTERNAL = {
         flags.allow_private = allow_private;
         const winfoProps = ['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type'];
         winfoProps.push(flags.set_title_preface ? 'titleSansName' : 'title');
-        if (!flags.enable_stash)
+        if (!flags.enable_stash) {
             delete flags.show_popup_stash;
+            delete flags.show_popup_stashed_items;
+        }
         const winfos = await Winfo.getAll(winfoProps, windows);
         return { ...Winfo.arrange(winfos), flags };
     },
 
     /**
-     * @returns {Promise<BNode[]>}
-     * @see /popup/request.js#popupStash
+     * @returns {Promise<StashFolder[]>}
+     * @see /popup/request.js#popupStashedItems
      */
-    async popupStash() {
-        /** @type {[boolean, BNodeId]} */
-        const [enable_stash, homeId] = await Storage.getValues(['enable_stash', '_stashHomeId']);
-        if (!(enable_stash && homeId))
+    async popupStashedItems() {
+        const [enable_stash, stashHomeId] = await Promise.all([ Storage.getValue('enable_stash'), Stash.Main.homeId ]);
+        if (!enable_stash)
             return [];
-        let folders = await (new Stash.Main.FolderList()).populate(homeId);
+        let folders = await (new Stash.Main.FolderList()).populate(stashHomeId);
         if (Stash.Main.nowStashing.size)
             folders = excludeByIds(folders, Stash.Main.nowUnstashing.values().filter(isNodeId)); // Exclude folders currently being unstashed
         return folders;
@@ -93,10 +95,10 @@ const INTERNAL = {
     /**
      * @param {Object} request
      * @param {BNode[]} request.folders
-     * @returns {Promise<BNode[]>}
-     * @see /popup/request.js#popupStashContents
+     * @returns {Promise<StashFolder[]>}
+     * @see /popup/request.js#popupStashedSizes
      */
-    async popupStashContents({ folders }) {
+    async popupStashedSizes({ folders }) {
         const folderList = await (new Stash.Main.FolderList()).populate(folders);
         return folderList.countBookmarks();
     },
@@ -107,12 +109,14 @@ const INTERNAL = {
      */
     action(request) {
         if (request.folderId) {
+            // Can assume Stash module loaded
             if (request.action === 'send')
                 return Stash.Main.stashSelectedTabs(request.folderId, request.remove);
             if (request.action === 'stash')
                 return Stash.Main.unstashNode(request.folderId, request.remove);
         }
         if (request.action === 'stash')
+            // Can assume Stash module loaded
             return Stash.Main.stashWindow(request.windowId, request.name, request.remove);
         return Action.execute(request);
     },

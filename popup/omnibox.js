@@ -102,7 +102,7 @@ export function init() {
             // Create folder rows if absent
             if (!$otherWindowRows.$stashed) {
                 Placeholder.set('Loading stashed windows...', 'info');
-                const folders = await Request.popupStash();
+                const folders = await Request.popupStashedItems();
                 Placeholder.reset();
                 if (!folders.length)
                     return Placeholder.flash('No stashed windows found', 'info');

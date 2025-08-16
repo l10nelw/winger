@@ -7,34 +7,25 @@ import { getValue } from '../storage.js';
 /** @import { WindowRow$ } from './common.js' */
 /** @import { WindowId, BNode, PopupInitMessage, ActionRequest } from '../types.js' */
 
-/** @type {(message: any) => Promise} */
-const sendMessage = browser.runtime.sendMessage;
+/** @returns {Promise<void>} */ export const showWarningBadge = () => browser.runtime.sendMessage({ type: 'warn' });
+/** @returns {Promise<void>} */ export const help = () => browser.runtime.sendMessage({ type: 'help' });
+/** @returns {Promise<void>} */ export const debug = () => browser.runtime.sendMessage({ type: 'debug' });
 
-export const showWarningBadge = () => sendMessage({ type: 'warn' });
-export const help = () => sendMessage({ type: 'help' });
-export const debug = () => sendMessage({ type: 'debug' });
-
-/**
- * @returns {Promise<PopupInitMessage>}
- */
-export const popup = () => sendMessage({ type: 'popup' });
-
-/**
- * @returns {Promise<BNode[]>}
- */
-export const popupStash = () => sendMessage({ type: 'popupStash' });
+/** @returns {Promise<PopupInitMessage>} */ export const popup = () => browser.runtime.sendMessage({ type: 'popup' });
+/** @returns {Promise<BNode[]>} */ export const popupStashedItems = () => browser.runtime.sendMessage({ type: 'popupStashedItems' });
 
 /**
  * @param {BNode[]} folders
  * @returns {Promise<BNode[]>}
  */
-export const popupStashContents = folders => sendMessage({ type: 'popupStashContents', folders });
+export const popupStashedSizes = folders => browser.runtime.sendMessage({ type: 'popupStashedSizes', folders });
 
 /**
  * @param {WindowId} windowId
  * @param {string} name
+ * @returns {Promise<void>}
  */
-export const updateChrome = (windowId, name) => sendMessage({ type: 'update', windowId, name });
+export const updateChrome = (windowId, name) => browser.runtime.sendMessage({ type: 'update', windowId, name });
 
 /**
  * Gather action parameters to create an ActionRequest. Proceed only if action string is given via `command` or derived from `$action`.
@@ -55,6 +46,7 @@ export const updateChrome = (windowId, name) => sendMessage({ type: 'update', wi
  * @param {string} [info.command]
  * @param {string} [info.argument]
  * @param {HTMLElement} [info.$action]
+ * @returns {Promise<void>}
  */
 export async function action({ event, command, argument, $action }) {
     /** @type {ActionRequest} */ const request = { type: 'action' };
@@ -105,6 +97,6 @@ export async function action({ event, command, argument, $action }) {
         }
     }
 
-    sendMessage(request);
+    browser.runtime.sendMessage(request);
     window.close();
 }
