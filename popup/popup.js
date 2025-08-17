@@ -40,12 +40,12 @@ function init({ fgWinfo, bgWinfos, flags }) {
     Status.init(fgWinfo, bgWinfos);
     Omnibox.init();
 
-    Row.addAllWindows(fgWinfo, bgWinfos);
+    Row.addWindows(fgWinfo, bgWinfos);
     if (FLAGS.show_popup_stashed_items)
         Request.popupStashedItems().then(folders => {
             if (!folders.length)
                 return;
-            Row.addAllFolders(folders);
+            Row.addFolders(folders);
             Row.toggleViewFolders();
         });
     Omnibox.respondIfFilled();

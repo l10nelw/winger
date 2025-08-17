@@ -59,7 +59,7 @@ const INTERNAL = {
      * @see /popup/request.js#popup
      */
     async popup() {
-        /** @type {[Window[], Object<string, boolean>, boolean]} */
+        /** @type {[Window[], Partial<STORED_PROPS> & { allow_private: boolean }, boolean]} */
         let [windows, flags, allow_private] = await Promise.all([
             browser.windows.getAll({ populate: true }),
             Storage.getDict(['show_popup_bring', 'show_popup_send', 'set_title_preface', 'enable_stash', 'show_popup_stash', 'show_popup_stashed_items', 'compact_popup']),

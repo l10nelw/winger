@@ -106,7 +106,7 @@ export function init() {
                 Placeholder.reset();
                 if (!folders.length)
                     return Placeholder.flash('No stashed windows found', 'info');
-                Row.addAllFolders(folders);
+                Row.addFolders(folders);
             }
 
             Row.toggleViewFolders({ scrollIntoView: true });

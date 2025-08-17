@@ -19,7 +19,7 @@ const CELL_SELECTORS = new Set(['.send', '.bring', '.name', '.tabCount', '.stash
  * @param {Winfo} fgWinfo
  * @param {Winfo[]} bgWinfos
  */
-export function addAllWindows(fgWinfo, bgWinfos) {
+export function addWindows(fgWinfo, bgWinfos) {
     WindowRow.init();
     const currentIncognito = fgWinfo.incognito;
     /** @type {HTMLLIElement} */ const $minimizedHeading = document.getElementById('minimizedHeading');
@@ -131,7 +131,7 @@ const WindowRow = {
 /**
  * @param {BNode[]} folders
  */
-export function addAllFolders(folders) {
+export function addFolders(folders) {
     // Create stashed-heading
     /** @type {HTMLLIElement} */ const $stashedHeading = $otherWindowRows.$minimizedHeading.cloneNode(true);
     $stashedHeading.id = 'stashedHeading';

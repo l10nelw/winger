@@ -86,35 +86,9 @@ class WindowSwitchList extends Array {
      */
     inProgress = false;
 
-    async _populate() {
-        const winfos = await Winfo.getAll(
-            ['givenName', 'title'],
-            (await browser.windows.getAll()).filter(window => window.state !== 'minimized'),
-        );
-
-        /**
-         * Example sort result using this compare function: ['2', '10', 'A', 'a', 'B', 'b']
-         * @param {string} a
-         * @param {string} b
-         * @returns {number}
-         */
-        const compare = (a, b) => a.localeCompare(b, undefined, { caseFirst: 'upper', numeric: true });
-
-        winfos.sort((A, B) => {
-            if (A.givenName && B.givenName)
-                return compare(A.givenName, B.givenName);
-            if (A.givenName) return -1;
-            if (B.givenName) return 1;
-            return compare(A.title, B.title);
-        });
-
-        this.length = 0;
-        this.push(...winfos.map(winfo => winfo.id));
-    }
-
     /**
-     * @param {WindowId} windowId
-     * @param {number} offset
+     * @param {WindowId} windowId - Current windowId
+     * @param {1 | -1} offset - Forward or backward index offset
      * @returns {Promise<WindowId>}
      * @throws If origin windowId not found
      */
@@ -130,7 +104,36 @@ class WindowSwitchList extends Array {
     reset() {
         this.length = 0;
     }
+
+    async _populate() {
+        const winfos = await Winfo.getAll(
+            ['givenName', 'title'],
+            (await browser.windows.getAll()).filter(window => window.state !== 'minimized'),
+        );
+
+        // Sort by givenName if available, otherwise by title
+        winfos.sort((A, B) => {
+            if (A.givenName && B.givenName)
+                return this._compare(A.givenName, B.givenName);
+            if (A.givenName) return -1;
+            if (B.givenName) return 1;
+            return this._compare(A.title, B.title);
+        });
+
+        this.length = 0;
+        this.push(...winfos.map(winfo => winfo.id));
+    }
+
+    /**
+     * Compare function for sorting winfos by givenName/title.
+     * Example sort result: `['2', '10', 'A', 'a', 'B', 'b']`
+     * @param {string} a
+     * @param {string} b
+     * @returns {number}
+     */
+    _compare = (a, b) => a.localeCompare(b, undefined, { caseFirst: 'upper', numeric: true });
 }
+
 /**
  * Array of ids of alphabetically-sorted (by givenNames first then by title) non-minimized windows.
  * Populates itself if empty when `getDestination()` is called.

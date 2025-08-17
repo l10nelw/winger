@@ -243,7 +243,7 @@ const Groups = {
      * @modifies tabs
      */
     async prepare(tabs) {
-        const firstTabOfGroupMap = new Map();
+        /** @type {Map<GroupId, Tab>} */ const firstTabOfGroupMap = new Map();
         for (const tab of tabs) {
             const { groupId } = tab;
             if (groupId !== -1 && !firstTabOfGroupMap.has(groupId))
@@ -252,7 +252,7 @@ const Groups = {
         await Promise.all([...firstTabOfGroupMap.values()].map(
             /**
              * @param {Tab} tab
-             * @returns {Promise<Tab & {group: Group}>}
+             * @returns {Promise<Tab & { group: Group }>}
              * @modifies tab
              */
             async tab => Object.assign(tab, { group: await browser.tabGroups.get(tab.groupId) })
@@ -279,8 +279,7 @@ const Groups = {
         if (tabs.length !== protoTabs.length)
             throw 'Groups.restore: The two tab arrays do not match in length';
 
-        /** @type {Map<number, ProtoGroup>} */
-        const protoGroupMap = new Map();
+        /** @type {Map<number, ProtoGroup>} */ const protoGroupMap = new Map();
 
         // Collect details of groups, including which tabs belong in them
         protoTabs.forEach(
@@ -332,8 +331,7 @@ const Parents = {
      * @modifies tabs
      */
     prepare(tabs) {
-        /** @type {Map<number, Tab>} */
-        const tabMap = new Map();
+        /** @type {Map<number, Tab>} */ const tabMap = new Map();
         for (const tab of tabs)
             tabMap.set(tab.id, tab);
         for (const tab of tabs) {
@@ -369,10 +367,10 @@ const Parents = {
 }
 
 /**
- * Find valid JSON string at end of the title, split it off, and parse the JSON.
- * Return [cleaned title, result object], or [title, null] if JSON not found or invalid.
+ * Find valid JSON string at end of `title`, split it off, and parse the JSON.
+ * Return `[cleanedTitle, parseResult]`, or if JSON not found or invalid `[title, null]`.
  * @param {string} title
- * @returns {[string, Object<string, any>?]}
+ * @returns {[cleanedTitle: string, parseResult: Object<string, any>?]}
  */
 function parseTitleJSON(title) {
     title = title.trim();
@@ -380,8 +378,8 @@ function parseTitleJSON(title) {
         return [title, null];
 
     // Extract JSON, retry with larger slices upon failure if more curly brackets found
-    /** @type {Object?} */ let parsed;
-    /** @type {number} */ let index = Infinity;
+    /** @type {Object<string, any>?} */ let parsed;
+    let index = Infinity;
     do {
         index = title.lastIndexOf('{', index - 1);
         if (index === -1)
@@ -415,17 +413,16 @@ export const Window = {
     // Unstashing
 
     /**
-     * Produce [cleaned title, protoWindow] from bookmark folder title. A protoWindow is an info object for `browser.window.create()`.
-     * If no properties found, return [original title, null].
+     * Produce `[name, protoWindow]` from bookmark folder `title`. If no annotation found, return `[title, null]`.
      * @param {string} title
-     * @returns {[string, ProtoWindow?]}
+     * @returns {[name: string, protoWindow: ProtoWindow?]}
      */
     parse(title) {
         const [name, parsed] = parseTitleJSON(title);
-        /** @type {ProtoWindow} */
+        /** @type {ProtoWindow?} */
         const protoWindow = parsed ?
             Props.read(parsed, Props.WINDOW) : null;
-        // browser.window.create() rejects unsupported properties, so return name and protoWindow separately
+        // `browser.window.create()` rejects unsupported properties, so return `name` and `protoWindow` separately
         return [name, protoWindow];
     },
 
@@ -469,8 +466,7 @@ export const Tab = {
      */
     parse(title) {
         const [actualTitle, parsed] = parseTitleJSON(title);
-        /** @type {ProtoTab} */
-        const protoTab = { title: actualTitle };
+        /** @type {ProtoTab} */ const protoTab = { title: actualTitle };
         if (parsed)
             Object.assign(protoTab, Props.read(parsed, Props.TAB));
         return protoTab;

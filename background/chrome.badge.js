@@ -43,7 +43,7 @@ async function createTextTransformer() {
 
 /**
  * @param {string} text
- * @returns {[string, string]}
+ * @returns {[emojis: string, others: string]}
  */
 function extractEmojis(text) {
     const emojis = text.match(EMOJI_REGEX)?.join('') ?? '';

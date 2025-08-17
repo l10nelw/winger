@@ -62,11 +62,12 @@
  */
 /**
  * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create}
- * @typedef {Partial<Omit<Tab, 'id'>> & { muted?: boolean, openInReaderMode?: boolean }} ProtoTab
+ * @typedef {Partial<Omit<Tab, 'id'>> & { muted?: boolean, openInReaderMode?: boolean, group?: ProtoGroup }} ProtoTab
+ * @property {ProtoGroup} [group] - Added by `(stash.prop.js).Groups.prepare()`, used by `(stash.prop.js).Props.TAB.writer.group()`
  */
 /**
  * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabGroups/update}
- * @typedef {Partial<Group> & { tabId?: TabId[] }} ProtoGroup
+ * @typedef {Partial<Group> & { tabIds?: TabId[] }} ProtoGroup
  * @property {TabId[]} [tabIds] - Added and used by `(stash.prop.js).Groups.restore()`
  */
 /**

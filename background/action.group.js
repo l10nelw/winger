@@ -20,7 +20,7 @@ export class GroupIdTabIdMap extends GroupMap {
     /**
      * Purge groups that do not have all their tabs listed.
      */
-    async deletePartialGroupEntries() {
+    async removePartialGroupEntries() {
         if (!this.size)
             return;
         /** @type {Tab[][]} */
@@ -42,8 +42,8 @@ export class GroupIdTabIdMap extends GroupMap {
     }
 
     /**
-     * When map contains old group ids and new tab ids as entries,
-     * this creates new groups in `windowId` using the tab ids and info provided in `oldGroups`.
+     * Assuming this map has been populated with entries of old groupId to new tabIds,
+     * create new groups in `windowId` using the tabIds and group details provided by `oldGroups`.
      * @param {Group[]} oldGroups - Groups whose ids exist in the map as keys
      * @param {WindowId} windowId - Destination window's id
      * @returns {Promise<Group[]>}
