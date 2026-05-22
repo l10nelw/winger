@@ -6,6 +6,7 @@ import {
     $otherWindowsList,
     $toolbar,
     $status,
+    isButton,
     isRow,
 } from './common.js';
 import * as EditMode from './editmode.js';
@@ -118,6 +119,15 @@ function onContextMenu(event) {
 function onKeyDown(event) {
     if (Omnibox.handleKeyDown(event))
         return;
+    if (event.key === 'Enter') {
+        const { target } = event;
+        const $action = isButton(target) ? target.closest('[data-action]') : null;
+        if ($action && $action.tabIndex !== -1 && $action.dataset.action !== 'togglePrivate') {
+            event.preventDefault();
+            Request.action({ event, $action });
+            return;
+        }
+    }
     Navigation.handleKeyDown(event);
     Status.update(event);
 }
