@@ -3,6 +3,10 @@ import * as Storage from '../storage.js';
 /** @import { WindowId, Window, Winfo } from '../types.js' */
 /** @see Winfo for definition of winfos. */
 
+/** @param {WindowId} windowId @returns {Promise<void>} */ export const saveLastFocused = windowId => browser.sessions.setWindowValue(windowId, 'lastFocused', Date.now());
+/** @param {WindowId} windowId @returns {Promise<void>} */ export const saveFirstSeen = windowId => browser.sessions.setWindowValue(windowId, 'firstSeen', Date.now());
+/** @param {WindowId} windowId @returns {Promise<EpochTimeStamp?>} */ export const loadFirstSeen = windowId => browser.sessions.getWindowValue(windowId, 'firstSeen');
+
 /** Dict of keys for `sessions.getWindowValue()` mapped to default values. */
 const PROPS_TO_LOAD = {
     givenName: '',
@@ -10,27 +14,28 @@ const PROPS_TO_LOAD = {
     lastFocused: 0,
 };
 
-/** Dict of keys mapped to functions that derive new values, adding new properties to (i.e. mutating) `winfo`. */
+/**
+ * @callback DerivePropCallback
+ * @param {Winfo} winfo
+ * @param {Window} window
+ * @param {Object} commonInfo
+ * @param {number} commonInfo.nameAffixLength
+ * @modifies winfo
+ */
+/**
+ * Dict of keys mapped to functions that derive new values, adding new properties to (i.e. mutating) `winfo`.
+ * @type {Object<string, DerivePropCallback>}
+ */
 const PROPS_TO_DERIVE = {
-    /**
-     * @param {Window} window
-     * @param {Winfo} winfo
-     * @modifies winfo
-     */
-    minimized(window, winfo) {
+    minimized(winfo, window) {
         winfo.minimized = window.state === 'minimized';
     },
     /**
      * Window title without Winger's title preface.
      * Basically, `givenName ? tab title : window title`.
      * Requires and gets `winfo.givenName`.
-     * @param {Window} window
-     * @param {Winfo} winfo
-     * @param {Object} commonInfo
-     * @param {number} commonInfo.nameAffixLength
-     * @modifies winfo
      */
-    titleSansName(window, winfo, { nameAffixLength }) {
+    titleSansName(winfo, window, { nameAffixLength }) {
         const { givenName } = winfo;
         winfo.titleSansName = givenName ?
             window.title.slice(givenName.length + nameAffixLength) :
@@ -39,11 +44,8 @@ const PROPS_TO_DERIVE = {
     /**
      * Requires and gets populated `window.tabs`.
      * Also adds `winfo.selectedTabCount` if window is focused.
-     * @param {Window} window
-     * @param {Winfo} winfo
-     * @modifies winfo
      */
-    tabCount(window, winfo) {
+    tabCount(winfo, window) {
         winfo.tabCount = window.tabs.length;
         if (window.focused)
             winfo.selectedTabCount = window.tabs.filter(tab => tab.highlighted).length;
@@ -58,7 +60,7 @@ const PROPS_TO_DERIVE = {
  * @param {string[] | Set<string>} wantedProps
  * @param {Window[]} [windows]
  * @returns {Promise<Winfo[]>}
- * @modifies windows
+ * @modifies windows (window.title)
  */
 export async function getAll(wantedProps, windows = null) {
     wantedProps = new Set(wantedProps);
@@ -121,22 +123,18 @@ function removeTitleAppName(title) {
 async function getOne(window, commonInfo) {
     // Load window's saved props to start winfo with
     const windowId = window.id;
-    /**
-     * @param {string} prop
-     * @returns {Promise<[string, string]>}
-     */
+    /** @param {string} prop @returns {Promise<[string, string]> */
     const makeEntry = async prop => [ prop, (await browser.sessions.getWindowValue(windowId, prop) ?? PROPS_TO_LOAD[prop]) ];
     /** @type {[string, string][]} */
     const makingEntries = [];
-    for (const prop of commonInfo.propsToLoad)
-        if (prop in PROPS_TO_LOAD)
-            makingEntries.push(makeEntry(prop));
+    for (const prop of commonInfo.propsToLoad) if (prop in PROPS_TO_LOAD)
+        makingEntries.push(makeEntry(prop));
     /** @type {Winfo} */
     const winfo = Object.fromEntries(await Promise.all(makingEntries));
 
     // Derive and add new props to winfo
     for (const prop of commonInfo.propsToDerive)
-        PROPS_TO_DERIVE[prop](window, winfo, commonInfo);
+        PROPS_TO_DERIVE[prop](winfo, window, commonInfo);
 
     // Copy props from window to winfo
     for (const prop of commonInfo.propsToCopy)
@@ -163,6 +161,3 @@ export function arrange(winfos) {
     };
 }
 
-/** @param {WindowId} windowId @returns {Promise<void>} */ export const saveLastFocused = windowId => browser.sessions.setWindowValue(windowId, 'lastFocused', Date.now());
-/** @param {WindowId} windowId @returns {Promise<void>} */ export const saveFirstSeen = windowId => browser.sessions.setWindowValue(windowId, 'firstSeen', Date.now());
-/** @param {WindowId} windowId @returns {Promise<EpochTimeStamp?>} */ export const loadFirstSeen = windowId => browser.sessions.getWindowValue(windowId, 'firstSeen');
