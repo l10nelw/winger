@@ -1,155 +1,23 @@
 import {
-    FLAGS,
-    nameMap,
     $omnibox,
-    $names,
-    $otherWindowRows,
     $newWindowRow,
 } from './common.js';
+
+import {
+    COMMANDS_WITH_ARG,
+    EDITMODE_VALID_COMMANDS,
+    COMMAND__CALLBACK,
+    SHORTHAND__COMMAND,
+    addConditionalCommands,
+} from './omnibox.slash.js';
+
 import * as EditMode from './editmode.js';
 import * as Filter from './filter.js';
 import * as Request from './request.js';
-import * as Row from './row.js';
-import * as Toolbar from './toolbar.js';
-
-import { set } from '../storage.js';
-import { isWindowId } from '../utils.js';
-
-/** @import { NameField$ } from './common.js' */
-/**
- * @callback CommandCallback
- * @param {Object} [info]
- * @param {KeyboardEvent} [info.event]
- * @param {string} [info.argument]
- */
-
-const COMMANDS_WITH_ARG = new Set([
-    'new', 'newnormal', 'newprivate', 'pop', 'popnormal', 'popprivate', 'kick', 'kicknormal', 'kickprivate',
-    'name', 'extractname', 'extractallnames',
-]);
-const EDITMODE_VALID_COMMANDS = new Set(['help', 'settings', 'options', 'edit', 'viewstash']);
-
-/**
- * @param {string} command
- * @returns {CommandCallback}
- */
-const namingActionRequestFn = command =>
-    ({ event, argument }) => Request.action({ event, command, argument: nameMap.validUniqueName(argument) });
-
-/**
- * @type {Object<string, CommandCallback>}
- */
-const COMMAND__CALLBACK = {
-    help:     Toolbar.help,
-    settings: Toolbar.settings,
-    options:  Toolbar.settings,
-    edit:     EditMode.toggle,
-
-    new:  namingActionRequestFn('new'),
-    pop:  namingActionRequestFn('pop'),
-    kick: namingActionRequestFn('kick'),
-
-    /**
-     * @param {Object} arg
-     * @param {string} arg.argument
-     */
-    async name({ argument }) {
-        const $name = $names[0];
-        if (argument === $name.value)
-            return;
-        const name = nameMap.validUniqueName(argument);
-        if (await EditMode.saveNameUpdateField($name, name))
-            $name.value = name;
-    },
-
-    /**
-     * @param {Object} arg
-     * @param {string} arg.argument
-     * @param {NameField$} [arg.$name] - Given by `extractallnames`
-     * @param {RegExp} [arg.regex] - Given by `extractallnames`
-     */
-    async extractname({ argument, $name, regex }) {
-        const isSingular = !$name || !regex; // `extractname` invoked by user, not by `extractallnames`
-        if (isSingular) {
-            $name = $names[0]; // Target is current window
-            regex = createRegex(argument);
-        }
-
-        if (!regex)
-            return;
-        const result = $name.placeholder.match(regex);
-        let name = (result[1] || result[0])?.trim();
-        if (name === $name.value)
-            return;
-        name = nameMap.validUniqueName(name);
-        if (!await EditMode.saveNameUpdateField($name, name))
-            return;
-        $name.value = name;
-        const id = $name._id;
-
-        if (isSingular) {
-            if (isWindowId(id))
-                Request.updateByUser(id, name); // Update current window only
-            EditMode.finalizePopupUpdate();
-        }
-    },
-
-    /**
-     * @param {Object} arg
-     * @param {string} arg.argument
-     */
-    async extractallnames({ argument }) {
-        const regex = new RegExp(argument);
-        for (const $name of $names)
-            await COMMAND__CALLBACK.extractname({ argument, $name, regex }); // Await each one to resolve any duplicate names
-        Request.updateByUser(); // Update all windows simultaneously
-        EditMode.finalizePopupUpdate();
-    },
-};
-
-const SHORTHAND__COMMAND = { exa: 'extractallnames' };
 
 export function init() {
+    addConditionalCommands(respondIfFilled);
     Parsed.clear();
-
-    if (FLAGS.enable_stash) {
-        COMMAND__CALLBACK.stash = ({ event }) => Request.action({ command: 'stash', event });
-
-        COMMAND__CALLBACK.viewstash = async function () {
-            // Create folder rows if absent
-            if (!$otherWindowRows.$stashed) {
-                Placeholder.set('Loading stashed windows...', 'info');
-                const folders = await Request.popupStashItems();
-                Placeholder.reset();
-                if (!folders.length)
-                    return Placeholder.flash('No stashed windows found', 'info');
-                Row.addFolders(folders);
-            }
-
-            Row.toggleViewFolders({ scrollIntoView: true });
-            respondIfFilled({ autocomplete: false });
-
-            // Toggle `show_popup_stashed_items` setting
-            FLAGS.show_popup_stashed_items = !FLAGS.show_popup_stashed_items;
-            set({ show_popup_stashed_items: FLAGS.show_popup_stashed_items });
-        };
-    }
-
-    if (FLAGS.allow_private) {
-        const commands = [
-            ['nn', 'newnormal'],
-            ['pn', 'popnormal'],
-            ['kn', 'kicknormal'],
-            ['np', 'newprivate'],
-            ['pp', 'popprivate'],
-            ['kp', 'kickprivate'],
-        ];
-        for (const [shorthand, command] of commands) {
-            COMMAND__CALLBACK[command] = namingActionRequestFn(command);
-            SHORTHAND__COMMAND[shorthand] = command;
-        }
-    }
-
     $omnibox.focus();
 }
 
@@ -194,28 +62,22 @@ export const Parsed = {
             return;
 
         if (EditMode.isActive) {
-            for (const command of EDITMODE_VALID_COMMANDS) {
-                if (command.startsWith(word)) {
-                    Parsed.command = command;
-                    return;
-                }
+            for (const command of EDITMODE_VALID_COMMANDS) if (command.startsWith(word)) {
+                Parsed.command = command;
+                return;
             }
             Parsed.command = '';
             return;
         }
 
-        for (const command in COMMAND__CALLBACK) {
-            if (command.startsWith(word)) {
-                Parsed.command = command;
-                return;
-            }
+        for (const command in COMMAND__CALLBACK) if (command.startsWith(word)) {
+            Parsed.command = command;
+            return;
         }
-        for (const shorthand in SHORTHAND__COMMAND) {
-            if (word === shorthand) {
-                Parsed.command = SHORTHAND__COMMAND[shorthand];
-                Parsed.shorthand = shorthand;
-                return;
-            }
+        for (const shorthand in SHORTHAND__COMMAND) if (word === shorthand) {
+            Parsed.command = SHORTHAND__COMMAND[shorthand];
+            Parsed.shorthand = shorthand;
+            return;
         }
         Parsed.command = '';
     },
@@ -238,7 +100,7 @@ export function handleInput(event, optionDict) {
 
     $omnibox.classList.toggle('slashCommand', Parsed.startsSlashed);
 
-    if (Parsed.command && optionDict?.autocomplete !== false && !isDeletion(event))
+    if (Parsed.command && (optionDict?.autocomplete !== false) && !isDeletion(event))
         autocompleteCommand(str, Parsed.command);
 
     return true;
@@ -329,48 +191,4 @@ export function clear() {
     Parsed.clear();
     $omnibox.value = '';
     $omnibox.classList.remove('slashCommand');
-}
-
-/**
- * @param {string} str
- * @returns {RegExp?}
- */
-function createRegex(str) {
-    try {
-        return new RegExp(str);
-    } catch (e) {
-        Placeholder.flash(`RegExp ${e}`, 'error');
-    }
-}
-
-const Placeholder = {
-    TIMEOUT: 1500,
-    ORIGINAL: $omnibox.placeholder,
-    className: '',
-
-    /**
-     * @param {string} text
-     * @param {string} className
-     */
-    set(text, className) {
-        Placeholder.className = className;
-        $omnibox.classList.add(className);
-        $omnibox.placeholder = text;
-    },
-
-    reset() {
-        $omnibox.placeholder = Placeholder.ORIGINAL;
-        $omnibox.classList.remove(Placeholder.className);
-        Placeholder.className = '';
-    },
-
-    /**
-     * @param {string} text
-     * @param {string} className
-     * @param {number} [time]
-     */
-    flash(text, className, time = this.TIMEOUT) {
-        Placeholder.set(text, className);
-        setTimeout(Placeholder.reset, time);
-    },
 }
