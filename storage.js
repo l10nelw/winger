@@ -144,6 +144,7 @@ function getDefaultsDict(keys) {
  * @property {boolean} [enable_stash]
  * @property {boolean} [show_popup_stash_btn]
  * @property {boolean} [show_popup_stashed_items]
+ * @property {boolean} [stash_nameless_with_title]
  */
 /**
  * Get dict of settings used by the popup.
@@ -158,6 +159,7 @@ export async function getPopupConfig() {
         'enable_stash',
         'show_popup_stash_btn',
         'show_popup_stashed_items',
+        'stash_nameless_with_title',
     ];
     /** @type {[PopupConfig, boolean]} */
     const [config, allow_private] = await Promise.all([

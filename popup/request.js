@@ -2,7 +2,6 @@
 
 import { $currentWindowRow, $newWindowRow, FLAGS } from './common.js';
 import * as Modifier from '../modifier.js';
-import { getValue } from '../storage.js';
 
 /** @import { WindowRow$ } from './common.js' */
 /** @import { WindowId, BNode, StashFolder, PopupInitMessage, ActionRequest } from '../types.js' */
@@ -47,7 +46,6 @@ export const updateChrome = (windowId, name) => browser.runtime.sendMessage({ ty
  * @param {string} [info.command]
  * @param {string} [info.argument]
  * @param {HTMLElement} [info.$action]
- * @returns {Promise<void>}
  */
 export async function action({ event, modifiers, command, argument, $action }) {
     /** @type {ActionRequest} */
@@ -96,7 +94,7 @@ export async function action({ event, modifiers, command, argument, $action }) {
         if (action === 'stash') {
             const $name = $row.$name;
             let name = $name.value;
-            if (!name && await getValue('stash_nameless_with_title'))
+            if (!name && FLAGS.stash_nameless_with_title)
                 name = $name.placeholder;
             request.name = name;
             request.remove = !modifiers.includes(Modifier.STASHCOPY);
