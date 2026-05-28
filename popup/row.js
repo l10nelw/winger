@@ -12,7 +12,7 @@ import * as Filter from './filter.js';
 import * as Request from './request.js';
 
 /** @import { NameField$, WindowRow$ } from './common.js' */
-/** @import { Winfo, BNode, StashFolder } from '../types.js' */
+/** @import { WInfo, BNode, StashFolder } from '../types.js' */
 
 const CELL_SELECTORS = new Set(['.send', '.bring', '.icon', '.name', '.tabCount', '.stash']);
 
@@ -23,8 +23,8 @@ const CELL_SELECTORS = new Set(['.send', '.bring', '.icon', '.name', '.tabCount'
 const Template = {};
 
 /**
- * @param {Winfo} fgWinfo
- * @param {Winfo[]} bgWinfos
+ * @param {WInfo} fgWinfo
+ * @param {WInfo[]} bgWinfos
  */
 export function addWindows(fgWinfo, bgWinfos) {
     WindowRow.init(fgWinfo);
@@ -61,7 +61,7 @@ const WindowRow = {
     /**
      * Use the pre-hydrated current-window row to create a window row template, then hydrate current-window row.
      * Hydrate new-window row also.
-     * @param {Winfo} fgWinfo
+     * @param {WInfo} fgWinfo
      */
     init(fgWinfo) {
         // Remove any toggled-off buttons
@@ -114,7 +114,7 @@ const WindowRow = {
 
     /**
      * Create an other-window row.
-     * @param {Winfo} winfo
+     * @param {WInfo} winfo
      * @returns {WindowRow$}
      */
     create(winfo) {
@@ -131,7 +131,7 @@ const WindowRow = {
 
     /**
      * @param {WindowRow$} $row
-     * @param {Winfo} winfo
+     * @param {WInfo} winfo
      */
     _hydrate($row, { givenName, id, incognito, minimized, tabCount, title, titleSansName }) {
         hydrateCellReferences($row);

@@ -7,7 +7,7 @@ import * as Winfo from './winfo.js';
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 
-/** @import { WindowId, BNode, Winfo, PopupInitMessage, ActionRequest, StashFolder, ChromeComponentName } from '../types.js' */
+/** @import { WindowId, BNode, WInfo, PopupInitMessage, ActionRequest, StashFolder, ChromeComponentName } from '../types.js' */
 
 browser.runtime.onMessage.addListener(request => onMessage(INTERNAL, request));
 browser.runtime.onMessageExternal.addListener(request => onMessage(EXTERNAL, request));
@@ -193,7 +193,7 @@ const EXTERNAL = {
      * @param {Object} request
      * @param {string[]} request.properties
      * @param {WindowId[]} [request.windowIds]
-     * @returns {Promise<Winfo[] | Error>}
+     * @returns {Promise<WInfo[] | Error>}
      */
     info(request) {
         const { properties } = request;

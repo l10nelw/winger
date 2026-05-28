@@ -10,7 +10,7 @@ import * as Winfo from './winfo.js';
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 
-/** @import { Tab, Window, WindowId, Winfo } from '../types.js' */
+/** @import { Tab, Window, WindowId, WInfo } from '../types.js' */
 
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onFocusChanged.addListener(onWindowFocusChanged);
@@ -32,7 +32,7 @@ async function onWindowCreated(window) {
 
     handleDetachedTabs(windowId); // In case window created from detached tabs
 
-    /** @type {[number?, Winfo[]]} */
+    /** @type {[number?, WInfo[]]} */
     const [firstSeen, winfos] = await Promise.all([
         Winfo.loadFirstSeen(windowId),
         Winfo.getAll(['givenName']),
@@ -42,7 +42,7 @@ async function onWindowCreated(window) {
         Winfo.saveFirstSeen(windowId);
 
     // Resolve any name duplication and update the chrome, in case this is a restored named window
-    /** @type {Winfo} */
+    /** @type {WInfo} */
     const { givenName } = winfos.pop(); // The new window should be last in the array
     if (givenName) {
         const nameMap = (new Name.NameMap()).populate(winfos);

@@ -79,8 +79,9 @@
 /**
  * A winfo ("window info") is similar to but distinct from a standard `browser.windows.Window` object.
  * May contain as few or as many props as required; copied and/or derived from a `Window` object, and/or previously saved via `browser.sessions.setWindowValue()`.
- * @typedef {Partial<Window> & _Winfo} Winfo
- * @typedef _Winfo
+ * Type is spelled "WInfo" to not conflict with module "Winfo".
+ * @typedef {Partial<Window> & _WInfo} WInfo
+ * @typedef _WInfo
  * @property {WindowId} id
  * @property {EpochTimeStamp} [firstSeen]
  * @property {string} [givenName]
@@ -100,8 +101,8 @@
  */
 /**
  * @typedef PopupInitMessage
- * @property {Winfo} fgWinfo
- * @property {Winfo[]} bgWinfos
+ * @property {WInfo} fgWinfo
+ * @property {WInfo[]} bgWinfos
  * @property {import('./storage').PopupConfig} config
  */
 /**

@@ -1,7 +1,7 @@
 import * as Storage from '../storage.js';
 
-/** @import { WindowId, Window, Winfo } from '../types.js' */
-/** @see Winfo for definition of winfos. */
+/** @import { WindowId, Window, WInfo } from '../types.js' */
+/** @see WInfo for definition of winfos. */
 
 /** @param {WindowId} windowId @returns {Promise<void>} */ export const saveLastFocused = windowId => browser.sessions.setWindowValue(windowId, 'lastFocused', Date.now());
 /** @param {WindowId} windowId @returns {Promise<void>} */ export const saveFirstSeen = windowId => browser.sessions.setWindowValue(windowId, 'firstSeen', Date.now());
@@ -16,7 +16,7 @@ const PROPS_TO_LOAD = {
 
 /**
  * @callback DerivePropCallback
- * @param {Winfo} winfo
+ * @param {WInfo} winfo
  * @param {Window} window
  * @param {Object} commonInfo
  * @param {number} commonInfo.nameAffixLength
@@ -59,7 +59,7 @@ const PROPS_TO_DERIVE = {
  * If `title` or `titleSansName` are wanted properties, auto-removes the " — Mozilla Firefox" suffix from titles. Mutates provided `windows`.
  * @param {string[] | Set<string>} wantedProps
  * @param {Window[]} [windows]
- * @returns {Promise<Winfo[]>}
+ * @returns {Promise<WInfo[]>}
  * @modifies windows (window.title)
  */
 export async function getAll(wantedProps, windows = null) {
@@ -118,7 +118,7 @@ function removeTitleAppName(title) {
  * @param {string[]} commonInfo.propsToDerive
  * @param {Set<string>} commonInfo.propsToCopy
  * @param {number} commonInfo.nameAffixLength
- * @returns {Promise<Winfo>}
+ * @returns {Promise<WInfo>}
  */
 async function getOne(window, commonInfo) {
     // Load window's saved props to start winfo with
@@ -129,7 +129,7 @@ async function getOne(window, commonInfo) {
     const makingEntries = [];
     for (const prop of commonInfo.propsToLoad) if (prop in PROPS_TO_LOAD)
         makingEntries.push(makeEntry(prop));
-    /** @type {Winfo} */
+    /** @type {WInfo} */
     const winfo = Object.fromEntries(await Promise.all(makingEntries));
 
     // Derive and add new props to winfo
@@ -146,8 +146,8 @@ async function getOne(window, commonInfo) {
 /**
  * Split a list of winfos into the foreground/current winfo and a SORTED list of background winfos.
  * Needs winfos with `focused` and `lastFocused` properties for this to work correctly.
- * @param {Winfo[]} winfos
- * @returns {{fgWinfo: Winfo, bgWinfos: Winfo[]}}
+ * @param {WInfo[]} winfos
+ * @returns {{fgWinfo: WInfo, bgWinfos: WInfo[]}}
  */
 export function arrange(winfos) {
     const fgIndex = winfos.findIndex(winfo => winfo.focused);
@@ -160,4 +160,3 @@ export function arrange(winfos) {
         bgWinfos: winfos,
     };
 }
-

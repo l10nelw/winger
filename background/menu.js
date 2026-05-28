@@ -5,7 +5,7 @@ import * as Winfo from './winfo.js';
 
 import { BRING, modify } from '../modifier.js';
 
-/** @import { WindowId, Window, Tab, Winfo, ActionRequest } from '../types.js' */
+/** @import { WindowId, Window, Tab, ActionRequest } from '../types.js' */
 
 const parentId = 'send';
 const dummyId = '-';

@@ -1,6 +1,6 @@
 import { isWindowId } from './utils.js';
 
-/** @import { WindowId, BNodeId } from './types.js' */
+/** @import { WindowId, BNodeId, WInfo } from './types.js' */
 
 const NUMBER_POSTFIX = / (\d+)$/;
 
@@ -57,7 +57,7 @@ function startsWithSlash(name) {
 export class NameMap extends Map {
 
     /**
-     * @param {HTMLInputElement[] | Winfo[]} objects - Either an array of $names, or an array of winfos containing givenNames.
+     * @param {HTMLInputElement[] | WInfo[]} objects - Either an array of $names, or an array of winfos containing givenNames.
      * @returns {this & Map<(WindowId | BNodeId), string>}
      */
     populate(objects) {
