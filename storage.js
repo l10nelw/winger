@@ -30,6 +30,7 @@ export const STORED_PROPS = {
     stash_home_folder_title: 'Stashed Windows',
     stash_nameless_with_title: false,
     auto_name_unstash: true,
+    unstash_load_eager: false,
     show_popup_stash_btn: true,
     show_popup_stashed_items: false,
 

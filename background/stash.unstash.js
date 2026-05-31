@@ -50,18 +50,19 @@ async function unstashFolder(folder, remove) {
     const [name, protoWindow] = StashProp.Window.parse(folder.title);
     console.info(`Unstashing folder id ${folderId}: ${name}...`);
 
-    /** @type {[Object<string, BNode[]>, Window, boolean]} */
-    const [{ bookmarks, subfolders }, window, auto_name_unstash] = await Promise.all([
+    /** @type {[Object<string, BNode[]>, Window, boolean, boolean]} */
+    const [{ bookmarks, subfolders }, window, auto_name_unstash, unstash_load_eager] = await Promise.all([
         readFolder(folderId),
         browser.windows.create(protoWindow),
         Storage.getValue('auto_name_unstash'),
+        Storage.getValue('unstash_load_eager'),
     ]);
     const windowId = window.id;
     nowUnstashing.add(folderId).add(windowId);
 
     if (auto_name_unstash)
         nameWindow(windowId, name);
-    await populateWindow(window, bookmarks, name);
+    await populateWindow(window, bookmarks, unstash_load_eager);
     nowUnstashing.delete(windowId);
 
     if (remove)
@@ -104,8 +105,9 @@ async function nameWindow(windowId, name) {
 /**
  * @param {Window} window
  * @param {BNode[]} bookmarks
+ * @param {boolean} loadEager
  */
-async function populateWindow(window, bookmarks) {
+async function populateWindow(window, bookmarks, loadEager) {
     if (!bookmarks.length)
         return;
 
@@ -114,7 +116,7 @@ async function populateWindow(window, bookmarks) {
     const protoTabs = bookmarks.map(({ title, url }) => ({ windowId, url, ...StashProp.Tab.parse(title) }));
 
     await StashProp.Tab.preOpen(protoTabs, window);
-    const openingTabs = protoTabs.map(protoTab => openTab(protoTab));
+    const openingTabs = protoTabs.map(protoTab => openTab(protoTab, loadEager));
 
     Promise.any(openingTabs).then(() => browser.tabs.remove(window.tabs[0].id)); // Remove initial tab
     const tabs = await Promise.all(openingTabs);
@@ -123,11 +125,13 @@ async function populateWindow(window, bookmarks) {
 
 /**
  * @param {ProtoTab} protoTab
+ * @param {boolean} loadEager
  * @returns {Promise<Tab>}
  */
-async function openTab(protoTab) {
+async function openTab(protoTab, loadEager) {
     const safeProtoTab = StashProp.Tab.scrub(protoTab);
-    safeProtoTab.discarded = true;
+    if (!loadEager)
+        safeProtoTab.discarded = true;
     const tab = await Action.openTab(safeProtoTab);
     console.info(`Unstashed tab id ${tab.id}: ${tab.url} | ${tab.title}`);
     return tab;
