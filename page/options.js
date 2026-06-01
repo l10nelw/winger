@@ -15,12 +15,19 @@ const $form = document.body.querySelector('form');
  */
 const relevantProp = type => (type === 'checkbox') ? 'checked' : 'value';
 
-const PARSE_CONSTANTS = Object.entries({
-    true: true,
-    false: false,
-    null: null,
-    undefined: undefined,
-});
+/**
+ * Return true if $field is either disabled or falsey.
+ * @param {HTMLInputElement} $field
+ * @returns {boolean}
+ */
+const isOff = $field => $field.disabled || !$field[relevantProp($field.type)];
+
+const PARSE_CONSTANTS = [
+    ['true', true],
+    ['false', false],
+    ['null', null],
+    ['undefined', undefined],
+];
 
 /**
  * @param {string} value
@@ -60,18 +67,19 @@ function validateRegex($field) {
 
 class EnablerMap extends GroupMap {
     /**
+     * Set $target.disabled state and update associated styles.
      * @param {HTMLInputElement} $target
      * @param {boolean} disable
      * @modifies $target
-     * @private
      */
-    #updateTarget($target, disable) {
+    #setDisabled($target, disable) {
         $target.disabled = disable;
         $target.closest('label')?.classList.toggle('muted', disable);
         $form.querySelector(`label[for="${$target.id}"]`)?.classList.toggle('muted', disable);
     }
 
     /**
+     * Add an enabler-to-target mapping.
      * @param {HTMLInputElement} $target
      * @modifies this
      */
@@ -80,14 +88,14 @@ class EnablerMap extends GroupMap {
         if (!$enabler)
             return;
         this.group($enabler, $target);
-        this.#updateTarget($target, $enabler.disabled || !$enabler[relevantProp($enabler.type)]);
+        this.#setDisabled($target, isOff($enabler));
     }
 
     /**
      * Enable/disable fields that $enabler controls and save their associated settings.
      * Return true if no save failures.
      * @param {HTMLInputElement} $enabler
-     * @returns {boolean}
+     * @returns {Promise<boolean>}
      * @modifies $enabler
      */
     async trigger($enabler) {
@@ -96,10 +104,11 @@ class EnablerMap extends GroupMap {
         if (!$targets)
             return true;
         // Disable targets if enabler is unchecked, empty or is itself disabled
-        const disable = $enabler.disabled || !$enabler[relevantProp($enabler.type)];
+        const disable = isOff($enabler);
+        /** @type {Promise<boolean>[]} */
         const saving = [];
         for (const $target of $targets) {
-            this.#updateTarget($target, disable);
+            this.#setDisabled($target, disable);
             this.trigger($target); // In case $target is itself an enabler
             saving.push(Setting.save($target));
         }
@@ -144,7 +153,7 @@ const Setting = {
 };
 
 const StashSection = {
-    /** @constant */ permissionInfo: { permissions: ['bookmarks'] },
+    PERMISSION_INFO: { permissions: ['bookmarks'] },
 
     async onNoPermission() {
         /** @type {HTMLInputElement} */
@@ -160,8 +169,8 @@ const StashSection = {
      */
     async onEnabled($enable_stash) {
         if (!$enable_stash.checked)
-            return browser.permissions.remove(StashSection.permissionInfo);
-        $enable_stash.checked = await browser.permissions.request(StashSection.permissionInfo);
+            return browser.permissions.remove(StashSection.PERMISSION_INFO);
+        $enable_stash.checked = await browser.permissions.request(StashSection.PERMISSION_INFO);
     },
 };
 

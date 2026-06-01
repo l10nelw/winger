@@ -43,8 +43,6 @@ label {
 select, input[type="text"] {
     margin-bottom: -.5rem;
 }
-.smallField { width: 3.5rem; }
-.mediumField { width: 6.5rem; }
 
 hr {
     margin: 1rem 0;
@@ -55,6 +53,9 @@ p {
 }
 cite {
     font-weight: bold;
+}
+small {
+    font-size: 90%;
 }
 
 button {

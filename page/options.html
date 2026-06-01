@@ -9,6 +9,11 @@
   <body class="dark">
     <form>
 
+      <fieldset class="flex gap">
+        <p>Changed settings should take effect immediately. You can try restarting Winger if you have any issues.</p>
+        <button type="button" id="restart"><img src="../icons/refresh.svg" width="15" height="15"> Restart Winger</button>
+      </fieldset>
+
       <fieldset>
         <legend>Send and bring</legend>
         <div class="group">
@@ -24,39 +29,39 @@
       </fieldset>
 
       <fieldset>
-        <legend>Window name display</legend>
-        <label><input class="setting" type="checkbox" name="show_badge"> <span>Show name in Winger button badge
-          <br><small>Shows the first few characters of a window name</small>
+        <legend>Name display</legend>
+        <label><input class="setting" type="checkbox" name="show_badge"> <span>Show name on Winger button
+          <br><small>Shows the first few characters of a window name in the button badge</small>
         </span></label>
         <div class="indent">
           <label><input class="setting" type="checkbox" data-enabled-by="show_badge" name="badge_show_emoji_first"> <span>Show emoji first</span></label>
           <div class="flex">
             <label><input type="checkbox" data-checked-by="badge_regex" disabled title="Automatically enabled when field is filled"> <span></span></label>
-            <label><span>Show only regex match:</span> <input class="setting mediumField" type="text" data-enabled-by="show_badge" name="badge_regex" placeholder="e.g. \b\w"></label>
+            <label><span>Show only regex match:</span> <input class="setting" type="text" size="8" data-enabled-by="show_badge" name="badge_regex" placeholder="e.g. \b\w"></label>
             <label class="ms"><input class="setting" type="checkbox" data-enabled-by="badge_regex" name="badge_regex_gflag"> <span>Multiple matches within name ("global")</span></label>
           </div>
         </div>
-        <label><input class="setting" type="checkbox" name="set_title_preface"> <span>Show name in window title preface
-          <br><small>Disable if you rely on title prefaces set by another extension</small>
+        <label><input class="setting" type="checkbox" name="set_title_preface"> <span>Show name as window's title preface
+          <br><small>Turn off if you rely on title prefaces set by another extension</small>
         </label>
         <div class="indent">
           <div class="flex gap">
-            <label><span>Prefix</span> <input class="setting smallField center" type="text" data-enabled-by="set_title_preface" name="title_preface_prefix"></label>
-            <label><span>Postfix</span> <input class="setting smallField center" type="text" data-enabled-by="set_title_preface" name="title_preface_postfix"></label>
+            <label><span>Prefix</span> <input class="setting center" type="text" size="3" data-enabled-by="set_title_preface" name="title_preface_prefix"></label>
+            <label><span>Postfix</span> <input class="setting center" type="text" size="3" data-enabled-by="set_title_preface" name="title_preface_postfix"></label>
           </div>
           <label><input class="setting" type="checkbox" data-enabled-by="set_title_preface" name="assert_title_preface"> <span>Re-assert on every window switch
             <br><small>Useful if Winger's title prefaces are often disappearing or overridden
             <br>(You should check for and deal with any conflicting extensions if possible)</small>
           </span></label>
         </div>
-        <small>Learn more about <a class="help" href="#name">window naming</a>. See example badge regexes in <a class="help" href="#name-tips">naming tips</a></small>
+        <small>Learn more about <a class="help" href="#name">window naming</a>. See <a class="help" href="#badge-tips">example badge regexes</a></small>
       </fieldset>
 
       <fieldset>
         <legend>Minimized windows</legend>
         <div class="flex gap">
           <label><input class="setting" type="checkbox" name="discard_minimized_window"> <span>Unload tabs in minimized window</span></label>
-          <label><input class="setting smallField" type="number" min="0" max="99" data-enabled-by="discard_minimized_window" name="discard_minimized_window_delay_mins"> <span>minute(s) after minimization</span></label>
+          <label><input class="setting" type="number" size="2" min="0" max="99" data-enabled-by="discard_minimized_window" name="discard_minimized_window_delay_mins"> <span>minute(s) after minimization</span></label>
         </div>
         <label><input class="setting" type="checkbox" name="minimize_kick_window"> <span>Minimize window opened with <samp>/kick</samp> command</span></label>
       </fieldset>
@@ -71,11 +76,11 @@
         <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="show_popup_stashed_items"> <span>Show "stashed windows" in pop-up panel
           <br><small>Toggleable with <samp>/viewstash</samp> command</small>
         </span></label>
-          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="stash_nameless_with_title"> <span>Stash nameless window using its window title as its name
-            <br><small>If disabled, nameless window is stashed as nameless folder</small>
+          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="stash_nameless_with_title"> <span>Stash a nameless window with its window title as its name
+            <br><small>If turned off, nameless windows are stashed as nameless folders</small>
           </span></label>
-          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="unstash_auto_name"> <span>Auto-name window when unstashed
-            <br><small>If disabled, unstashed window is not named</small>
+          <label><input class="setting" type="checkbox" data-enabled-by="enable_stash" name="unstash_auto_name"> <span>Auto-name recreated window when unstashed
+            <br><small>If turned off, unstashed windows are not named</small>
           </span></label>
           <div class="group">
             <label class="flex">
@@ -107,10 +112,7 @@
         </span></label>
       </fieldset>
 
-      <fieldset class="flex gap">
-        <p>Changed settings should take effect immediately. You can try restarting Winger if you have any issues.</p>
-        <button type="button" id="restart"><img src="../icons/refresh.svg" width="15" height="15"> Restart Winger</button>
-      </fieldset>
+      <hr style="visibility: hidden">
 
       <fieldset>
         <legend>Private windows</legend>
