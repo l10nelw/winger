@@ -43,12 +43,13 @@ export const updateChrome = (windowId, name) => browser.runtime.sendMessage({ ty
  * @see ActionRequest
  * @param {Object} info
  * @param {Event} info.event
+ * @param {string[]} [info.modifiers]
  * @param {string} [info.command]
  * @param {string} [info.argument]
  * @param {HTMLElement} [info.$action]
  * @returns {Promise<void>}
  */
-export async function action({ event, command, argument, $action }) {
+export async function action({ event, modifiers, command, argument, $action }) {
     /** @type {ActionRequest} */
     const request = { type: 'action' };
 
@@ -68,7 +69,7 @@ export async function action({ event, command, argument, $action }) {
     if (!request.action)
         return;
 
-    const modifiers = Modifier.get(event);
+    modifiers ??= Modifier.get(event);
     request.action = Modifier.modify(request.action, modifiers);
     const { action } = request;
 

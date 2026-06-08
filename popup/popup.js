@@ -6,6 +6,7 @@ import {
     $otherWindowsList,
     $toolbar,
     $status,
+    isButton,
     isRow,
 } from './common.js';
 import * as EditMode from './editmode.js';
@@ -15,6 +16,8 @@ import * as Row from './row.js';
 import * as Request from './request.js';
 import * as Status from './status.js';
 import * as Toolbar from './toolbar.js';
+
+import * as Modifier from '../modifier.js';
 
 Request.popup().then(init, initError);
 $body.addEventListener('click', onClick);
@@ -66,6 +69,37 @@ function initError() {
 }
 
 /**
+ * Pressing Enter/Space on a button produces a `click` event by default; however the event does NOT capture modifiers. So we must do it ourselves:
+ * For keypressed buttons, capture any modifiers in the `keydown` listener, then pass them to the action request within the subsequent `click` listener.
+ */
+const ButtonKeyPressModifier = {
+    KEYS: ['Enter', ' '],
+    modifiers: /** @type {string[]?} */ (null),
+    /**
+     * If Enter/Space key pressed on a button, store modifiers and return true (indicating that this is handled).
+     * @param {KeyboardEvent} keyDownEvent
+     * @returns {boolean}
+     * @modifies this.modifiers
+     */
+    capture(keyDownEvent) {
+        const isButtonPressed = isButton(keyDownEvent.target) && this.KEYS.includes(keyDownEvent.key);
+        if (isButtonPressed)
+            this.modifiers = Modifier.get(keyDownEvent);
+        return isButtonPressed;
+    },
+    /**
+     * Return and clear stored modifiers.
+     * @returns {string[]?}
+     * @modifies this.modifiers
+     */
+    release() {
+        const modifiers = this.modifiers;
+        this.modifiers = null;
+        return modifiers;
+    },
+}
+
+/**
  * @param {MouseEvent} event
  */
 function onClick(event) {
@@ -91,7 +125,9 @@ function onClick(event) {
         $action.$row.classList.toggle('private');
         return;
     }
-    Request.action({ event, $action });
+    // If `modifiers` is not null, this "click" is actually a key press on a button
+    const modifiers = ButtonKeyPressModifier.release();
+    Request.action({ event, $action, modifiers });
 }
 
 /**
@@ -117,6 +153,8 @@ function onContextMenu(event) {
  */
 function onKeyDown(event) {
     if (Omnibox.handleKeyDown(event))
+        return;
+    if (ButtonKeyPressModifier.capture(event))
         return;
     Navigation.handleKeyDown(event);
     Status.update(event);
