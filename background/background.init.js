@@ -16,7 +16,9 @@ Promise.all([
     Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized', 'title']),
     browser.tabs.query({ active: true }),
 ])
-.then(/** @param {[typeof STORED_PROPS, WInfo[], Tab[]]} */ async ([info, winfos, focusedTabs]) => {
+.then(
+    /** @param {[typeof STORED_PROPS, WInfo[], Tab[]]} */
+    async ([info, winfos, focusedTabs]) => {
 
     // Load `Stash` module if `info.stash_enabled` and bookmarks permission granted
     await Stash.init(info);
@@ -78,6 +80,10 @@ Promise.all([
     if (_version !== info._version) {
         if (info.open_help_on_update) {
             // Open help page when there's a major or minor (not patch) version change
+            /**
+             * @param {string} version
+             * @returns {string}
+             */
             const sansPatch = version => version.split('.', 2).join('.');
             if (sansPatch(_version) !== sansPatch(info._version))
                 Action.openHelp();

@@ -48,6 +48,10 @@ const COMMAND__CALLBACK = {
     pop:  namingActionRequestFn('pop'),
     kick: namingActionRequestFn('kick'),
 
+    /**
+     * @param {Object} arg
+     * @param {string} arg.argument
+     */
     async name({ argument }) {
         const $name = $names[0];
         if (argument === $name.value)
@@ -60,8 +64,8 @@ const COMMAND__CALLBACK = {
     /**
      * @param {Object} arg
      * @param {string} arg.argument
-     * @param {NameField$} [arg.$name]
-     * @param {RegExp} [arg.regex]
+     * @param {NameField$} [arg.$name] - Given by `extractallnames`
+     * @param {RegExp} [arg.regex] - Given by `extractallnames`
      */
     async extractname({ argument, $name, regex }) {
         $name ??= $names[0];
@@ -77,10 +81,14 @@ const COMMAND__CALLBACK = {
             $name.value = name;
     },
 
+    /**
+     * @param {Object} arg
+     * @param {string} arg.argument
+     */
     async extractallnames({ argument }) {
         const regex = new RegExp(argument);
         for (const $name of $names)
-            await COMMAND__CALLBACK.extractname({ argument, $name, regex });
+            await COMMAND__CALLBACK.extractname({ argument, $name, regex }); // Await each one to resolve any duplicate names
     },
 };
 

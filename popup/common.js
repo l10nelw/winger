@@ -73,6 +73,7 @@ export const $otherWindowRows = [];
 // Name map //
 
 /**
+ * Map of ids to names for popup use.
  * @type {NameMap & {
  *     ready: () => NameMap,
  *     validUniqueName: (name: string) => string,

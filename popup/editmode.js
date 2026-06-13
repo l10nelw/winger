@@ -13,7 +13,7 @@ import * as Omnibox from './omnibox.js';
 import * as Request from './request.js';
 import { isFiltered } from './filter.js';
 
-import * as Name from '../name.js';
+import { save as saveWindowName } from '../name.js';
 import indicateSuccess from '../success.js';
 import { isWindowId } from '../utils.js';
 
@@ -152,7 +152,7 @@ function rememberNameNow($name) {
  * If name is invalid: restore original name and return false.
  * Otherwise: proceed to save and return true.
  * @param {NameField$} $name
- * @returns {Promise<boolean>}
+ * @returns {Promise<boolean>} success/failure
  */
 async function trySaveNameAndHandleErrors($name) {
     const originalName = $name._original;
@@ -182,13 +182,13 @@ async function trySaveNameAndHandleErrors($name) {
 /**
  * @param {NameField$} $name
  * @param {string} name
- * @returns {Promise<boolean>}
+ * @returns {Promise<boolean>} success/failure
  */
 export async function saveNameUpdateUI($name, name) {
     const id = $name._id;
     if (isWindowId(id)) {
         // id is windowId
-        if (!await Name.save(id, name))
+        if (!await saveWindowName(id, name))
             return false;
         Request.updateChrome(id, name);
     } else {
@@ -220,6 +220,7 @@ function clearErrors() {
 }
 
 /**
+ * Toggle editable state of all name fields.
  * @param {boolean} isEnable
  */
 function toggleNameFields(isEnable) {
@@ -234,6 +235,6 @@ function toggleNameFields(isEnable) {
 /**
  * @param {BNodeId} folderId
  * @param {string} title
- * @returns {Promise<boolean>}
+ * @returns {Promise<boolean>} success/failure
  */
 const saveStashName = (folderId, title) => browser.bookmarks.update(folderId, { title }).then(() => true, () => false);

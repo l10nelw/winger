@@ -195,14 +195,14 @@ const EXTERNAL = {
      * @param {WindowId[]} [request.windowIds]
      * @returns {Promise<WInfo[] | Error>}
      */
-    info(request) {
+    async info(request) {
         const { properties } = request;
         if (!Array.isArray(properties))
-            return Promise.reject(new Error('`properties` array is required'));
+            throw new Error('`properties` array is required');
 
         const { windowIds } = request;
         if (windowIds && !windowIds.every?.(Number.isInteger))
-            return Promise.reject(new Error('`windowIds` must be an array of integers'));
+            throw new Error('`windowIds` must be an array of integers');
 
         const bareWinfos = windowIds?.map(id => ({ id }));
         return Winfo.getAll(properties, bareWinfos);

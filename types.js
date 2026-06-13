@@ -1,15 +1,17 @@
-/** @typedef {number} WindowId */
-/** @typedef {number} TabId */
-/** @typedef {number} GroupId */
 /** @typedef {string} BNodeId */
+/** @typedef {number} GroupId */
+/** @typedef {number} TabId */
+/** @typedef {number} WindowId */
 
-// Approximations of officially documented objects, listing only properties relevant in this app.
+/** @typedef {'Badge' | 'TitlePreface'} ChromeComponentName */
+
+// Approximations of officially-documented entities, listing only properties relevant to this app.
 /**
  * Simulates `browser.windows.Window`.
  * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/windows/Window}
  * @typedef Window
  * @property {boolean} focused
- * @property {WindowId} id - Required because we don't deal with `id`-less `browser.sessions.getRecentlyClosed()` windows.
+ * @property {WindowId} id - Required because we don't need to deal with id-less `browser.sessions.getRecentlyClosed()` windows.
  * @property {boolean} incognito
  * @property {string} state
  * @property {Tab[]} [tabs]
@@ -55,7 +57,7 @@
  * @property {string} [url]
  */
 
-// Proto-things: collections of properties used for creating/updating their respective things.
+// Proto-entities: collections of properties used for creating/updating the respective entities.
 /**
  * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/windows/create}
  * @typedef {Partial<Omit<Window, 'id'|'tabs'|'title'>> & { titlePreface?: string }} ProtoWindow
@@ -120,6 +122,5 @@
  * @property {Tab[]} [tabs]
  * @property {WindowId} [windowId]
  */
-/** @typedef {'Badge' | 'TitlePreface'} ChromeComponentName */
 
 export {}

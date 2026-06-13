@@ -1,4 +1,5 @@
 // The 'chrome' refers to UI components of the browser that frame the content.
+// Relevant components: button tooltip, button badge, title preface
 
 import * as Badge from './chrome.badge.js';
 import * as Storage from '../storage.js';
@@ -40,21 +41,26 @@ export async function showWarningBadge() {
  */
 export async function update(nameMap) {
     const [baseButtonTitle, show_badge] = await Promise.all([ getBaseButtonTitle(), Storage.getValue('show_badge') ]);
+
     // Button tooltip
     for (const [windowId, name] of nameMap) {
         const title = name ?
             `${name} - ${baseButtonTitle}` : baseButtonTitle;
         browser.browserAction.setTitle({ windowId, title });
     }
+
     // Button badge
     show_badge
         ? Badge.update(nameMap)
-        : browser.browserAction.setBadgeText({ text: '' });
+        : Badge.clear();
+
     // Title preface
     TitlePreface.set(nameMap);
 }
 
 /**
+ * Remove all names for a given chrome component.
+ * Used when disabling a component.
  * @param {ChromeComponentName} component
  */
 export function clear(component) {
@@ -62,6 +68,7 @@ export function clear(component) {
 }
 
 /**
+ * Default: "Winger (F1)"
  * @returns {Promise<string>}
  */
 const getBaseButtonTitle = async () => `${browser.runtime.getManifest().name} (${(await browser.commands.getAll())[0].shortcut})`;

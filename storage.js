@@ -37,8 +37,8 @@ export const STORED_PROPS = {
     compact_popup: false,
     open_help_on_update: true,
 
-    // Non-settings, must be "_" prefixed
-    // These properties are to be correctly populated at init; the "default values" are only for type inference
+    // Non-settings (prefixed "_")
+    // Properties to be correctly populated at init; the "default values" are for type inference
     _version: '',
     _focusedWindowId: 0,
 };

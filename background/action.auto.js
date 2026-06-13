@@ -81,7 +81,7 @@ export function assertDiscard(tabs) {
 
 class WindowSwitchList extends Array {
     /**
-     * Flag to distinguish a shortcut-invoked type of window focus change from others.
+     * Flag to distinguish a shortcut-invoked type of window focus change (true) from others (false).
      * @type {boolean}
      */
     inProgress = false;
@@ -94,7 +94,7 @@ class WindowSwitchList extends Array {
      */
     async getDestination(windowId, offset) {
         if (!this.length)
-            await this._populate();
+            await this.#populate();
         const index = this.indexOf(windowId);
         if (index === -1)
             throw `Shortcut switch-next/previous: invalid origin windowId ${windowId}`;
@@ -105,7 +105,7 @@ class WindowSwitchList extends Array {
         this.length = 0;
     }
 
-    async _populate() {
+    async #populate() {
         const winfos = await Winfo.getAll(
             ['givenName', 'title'],
             (await browser.windows.getAll()).filter(window => window.state !== 'minimized'),
@@ -114,10 +114,10 @@ class WindowSwitchList extends Array {
         // Sort by givenName if available, otherwise by title
         winfos.sort((A, B) => {
             if (A.givenName && B.givenName)
-                return this._compare(A.givenName, B.givenName);
+                return this.#compare(A.givenName, B.givenName);
             if (A.givenName) return -1;
             if (B.givenName) return 1;
-            return this._compare(A.title, B.title);
+            return this.#compare(A.title, B.title);
         });
 
         this.length = 0;
@@ -131,7 +131,7 @@ class WindowSwitchList extends Array {
      * @param {string} b
      * @returns {number}
      */
-    _compare = (a, b) => a.localeCompare(b, undefined, { caseFirst: 'upper', numeric: true });
+    #compare = (a, b) => a.localeCompare(b, undefined, { caseFirst: 'upper', numeric: true });
 }
 
 /**

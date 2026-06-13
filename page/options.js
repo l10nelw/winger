@@ -65,7 +65,7 @@ class EnablerMap extends GroupMap {
      * @modifies $target
      * @private
      */
-    _updateTarget($target, disable) {
+    #updateTarget($target, disable) {
         $target.disabled = disable;
         $target.closest('label')?.classList.toggle('muted', disable);
         $form.querySelector(`label[for="${$target.id}"]`)?.classList.toggle('muted', disable);
@@ -80,7 +80,7 @@ class EnablerMap extends GroupMap {
         if (!$enabler)
             return;
         this.group($enabler, $target);
-        this._updateTarget($target, $enabler.disabled || !$enabler[relevantProp($enabler.type)]);
+        this.#updateTarget($target, $enabler.disabled || !$enabler[relevantProp($enabler.type)]);
     }
 
     /**
@@ -99,7 +99,7 @@ class EnablerMap extends GroupMap {
         const disable = $enabler.disabled || !$enabler[relevantProp($enabler.type)];
         const saving = [];
         for (const $target of $targets) {
-            this._updateTarget($target, disable);
+            this.#updateTarget($target, disable);
             this.trigger($target); // In case $target is itself an enabler
             saving.push(Setting.save($target));
         }

@@ -15,7 +15,7 @@ export async function load(windowId) {
 /**
  * @param {WindowId} windowId
  * @param {string} name
- * @returns {Promise<boolean>}
+ * @returns {Promise<boolean>} success/failure
  */
 export function save(windowId, name) {
     return browser.sessions.setWindowValue(windowId, 'givenName', name).then(() => true, () => false);
@@ -29,7 +29,8 @@ export function save(windowId, name) {
 function addNumberPostfix(name) {
     const found = name.match(NUMBER_POSTFIX);
     return found ?
-        `${name.slice(0, found.index)} ${+found[1] + 1}` : `${name} 2`;
+        `${name.slice(0, found.index)} ${+found[1] + 1}` :
+        `${name} 2`;
 }
 
 /**
@@ -82,6 +83,7 @@ export class NameMap extends Map {
                 return false;
             else if (name)
                 return true;
+        return false;
     }
 
     /**
@@ -91,9 +93,8 @@ export class NameMap extends Map {
      */
     findId(name) {
         if (name)
-            for (const [id, _name] of this)
-                if (name === _name)
-                    return id;
+            for (const [id, _name] of this) if (name === _name)
+                return id;
         return 0;
     }
 
