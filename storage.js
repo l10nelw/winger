@@ -11,6 +11,7 @@ export const STORED_PROPS = {
     show_popup_bring_btn: true,
     show_popup_send_btn: true,
     keep_moved_tabs_selected: true,
+    send_tab_to_top: false,
 
     discard_minimized_window: false,
     discard_minimized_window_delay_mins: 0,

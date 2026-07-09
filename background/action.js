@@ -105,12 +105,13 @@ async function bringTabs(request) {
  * @returns {Promise<Tab[]>}
  */
 async function sendTabs(request) {
-    const [tabs, { keep_moved_tabs_selected, discard_minimized_window }] = await Promise.all([
+    const [tabs, { keep_moved_tabs_selected, discard_minimized_window, send_tab_to_top }] = await Promise.all([
         request.tabs ?? getSelectedTabs(), // If tabs not given in request, get selected tabs
-        Storage.getDict(['keep_moved_tabs_selected', 'discard_minimized_window']),
+        Storage.getDict(['keep_moved_tabs_selected', 'discard_minimized_window', 'send_tab_to_top']),
     ]);
     request.tabs ??= tabs;
     request.keep_moved_tabs_selected = keep_moved_tabs_selected;
+    request.send_tab_to_top = send_tab_to_top;
 
     const movedTabs = await moveTabs(request);
     if (movedTabs.length) {
@@ -130,7 +131,7 @@ async function sendTabs(request) {
  * @param {ActionRequest} request
  * @returns {Promise<Tab[]>}
  */
-async function moveTabs({ tabs, windowId, keep_moved_tabs_selected }) {
+async function moveTabs({ tabs, windowId, keep_moved_tabs_selected, send_tab_to_top }) {
     const [pinnedTabs, unpinnedTabs] = splitTabsByPinnedState(tabs);
 
     // Get destination index for pinned tabs, since they cannot be moved to index -1 if unpinned tabs exist at destination
@@ -145,7 +146,7 @@ async function moveTabs({ tabs, windowId, keep_moved_tabs_selected }) {
 
     /** @type {Tab[]} */ const movedTabs = (await Promise.all([
         browser.tabs.move(pinnedTabs.map(tab => tab.id), { windowId, index }),
-        browser.tabs.move(unpinnedTabs.map(tab => tab.id), { windowId, index: -1 }),
+        browser.tabs.move(unpinnedTabs.map(tab => tab.id), { windowId, index: send_tab_to_top ? 0 : -1 }),
     ])).flat();
 
     if (!movedTabs.length)
