@@ -12,8 +12,6 @@ const TitlePreface = {
      * @param {Map<WindowId, string> | [WindowId, string][]} nameMap
      */
     async set(nameMap) {
-        if (!await Storage.getValue('set_title_preface'))
-            return;
         const { title_preface_prefix, title_preface_postfix } = await Storage.getDict(['title_preface_prefix', 'title_preface_postfix']);
         for (const [windowId, name] of nameMap) {
             const titlePreface = name ?
@@ -40,7 +38,10 @@ export async function showWarningBadge() {
  * @param {Map<WindowId, string> | [WindowId, string][]} nameMap
  */
 export async function update(nameMap) {
-    const [baseButtonTitle, show_badge] = await Promise.all([ getBaseButtonTitle(), Storage.getValue('show_badge') ]);
+    const [baseButtonTitle, { show_badge, set_title_preface }] = await Promise.all([
+        getBaseButtonTitle(),
+        Storage.getDict(['show_badge', 'set_title_preface']),
+    ]);
 
     // Button tooltip
     for (const [windowId, name] of nameMap) {
@@ -55,7 +56,8 @@ export async function update(nameMap) {
         : Badge.clear();
 
     // Title preface
-    TitlePreface.set(nameMap);
+    if (set_title_preface)
+        TitlePreface.set(nameMap);
 }
 
 /**
