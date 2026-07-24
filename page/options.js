@@ -266,7 +266,7 @@ async function onFieldChanged({ target: $field }) {
         case 'badge_regex':
         case 'badge_regex_gflag':
             BadgeRegex.update();
-            browser.runtime.sendMessage({ type: 'update' });
+            browser.runtime.sendMessage({ type: 'update', source: 'system' });
             return;
 
         case 'discard_minimized_window':

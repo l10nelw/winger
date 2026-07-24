@@ -190,7 +190,7 @@ export async function saveNameUpdateUI($name, name) {
         // id is windowId
         if (!await saveWindowName(id, name))
             return false;
-        Request.updateChrome(id, name);
+        Request.updateByUser(id, name);
     } else {
         // id is folderId
         if (!await saveStashName(id, name))

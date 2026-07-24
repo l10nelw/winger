@@ -4,6 +4,8 @@
 // The data can be updated using `set()` which writes to both session and local storage.
 // "_"-prefixed data keys are considered temporary (session-only) and are never saved to local storage.
 
+/** @import { SubscriptionDict } from './types.js' */
+
 /**
  * Default values of all possible stored properties, settings and non-settings.
  */
@@ -41,6 +43,7 @@ export const STORED_PROPS = {
     // Properties to be correctly populated at init; the "default values" are for type inference
     _version: '',
     _focusedWindowId: 0,
+    _subscriptions: /** @type {SubscriptionDict} */ ({}),
 };
 
 /**

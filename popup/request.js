@@ -20,11 +20,11 @@ import * as Modifier from '../modifier.js';
 export const popupStashSizes = folders => browser.runtime.sendMessage({ type: 'popupStashSizes', folders });
 
 /**
- * @param {WindowId} windowId
- * @param {string} name
+ * @param {WindowId} [windowId]
+ * @param {string} [name]
  * @returns {Promise<void>}
  */
-export const updateChrome = (windowId, name) => browser.runtime.sendMessage({ type: 'update', windowId, name });
+export const updateByUser = (windowId, name) => browser.runtime.sendMessage({ type: 'update', source: 'user', windowId, name });
 
 /**
  * Gather action parameters to create an ActionRequest. Proceed only if action string is given via `command` or derived from `$action`.

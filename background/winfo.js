@@ -31,9 +31,16 @@ const PROPS_TO_DERIVE = {
         winfo.minimized = window.state === 'minimized';
     },
     /**
+     * Alias for `givenName`.
+     * Requires and gets `winfo.givenName` in getAll().
+     */
+    name(winfo) {
+        winfo.name = winfo.givenName;
+    },
+    /**
      * Window title without Winger's title preface.
      * Basically, `givenName ? tab title : window title`.
-     * Requires and gets `winfo.givenName`.
+     * Requires and gets `winfo.givenName` in getAll().
      */
     titleSansName(winfo, window, { nameAffixLength }) {
         const { givenName } = winfo;
@@ -74,7 +81,7 @@ export async function getAll(wantedProps, windows = null) {
         wantTitleSansName && Storage.getDict(['title_preface_prefix', 'title_preface_postfix']),
     ]);
 
-    if (wantTitleSansName)
+    if (wantTitleSansName || wantedProps.has('name'))
         wantedProps.add('givenName');
 
      // Remove " — Mozilla Firefox" from window title

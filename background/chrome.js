@@ -4,12 +4,11 @@
 import * as Badge from './chrome.badge.js';
 import * as Storage from '../storage.js';
 
-/** @import { ChromeComponentName, WindowId } from '../types.js' */
+/** @import { WindowIdNamePairs, ChromeComponentName } from '../types.js' */
 
 const TitlePreface = {
-
     /**
-     * @param {Map<WindowId, string> | [WindowId, string][]} nameMap
+     * @param {WindowIdNamePairs} nameMap
      */
     async set(nameMap) {
         const { title_preface_prefix, title_preface_postfix } = await Storage.getDict(['title_preface_prefix', 'title_preface_postfix']);
@@ -35,7 +34,8 @@ export async function showWarningBadge() {
 }
 
 /**
- * @param {Map<WindowId, string> | [WindowId, string][]} nameMap
+ * Update all allowed chrome components with given map/list of window id-and-name pairs.
+ * @param {WindowIdNamePairs} nameMap
  */
 export async function update(nameMap) {
     const [baseButtonTitle, { show_badge, set_title_preface }] = await Promise.all([

@@ -2,10 +2,10 @@ import './background.init.js';
 import './background.message.js';
 import * as Action from './action.js';
 import * as Auto from './action.auto.js';
-import * as Chrome from './chrome.js';
 import * as Stash from './stash.js';
 import * as SendMenu from './menu.js';
 import * as Winfo from './winfo.js';
+import completeUpdate from './update.js';
 
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
@@ -49,7 +49,7 @@ async function onWindowCreated(window) {
         const uniqueName = nameMap.uniquify(givenName);
         if (uniqueName !== givenName)
             Name.save(windowId, uniqueName);
-        Chrome.update([[windowId, uniqueName]]);
+        completeUpdate([[windowId, uniqueName]], 'system');
     }
 
     Auto.switchList.reset();
@@ -100,7 +100,7 @@ async function onWindowFocusChanged(windowId) {
 
     if (set_title_preface && await Storage.getValue('assert_title_preface')) {
         const nameMap = (new Name.NameMap()).populate(await Winfo.getAll(['givenName']));
-        Chrome.update(nameMap);
+        completeUpdate(nameMap, 'system');
     }
 }
 

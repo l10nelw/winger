@@ -1,9 +1,13 @@
 /** @typedef {string} BNodeId */
+/** @typedef {string} ExtensionId */
 /** @typedef {number} GroupId */
 /** @typedef {number} TabId */
 /** @typedef {number} WindowId */
 
 /** @typedef {'Badge' | 'TitlePreface'} ChromeComponentName */
+/** @typedef {object.<ExtensionId, string[]>} SubscriptionDict - ExtensionIds mapped to property arrays */
+/** @typedef {'user' | 'system'} UpdateSource */
+/** @typedef {Iterable<[WindowId, string]>} WindowIdNamePairs */
 
 // Approximations of officially-documented entities, listing only properties relevant to this app.
 /**
@@ -89,6 +93,7 @@
  * @property {string} [givenName]
  * @property {EpochTimeStamp} [lastFocused]
  * @property {boolean} [minimized]
+ * @property {string} [name] - alias of givenName
  * @property {number} [selectedTabCount]
  * @property {number} [tabCount]
  * @property {string} [titleSansName]
@@ -106,6 +111,12 @@
  * @property {WInfo} fgWinfo
  * @property {WInfo[]} bgWinfos
  * @property {import('./storage').PopupConfig} config
+ */
+/**
+ * @typedef WindowUpdatedMessage
+ * @property {'updated'} type
+ * @property {UpdateSource} source
+ * @property {WInfo[]} windows
  */
 /**
  * Request object sent as message from `(popup/request.js).action()`, to `(background/background.message.js).INTERNAL.action()`,

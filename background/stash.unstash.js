@@ -2,8 +2,8 @@ import { getChildNodes, getNode, nowUnstashing, removeNode } from './stash.core.
 import * as StashProp from './stash.prop.js';
 
 import * as Action from './action.js';
-import * as Chrome from './chrome.js';
 import * as Winfo from './winfo.js';
+import completeUpdate from './update.js';
 
 import * as Name from '../name.js';
 import * as Storage from '../storage.js';
@@ -98,7 +98,7 @@ async function nameWindow(windowId, name) {
     const nameMap = (new Name.NameMap()).populate(await Winfo.getAll(['givenName']));
     name = nameMap.uniquify(name);
     Name.save(windowId, name);
-    Chrome.update([[windowId, name]]);
+    completeUpdate([[windowId, name]], 'system');
 }
 
 /**

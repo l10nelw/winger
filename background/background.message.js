@@ -3,27 +3,29 @@ import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
 import * as Stash from './stash.js';
 import * as Winfo from './winfo.js';
+import completeUpdate from './update.js';
 
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 
-/** @import { WindowId, BNode, WInfo, PopupInitMessage, ActionRequest, StashFolder, ChromeComponentName } from '../types.js' */
+/** @import { WindowId, BNode, WInfo, PopupInitMessage, ActionRequest, StashFolder, ChromeComponentName, ExtensionId, UpdateSource } from '../types.js' */
 
 browser.runtime.onMessage.addListener(request => onMessage(INTERNAL, request));
-browser.runtime.onMessageExternal.addListener(request => onMessage(EXTERNAL, request));
+browser.runtime.onMessageExternal.addListener((request, sender) => onMessage(EXTERNAL, request, sender));
 
 /**
  * @listens browser.runtime.onMessage
  * @listens browser.runtime.onMessageExternal
  * @param {Object<string, Function>} fnCollection
- * @param {Object} message
+ * @param {Object} request
+ * @param {Object} [sender]
  * @returns {Promise<any>}
  */
-function onMessage(fnCollection, message) {
+function onMessage(fnCollection, request, sender) {
     /** @type {Function?} */
-    const fn = fnCollection[message.type];
-    return fn ? fn(message) :
-        new Error(`Missing or unrecognised message/request type: ${message.type}`);
+    const fn = fnCollection[request.type];
+    return fn ? fn(request, sender) :
+        new Error(`Missing or unrecognised message/request type: ${request.type}`);
 }
 
 /**
@@ -119,18 +121,21 @@ const INTERNAL = {
 
     /**
      * @param {Object} request
+     * @param {UpdateSource} [request.source='system']
      * @param {string} [request.name]
      * @param {WindowId} [request.windowId]
      * @see /page/options.js#onFieldChanged
-     * @see /popup/request.js#updateChrome
+     * @see /popup/request.js#updateByUser
      */
-    async update({ name, windowId }) {
+    async update({ source = 'system', name, windowId }) {
         Auto.switchList.reset();
+        // Explicity update a single window
         if (windowId && name)
-            return Chrome.update([[windowId, name]]);
+            return completeUpdate([[windowId, name]], source);
+        // Update all windows
         const winfos = await Winfo.getAll(['givenName']);
         const nameMap = (new Name.NameMap()).populate(winfos);
-        Chrome.update(nameMap);
+        completeUpdate(nameMap, source);
     },
 
     /**
@@ -206,6 +211,33 @@ const EXTERNAL = {
 
         const bareWinfos = windowIds?.map(id => ({ id }));
         return Winfo.getAll(properties, bareWinfos);
+    },
+
+    /**
+     * @param {Object} request
+     * @param {string[]} request.properties
+     * @param {Object} sender
+     * @param {ExtensionId} sender.id
+     */
+    async subscribe({ properties }, sender) {
+        if (!Array.isArray(properties))
+            throw new Error('`properties` array is required');
+
+        const extensionId = sender.id;
+        const _subscriptions = await Storage.getValue('_subscriptions');
+        properties = [...new Set(properties)];
+
+        // Currently we only support 'name' property
+        if (properties.find(prop => prop !== 'name'))
+            throw new Error(`Unsupported property: ${prop}`);
+
+        if (properties.length)
+            _subscriptions[extensionId] = properties;
+        else
+            delete _subscriptions[extensionId]; // Empty array means unsubscribe; remove from SubscriptionDict
+
+        Storage.set({ _subscriptions });
+        return true;
     },
 
 }

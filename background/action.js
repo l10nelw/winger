@@ -2,7 +2,7 @@
 
 import * as Auto from './action.auto.js';
 import { GroupIdTabIdMap } from './action.group.js';
-import * as Chrome from './chrome.js';
+import completeUpdate from './update.js';
 
 import * as Name from '../name.js';
 import * as Storage from '../storage.js';
@@ -70,7 +70,7 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
 
     if (name) {
         Name.save(newWindowId, name);
-        Chrome.update([[newWindowId, name]]);
+        completeUpdate([[newWindowId, name]], 'user');
     }
 
     // Firefox ignores `windows.create/update({ focused: false })`

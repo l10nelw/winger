@@ -1,9 +1,9 @@
 import * as Action from './action.js';
 import * as Auto from './action.auto.js';
-import * as Chrome from './chrome.js';
 import * as SendMenu from './menu.js';
 import * as Stash from './stash.js';
 import * as Winfo from './winfo.js';
+import completeUpdate from './update.js';
 
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
@@ -73,7 +73,7 @@ Promise.all([
         info.set_title_preface = true;
     }
 
-    Chrome.update(nameMap);
+    completeUpdate(nameMap, 'system');
 
     // Check for version update
     const _version = browser.runtime.getManifest().version;
