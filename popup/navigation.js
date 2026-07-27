@@ -127,8 +127,7 @@ const Navigator = {
             return $el;
         if (isInToolbar($el))
             return $el.nextElementSibling || $toolbar.querySelector('button');
-        return isRow($el) ? $el.firstElementChild :
-            ($el.nextElementSibling || $el.$row);
+        return horizontalStep(row($el), $el, +1);
     },
 
     /** @type {KeyProcessor} */
@@ -139,8 +138,7 @@ const Navigator = {
             return $el;
         if (isInToolbar($el))
             return $el.previousElementSibling || $toolbar.querySelector('button:last-child');
-        return isRow($el) ? $el.lastElementChild :
-            ($el.previousElementSibling || $el.$row);
+        return horizontalStep(row($el), $el, -1);
     },
 
     /** @type {KeyProcessor} */
@@ -232,6 +230,50 @@ const rowOrCell = $row => isEditMode && $row?.$name || Column.getCell($row) || $
  * @returns {WindowRow$}
  */
 const row = $el => $el.$row || $el;
+
+/**
+ * Ordered horizontal focus stops for a row: left buttons, a single central stop, then right buttons.
+ * The central stop is the name field where it is focusable (current-window row), else the row itself,
+ * so that moving inward re-selects the whole row.
+ * @param {WindowRow$} $row
+ * @returns {HTMLElement[]}
+ */
+function horizontalStops($row) {
+    const $centre = $row.$name?.tabIndex === -1 ? $row : $row.$name;
+    const $stops = [];
+    let centreAdded = false;
+    for (const $child of $row.children) {
+        if (isButton($child)) {
+            $stops.push($child);
+        } else if (!centreAdded) {
+            // First non-button (the icon) marks the central region; add the central stop once
+            $stops.push($centre);
+            centreAdded = true;
+        }
+    }
+    if (!centreAdded)
+        $stops.push($centre);
+    return $stops;
+}
+
+/**
+ * Move from `$el` to the nearest focusable horizontal stop in `dir`, or stay put at a row's edge.
+ * @param {WindowRow$} $row
+ * @param {HTMLElement} $el
+ * @param {1 | -1} dir
+ * @returns {HTMLElement}
+ */
+function horizontalStep($row, $el, dir) {
+    const $stops = horizontalStops($row);
+    const index = $stops.indexOf($el);
+    if (index === -1)
+        return $el;
+    for (let i = index + dir; i >= 0 && i < $stops.length; i += dir) {
+        if (!isUnfocusable($stops[i]))
+            return $stops[i];
+    }
+    return $el;
+}
 
 /** @returns {HTMLElement} */ const currentWindow = () => Column.getCell($currentWindowRow) || $currentWindowRow.$name || $currentWindowRow;
 /** @returns {HTMLElement} */ const toolbar = () => $toolbar.querySelector('button') || $toolbar;
