@@ -13,6 +13,7 @@ import * as Row from './row.js';
 import * as Toolbar from './toolbar.js';
 
 import { set } from '../storage.js';
+import { isWindowId } from '../utils.js';
 
 /** @import { NameField$ } from './common.js' */
 /**
@@ -57,7 +58,7 @@ const COMMAND__CALLBACK = {
         if (argument === $name.value)
             return;
         const name = nameMap.validUniqueName(argument);
-        if (await EditMode.saveNameUpdateUI($name, name))
+        if (await EditMode.saveNameUpdateField($name, name))
             $name.value = name;
     },
 
@@ -68,8 +69,12 @@ const COMMAND__CALLBACK = {
      * @param {RegExp} [arg.regex] - Given by `extractallnames`
      */
     async extractname({ argument, $name, regex }) {
-        $name ??= $names[0];
-        regex ??= createRegex(argument);
+        const isSingular = !$name || !regex; // `extractname` invoked by user, not by `extractallnames`
+        if (isSingular) {
+            $name = $names[0]; // Target is current window
+            regex = createRegex(argument);
+        }
+
         if (!regex)
             return;
         const result = $name.placeholder.match(regex);
@@ -77,8 +82,16 @@ const COMMAND__CALLBACK = {
         if (name === $name.value)
             return;
         name = nameMap.validUniqueName(name);
-        if (await EditMode.saveNameUpdateUI($name, name))
-            $name.value = name;
+        if (!await EditMode.saveNameUpdateField($name, name))
+            return;
+        $name.value = name;
+        const id = $name._id;
+
+        if (isSingular) {
+            if (isWindowId(id))
+                Request.updateByUser(id, name); // Update current window only
+            EditMode.finalizePopupUpdate();
+        }
     },
 
     /**
@@ -89,6 +102,8 @@ const COMMAND__CALLBACK = {
         const regex = new RegExp(argument);
         for (const $name of $names)
             await COMMAND__CALLBACK.extractname({ argument, $name, regex }); // Await each one to resolve any duplicate names
+        Request.updateByUser(); // Update all windows simultaneously
+        EditMode.finalizePopupUpdate();
     },
 };
 

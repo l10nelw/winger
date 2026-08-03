@@ -171,8 +171,11 @@ async function trySaveNameAndHandleErrors($name) {
     if (name === originalName)
         return true;
 
-    if (await saveNameUpdateUI($name, name))
+    if (await saveNameUpdateField($name, name)) {
+        Request.updateByUser($name._id, name);
+        finalizePopupUpdate();
         return true;
+    }
 
     // Save failed
     $name.value = originalName;
@@ -184,22 +187,18 @@ async function trySaveNameAndHandleErrors($name) {
  * @param {string} name
  * @returns {Promise<boolean>} success/failure
  */
-export async function saveNameUpdateUI($name, name) {
+export async function saveNameUpdateField($name, name) {
     const id = $name._id;
-    if (isWindowId(id)) {
-        // id is windowId
-        if (!await saveWindowName(id, name))
-            return false;
-        Request.updateByUser(id, name);
-    } else {
-        // id is folderId
-        if (!await saveStashName(id, name))
-            return false;
-    }
+    const saveNameFn = isWindowId(id) ? saveWindowName : saveStashName;
+    if (!await saveNameFn(id, name))
+        return false;
     nameMap.ready().set(id, name);
     indicateSuccess($name.nextElementSibling);
-    $body.classList.toggle('nameless', !nameMap.hasWindowName());
     return true;
+}
+
+export function finalizePopupUpdate() {
+    $body.classList.toggle('nameless', !nameMap.hasWindowName());
 }
 
 /**
