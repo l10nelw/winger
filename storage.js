@@ -31,7 +31,7 @@ export const STORED_PROPS = {
     stash_home_root_id: 'toolbar_____',
     stash_home_folder_title: 'Stashed Windows',
     stash_nameless_with_title: false,
-    auto_name_unstash: true,
+    unstash_auto_name: true,
     show_popup_stash_btn: true,
     show_popup_stashed_items: false,
 
@@ -60,6 +60,7 @@ export async function init() {
         ['show_popup_bring', 'show_popup_bring_btn'], // v2.12.0
         ['show_popup_send', 'show_popup_send_btn'], // v2.12.0
         ['show_popup_stash', 'show_popup_stash_btn'], // v2.12.0
+        ['auto_name_unstash', 'unstash_auto_name'], // v2.12.0
     ];
 
     // Get all entries from local storage, plus defaults for missing settings

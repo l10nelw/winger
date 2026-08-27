@@ -51,15 +51,15 @@ async function unstashFolder(folder, remove) {
     console.info(`Unstashing folder id ${folderId}: ${name}...`);
 
     /** @type {[Object<string, BNode[]>, Window, boolean]} */
-    const [{ bookmarks, subfolders }, window, auto_name_unstash] = await Promise.all([
+    const [{ bookmarks, subfolders }, window, unstash_auto_name] = await Promise.all([
         readFolder(folderId),
         browser.windows.create(protoWindow),
-        Storage.getValue('auto_name_unstash'),
+        Storage.getValue('unstash_auto_name'),
     ]);
     const windowId = window.id;
     nowUnstashing.add(folderId).add(windowId);
 
-    if (auto_name_unstash)
+    if (unstash_auto_name)
         nameWindow(windowId, name);
     await populateWindow(window, bookmarks, name);
     nowUnstashing.delete(windowId);
