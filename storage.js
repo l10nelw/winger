@@ -52,14 +52,14 @@ export const STORED_PROPS = {
  * @returns {Promise<typeof STORED_PROPS>}
  */
 export async function init() {
-    /** @type {[oldKey: string, newKey: string, valueGetter: Function][]} */
+    /** @type {[oldKey: string, newKey: string, valueGetter?: Function][]} */
     const ENTRIES_TO_MIGRATE = [
-        ['__version', '_version', dict => dict.__version], // v2.12.0
-        ['stash_home_root', 'stash_home_root_id', dict => dict.stash_home_root], // v2.12.0
-        ['stash_home_folder', 'stash_home_folder_title', dict => dict.stash_home_folder], // v2.12.0
-        ['show_popup_bring', 'show_popup_bring_btn', dict => dict.show_popup_bring], // v2.12.0
-        ['show_popup_send', 'show_popup_send_btn', dict => dict.show_popup_send], // v2.12.0
-        ['show_popup_stash', 'show_popup_stash_btn', dict => dict.show_popup_stash], // v2.12.0
+        ['__version', '_version'], // v2.12.0
+        ['stash_home_root', 'stash_home_root_id'], // v2.12.0
+        ['stash_home_folder', 'stash_home_folder_title'], // v2.12.0
+        ['show_popup_bring', 'show_popup_bring_btn'], // v2.12.0
+        ['show_popup_send', 'show_popup_send_btn'], // v2.12.0
+        ['show_popup_stash', 'show_popup_stash_btn'], // v2.12.0
     ];
 
     // Get all entries from local storage, plus defaults for missing settings
@@ -71,7 +71,7 @@ export async function init() {
     /** @type {Partial<STORED_PROPS>} */
     const migrationDict = {};
     for (const [oldKey, newKey, valueGetter] of ENTRIES_TO_MIGRATE) if (oldKey in sessionDict)
-        migrationDict[newKey] = sessionDict[newKey] = valueGetter(sessionDict);
+        migrationDict[newKey] = sessionDict[newKey] = valueGetter?.(sessionDict) ?? sessionDict[oldKey];
 
     /** @type {Promise<void>[]} */
     const promises = [
