@@ -35,6 +35,8 @@ const Props = {
         /** @type {Object<string, (thing: ProtoWindow) => any>} */
         reader: {
             incognito: parsed => parsed.private || parsed.incognito, // Either 'private' or 'incognito' accepted
+            // Used by (stash.unstash.js).UnstashFolder():
+            preserve: ({ preserve }) => preserve,
         },
     },
     TAB: {

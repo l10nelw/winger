@@ -50,6 +50,11 @@ async function unstashFolder(folder, remove) {
     const [name, protoWindow] = StashProp.Window.parse(folder.title);
     console.info(`Unstashing folder id ${folderId}: ${name}...`);
 
+    if (protoWindow && 'preserve' in protoWindow) {
+        remove = !protoWindow.preserve;
+        delete protoWindow.preserve;
+    }
+
     const [window, { bookmarks, subfolders }, unstash_auto_name] = await Promise.all([
         /** @type {Promise<Window>} */ (browser.windows.create(protoWindow)),
         readFolder(folderId),

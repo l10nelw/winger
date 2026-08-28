@@ -66,6 +66,7 @@
  * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/windows/create}
  * @typedef {Partial<Omit<Window, 'id'|'tabs'|'title'>> & _ProtoWindow} ProtoWindow
  * @typedef _ProtoWindow
+ * @property {boolean} [preserve] - Used by `(stash.unstash.js).UnstashFolder()`
  * @property {string} [titlePreface]
  */
 /**
