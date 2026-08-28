@@ -43,9 +43,9 @@ const Props = {
             active: ({ active, index }) => index && active,
             muted:  ({ mutedInfo: { muted } }) => muted,
             pinned: ({ pinned }) => pinned,
-            // After Containers.prepare():
+            // Requires Containers.prepare() to be available:
             container: ({ container }) => container,
-            // After Groups.prepare():
+            // Requires Groups.prepare() to be available:
             group: ({ groupId, group }) => {
                 if (groupId === -1)
                     return;
@@ -60,7 +60,7 @@ const Props = {
                 }
                 return info;
             },
-            // After Parents.prepare():
+            // Requires Parents.prepare() to be available:
             id: ({ stashId }) => stashId,
             parentId: ({ stashParentId }) => stashParentId, // 'parentId' alias of 'openerTabId'
         },
@@ -69,11 +69,11 @@ const Props = {
             active: ({ active }) => active,
             muted:  ({ muted }) => muted,
             pinned: ({ pinned }) => pinned,
-            // Before Container.restore():
+            // Needs follow-up with Container.restore() to finalise:
             container: ({ container }) => container,
-            // Before Groups.restore():
+            // Needs follow-up with Groups.restore() to finalise:
             group: ({ group }) => group,
-            // Before Parents.restore():
+            // Needs follow-up with Parents.restore() to finalise:
             id: ({ id }) => id,
             openerTabId: ({ parentId, openerTabId }) => parentId || openerTabId, // Either 'parentId' or 'openerTabId' accepted
         },

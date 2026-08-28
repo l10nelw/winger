@@ -64,16 +64,22 @@
 // Proto-entities: collections of properties used for creating/updating the respective entities.
 /**
  * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/windows/create}
- * @typedef {Partial<Omit<Window, 'id'|'tabs'|'title'>> & { titlePreface?: string }} ProtoWindow
+ * @typedef {Partial<Omit<Window, 'id'|'tabs'|'title'>> & _ProtoWindow} ProtoWindow
+ * @typedef _ProtoWindow
+ * @property {string} [titlePreface]
  */
 /**
  * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create}
- * @typedef {Partial<Omit<Tab, 'id'>> & { muted?: boolean, openInReaderMode?: boolean, group?: ProtoGroup }} ProtoTab
+ * @typedef {Partial<Omit<Tab, 'id'>> & _ProtoTab} ProtoTab
+ * @typedef _ProtoTab
  * @property {ProtoGroup} [group] - Added by `(stash.prop.js).Groups.prepare()`, used by `(stash.prop.js).Props.TAB.writer.group()`
+ * @property {boolean} [muted]
+ * @property {boolean} [openInReaderMode]
  */
 /**
  * @see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabGroups/update}
- * @typedef {Partial<Group> & { tabIds?: TabId[] }} ProtoGroup
+ * @typedef {Partial<Group> & _ProtoGroup} ProtoGroup
+ * @typedef _ProtoGroup
  * @property {TabId[]} [tabIds] - Added and used by `(stash.prop.js).Groups.restore()`
  */
 /**

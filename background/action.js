@@ -7,7 +7,9 @@ import completeUpdate from './update.js';
 import * as Name from '../name.js';
 import * as Storage from '../storage.js';
 
-/** @import { ActionRequest, GroupId, ProtoTab, Tab, TabId, Window } from '../types.js' */
+/** @import { ActionRequest, GroupId, ProtoTab, Tab, TabId, Window, WindowId } from '../types.js' */
+/** @typedef {ActionRequest & { windowId: WindowId }} WindowTargetActionRequest */
+/** @typedef {WindowTargetActionRequest & { tabs: Tab[] }} WindowTargetTabActionRequest */
 
 /**
  * @param {string} hash
@@ -16,7 +18,7 @@ import * as Storage from '../storage.js';
 export const openHelp = hash => Auto.openUniquePage('page/help.html', hash);
 
 /**
- * @param {ActionRequest}
+ * @param {WindowTargetActionRequest}
  * @returns {Promise<Window>}
  */
 export const switchWindow = ({ windowId }) => browser.windows.update(windowId, { focused: true });
@@ -55,17 +57,16 @@ export const execute = request => ACTION_DICT[request.action](request);
  * @returns {Promise<Window>}
  */
 export async function createWindow({ name, isMove, focused = true, incognito }) {
-    /** @type {[boolean, Window]} */
     const [minimize_kick_window, currentWindow] = await Promise.all([
         Storage.getValue('minimize_kick_window'),
-        browser.windows.getLastFocused({ populate: isMove }),
+        /** @type {Promise<Window>} */ (browser.windows.getLastFocused({ populate: isMove })),
     ]);
     const currentWindowInfo = { windowId: currentWindow.id };
     incognito ??= currentWindow.incognito;
 
     const kick = !focused;
     const state = (kick && minimize_kick_window) ? 'minimized' : undefined;
-    /** @type {Window} */ const newWindow = await browser.windows.create({ incognito, state });
+    const newWindow = /** @type {Window} */ (await browser.windows.create({ incognito, state }));
     const newWindowId = newWindow.id;
 
     if (name) {
@@ -93,7 +94,7 @@ export async function createWindow({ name, isMove, focused = true, incognito }) 
 }
 
 /**
- * @param {ActionRequest} request
+ * @param {WindowTargetTabActionRequest} request
  */
 async function bringTabs(request) {
     await sendTabs(request) && switchWindow(request);
@@ -101,7 +102,7 @@ async function bringTabs(request) {
 
 /**
  * Attempt `moveTabs`; if unsuccessful (e.g. windows are of different private statuses) then `reopenTabs`.
- * @param {ActionRequest} request
+ * @param {WindowTargetTabActionRequest} request
  * @returns {Promise<Tab[]>}
  */
 async function sendTabs(request) {
@@ -127,7 +128,7 @@ async function sendTabs(request) {
 }
 
 /**
- * @param {ActionRequest} request
+ * @param {WindowTargetTabActionRequest} request
  * @returns {Promise<Tab[]>}
  */
 async function moveTabs({ tabs, windowId, keep_moved_tabs_selected }) {
@@ -143,7 +144,7 @@ async function moveTabs({ tabs, windowId, keep_moved_tabs_selected }) {
     await groupIdTabIdMap.removePartialGroupEntries();
     const groups = await groupIdTabIdMap.getGroups();
 
-    /** @type {Tab[]} */ const movedTabs = (await Promise.all([
+    const movedTabs = /** @type {Tab[]} */ (await Promise.all([
         browser.tabs.move(pinnedTabs.map(tab => tab.id), { windowId, index }),
         browser.tabs.move(unpinnedTabs.map(tab => tab.id), { windowId, index: -1 }),
     ])).flat();
@@ -179,13 +180,13 @@ function splitTabsByPinnedState(tabs) {
 
 /**
  * Recreate given tabs in a given window and remove given tabs.
- * @param {ActionRequest} request
+ * @param {WindowTargetTabActionRequest} request
  * @returns {Promise<Tab[]>}
  */
 async function reopenTabs({ tabs, windowId, keep_moved_tabs_selected }) {
     const groupIdTabIdMap = new GroupIdTabIdMap();
-    /** @type {(ProtoTab & { groupId: GroupId })[]} */ const protoTabs = [];
-    /** @type {TabId[]} */ const oldTabIds = [];
+    const protoTabs = /** @type {(ProtoTab & { groupId: GroupId })[]} */ ([]);
+    const oldTabIds = /** @type {TabId[]} */ ([]);
 
     for (const { active, groupId, id, pinned, title, url } of tabs) {
         const protoTab = {

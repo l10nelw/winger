@@ -2,7 +2,6 @@
 // `init()` loads all data from local storage, filling any absent values with default values, and places the data in session storage.
 // The data can be read from session storage using `getDict()` and `getValue()`.
 // The data can be updated using `set()` which writes to both session and local storage.
-// "_"-prefixed data keys are considered temporary (session-only) and are never saved to local storage.
 
 /** @import { SubscriptionDict } from './types.js' */
 

@@ -10,7 +10,7 @@ import completeUpdate from './update.js';
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 
-/** @import { Tab, Window, WindowId, WInfo } from '../types.js' */
+/** @import { Tab, Window, WindowId } from '../types.js' */
 
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onFocusChanged.addListener(onWindowFocusChanged);
@@ -32,7 +32,6 @@ async function onWindowCreated(window) {
 
     handleDetachedTabs(windowId); // In case window created from detached tabs
 
-    /** @type {[number?, WInfo[]]} */
     const [firstSeen, winfos] = await Promise.all([
         Winfo.loadFirstSeen(windowId),
         Winfo.getAll(['givenName']),

@@ -50,10 +50,9 @@ async function unstashFolder(folder, remove) {
     const [name, protoWindow] = StashProp.Window.parse(folder.title);
     console.info(`Unstashing folder id ${folderId}: ${name}...`);
 
-    /** @type {[Object<string, BNode[]>, Window, boolean]} */
-    const [{ bookmarks, subfolders }, window, unstash_auto_name] = await Promise.all([
+    const [window, { bookmarks, subfolders }, unstash_auto_name] = await Promise.all([
+        /** @type {Promise<Window>} */ (browser.windows.create(protoWindow)),
         readFolder(folderId),
-        browser.windows.create(protoWindow),
         Storage.getValue('unstash_auto_name'),
     ]);
     const windowId = window.id;
@@ -114,9 +113,8 @@ async function populateWindow(window, bookmarks) {
     const protoTabs = bookmarks.map(({ title, url }) => ({ windowId, url, ...StashProp.Tab.parse(title) }));
 
     await StashProp.Tab.preOpen(protoTabs, window);
-    const openingTabs = protoTabs.map(protoTab => openTab(protoTab));
-
-    Promise.any(openingTabs).then(() => browser.tabs.remove(window.tabs[0].id)); // Remove initial tab
+    const openingTabs = protoTabs.map(openTab);
+    Promise.any(openingTabs).then(() => browser.tabs.remove(window.tabs[0].id)); // Remove the initial tab that came with the new window
     const tabs = await Promise.all(openingTabs);
     StashProp.Tab.postOpen(tabs, protoTabs);
 }

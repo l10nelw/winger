@@ -12,9 +12,8 @@ export class GroupIdTabIdMap extends GroupMap {
      * @param {Tab[]} tabs
      */
     addTabsIfGroup(tabs) {
-        for (const tab of tabs)
-            if (tab.groupId !== -1)
-                this.group(tab.groupId, tab.id);
+        for (const tab of tabs) if (tab.groupId !== -1)
+            this.group(tab.groupId, tab.id);
     }
 
     /**
