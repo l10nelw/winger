@@ -260,14 +260,15 @@ async function onFieldChanged({ target: $field }) {
     // After save
     switch (fieldName) {
         case 'set_title_preface':
-            if (!$field.checked)
+            if (!$form.set_title_preface.checked) {
                 browser.runtime.sendMessage({ type: 'clear', component: 'TitlePreface' });
-            return;
+                return;
+            }
         case 'title_preface_prefix':
         case 'title_preface_postfix':
         case 'assert_title_preface':
         case 'show_badge':
-            if (!$field.checked) {
+            if (!$form.show_badge.checked) {
                 browser.runtime.sendMessage({ type: 'clear', component: 'Badge' });
                 return;
             }
