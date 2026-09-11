@@ -25,6 +25,12 @@ label {
 
     small {
         font-style: italic;
+
+        kbd {
+            font-style: normal;
+            display: inline-block;
+            transform: skewX(-12deg);
+        }
     }
 }
 

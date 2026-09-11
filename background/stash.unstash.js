@@ -1,4 +1,4 @@
-import { getChildNodes, getNode, nowUnstashing, removeNode } from './stash.core.js';
+import { getChildNodes, getNode, homeId, isRootId, nowUnstashing, removeNode } from './stash.core.js';
 import * as StashProp from './stash.prop.js';
 
 import * as Action from './action.js';
@@ -16,12 +16,39 @@ import * as Storage from '../storage.js';
  * @param {boolean} [remove=true]
  */
 export async function unstashNode(nodeId, remove = true) {
-    const node = await getNode(nodeId);
+    const [node, unstash_copy_outside_home] = await Promise.all([
+        getNode(nodeId),
+        Storage.getValue('unstash_copy_outside_home'),
+    ]);
+    if (remove && unstash_copy_outside_home && !await isInsideHome(node))
+        remove = false;
     switch (node.type) {
         case 'bookmark':
             return unstashBookmark(node, remove);
         case 'folder':
             return unstashFolder(node, remove);
+    }
+}
+
+/**
+ * Check if a node is inside (and is not) the home folder, at any level deep.
+ * @param {BNode} targetNode
+ * @returns {Promise<boolean>}
+ */
+async function isInsideHome(targetNode) {
+    const _homeId = await homeId;
+    if (targetNode.id === _homeId) // Is itself the home folder
+        return false;
+
+    // Walk up parent nodes
+    let node = targetNode;
+    while (true) {
+        const { parentId } = node;
+        if (parentId === _homeId) // targetNode has a home folder ancestor
+            return true;
+        if (isRootId(parentId)) // Reached a root ancestor (dead end)
+            return false;
+        node = await getNode(parentId);
     }
 }
 
