@@ -13,6 +13,8 @@ export const STORED_PROPS = {
     show_popup_send_btn: true,
     keep_moved_tabs_selected: true,
 
+    load_reopened_tab: false,
+
     discard_minimized_window: false,
     discard_minimized_window_delay_mins: 0,
     minimize_kick_window: false,

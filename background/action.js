@@ -184,13 +184,14 @@ function splitTabsByPinnedState(tabs) {
  * @returns {Promise<Tab[]>}
  */
 async function reopenTabs({ tabs, windowId, keep_moved_tabs_selected }) {
+    const discarded = !await Storage.getValue('load_reopened_tab');
     const groupIdTabIdMap = new GroupIdTabIdMap();
     const protoTabs = /** @type {(ProtoTab & { groupId: GroupId })[]} */ ([]);
     const oldTabIds = /** @type {TabId[]} */ ([]);
 
     for (const { active, groupId, id, pinned, title, url } of tabs) {
         const protoTab = {
-            windowId, discarded: true,
+            windowId, discarded,
             pinned, title, url,
         };
         if (keep_moved_tabs_selected && active)

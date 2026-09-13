@@ -140,9 +140,10 @@ async function populateWindow(window, bookmarks) {
     if (!bookmarks.length)
         return;
 
+    const discarded = !await Storage.getValue('load_reopened_tab');
     const windowId = window.id;
     /** @type {ProtoTab[]} */
-    const protoTabs = bookmarks.map(({ title, url }) => ({ windowId, url, ...StashProp.Tab.parse(title) }));
+    const protoTabs = bookmarks.map(({ title, url }) => ({ discarded, windowId, url, ...StashProp.Tab.parse(title) }));
 
     await StashProp.Tab.preOpen(protoTabs, window);
     const openingTabs = protoTabs.map(openTab);
@@ -157,7 +158,6 @@ async function populateWindow(window, bookmarks) {
  */
 async function openTab(protoTab) {
     const safeProtoTab = StashProp.Tab.scrub(protoTab);
-    safeProtoTab.discarded = true;
     const tab = await Action.openTab(safeProtoTab);
     console.info(`Unstashed tab id ${tab.id}: ${tab.url} | ${tab.title}`);
     return tab;
