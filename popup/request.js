@@ -74,7 +74,7 @@ export async function action({ event, modifiers, command, argument, $action }) {
     if ($row === $newWindowRow) {
         request.argument = $row.$name.value;
         request.action = ({ switch: 'new', send: 'kick', bring: 'pop' })[action];
-        if (FLAGS.allow_private && request.action !== 'new')
+        if (FLAGS.allow_private)
             request.action += $row.classList.contains('private') ? 'private' : 'normal';
     } else
     if ($row.matches('.tabless')) {
