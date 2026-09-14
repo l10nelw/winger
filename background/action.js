@@ -106,12 +106,12 @@ async function bringTabs(request) {
  * @returns {Promise<Tab[]>}
  */
 async function sendTabs(request) {
-    const [tabs, { keep_moved_tabs_selected, discard_minimized_window }] = await Promise.all([
+    const [tabs, { discard_minimized_window, ...config }] = await Promise.all([
         request.tabs ?? getSelectedTabs(), // If tabs not given in request, get selected tabs
-        Storage.getDict(['keep_moved_tabs_selected', 'discard_minimized_window']),
+        Storage.getDict(['discard_minimized_window', 'keep_moved_tabs_selected', 'move_tabs_to_start']),
     ]);
     request.tabs ??= tabs;
-    request.keep_moved_tabs_selected = keep_moved_tabs_selected;
+    Object.assign(request, config);
 
     const movedTabs = await moveTabs(request);
     if (movedTabs.length) {
@@ -131,22 +131,24 @@ async function sendTabs(request) {
  * @param {WindowTargetTabActionRequest} request
  * @returns {Promise<Tab[]>}
  */
-async function moveTabs({ tabs, windowId, keep_moved_tabs_selected }) {
+async function moveTabs({ tabs, windowId, keep_moved_tabs_selected, move_tabs_to_start }) {
+    const groupIdTabIdMap = new GroupIdTabIdMap(); // Takes note of groups to be "moved", if all their tabs participate in the move
+    const [groups, destinationPinnedTabs] = await Promise.all([
+        (async () => {
+            groupIdTabIdMap.addTabsIfGroup(tabs);
+            await groupIdTabIdMap.removePartialGroupEntries();
+            return groupIdTabIdMap.getGroups();
+        })(),
+        /** @type {Tab[]} */
+        (browser.tabs.query({ windowId, pinned: true })),
+    ]);
     const [pinnedTabs, unpinnedTabs] = splitTabsByPinnedState(tabs);
-
-    // Get destination index for pinned tabs, since they cannot be moved to index -1 if unpinned tabs exist at destination
-    const index = pinnedTabs.length ?
-        (await browser.tabs.query({ windowId, pinned: true })).length : 0;
-
-    // Take note of groups to be "moved", if all of its tabs are participating in the move
-    const groupIdTabIdMap = new GroupIdTabIdMap();
-    groupIdTabIdMap.addTabsIfGroup(tabs);
-    await groupIdTabIdMap.removePartialGroupEntries();
-    const groups = await groupIdTabIdMap.getGroups();
+    const pinnedMoveConfig = { windowId, index: move_tabs_to_start ? 0 : destinationPinnedTabs.length };
+    const unpinnedMoveConfig = { windowId, index: move_tabs_to_start ? destinationPinnedTabs.length : -1 };
 
     const movedTabs = /** @type {Tab[]} */ (await Promise.all([
-        browser.tabs.move(pinnedTabs.map(tab => tab.id), { windowId, index }),
-        browser.tabs.move(unpinnedTabs.map(tab => tab.id), { windowId, index: -1 }),
+        browser.tabs.move(pinnedTabs.map(tab => tab.id), pinnedMoveConfig),
+        browser.tabs.move(unpinnedTabs.map(tab => tab.id), unpinnedMoveConfig),
     ])).flat();
 
     if (!movedTabs.length)
@@ -183,15 +185,18 @@ function splitTabsByPinnedState(tabs) {
  * @param {WindowTargetTabActionRequest} request
  * @returns {Promise<Tab[]>}
  */
-async function reopenTabs({ tabs, windowId, keep_moved_tabs_selected }) {
+async function reopenTabs({ tabs, windowId, keep_moved_tabs_selected, move_tabs_to_start }) {
     const discarded = !await Storage.getValue('load_reopened_tab');
+    const index = move_tabs_to_start ? 0 : -1;
     const groupIdTabIdMap = new GroupIdTabIdMap();
     const protoTabs = /** @type {(ProtoTab & { groupId: GroupId })[]} */ ([]);
     const oldTabIds = /** @type {TabId[]} */ ([]);
 
+    if (move_tabs_to_start)
+        tabs.reverse();
     for (const { active, groupId, id, pinned, title, url } of tabs) {
         const protoTab = {
-            windowId, discarded,
+            discarded, index, windowId,
             pinned, title, url,
         };
         if (keep_moved_tabs_selected && active)

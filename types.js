@@ -134,6 +134,7 @@
  * @property {string} [argument]
  * @property {BNodeId} [folderId]
  * @property {boolean} [keep_moved_tabs_selected]
+ * @property {boolean} [move_tabs_to_start]
  * @property {string} [name]
  * @property {boolean} [remove]
  * @property {boolean} [sendToMinimized]
