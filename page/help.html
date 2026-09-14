@@ -22,7 +22,7 @@
         <span style="font-size: 2.5rem; font-weight: normal"><b>Winger</b>: A <b>Win</b>dow Mana<b>ger</b></span>
         <br><b>A Comprehensive Guide</b>
       </h1>
-      <p>Last updated for v2.12.0 (26 Feb 2026)
+      <p>Last updated for v2.13.0 (15 Sept 2026)
         <br><label><input type="checkbox" id="open_help_on_update"> Show this page after every non-patch release</label>
         <br><a href="https://addons.mozilla.org/firefox/addon/winger/versions/" target="_blank">View release notes</a>
       </p>
@@ -66,7 +66,7 @@
           <p><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> to open a new private window</p>
         </div>
         <div class="bordered-left lastchild-mb0 pl1 mx1">
-          <p>Tear off tabs: With your pointer, drag-and-drop a tab off the tab bar to create a new window with it</p>
+          <p>Tear off tabs: With your pointer, drag-and-drop a tab off the tabstrip to create a new window with it</p>
         </div>
         <div class="bordered-left lastchild-mb0 pl1 mx1 children-m0">
           <p><kbd>Shift</kbd>+click a link to open it in a new window</p>
@@ -108,7 +108,7 @@
           <ul class="mx1" style="list-style-type: '💡 '">
             <li>You can always check what the keyboard shortcut is by hovering your pointer over the Winger button.</li>
             <li>If you don't see it on your browser toolbar, click on the 🧩 Extensions button, look for Winger, right-click it and choose <cite>Pin to Toolbar</cite>.</li>
-            <li>You can move browser toolbar buttons onto the tab bar &ndash; a reasonable spot for tab/window-related buttons! To be able to move buttons around, right-click the toolbar and click <cite>Customize Toolbar</cite>.</li>
+            <li>You can move browser toolbar buttons onto the tabstrip &ndash; a reasonable spot for tab/window-related buttons! To be able to move buttons around, right-click the toolbar and click <cite>Customize Toolbar</cite>.</li>
           </ul>
         </div>
       </section>
@@ -226,8 +226,8 @@
             <h3>Reopened tabs</h3>
             <p>Reopened tabs are the result of sending/bringing tabs between normal and private windows, and also the result of <a href="#stash">unstashing</a>.</p>
             <ul>
-              <li><p>By default, reopened tabs start out in an unloaded state, if possible. This ensures actions remain non-intensive and instantaneous, no matter how many tabs. You can have them always load instead via <button type="button" class="settingsBtn">Settings</button>.</p></li>
-              <li><p>Reopened tabs with privileged URLs that Winger cannot open ("about:" pages, local files, etc) become temporary <strong>placeholder tabs</strong>. Placeholder tabs will inform you of a manual step required to properly restore them. <a href="/page/placeholder.html?url=about:protections&title=Protections Dashboard" target="_blank">(Example)</a></p></li>
+              <li><p>By default, reopened tabs start out in an unloaded state if possible. This ensures actions remain non-intensive and instantaneous, no matter how many tabs. You can have  them always load instead via <button type="button" class="settingsBtn">Settings</button>.</p></li>
+              <li><p>Privileged URLs that Winger cannot open ("about:" pages, local files, etc) produce temporary <strong>placeholder tabs</strong>. Placeholder tabs will inform you of a manual step required to properly restore them. <a href="/page/placeholder.html?url=about:protections&title=Protections Dashboard" target="_blank">(Example)</a></p></li>
               <li><p>Reopening preserves pinned tabs, tab groups and reader views, but <em>not</em> most other tab/page states such as tab history, scroll position and unsubmitted form data. Container tabs lose their container states in private windows.</p></li>
             </ul>
           </section>
@@ -250,7 +250,7 @@
             </p>
             <p>Names should be unique and may not start with a forward slash (<samp>/</samp>).</p>
             <p>A valid window name is saved when you press <kbd>Enter</kbd> in the name field, or when you de-target it (by clicking or navigating away). Invalid names, such as duplicates, are reverted upon any save attempts.</p>
-            <p>Closing the panel, by clicking outside it or by pressing <kbd>Esc</kbd>, exits edit mode without saving changes to a targeted name.</p>
+            <p>Closing the panel, by clicking outside it or by pressing <kbd>Esc</kbd>, exits edit mode without saving changes to the targeted name.</p>
           </section>
         </div>
         <div class="col">
@@ -421,7 +421,7 @@
         </section>
         <section class="col mx1 mb1">
           <h3>Open new windows</h3>
-          <p>Also when you type in the omnibox, a <strong>new window</strong> row appears at the end of the list. It represents a nonexistent window, named based on what you typed, and a basic action on it will create the destination window (private window if the private button is toggled on).</p>
+          <p>When you type in the omnibox, a <strong>new window</strong> row also appears at the end of the list. It represents a nonexistent window, named based on what you typed, and a basic action on it will create the destination window (private window if the private button is toggled on).</p>
           <p>Thus you can type an unused, unique enough name &ndash; which should leave only the new window row visible &ndash; and press <kbd>Enter</kbd> to open a new window by that name.</p>
         </section>
       </div>
@@ -485,7 +485,7 @@
             <dt><samp>/pop</samp> or <samp>/p</samp></dt>
             <dd class="mb1">
               ("Pop" tabs out of the current window)<br>
-              <strong>Bring</strong> selected tabs to a new window; private if current window is private. Equivalent to dragging selected tabs off the tab bar.<br>
+              <strong>Bring</strong> selected tabs to a new window; private if current window is private. Equivalent to dragging selected tabs off the tabstrip.<br>
               Name the window as well if a name follows the command e.g. <samp class="nowrap">/pop News</samp>.
             </dd>
             <dt><samp>/kick</samp> or <samp>/k</samp></dt>
@@ -640,6 +640,12 @@
       </div>
       <div class="row">
         <div class="col mr1">
+          <section id="stash-home" class="mx1-content mb2">
+            <h3>Stash home</h3>
+            <p>The <strong>stash home</strong> folder is where your stash folders live in. It can be one of the three <em>root folders</em> &ndash; Bookmarks Toolbar, Bookmarks Menu, Other Bookmarks &ndash; or a user-named folder inside a root folder. You can specify it in <button type="button" class="settingsBtn">Settings</button>.</p>
+            <p>Changing the stash home location will not move existing stash folders.</p>
+            <p>If the stash home is a root folder, its last separator is considered the <strong>stash separator</strong>, which partitions stash folders (after it) from other bookmark items (before it), if any. This allows you to have statically-positioned, non-stash items coexisting with stash folders. Winger will auto-add a separator if necessary.</p>
+          </section>
           <section class="mx1-content mb2">
             <h3>Stash-copy / Unstash-copy</h3>
             <p>Hold down <kbd>Shift</kbd> while invoking a stash/unstash action to make it <strong class="nowrap">non-destructive</strong>: windows/tabs being stashed are not closed, folders/bookmarks being unstashed are not deleted. This effectively lets you create "copies" of windows and tabs.</p>
@@ -649,12 +655,7 @@
               <li>Panel omnibox: <samp>/stash</samp> <kbd>Shift</kbd>+<kbd>Enter</kbd></li>
               <li>Bookmark context menu: <cite><u>W</u>inger</cite> &rarr; <kbd>Shift</kbd>+click <cite><u>S</u>end Tab Here</cite></li>
             </ul>
-          </section>
-          <section id="stash-home" class="mx1-content mb2">
-            <h3>Stash home</h3>
-            <p>The <strong>stash home</strong> folder is where your stash folders live in. It can be one of the three <em>root folders</em> &ndash; Bookmarks Toolbar, Bookmarks Menu, Other Bookmarks &ndash; or a user-named folder inside a root folder. You can specify it in <button type="button" class="settingsBtn">Settings</button>.</p>
-            <p>Changing the stash home location will not move existing stash folders.</p>
-            <p>If the stash home is a root folder, its last separator is considered the <strong>stash separator</strong>, which partitions stash folders (after it) from other bookmark items (before it), if any. This allows you to have statically-positioned, non-stash items coexisting with stash folders. Winger will auto-add a separator if necessary.</p>
+            <p>In <button type="button" class="settingsBtn">Settings</button> you can enable a feature that allows only items <em>inside the stash home</em> to be unstashed normally, while everything else can only be unstash-copied.</p>
           </section>
         </div>
         <div class="col">
@@ -665,15 +666,15 @@
               <li>
                 <p>With Firefox's bookmark syncing, you can stash windows in one profile/computer and unstash them on another &ndash; effectively moving browser windows between profiles/computers!</p>
                 <ul>
-                  <li><p>Ensure container names are unique <em>within</em> each profile/computer. Stashing captures only names of containers, so duplicates may lead to unstashing tabs into wrong containers. However the benefit is portability <em>across</em> profiles/computers: Since a "Personal" container on one, for example, is likely used the same way as a "Personal" container on another, you should feel free to unstash "Personal" tabs anywhere.</p></li>
+                  <li><p>Ensure container names are unique <em>within</em> each profile/computer. Stashing captures only names of containers, so non-unique names can lead to unstashing tabs into wrong containers. However the benefit is portability <em>across</em> profiles/computers: Since a "Personal" container on one, for example, is likely used the same way as a "Personal" container on another, you should feel free to unstash "Personal" tabs anywhere.</p></li>
                 </ul>
               </li>
               <li>
                 <p>You are welcome to manipulate stashes like regular bookmarks and folders: add, edit, delete, reorder, and so on.</p>
                 <ul>
                   <li><p>You can move folders in and out of the stash home to include or exclude them for display in the panel.</p></li>
-                  <li><p>Winger ignores invalid or incorrect annotations. So you can move a "container tab" bookmark into a "private window" folder, an "active tab" bookmark into a folder that already has one, etc... and nothing surprising will happen when unstashed. You can also manually edit/add/remove annotations with little risk.</p></li>
-                  <li><p class="js-cmdOnMac">If you deleted a bookmark or folder by accident, no worries: Go to <cite>Manage Bookmarks</cite> (via browser's <cite><u>B</u>ookmarks</cite> menu or via shortcut <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd>), and press <span><kbd>Ctrl</kbd>+<kbd>Z</kbd></span> to <strong>undo</strong> the last bookmark action.</p></li>
+                  <li><p>Winger ignores invalid annotations. You can move a "container tab" bookmark into a "private window" folder, an "active tab" bookmark into a folder that already has one, etc... and nothing surprising will happen when unstashed (no containers in private windows, one of the bookmarks becomes the active tab, etc). You can also manually edit/add/remove annotations with little risk, if you know what you're doing.</p></li>
+                  <li><p class="js-cmdOnMac">If you deleted a bookmark or folder by accident, no worries! Go to <cite>Manage Bookmarks</cite> (via browser's <cite><u>B</u>ookmarks</cite> menu or via shortcut <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd>), and press <span><kbd>Ctrl</kbd>+<kbd>Z</kbd></span> to <strong>undo</strong> the last bookmark action.</p></li>
                 </ul>
               </li>
             </ul>
@@ -695,9 +696,9 @@
           <p>If you are hunting for a browser window among several, don't bother <kbd>Alt</kbd>+<kbd>Tab</kbd>-ing endlessly. Just <a href="#find">type in the omnibox</a> the name of the window you want.</p>
         </li>
         <li>
-          <p>Minimize windows to "set aside for later" &ndash; Winger lists them last on the panel, out of your way so to speak.</p>
+          <p>Minimize windows to "set aside for later". Winger lists them last on the panel &ndash; out of your way, so to speak.</p>
           <ul>
-            <li><p>Wish you could "pin" windows on the panel so they stay near the top? Just minimize everything (Windows/Linux <kbd>Win</kbd>+<kbd>M</kbd>; MacOS <kbd>Cmd</kbd>+<kbd>Opt</kbd>+<kbd>M</kbd>) and then restore the few windows you want to focus on. <em>Voilà.</em></p></li>
+            <li><p>Wish you could "pin" windows on the panel so they stay near the top? Just minimize everything (Windows/Linux <kbd>Win</kbd>+<kbd>M</kbd>; MacOS <kbd>Cmd</kbd>+<kbd>Opt</kbd>+<kbd>M</kbd>) and then restore the few windows you want to focus on.</p></li>
           </ul>
         </li>
         <li>
@@ -709,7 +710,7 @@
           <ul>
             <li><p>Tab unload (a.k.a. discard, suspend) extensions are a popular way to wield this ability with greater control, for example if you prefer a more aggressive treatment than Firefox's (recommended with <em>lots</em> of tabs).</p></li>
             <li><p>Winger can provide a simple treatment: unload tabs in minimized windows, including any tabs sent to them. If this suits you, enable it in <button type="button" class="settingsBtn">Settings</button>.</p></li>
-            <li><p><em>You can have too many windows</em>, even with tab unloading, because every window has a current tab that cannot be unloaded. A way around this problem is to have a blank/new/home tab as the current one for as many of your idle windows as possible.</p></li>
+            <li><p><em>You can have too many windows</em>, even with tab unloading, because every window has a current tab that cannot be unloaded. A way around this issue is to have a blank/new/home tab as the current one for as many of your idle windows as possible.</p></li>
           </ul>
         </li>
         <li>
