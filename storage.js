@@ -17,7 +17,7 @@ export const STORED_PROPS = {
     load_reopened_tab: false,
 
     discard_minimized_window: false,
-    discard_minimized_window_delay_mins: 0,
+    discard_minimized_window_delay_mins: .5,
     minimize_kick_window: false,
 
     show_badge: false,
